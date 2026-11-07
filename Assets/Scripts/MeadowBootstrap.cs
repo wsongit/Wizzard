@@ -28,11 +28,17 @@ namespace Wizzard
             var camera=head.AddComponent<Camera>(); camera.nearClipPlane=.06f; camera.farClipPlane=1200;
             camera.clearFlags=CameraClearFlags.SolidColor; camera.backgroundColor=new Color(.56f,.74f,.83f);
             head.AddComponent<AudioListener>();
-            var fur=new Material(Shader.Find("Standard")) {color=new Color(.43f,.27f,.17f)};
-            var skin=new Material(Shader.Find("Standard")) {color=new Color(.72f,.55f,.34f)};
+            var fur=RetroMaterials.Get("Fur");
+            var skin=RetroMaterials.Get("Skin");
             var body=Visual("Gorilla torso",rig.transform,new Vector3(.48f,.58f,.28f),fur);
             var torso=Resources.Load<GameObject>("GorillaTorso");
             if(torso!=null) { Destroy(body); body=Instantiate(torso,rig.transform); body.name="Blender gorilla torso"; }
+            foreach(var renderer in body.GetComponentsInChildren<Renderer>())
+            {
+                var materials=renderer.sharedMaterials;
+                for(int i=0;i<materials.Length;i++) materials[i]=materials[i]!=null && materials[i].name.Contains("muzzle")?skin:fur;
+                renderer.sharedMaterials=materials;
+            }
             var left=Visual("Left palm",rig.transform,Vector3.one*.19f,skin);
             var right=Visual("Right palm",rig.transform,Vector3.one*.19f,skin);
             var player=rig.AddComponent<GorillaPlayer>();

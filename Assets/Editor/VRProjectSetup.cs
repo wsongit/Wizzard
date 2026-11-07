@@ -71,6 +71,7 @@ namespace Wizzard.Editor
             var tags=new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
             tags.FindProperty("layers").GetArrayElementAtIndex(MeadowWorld.GroundLayer).stringValue="Climbable";
             tags.ApplyModifiedPropertiesWithoutUndo();
+            RetroMaterialLibrary.Create();
             PlayerSettings.companyName="Wizzard"; PlayerSettings.productName="The Long Meadow";
             EditorBuildSettings.scenes=new[]{new EditorBuildSettingsScene("Assets/Scenes/Meadow.unity",true)};
             EditorUtility.SetDirty(targets);

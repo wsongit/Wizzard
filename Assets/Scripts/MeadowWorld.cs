@@ -20,27 +20,15 @@ namespace Wizzard
         }
         public static Texture2D GrassTexture()
         {
-            var texture = new Texture2D(32, 32, TextureFormat.RGB24, false);
-            texture.name = "Original 32px meadow grass";
-            texture.filterMode = FilterMode.Point;
-            texture.wrapMode = TextureWrapMode.Repeat;
-            var random = new System.Random(641997);
-            for (int y=0; y<32; y++) for (int x=0; x<32; x++)
-            {
-                float t=(float)random.NextDouble();
-                Color c = t < .13f ? new Color(.26f,.36f,.10f) :
-                          t > .84f ? new Color(.53f,.61f,.23f) : new Color(.40f,.51f,.16f);
-                texture.SetPixel(x,y,c);
-            }
-            texture.Apply(); return texture;
+            return RetroMaterials.Get("Grass").mainTexture as Texture2D;
         }
         void Awake()
         {
-            var material = new Material(Shader.Find("Wizzard/RetroGrass"));
-            material.mainTexture = GrassTexture();
+            var material=RetroMaterials.Get("Grass");
             for(int z=0; z<8; z++) for(int x=0; x<8; x++) CreateChunk(x,z,material);
             CreateLandmarks();
         }
+
         void CreateChunk(int cx, int cz, Material material)
         {
             var vertices = new Vector3[33*33]; var uvs = new Vector2[vertices.Length];
@@ -67,9 +55,9 @@ namespace Wizzard
         }
         void CreateLandmarks()
         {
-            var stone = new Material(Shader.Find("Standard")) {color=new Color(.44f,.43f,.34f)};
-            var bark = new Material(Shader.Find("Standard")) {color=new Color(.29f,.18f,.09f)};
-            var leaf = new Material(Shader.Find("Standard")) {color=new Color(.23f,.35f,.11f)};
+            var stone = RetroMaterials.Get("Stone");
+            var bark = RetroMaterials.Get("Bark");
+            var leaf = RetroMaterials.Get("Leaves");
             var random = new System.Random(197);
             for(int i=0;i<48;i++)
             {

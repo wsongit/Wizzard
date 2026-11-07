@@ -22,7 +22,7 @@ namespace Wizzard
         void Awake()
         {
             motor=GetComponent<CharacterController>();
-            var fur=new Material(Shader.Find("Standard")) {color=new Color(.43f,.27f,.17f)};
+            var fur=RetroMaterials.Get("Fur");
             for(int i=0;i<2;i++)
             {
                 var arm=GameObject.CreatePrimitive(PrimitiveType.Capsule);
