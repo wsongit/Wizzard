@@ -18,7 +18,7 @@ namespace Wizzard
                 {
                     foliage[i]=new Material(RetroMaterials.Get("Leaves"));
                     foliage[i].name=$"Tree foliage shade {i}";
-                    float shade=.85f+i*.1f;
+                    float shade=.96f+i*.035f;
                     foliage[i].SetColor("_Color",new Color(shade,shade,shade,1));
                 }
             }

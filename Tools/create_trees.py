@@ -8,7 +8,7 @@ bpy.ops.object.select_all(action='SELECT'); bpy.ops.object.delete(use_global=Fal
 def mat(name,color):
     m=bpy.data.materials.new(name); m.diffuse_color=(*color,1); return m
 bark=mat('Bark',(.29,.21,.13))
-leaves=[mat('Leaves'+str(i),c) for i,c in enumerate([(.34,.43,.20),(.40,.48,.25),(.29,.38,.17),(.45,.51,.29)])]
+leaves=[mat('Leaves'+str(i),c) for i,c in enumerate([(.28,.50,.10),(.31,.54,.12),(.26,.48,.09),(.34,.56,.14)])]
 profiles=[('Round',5.5,2.2,5),('Tall',7.5,1.8,5),('Wide',5.0,3.0,6),('Leaning',6.0,2.2,5),('Forked',6.5,2.3,6),('Young',4.3,1.5,4),('Old',6.2,2.9,7),('Asymmetric',6.0,2.1,6)]
 def branch(name,a,b,r1,r2):
     d=Vector(b)-Vector(a)
