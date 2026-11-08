@@ -6,19 +6,26 @@ root=Path(__file__).resolve().parents[1]; out=root/'Assets/Resources/Village'; o
 bpy.ops.object.select_all(action='SELECT'); bpy.ops.object.delete(use_global=False)
 def mat(name,color):
  m=bpy.data.materials.new(name); m.diffuse_color=(*color,1); return m
-materials={n:mat(n,c) for n,c in {'HousePlaster':(.65,.57,.38),'RoofTiles':(.43,.22,.12),'Wood':(.30,.18,.07),'Stone':(.40,.42,.30),'Grass':(.32,.42,.12),'Leaves':(.27,.51,.09),'Bark':(.24,.16,.08),'Arrival':(0,0,0),'Exit':(0,0,0)}.items()}
+materials={n:mat(n,c) for n,c in {'HousePlaster':(.65,.57,.38),'RoofTiles':(.43,.22,.12),'Wood':(.30,.18,.07),'Stone':(.40,.42,.30),'Grass':(.32,.42,.12),'Leaves':(.27,.51,.09),'Bark':(.24,.16,.08),'Masonry':(.39,.40,.31),'RoofSlate':(.22,.24,.32),'EarthCliff':(.46,.39,.24),'Brick':(.46,.24,.17),'Arrival':(0,0,0),'Exit':(0,0,0)}.items()}
 def cube(name,pos,scale,material):
  bpy.ops.mesh.primitive_cube_add(size=1,location=pos);o=bpy.context.object;o.name=name;o.scale=scale;o.data.materials.append(materials[material]);return o
 
 def mesh(name,verts,faces,material):
  m=bpy.data.meshes.new(name);m.from_pydata(verts,[],faces);m.update();o=bpy.data.objects.new(name,m);bpy.context.collection.objects.link(o);o.data.materials.append(materials[material]);return o
 
-def roof(x,y,z,w,d):
+def roof(x,y,z,w,d,material='RoofTiles'):
  v=[(x-w/2,y-d/2,z),(x+w/2,y-d/2,z),(x-w/2,y+d/2,z),(x+w/2,y+d/2,z),(x,y-d/2,z+2),(x,y+d/2,z+2)]
- mesh('Gabled tiled roof',v,[(0,2,5,4),(4,5,3,1),(0,4,1),(2,3,5),(0,1,3,2)],'RoofTiles')
+ mesh('Gabled tiled roof',v,[(0,2,5,4),(4,5,3,1),(0,4,1),(2,3,5),(0,1,3,2)],material)
 
 def house(x,y,w,d,h=4,base=0):
- cube('Plaster cottage',(x,y,base+h/2),(w,d,h),'HousePlaster');roof(x,y,base+h,w+1,d+1)
+ surface='Brick' if x>20 and y<0 else 'HousePlaster'
+ cube('Cottage walls',(x,y,base+h/2),(w,d,h),surface)
+ cube('Stone foundation',(x,y,base+.25),(w+.2,d+.2,.5),'Masonry')
+ roof(x,y,base+h,w+1,d+1,'RoofSlate' if x>0 else 'RoofTiles')
+ # Pale window surrounds and dark slatted shutters.
+ for dx in (-w*.29,w*.29):
+  cube('Window surround',(x+dx,y-d/2-.06,base+2.4),(1.25,.13,1.45),'HousePlaster')
+  for z in range(4):cube('Shutter slat',(x+dx,y-d/2-.16,base+2.0+z*.26),(.95,.08,.09),'Bark')
  cube('Timber door',(x,y-d/2-.035,base+1.1),(1.3,.08,2.2),'Wood')
  for dx in (-w*.29,w*.29):
   cube('Shutter',(x+dx,y-d/2-.08,base+2.4),(1,.12,1.2),'Wood')
@@ -27,17 +34,18 @@ def house(x,y,w,d,h=4,base=0):
  cube('Chimney',(x+w*.25,y+1,base+h+1.6),(.8,.8,2.6),'Stone')
 # Walkable base, upper terrace, continuous low steps and ochre paths.
 cube('Village floor',(0,0,-.5),(136,150,1),'Grass')
-cube('Upper terrace',(0,44,1),(116,48,2),'Stone')
+cube('Upper terrace',(0,44,1),(116,48,2),'Masonry')
 cube('Upper lawn',(0,44,2.01),(115,47,.08),'Grass')
 for i in range(20):cube('Terrace step',(0,8+i*.6,(i+1)*.05),(9,.62,(i+1)*.1),'Stone')
 cube('Upper stair landing',(0,20,1),(9,1.2,2),'Stone')
 cube('Entrance path',(0,-37,.035),(6,52,.07),'HousePlaster');cube('Well square',(0,-7,.05),(32,24,.1),'HousePlaster')
 for x,y,w,d,h,b in [(-25,-37,9,8,4,0),(25,-35,11,9,4.5,0),(-28,-11,10,9,4,0),(27,-4,10,9,4,0),(-38,13,9,8,4,0),(37,11,11,9,4,0),(-29,35,12,10,4.5,2.05),(25,42,10,9,4,2.05),(0,52,16,12,5,2.05)]:house(x,y,w,d,h,b)
 # Hollow stone well ring, roof and supports.
-for i in range(12):
- a=i*math.tau/12;o=cube('Well rim',(math.cos(a)*2.2,-7+math.sin(a)*2.2,.7),(1.15,.5,1.4),'Stone');o.rotation_euler.z=a+math.pi/2
+for i in range(8):
+ a=i*math.tau/8;o=cube('Well rim',(math.cos(a)*2.2,-7+math.sin(a)*2.2,.7),(1.8,.55,1.4),'Masonry');o.rotation_euler.z=a+math.pi/2
 for x in (-2.5,2.5):cube('Well post',(x,-7,2.4),(.3,.3,4.8),'Wood')
-roof(0,-7,4.8,7,5)
+cube('Well winch beam',(0,-7,4.6),(5.5,.3,.3),'Wood')
+cube('Well winch',(0,-7,2.8),(4.6,.22,.22),'Wood')
 # Watchtower with crossbeams and a climbable ladder.
 for x in (-2,2):
  for y in (-2,2):cube('Tower post',(33+x,-22+y,4),(.45,.45,8),'Wood')
@@ -51,13 +59,36 @@ for x in (-40,-32,-24):
  for y in range(50,58,2):cube('Vegetable row',(x,y,2.4),(4,.6,.5),'Leaves')
 for x in range(-48,-15,3):cube('Fence post',(x,61,3),(.18,.18,2),'Wood')
 for h in (2.6,3.3):cube('Fence rail',(-32,61,h),(34,.16,.16),'Wood')
-# Faceted enclosing cliffs leave a clear south entrance.
-for i in range(28):
- a=i*math.tau/28
- if math.sin(a)<-.92:continue
- x,y=math.cos(a)*76,math.sin(a)*82
- bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1,radius=1,location=(x,y,6))
- o=bpy.context.object;o.name='Enclosing mountain';o.scale=(15,16,14+(i%3)*3);o.data.materials.append(materials['Stone'])
+# Tall earthy cut faces and a grassy ridge, with an opening to the south.
+for i in range(32):
+ a=i*math.tau/32;b=(i+1)*math.tau/32
+ if math.sin((a+b)/2)<-.94:continue
+ def edge(angle,radius,height):
+  radius+=3*math.sin(angle*3)+2*math.sin(angle*7)
+  return (math.cos(angle)*radius,math.sin(angle)*(radius+7),height)
+ h1=17+3*math.sin(a*3);h2=17+3*math.sin(b*3)
+ mesh('Earth cliff', [edge(a,67,-1),edge(b,67,-1),edge(a,67,h1),edge(b,67,h2)],[(0,2,3,1)],'EarthCliff')
+ mesh('Grassy ridge',[edge(a,67,h1),edge(b,67,h2),edge(a,85,h1+6),edge(b,85,h2+6)],[(0,2,3,1)],'Grass')
+# Stone windmill on Mossbell's eastern upper terrace, with four timber sails.
+bpy.ops.mesh.primitive_cone_add(vertices=10,radius1=4,radius2=2.9,depth=11,location=(44,36,7.55))
+bpy.context.object.name='Windmill masonry';bpy.context.object.data.materials.append(materials['Masonry'])
+bpy.ops.mesh.primitive_cone_add(vertices=10,radius1=3.8,radius2=0,depth=3,location=(44,36,14.55))
+bpy.context.object.name='Windmill cap';bpy.context.object.data.materials.append(materials['RoofSlate'])
+cube('Windmill door',(44,31.95,3.2),(1.4,.12,2.3),'Wood')
+for blade in range(4):
+ angle=math.pi/4+blade*math.pi/2
+ for offset in (-.65,.65):
+  obj=cube('Sail spar',(44,31,12.5),( .12,.22,8),'Wood')
+  obj.location=Vector((44,31,12.5))+Vector((math.sin(angle)*4+math.cos(angle)*offset,0,math.cos(angle)*4-math.sin(angle)*offset))
+  obj.rotation_euler.y=angle
+ for rung in range(3,9):
+  obj=cube('Sail lattice',(44+math.sin(angle)*rung,31,12.5+math.cos(angle)*rung),(1.5,.15,.28),'HousePlaster');obj.rotation_euler.y=angle
+# Small fenced yard set away from the entrance and main route.
+for x in range(-47,-30,2):cube('Yard post',(x,-22,1),(.18,.18,2),'Wood')
+for y in range(-36,-21,2):cube('Yard post',(-47,y,1),(.18,.18,2),'Wood')
+for h in (.65,1.35):
+ cube('Yard rail',(-39,-22,h),(16,.16,.18),'Wood')
+ cube('Yard rail',(-47,-29,h),(.16,14,.18),'Wood')
 # Gate, path lamps, and meeting benches.
 for x in (-5,5):cube('Gate pier',(x,-62,3),(2,3,6),'Stone')
 cube('Gate lintel',(0,-62,6.2),(12,3,1),'Wood')

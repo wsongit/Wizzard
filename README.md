@@ -158,12 +158,16 @@ and title in both eyes, arrival facing the square, walking/collision, terrace
 stairs, exiting, repeat visits and tracking during fades on a physical Quest.
 These Unity/device checks remain unrun in this cloud environment.
 
-Reference research: requests to the following Kakariko reference pages were
-blocked by the cloud proxy (HTTP CONNECT 403); no additional online images were
-viewed or copied. This village is an original layout, not a recreation of that map.
-- https://www.zeldadungeon.net/wiki/Kakariko_Village
-- https://zelda.fandom.com/wiki/Kakariko_Village
+Reference research is now based on the user-supplied
+`Kakariko_Village_N64_100_JPGs.zip`. All 100 images were reviewed as contact
+sheets, with six exterior/landmark frames enlarged. See
+[reference notes](Documentation/kakariko-reference-notes.md) for observations
+and the changes made. Earlier online requests were blocked, but the uploaded
+images resolved the reference-access blocker.
 
-The two reference-site domain additions were saved to the environment settings
-draft, preserving existing Unity domains. Apply them there to unblock research;
-saving the draft alone does not change current network access.
+The refined village adds a stone windmill with four static lattice sails,
+cream and brick walls, red and slate roofs, detailed shutter surrounds, an
+open well with a wooden winch, a fenced yard, masonry foundations and retaining
+walls, and irregular grass-topped earth cliffs. Its roads, square and house
+positions retain Mossbell's original layout. New Masonry, RoofSlate, EarthCliff
+and Brick materials are available through the retro material library menu.
