@@ -1,21 +1,14 @@
-# Village wall repairs
+# Village wall and ground integrity
 
-The missing sections came from open meshes and gaps between separate cliff pieces. This repair adds geometry rather than disabling back-face culling.
+The current village uses one closed ground mesh and one continuous perimeter. The former detached cliff blocks and ramp shells have been replaced, removing the narrow spaces between them. Wall bases overlap the ground; wall tops and sides use explicit triangles shared with collision. Only the intended southern entrance is open.
 
-- A closed irregular backing connects the village perimeter. Its inner walls, outer walls, top, underside and ends are complete; the southern entrance stays open.
-- Rear cliff pieces and distant mountain ridges now have sides, backs and bottom caps. Side rocks have bottom caps.
-- Terrace wall tops meet their lawns. The moss fringe faces outward and sits slightly clear of the wall to avoid flickering.
-- Ramp shoulders have end caps and undersides. Ground extends under the perimeter instead of ending short of the walls.
-- The meadow's exterior entrance mountain now has a closed cross-section, including inner walls, a buried base and both end caps. Its existing entrance remains accessible. The same mesh is used for rendering and collision.
+Cottage cores extend through the attic and overlap closed roof slabs. Foundations, tree roots and fence-post bottoms meet the final terrain. See [current renders and validation](village-refresh.md), [whole-area integrity report](village-integrity-checks.json) and [placement report](village-placement-checks.json).
 
-The updated `.blend` and OBJ include the repaired village geometry and collision. See [inside view](village-walls-inside.png), [outside view](village-walls-outside.png), and [wall validation report](village-wall-checks.json). These are actual Blender inspection renders. Earlier comparison images document the preceding art rebuild.
-
-Blender checks passed for 30 closed shells: no boundary/nonmanifold edges, consistent face winding, and positive enclosed volume. Another 338 visibility rays checked the connected perimeter from inside and outside, excluding the entrance. All six existing route support/headroom checks and exported UV/index/texture checks passed. C# syntax was checked. The exterior runtime mesh was reviewed, but Unity compilation, physics and headset rendering remain untested because Unity and a headset are unavailable in this environment.
-
-Reproduce the village checks:
+The old `village-wall-checks.json` and `village-walls-inside.png` / `village-walls-outside.png` are historical records of the earlier separate-wall repair. Current checks supersede those per-piece tests. `Tools/check_village_walls.py` now forwards to the complete integrity audit.
 
 ```sh
-blender -b -t 8 --python-exit-code 1 --python Tools/create_village.py -- --no-render
-blender -b -t 8 --python-exit-code 1 --python Tools/check_village_walls.py
-python Tools/check_village_export.py
+blender -b -t 4 --python-exit-code 1 --python Tools/check_village_integrity.py
+blender -b -t 4 --python-exit-code 1 --python Tools/check_village_placements.py
 ```
+
+These checks inspect authored geometry. Unity import, physics and Quest traversal still need editor/device validation.

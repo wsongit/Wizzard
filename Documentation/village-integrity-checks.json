@@ -1,0 +1,497 @@
+{
+  "source": "/workspace/Wizzard/Blender/MossbellVillage.blend",
+  "limits": [
+    "Blender geometry probes, not Unity or Quest physics tests.",
+    "Ground coverage sampled every 0.5 m; this is not a proof against every possible player exploit.",
+    "A closed landform, closed roofs and continuous perimeter remove internal geometry cavities; runtime exterior/under-ground recovery must also be verified in Unity."
+  ],
+  "ground": {
+    "spacing_m": 0.5,
+    "bounds_xy": [
+      -55,
+      60,
+      -46,
+      68
+    ],
+    "samples": 52440,
+    "missing_ground": 0,
+    "wrong_top_normal": 0,
+    "internal_crossings_or_missing_bottom": 0,
+    "collision_mismatches": 0,
+    "max_visual_collision_delta_m": 0
+  },
+  "perimeter": {
+    "two_sided_triangle_rays": 4080,
+    "surface_failures": 0,
+    "floor_join_samples": 5406,
+    "floor_join_failures": 0,
+    "intentional_opening": "South village entrance, x=-4..4 at y=-34"
+  },
+  "closed_architecture": [
+    "Entrance west closed wall and attic core",
+    "Entrance west closed west roof",
+    "Entrance west closed east roof",
+    "Entrance east closed wall and attic core",
+    "Entrance east closed west roof",
+    "Entrance east closed east roof",
+    "Lower west closed wall and attic core",
+    "Lower west closed west roof",
+    "Lower west closed east roof",
+    "Lower west closed porch canopy",
+    "Lower east closed wall and attic core",
+    "Lower east closed west roof",
+    "Lower east closed east roof",
+    "Lower east closed porch canopy",
+    "Middle landmark closed wall and attic core",
+    "Middle landmark closed west roof",
+    "Middle landmark closed east roof",
+    "Back terrace cottage closed wall and attic core",
+    "Back terrace cottage closed west roof",
+    "Back terrace cottage closed east roof"
+  ],
+  "sealed_cottage_cores": [
+    "Entrance west closed wall and attic core",
+    "Entrance east closed wall and attic core",
+    "Lower west closed wall and attic core",
+    "Lower east closed wall and attic core",
+    "Middle landmark closed wall and attic core",
+    "Back terrace cottage closed wall and attic core"
+  ],
+  "building_support": [
+    {
+      "object": "Entrance west continuous stone footing",
+      "samples": 281,
+      "interior_samples": 218,
+      "max_float_m": 0,
+      "max_burial_above_footing_m": 0
+    },
+    {
+      "object": "Entrance east continuous stone footing",
+      "samples": 314,
+      "interior_samples": 247,
+      "max_float_m": 0,
+      "max_burial_above_footing_m": 0
+    },
+    {
+      "object": "Lower west continuous stone footing",
+      "samples": 236,
+      "interior_samples": 179,
+      "max_float_m": 0,
+      "max_burial_above_footing_m": 0
+    },
+    {
+      "object": "Lower east continuous stone footing",
+      "samples": 230,
+      "interior_samples": 173,
+      "max_float_m": 0,
+      "max_burial_above_footing_m": 0
+    },
+    {
+      "object": "Middle landmark continuous stone footing",
+      "samples": 282,
+      "interior_samples": 219,
+      "max_float_m": 0,
+      "max_burial_above_footing_m": 0
+    },
+    {
+      "object": "Back terrace cottage continuous stone footing",
+      "samples": 220,
+      "interior_samples": 165,
+      "max_float_m": 0,
+      "max_burial_above_footing_m": 0
+    }
+  ],
+  "tree_support": [
+    {
+      "object": "Oak 1 angular trunk",
+      "samples": 8,
+      "max_float_m": 0.0
+    },
+    {
+      "object": "Oak 2 angular trunk",
+      "samples": 8,
+      "max_float_m": 0
+    },
+    {
+      "object": "Oak 3 angular trunk",
+      "samples": 8,
+      "max_float_m": 0.0
+    },
+    {
+      "object": "Oak 4 angular trunk",
+      "samples": 8,
+      "max_float_m": 0
+    },
+    {
+      "object": "Oak 5 angular trunk",
+      "samples": 8,
+      "max_float_m": 0.0
+    },
+    {
+      "object": "Oak 6 angular trunk",
+      "samples": 8,
+      "max_float_m": 0.0
+    },
+    {
+      "object": "Oak 7 angular trunk",
+      "samples": 8,
+      "max_float_m": 0
+    }
+  ],
+  "closed_shells": [
+    {
+      "object": "Unified village landform",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 45296.38689
+    },
+    {
+      "object": "Closed irregular perimeter",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 45663.00959
+    },
+    {
+      "object": "Collision Unified village landform",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 45296.38689
+    },
+    {
+      "object": "Collision Closed irregular perimeter",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 45663.00959
+    },
+    {
+      "object": "Entrance west closed wall and attic core",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 207.95624
+    },
+    {
+      "object": "Collision Entrance west closed wall and attic core",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 207.95624
+    },
+    {
+      "object": "Entrance west closed west roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 5.20576
+    },
+    {
+      "object": "Collision Entrance west closed west roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 5.20576
+    },
+    {
+      "object": "Entrance west closed east roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 5.20576
+    },
+    {
+      "object": "Collision Entrance west closed east roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 5.20576
+    },
+    {
+      "object": "Entrance east closed wall and attic core",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 255.94102
+    },
+    {
+      "object": "Collision Entrance east closed wall and attic core",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 255.94102
+    },
+    {
+      "object": "Entrance east closed west roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 5.87136
+    },
+    {
+      "object": "Collision Entrance east closed west roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 5.87136
+    },
+    {
+      "object": "Entrance east closed east roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 5.87136
+    },
+    {
+      "object": "Collision Entrance east closed east roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 5.87136
+    },
+    {
+      "object": "Lower west closed wall and attic core",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 171.678
+    },
+    {
+      "object": "Collision Lower west closed wall and attic core",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 171.678
+    },
+    {
+      "object": "Lower west closed west roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 4.3904
+    },
+    {
+      "object": "Collision Lower west closed west roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 4.3904
+    },
+    {
+      "object": "Lower west closed east roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 4.3904
+    },
+    {
+      "object": "Collision Lower west closed east roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 4.3904
+    },
+    {
+      "object": "Lower west closed porch canopy",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 0.56094
+    },
+    {
+      "object": "Collision Lower west closed porch canopy",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 0.56094
+    },
+    {
+      "object": "Lower east closed wall and attic core",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 163.15063
+    },
+    {
+      "object": "Collision Lower east closed wall and attic core",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 163.15063
+    },
+    {
+      "object": "Lower east closed west roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 4.28656
+    },
+    {
+      "object": "Collision Lower east closed west roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 4.28656
+    },
+    {
+      "object": "Lower east closed east roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 4.28656
+    },
+    {
+      "object": "Collision Lower east closed east roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 4.28656
+    },
+    {
+      "object": "Lower east closed porch canopy",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 0.52088
+    },
+    {
+      "object": "Collision Lower east closed porch canopy",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 0.52088
+    },
+    {
+      "object": "Middle landmark closed wall and attic core",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 220.31056
+    },
+    {
+      "object": "Collision Middle landmark closed wall and attic core",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 220.31056
+    },
+    {
+      "object": "Middle landmark closed west roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 5.304
+    },
+    {
+      "object": "Collision Middle landmark closed west roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 5.304
+    },
+    {
+      "object": "Middle landmark closed east roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 5.304
+    },
+    {
+      "object": "Collision Middle landmark closed east roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 5.304
+    },
+    {
+      "object": "Back terrace cottage closed wall and attic core",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 147.80698
+    },
+    {
+      "object": "Collision Back terrace cottage closed wall and attic core",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 147.80698
+    },
+    {
+      "object": "Back terrace cottage closed west roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 4.04736
+    },
+    {
+      "object": "Collision Back terrace cottage closed west roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 4.04736
+    },
+    {
+      "object": "Back terrace cottage closed east roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 4.04736
+    },
+    {
+      "object": "Collision Back terrace cottage closed east roof",
+      "nonmanifold_edges": 0,
+      "inconsistent_edges": 0,
+      "zero_area_faces": 0,
+      "connected_components": 1,
+      "volume_m3": 4.04736
+    }
+  ],
+  "issues": [],
+  "status": "PASS"
+}

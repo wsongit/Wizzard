@@ -11,7 +11,7 @@ objects=list(bpy.context.selected_objects);found=set()
 for obj in objects:
  assert obj.data.uv_layers.active is not None,obj.name
  kind=obj.data.materials[0].name.split('.')[0];found.add(kind)
- if kind in ('Collision','Arrival','Exit'):obj.hide_render=True
+ if kind.startswith('Collision') or kind in ('Arrival','Exit','BoundaryEast'):obj.hide_render=True
  else:
   # Test the portable MTL references, not the source scene's packed texture nodes.
   textures=[node.image for node in obj.data.materials[0].node_tree.nodes if node.type=='TEX_IMAGE']
@@ -20,10 +20,11 @@ for obj in objects:
    obj.visible_shadow=False
    alpha=list(textures[0].pixels)[3::4]
    assert min(alpha)<.01 and max(alpha)>.99,'Exported path lost its cutout mask'
- if kind=='Arrival':
+ expected={'Arrival':(0,-21,.035),'Exit':(0,-32,.1),'BoundaryEast':(1,-21,.035)}
+ if kind in expected:
   center=sum((obj.matrix_world@v.co for v in obj.data.vertices),Vector())/len(obj.data.vertices)
-  assert (center-Vector((0,-21,.035))).length<.001,center
-assert {'Collision','Arrival','Exit','RoofTiles','WindowDark','PathBlend'}<=found
+  assert (center-Vector(expected[kind])).length<.001,(kind,center)
+assert {'Collision','CollisionTerrain','BoundaryEast','Arrival','Exit','RoofTiles','WindowDark','PathBlend'}<=found
 scene=bpy.context.scene;scene.camera=bpy.data.objects['Entrance comparison'];scene.cycles.samples=16
 scene.render.resolution_x=640;scene.render.resolution_y=360;scene.render.filepath=str(root/'Documentation/village-export-check.png')
 bpy.ops.render.render(write_still=True)

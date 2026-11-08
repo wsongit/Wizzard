@@ -25,7 +25,7 @@
         -2,
         0
       ],
-      "ground_height_m": -0.02
+      "ground_height_m": 0.0
     },
     {
       "variant": 4,
@@ -34,7 +34,7 @@
         10,
         0
       ],
-      "ground_height_m": -0.02
+      "ground_height_m": 0.0
     },
     {
       "variant": 5,
@@ -52,7 +52,7 @@
         6,
         0
       ],
-      "ground_height_m": -0.02
+      "ground_height_m": 0.0
     },
     {
       "variant": 7,
@@ -61,7 +61,7 @@
         -14,
         0
       ],
-      "ground_height_m": -0.02
+      "ground_height_m": -0.0
     }
   ],
   "units": "metres",
@@ -84,38 +84,44 @@
     },
     {
       "route": "Lower right climb",
-      "samples": 104,
-      "max_centerline_slope_degrees": 12.31,
+      "samples": 303,
+      "max_centerline_slope_degrees": 16.11,
       "issues": []
     },
     {
       "route": "Upper right climb",
-      "samples": 144,
-      "max_centerline_slope_degrees": 12.06,
+      "samples": 429,
+      "max_centerline_slope_degrees": 13.33,
       "issues": []
     },
     {
       "route": "Entrance court",
-      "samples": 135,
-      "max_centerline_slope_degrees": 9.09,
+      "samples": 396,
+      "max_centerline_slope_degrees": 0.0,
       "issues": []
     },
     {
       "route": "Middle terrace connection",
-      "samples": 133,
-      "max_centerline_slope_degrees": 0,
+      "samples": 387,
+      "max_centerline_slope_degrees": 0.35,
       "issues": []
     },
     {
       "route": "Bell approach",
-      "samples": 70,
-      "max_centerline_slope_degrees": 0,
+      "samples": 204,
+      "max_centerline_slope_degrees": 0.0,
+      "issues": []
+    },
+    {
+      "route": "Bell steps",
+      "samples": 15,
+      "max_centerline_slope_degrees": 26.57,
       "issues": []
     }
   ],
-  "export_triangles_including_collision": 17886,
-  "visual_objects": 882,
-  "collision_objects": 351,
+  "export_triangles_including_collision": 34058,
+  "visual_objects": 1172,
+  "collision_objects": 328,
   "uv": "metric face islands; path strips use width-normalized U and 4m V repeat",
   "review_camera": {
     "position_blender": [

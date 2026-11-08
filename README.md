@@ -136,13 +136,13 @@ cooldown avoid immediately entering the return gate.
 
 Mossbell has its own take on a terraced N64-era village: six varied plaster-and-timber workshops, red and slate roofs, an open three-bell pavilion on the upper hill, and a covered twin spring beside the court. Seven green tree shapes, planters, a potter's handcart, fences and small brown birds complete the setting. The artwork and landmark designs are original; no Nintendo assets or reference-image pixels are included.
 
-Source: `Blender/MossbellVillage.blend`. Export: `Assets/Resources/Village/Mossbell.obj` and `.mtl`. The source keeps editable named objects and packed textures; export copies are batched by material. Buildings are exterior shells and props are static. Original 64×64 tiles provide separate grass, dirt, natural rock, stonework, plaster, timber, roof, foliage, cloth, brass and water materials. Bilinear filtering and mipmaps preserve the texture at headset distances.
+Source: `Blender/MossbellVillage.blend`. Export: `Assets/Resources/Village/Mossbell.obj` and `.mtl`. The source keeps editable named objects and packed textures; export copies are batched by material. Cottages have sealed walls and attics, thick roofs with finished undersides, detailed rear/side elevations and grounded stone footings. Their interiors are solid; props are static. Original 64×64 tiles provide separate grass, dirt, natural rock, stonework, plaster, timber, roof, foliage, cloth, brass and water materials. Bilinear filtering and mipmaps preserve the texture at headset distances.
 
 ![Rebuilt village entrance — actual Blender render](Documentation/mossbell-street.png)
 
 [Current refresh and validation limits](Documentation/village-refresh.md) · [Earlier rebuild history](Documentation/village-rebuild.md) · [Geometry report](Documentation/village-geometry-checks.json)
 
-The existing scene loads the new model through the village fade transition. Dedicated collision follows the terrain, ramps, stairs, building shells, fences and tree trunks. Materials use the authored UVs, soft directional shadows and blue-lavender fog. Meadow atmosphere and movement settings restore on exit.
+The existing scene loads the new model through the village fade transition. A single watertight landform joins the lawns and both hill climbs. Dedicated collision follows that exact ground, the continuous perimeter, stairs, sealed building shells, fences and tree trunks. Fence feet follow the final terrain; seven routes and all six cottage door approaches are checked for support and clearance. Materials use the authored UVs, soft directional shadows and blue-lavender fog. Meadow atmosphere and movement settings restore on exit.
 
 For a repeatable desktop comparison, play Meadow and press **F8**. It loads the village and switches to the 1.65 m entrance camera with the overlay and avatar hidden. Press F8 again to resume movement. Choose **Wizzard > Capture village comparison** to save an actual Unity capture. This review camera is disabled while XR is active.
 
@@ -155,4 +155,6 @@ python Tools/check_village_export.py
 
 Blender renders, route support/headroom checks and export integrity checks passed. Unity 2022.3.20f1 and a Quest headset are unavailable here, so shader compilation, actual physics/traversal, stereo rendering and standalone performance remain unverified. Run **Wizzard > Validate project** after import and follow the headset checks in the handoff. This rebuild makes no package manifest change.
 
-Village and exterior mountain wall gaps have been repaired. See [wall repair details and inside/outside previews](Documentation/village-wall-repair.md).
+The village also has room-scale wall sweeps, head occlusion when physical head movement crosses solid scenery, and recovery to the entrance if the player leaves the boundary or falls beneath the ground. These runtime protections require Unity/Quest testing. In desktop Play mode, run **Wizzard > Validate room-scale wall collision** for the real Unity physics check.
+
+See the [current geometry and placement report](Documentation/village-refresh.md), [whole-area integrity results](Documentation/village-integrity-checks.json), and [door/prop placement results](Documentation/village-placement-checks.json).

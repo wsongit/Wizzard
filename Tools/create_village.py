@@ -9,6 +9,8 @@ from mathutils.bvhtree import BVHTree
 root=Path(__file__).resolve().parents[1];out=root/'Assets/Resources/Village';out.mkdir(parents=True,exist_ok=True)
 sys.path.insert(0,str(root/'Tools'))
 from village_textures import create, linear
+from village_landform import Landform
+from village_buildings import build_house
 bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False)
 for coll in list(bpy.data.collections):
  if coll.name!='Collection':bpy.data.collections.remove(coll)
@@ -26,7 +28,7 @@ for name,image in textures.items():
   mat.node_tree.links.new(tex.outputs['Alpha'],nodes.get('Principled BSDF').inputs['Alpha'])
  nodes.get('Principled BSDF').inputs['Roughness'].default_value=1
  materials[name]=mat
-for name in ['Arrival','Exit','Collision']:
+for name in ['Arrival','Exit','BoundaryEast','Collision','CollisionTerrain']:
  mat=bpy.data.materials.new(name);mat.diffuse_color=(0,0,0,0);materials[name]=mat
 scales={'Grass':.25,'DirtPath':.25,'HousePlaster':.5,'OchrePlaster':.5,'RoofTiles':.65,'RoofSlate':.65,'Wood':1,'Masonry':.5,'EarthCliff':.35,'Leaves':.7,'SailCloth':.5,'Mountain':.13,'Awning':.5,'Brass':.5,'SpringWater':.4}
 
@@ -64,6 +66,7 @@ def uv_project(o):
  uv=o.data.uv_layers.active or o.data.uv_layers.new(name='MetricUV')
  if o.get('path_uv'):return
  for poly in o.data.polygons:
+  scale=scales.get(o.data.materials[poly.material_index].name,.5)
   n=poly.normal
   if abs(n.z)>.7:u=Vector((1,0,0))
   else:u=Vector((0,0,1)).cross(n).normalized()
@@ -74,29 +77,21 @@ def uv_project(o):
    p=Vector((p.x*o.scale.x,p.y*o.scale.y,p.z*o.scale.z))
    uv.data[li].uv=(p.dot(u)*scale,p.dot(v)*scale)
 
-def terrace(name,poly,height):
- # Inset top lip and broken two-stage cut face; no rectangular arena platform.
- cx=sum(p[0] for p in poly)/len(poly);cy=sum(p[1] for p in poly)/len(poly)
- v=[]
- for ring,z in [(1.04,-.08),(1.02,height*.48),(1,height)]:
-  for x,y in poly:v.append((cx+(x-cx)*ring,cy+(y-cy)*ring,z))
- n=len(poly);f=[]
- for j in range(2):
-  for i in range(n):k=j*n+i;q=j*n+(i+1)%n;f.append((k,q,q+n,k+n))
- f.append(tuple(reversed(range(n))))
- mesh(name+' weathered cut face',v,f,'EarthCliff',True)
- mesh(name+' grassy top',[(x,y,height) for x,y in poly],[tuple(range(n))],'Grass',True)
- # A thin uneven moss band at the very top of the cut.
- rim=[(cx+(x-cx)*1.001,cy+(y-cy)*1.001) for x,y in poly]
- vv=[(x,y,height+.012) for x,y in rim]+[(x,y,height-.16-.09*math.sin(i*2.4)) for i,(x,y) in enumerate(rim)]
- mesh(name+' grass fringe',vv,[(i,i+n,(i+1)%n+n,(i+1)%n) for i in range(n)],'Grass')
-
 def ribbon(name,points,width=3,mat='PathBlend',solid=False):
+ if mat=='PathBlend':
+  dense=[]
+  for a,b in zip(points,points[1:]):
+   a,b=Vector(a),Vector(b);count=max(1,math.ceil((b-a).length/.5))
+   dense.extend(a.lerp(b,i/count) for i in range(count))
+  points=dense+[Vector(points[-1])]
  points=[Vector(p) for p in points];v=[];dist=0;uvs=[]
  for i,p in enumerate(points):
   t=points[min(i+1,len(points)-1)]-points[max(0,i-1)];t.z=0;t.normalize();side=Vector((t.y,-t.x,0))*width/2
   if i:dist+=(p-points[i-1]).length
-  v.extend([tuple(p-side),tuple(p),tuple(p+side)]);uvs.extend([(0,dist*.25),(.5,dist*.25),(1,dist*.25)])
+  row=[p-side,p,p+side]
+  if mat=='PathBlend':
+   row=[Vector((q.x,q.y,landform.sample(q.x,q.y)+.018)) for q in row]
+  v.extend(tuple(q) for q in row);uvs.extend([(0,dist*.25),(.5,dist*.25),(1,dist*.25)])
  o=mesh(name,v,[(i*3+j,i*3+j+1,i*3+j+4,i*3+j+3) for i in range(len(points)-1) for j in range(2)],mat,solid)
  uv=o.data.uv_layers.new(name='PathUV')
  for loop in o.data.loops:uv.data[loop.index].uv=uvs[loop.vertex_index]
@@ -105,32 +100,26 @@ def ribbon(name,points,width=3,mat='PathBlend',solid=False):
  return o
 
 def ramp(name,points,width=4.5):
- # A tiny rise separates overlapping landing surfaces and prevents coplanar flicker.
- points=[(x,y,z+.02) for x,y,z in points]
- o=ribbon(name+' grassy walkable slope',points,width,'Grass',True)
- # The route sits on earth, not a suspended strip. Side faces are continuous.
- v=[tuple(a.co) for a in o.data.vertices];n=len(v);v.extend([(x,y,-.08) for x,y,z in v])
- faces=[]
- for i in range(0,n-3,3):faces.extend([(i,i+3,i+3+n,i+n),(i+2,i+2+n,i+5+n,i+5)])
- faces.extend([(2,1,0,n,n+1,n+2),(n-3,n-2,n-1,2*n-1,2*n-2,2*n-3)])
- for i in range(0,n-3,3):
-  for j in range(2):faces.append((i+n+j,i+n+j+3,i+n+j+4,i+n+j+1))
- mesh(name+' earth shoulders',v,faces,'EarthCliff',True)
- ribbon(name+' worn track',[(x,y,z+.012) for x,y,z in points],2.9)
- routes[name]=points
+ ribbon(name+' worn track',points,2.9)
+ routes[name]=[(x,y,landform.sample(x,y)) for x,y,z in points]
 
 def fence(name,points):
- for i in range(len(points)-1):
-  a,b=Vector(points[i]),Vector(points[i+1]);length=(b-a).length;count=max(1,math.ceil(length/2))
+ # Place every post on the final ground, including irregular cliff shoulders.
+ posts=[]
+ for a,b in zip(points,points[1:]):
+  a,b=Vector(a),Vector(b);count=max(1,math.ceil((b-a).length/1.7))
   for j in range(count):
-   p=a.lerp(b,j/count);box(name+' post',p+Vector((0,0,.55)),(.17,.17,1.1),'Wood',True)
+   p=a.lerp(b,j/count);p.z=landform.sample(p.x,p.y);posts.append(p)
+ p=Vector(points[-1]);p.z=landform.sample(p.x,p.y);posts.append(p)
+ for p in posts:
+  bottom=min(landform.sample(p.x+dx,p.y+dy) for dx in (-.085,.085) for dy in (-.085,.085))-.04
+  top=p.z+1.1
+  box(name+' post',(p.x,p.y,(bottom+top)/2),(.17,.17,top-bottom),'Wood',True)
+ for a,b in zip(posts,posts[1:]):
   for h in (.4,.85):beam(name+' rail',a+Vector((0,0,h)),b+Vector((0,0,h)),.12,'Wood',True)
- p=Vector(points[-1]);box(name+' end post',p+Vector((0,0,.55)),(.17,.17,1.1),'Wood',True)
 
-# Compact entrance court and two separate terraced landforms.
-mesh('Uneven village footprint',[(-55,-46,-.02),(60,-46,-.02),(60,30,-.02),(55,68,-.02),(-55,68,-.02),(-55,9,-.02)],[tuple(range(6))],'Grass',True)
-terrace('Middle terrace',[(-25,13),(-18,9),(-13,8),(-7,8),(-2,7),(7,8),(11,14),(11,25),(-9,30),(-24,24)],3.2)
-terrace('Bell terrace',[(5,23),(9,21),(16,20),(20,24),(20,34),(12,39),(3,35),(1,29)],8.0)
+# One continuous landform joins both terraces and climbing paths.
+landform=Landform(globals())
 # Square is deliberately small, with irregular path shoulders.
 ribbon('Entrance worn path',[(0,-32,.008),(0,-22,.008),(-1,-13,.008),(-1,-5,.008),(1,3,.008)],7)
 ribbon('Left cottage track',[(-22,-3,.01),(-13,-4,.01),(-3,-3,.01),(1,3,.01)],3.2)
@@ -148,81 +137,14 @@ routes['Left stair']=[(-10,i*.4+.2,(i+1)*.16) for i in range(20)]
 ramp('Lower right climb',[(11,-1,0),(15,5,1.2),(14,9,2.1),(11,14,3.2),(9,15,3.2)])
 ramp('Upper right climb',[(9,19,3.2),(17,18,4.0),(24,22,5.7),(25,28,7.0),(20,30,8.0)])
 ribbon('Middle cottage approach',[(-10,8,3.212),(-9,11,3.212),(-5,11.6,3.212),(5,12,3.212),(9,19,3.212)],2.8)
-ribbon('Bell approach',[(20,30,8.012),(18,26,8.012),(16,22,8.012),(12,21.8,8.012)],2.8)
+ribbon('Bell approach',[(20,30,8.012),(18,26,8.012),(16,22,8.012),(14,21.05,8.012),(12,21.05,8.012)],2.8)
 
 routes['Entrance court']=[(0,-21,0),(-3,-6,0),(-5,-2,0),(-10,-1,0),(-10,0,.16)]
 routes['Middle terrace connection']=[(-10,8,3.2),(-9,11,3.2),(-5,11.6,3.2),(5,12,3.2),(9,19,3.2)]
-routes['Bell approach']=[(20,30,8),(18,26,8),(16,22,8),(12,21.8,8)]
+routes['Bell approach']=[(20,30,8),(18,26,8),(16,22,8),(14,21.05,8),(12,21.05,8)]
 
 active='Cottages'
-def house(label,x,y,w,d,h=3.1,base=0,angle=0,rise=1.8,door_side=.18,roof='RoofTiles',plaster='HousePlaster',porch=False):
- before=set(bpy.context.scene.objects)
- box(label+' plaster walls',(0,0,h/2),(w,d,h),plaster,True)
- box(label+' stone footing',(0,0,.2),(w+.12,d+.12,.4),'Masonry',True)
- # Solid pitched roof with thick eaves and proper outward normals.
- a=w/2+.42;b=d/2+.4;z=h+.05
- vv=[(-a,-b,z),(a,-b,z),(-a,b,z),(a,b,z),(0,-b,z+rise),(0,b,z+rise)]
- mesh(label+' roof planes',vv,[(0,4,5,2),(4,1,3,5)],roof,True)
- mesh(label+' front gable',[(-w/2,-d/2,h),(w/2,-d/2,h),(0,-d/2,h+rise-.15)],[(0,1,2)],plaster,True)
- mesh(label+' rear gable',[(-w/2,d/2,h),(0,d/2,h+rise-.15),(w/2,d/2,h)],[(0,1,2)],plaster,True)
- for sy in (-1,1):
-  yy=sy*b
-  for sx in (-1,1):beam(label+' chunky bargeboard',(sx*a,yy,z),(0,yy,z+rise),.21,'Wood',True)
- for sx in (-1,1):beam(label+' eave',(sx*a,-b,z),(sx*a,b,z),.19,'Wood',True)
- # Timber on all facades, including the visible sides of foreground houses.
- for sy in (-1,1):
-  yy=sy*(d/2+.035)
-  for xx in (-w/2+.08,0,w/2-.08):box(label+' upright',(xx,yy,h/2),(.18,.15,h),'Wood')
-  box(label+' header',(0,yy,h-.1),(w,.17,.22),'Wood')
-  beam(label+' gable kingpost',(0,yy,h),(0,yy,h+rise-.16),.16)
-  for sx in (-1,1):beam(label+' gable brace',(sx*(w/2-.14),yy,h),(0,yy,h+rise-.16),.16)
- for sx in (-1,1):
-  xx=sx*(w/2+.035)
-  box(label+' side header',(xx,0,h-.1),(.17,d,.22),'Wood')
-  for yy in (-d/2+.1,0,d/2-.1):box(label+' side timber',(xx,yy,h/2),(.16,.18,h),'Wood')
- # Doors are full-scale; dark panel set behind a proud wooden frame.
- dx=w*door_side;front=-d/2-.05
- box(label+' recessed door',(dx,front,1.06),(1.08,.04,2.12),'Wood')
- for ox in (-.62,.62):box(label+' door jamb',(dx+ox,front-.07,1.1),(.15,.16,2.2),'Wood')
- box(label+' door lintel',(dx,front-.07,2.2),(1.4,.16,.18),'Wood')
- box(label+' threshold',(dx,front-.1,.065),(1.45,.45,.13),'Masonry',True)
- cone(label+' door latch',(dx+.35,front-.12,1.05),.055,.055,.08,'SailCloth',6).rotation_euler.x=math.pi/2
- def window(cx,cy,side=False):
-  if side:
-   box(label+' dark side window',(cx,cy,1.9),(.07,.86,.87),'WindowDark')
-   for yy in (-.51,.51):box(label+' side window frame',(cx+math.copysign(.04,cx),cy+yy,1.9),(.14,.12,1.08),'Wood')
-   for zz in (-.49,.49):box(label+' side sill',(cx,cy,1.9+zz),(.17,1.12,.12),'Wood')
-   box(label+' side mullion',(cx,cy,1.9),(.16,.08,.9),'Wood')
-  else:
-   box(label+' dark window',(cx,cy,1.9),(.86,.07,.87),'WindowDark')
-   for ox in (-.51,.51):box(label+' window frame',(cx+ox,cy-.05,1.9),(.12,.16,1.08),'Wood')
-   for zz in (-.49,.49):box(label+' window sill',(cx,cy-.05,1.9+zz),(1.12,.18,.12),'Wood')
-   for ox in (-.17,.17):box(label+' window bars',(cx+ox,cy-.08,1.9),(.055,.1,.86),'Wood')
-   box(label+' window crossbar',(cx,cy-.08,1.9),(.86,.1,.06),'Wood')
- window(-w*.27,front-.04)
- for sx in (-1,1):
-  for yy in (-d*.24,d*.24):window(sx*(w/2+.08),yy,True)
- # Split shutters and a doorstep canopy give each workshop a working facade.
- for sx in (-1,1):
-  box(label+' hinged shutter',(-w*.27+sx*.70,front-.09,1.9),(.25,.10,.90),'Wood')
- if porch:
-  yy=front-1.35
-  for xx in (-w*.43,w*.43):
-   box(label+' porch post',(xx,yy,1.25),(.14,.14,2.5),'Wood',True)
-   beam(label+' porch bracket',(xx,yy,2.05),(xx,front,2.7),.12)
-  mesh(label+' porch canopy',[(-w*.47,front-.05,2.85),(w*.47,front-.05,2.85),(w*.47,yy-.25,2.5),(-w*.47,yy-.25,2.5)],[(0,3,2,1)],'Awning')
-  beam(label+' porch front beam',(-w*.47,yy,2.48),(w*.47,yy,2.48),.13)
- # A small original brass bell plaque identifies Mossbell's craft houses.
- cone(label+' craft plaque',(-w*.27,front-.13,2.72),.18,.18,.055,'Brass',6).rotation_euler.x=math.pi/2
- # Subtle differing chimneys and off-centre doors break repeated fronts.
- box(label+' chimney',(w*.27,d*.2,h+rise*.6),(.58,.65,1.7),'Masonry',True)
- for o in set(bpy.context.scene.objects)-before:
-  uv_project(o)
-  # Bake scale first, then rotate the entire cottage around its own origin.
-  o.data.transform(o.matrix_world);o.matrix_world.identity()
-  from mathutils import Matrix
-  o.data.transform(Matrix.Translation((x,y,base)) @ Matrix.Rotation(math.radians(angle),4,'Z'))
-  o['metric_uv_done']=True
+def house(*args,**kwargs):return build_house(globals(),*args,**kwargs)
 house('Entrance west',-8.7,-16,7,7.5,3.05,angle=-8,rise=1.7,door_side=.16,roof='RoofSlate')
 house('Entrance east',9.3,-14,7.5,8,3.25,angle=10,rise=1.9,door_side=.22)
 house('Lower west',-20,-1,7,6.2,3.1,angle=-4,rise=1.6,plaster='OchrePlaster',porch=True)
@@ -234,7 +156,12 @@ active='Landmarks'
 # Mossbell's original landmark: an open timber bell pavilion with offset roofs.
 # It shares the broad hilltop landmark role, not the reference windmill silhouette.
 wx,wy,base=12,25.5,8.0
-box('Bell pavilion stone plinth',(wx,wy,base+.35),(5.3,5.3,.7),'Masonry',True)
+box('Bell pavilion stone plinth',(wx,wy,base+.33),(5.3,5.3,.74),'Masonry',True)
+# Four full-width, closed treads meet the pavilion floor without a crawlspace.
+for i in range(4):
+ h=(i+1)*.175
+ box('Bell pavilion approach step %02d'%i,(wx,wy-3.85+i*.35,base+h/2-.02),(2.7,.37,h+.04),'Masonry',True)
+routes['Bell steps']=[(wx,wy-4.2,base)]+[(wx,wy-3.85+i*.35,base+(i+1)*.175) for i in range(4)]+[(wx,wy-2.4,base+.7)]
 for dx in (-2.05,2.05):
  for dy in (-2.05,2.05):
   box('Bell pavilion oak upright',(wx+dx,wy+dy,base+3.5),(.34,.34,5.6),'Wood',True)
@@ -268,7 +195,7 @@ for by in (-.7,.8):
  box('Spring basin base',(sx,sy+by,.15),(2.95,1.4,.3),'Masonry',True)
  for dx in (-1.35,1.35):box('Spring basin side',(sx+dx,sy+by,.55),(.25,1.4,.5),'Masonry',True)
  for dy in (-.6,.6):box('Spring basin end',(sx,sy+by+dy,.55),(2.45,.2,.5),'Masonry',True)
- box('Spring still water',(sx,sy+by,.57),(2.6,1.15,.035),'SpringWater')
+ box('Spring still water',(sx,sy+by,.57),(2.6,1.15,.035),'SpringWater',True)
 for dx in (-1.8,1.8):
  box('Spring shelter post',(sx+dx,sy+.25,1.45),(.19,.19,2.9),'Wood',True)
  beam('Spring shelter brace',(sx+dx,sy+.25,2.1),(sx+dx*.65,sy+.25,2.9),.13)
@@ -279,7 +206,8 @@ beam('Spring brass spout',(sx,sy+1.7,1.35),(sx,sy+.9,1.35),.12,'Brass')
 active='Details'
 fence('Middle west edge',[(-24,13,3.2),(-18,9.6,3.2),(-12.3,8.5,3.2)])
 fence('Middle cottage edge',[(-7.8,8.5,3.2),(-2,7.5,3.2),(6.4,8.5,3.2),(9.4,11.8,3.2)])
-fence('Bell terrace edge',[(4,25,8.0),(7,22.8,8.0),(12,21.2,8.0),(17,21.4,8.0),(21,24.6,8.0)])
+fence('Bell west terrace edge',[(4,25,8.0),(7,22.8,8.0),(9,22,8.0)])
+fence('Bell east terrace edge',[(18.6,24,8.0),(19.4,26,8.0)])
 fence('West foreground fence',[(-5.1,-24,0),(-5.3,-21,0)])
 fence('East cottage yard',[(16,-8,0),(16,-3,0),(22,-3,0)])
 for x,y,s in [(17,-3,1),(18,-3,.8),(17,-2,1.1)]:
@@ -289,10 +217,10 @@ for x,y,rot in [(-4,-8,0),(18,-6,.3),(20,-5,-.7)]:
  bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1,radius=1,location=(x,y,.35));o=finish(bpy.context.object,'Brown garden bird body','Feathers');o.scale=(.23,.31,.24)
  bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1,radius=.13,location=(x,y-.24,.62));finish(bpy.context.object,'Brown garden bird head','Feathers')
  cone('Garden bird russet tail',(x,y+.26,.45),.12,.015,.42,'Comb',4).rotation_euler.x=-.6;box('Brown garden bird beak',(x,y-.36,.61),(.09,.12,.06),'SailCloth')
- for dx in (-.09,.09):beam('Brown garden bird leg',(x+dx,y,.05),(x+dx,y,.22),.035,'SailCloth')
+ for dx in (-.09,.09):beam('Brown garden bird leg',(x+dx,y,-.01),(x+dx,y,.22),.035,'SailCloth')
 
 # Craft yard furniture and small planted patches are original geometry.
-for x,y in [(-14,-6),(18,1),(-6,5.5)]:
+for x,y in [(-14,-6),(20,1),(-6,3.5)]:
  box('Oak planter soil',(x,y,.2),(1.8,.7,.4),'DirtPath',True)
  for dy in (-.4,.4):box('Oak planter side',(x,y+dy,.25),(2,.12,.5),'Wood',True)
  for dx in (-.95,.95):box('Oak planter end',(x+dx,y,.25),(.12,.8,.5),'Wood',True)
@@ -302,10 +230,11 @@ for x,y in [(-14,-6),(18,1),(-6,5.5)]:
   cone('Golden mossbell blossom',(px,py,.38+h),.13,.05,.12,'Petals',5)
 # A handcart at the potter's yard; two wheels and an open plank bed.
 cx,cy=17,-10
+box('Craft cart storage base',(cx,cy,.32),(1.58,2.28,.64),'Wood',True)
 box('Craft cart bed',(cx,cy,.65),(1.6,2.3,.15),'Wood',True)
 for dx in (-.8,.8):
  box('Craft cart side',(cx+dx,cy,.98),(.12,2.3,.6),'Wood',True)
- wheel=cone('Craft cart solid wheel',(cx+dx*1.25,cy,.52),.48,.48,.12,'Wood',10,True);wheel.rotation_euler.y=math.pi/2
+ wheel=cone('Craft cart solid wheel',(cx+dx*1.25,cy,.45),.48,.48,.12,'Wood',10,True);wheel.rotation_euler.y=math.pi/2
  beam('Craft cart handle',(cx+dx*.7,cy-.5,.65),(cx+dx*.7,cy-2.7,.7),.09,'Wood',True)
 for y in (-1.1,1.1):box('Craft cart end',(cx,cy+y,.98),(1.7,.12,.6),'Wood',True)
 for dx,dy in [(-.4,0),(.3,.5)]:
@@ -314,7 +243,7 @@ for dx,dy in [(-.4,0),(.3,.5)]:
 # Low benches leave the spring court's walking routes open.
 for x,y in [(8,-5),(-17,5)]:
  box('Village resting bench',(x,y,.48),(2.0,.48,.13),'Wood',True)
- for dx in (-.75,.75):box('Bench stone foot',(x+dx,y,.22),(.23,.4,.44),'Masonry',True)
+ box('Bench solid stone seat base',(x,y,.22),(1.85,.43,.44),'Masonry',True)
 
 active='Trees'
 def tree(x,y,z,size,seed):
@@ -330,27 +259,20 @@ tree_sites=[(-17,12,3.2,1.15,1),(17,33,8.0,1.05,2),(-26,-2,0,1.3,3),(28,10,0,1.0
 for values in tree_sites:tree(*values)
 
 active='Terrain'
-# Broken rock formations with stepped/tilted rims; separate distant ridgelines.
-for side in (-1,1):
- for j in range(7):
-  x=side*((38 if side==1 else 32)+rng.uniform(-3,3));y=-18+j*9
-  h=rng.uniform(12,21);w=rng.uniform(6,10);d=rng.uniform(7,11)
-  poly=[(x-w*.5,y-d*.5),(x+w*.5,y-d*.4),(x+w*.6,y+d*.5),(x-w*.4,y+d*.6)]
-  top=[(px+side*rng.uniform(1,4),py+rng.uniform(-1,1),h+rng.uniform(-2,2)) for px,py in poly]
-  mesh('Irregular side rock',[(px,py,-.15) for px,py in poly]+top,[(i,(i+1)%4,(i+1)%4+4,i+4) for i in range(4)]+[(3,2,1,0)],'EarthCliff',True)
-  mesh('Uneven grassy rock rim',top,[(0,1,2,3)],'Grass',True)
-for j in range(9):
- x=-36+j*9;y=45+rng.uniform(-2,5);h=rng.uniform(11,17)
- v=[(x-6,y,-1),(x+6,y+2,-1),(x+5,y+3,h),(x-4,y+1,h+rng.uniform(-4,4)),(x-3,y+11,h+3),(x+5,y+12,h+2),(x-3,y+11,-1),(x+5,y+12,-1)]
- mesh('Closed rear cliff',v,[(0,1,2,3),(3,2,5,4),(0,3,4,6),(1,7,5,2),(6,4,5,7),(0,6,7,1)],'EarthCliff',True)
-# Continuous, closed backing connects the decorative rocks without flattening their silhouettes.
-# The only perimeter opening is the 8m entrance corridor at the south.
+# One continuous rock enclosure prevents hideable seams between separate cliff blocks.
 wall_path=[(-4,-34),(-18,-35),(-34,-30),(-37,-18),(-36,-5),(-38,9),(-36,23),(-37,39),(-29,51),(-14,54),(0,53),(15,55),(30,52),(42,42),(44,28),(43,14),(42,0),(42,-17),(36,-31),(19,-36),(4,-34)]
-wall_rng=random.Random(944);v=[];f=[]
+# Insert shared boundary vertices for a varied silhouette without disconnected rock slabs.
+coarse_wall=list(wall_path);wall_path=[]
+for a,b in zip(coarse_wall,coarse_wall[1:]):
+ count=max(1,math.ceil(math.dist(a,b)/3))
+ for i in range(count):wall_path.append((a[0]+(b[0]-a[0])*i/count,a[1]+(b[1]-a[1])*i/count))
+wall_path.append(coarse_wall[-1])
+(root/'Assets/Resources/VillageBoundary.json').write_text(json.dumps({'points':[{'x':x,'y':y} for x,y in coarse_wall]}))
+v=[];f=[]
 for i,(x,y) in enumerate(wall_path):
  outward=Vector((x,y-8)).normalized()*8
- height=7 if i in (0,len(wall_path)-1) else wall_rng.uniform(12,19)
- v.extend([(x,y,-2),(x,y,height),(x+outward.x,y+outward.y,height+wall_rng.uniform(-1,2)),(x+outward.x,y+outward.y,-2)])
+ height=7 if i in (0,len(wall_path)-1) else 15+2.5*math.sin(i*.61)+1.1*math.sin(i*1.9)
+ v.extend([(x,y,-3),(x,y,height),(x+outward.x,y+outward.y,height+1.5),(x+outward.x,y+outward.y,-3)])
 for i in range(len(wall_path)-1):
  k=i*4
  f.extend([(k,k+4,k+5,k+1),(k+1,k+5,k+6,k+2),(k+2,k+6,k+7,k+3),(k+3,k+7,k+4,k)])
@@ -358,6 +280,10 @@ f.extend([(0,1,2,3),tuple(range(len(v)-1,len(v)-5,-1))])
 perimeter=mesh('Closed irregular perimeter',v,f,'EarthCliff',True)
 perimeter.data.materials.append(materials['Grass'])
 for i in range(len(wall_path)-1):perimeter.data.polygons[i*4+1].material_index=1
+# Nonplanar wall tops must have the same explicit diagonals in render and physics.
+bpy.context.view_layer.objects.active=perimeter
+tri=perimeter.modifiers.new('Shared final perimeter triangles','TRIANGULATE')
+bpy.ops.object.modifier_apply(modifier=tri.name)
 for layer,depth in enumerate((70,95)):
  verts=[];faces=[]
  for i in range(17):
@@ -371,6 +297,7 @@ for layer,depth in enumerate((70,95)):
 active='Details'
 box('Arrival marker',(0,-21,.035),(.02,.02,.02),'Arrival')
 box('Exit marker',(0,-32,.1),(.02,.02,.02),'Exit')
+box('Boundary east basis marker',(1,-21,.035),(.02,.02,.02),'BoundaryEast')
 for o in list(bpy.context.scene.objects):
  if o.type=='MESH':
   if not o.get('metric_uv_done'):uv_project(o)
@@ -395,7 +322,7 @@ active='Collision'
 collision_copies=[]
 for src in solids:
  obj=bpy.data.objects.new('Collision '+src.name,src.data.copy());obj.matrix_world=src.matrix_world.copy();collections['Collision'].objects.link(obj)
- obj.data.materials.clear();obj.data.materials.append(materials['Collision'])
+ obj.data.materials.clear();obj.data.materials.append(materials['CollisionTerrain' if src.name=='Unified village landform' else 'Collision'])
  for polygon in obj.data.polygons:polygon.material_index=0
  collision_copies.append(obj)
 # Validate geometry support and clearance in Blender, not a substitute for headset testing.
@@ -406,6 +333,13 @@ for o in collision_copies:
 bvh=BVHTree.FromPolygons(verts,faces)
 checks=[]
 for label,pts in routes.items():
+ if label not in ('Left stair','Bell steps'):
+  dense=[]
+  for a,b in zip(pts,pts[1:]):
+   a,b=Vector(a),Vector(b);count=max(1,math.ceil((b-a).length/.2))
+   for j in range(count):
+    p=a.lerp(b,j/count);dense.append((p.x,p.y,landform.sample(p.x,p.y)))
+  p=pts[-1];pts=dense+[(p[0],p[1],landform.sample(p[0],p[1]))]
  max_slope=0;fail=[];samples=0
  for a,b in zip(pts,pts[1:]):
   a,b=Vector(a),Vector(b);delta=b-a;run=Vector((delta.x,delta.y)).length;max_slope=max(max_slope,math.degrees(math.atan2(abs(delta.z),max(.001,run))))
@@ -418,7 +352,9 @@ for label,pts in routes.items():
     if top is not None:fail.append(owners[owner]+' footprint headroom at '+str(tuple(round(v,2) for v in p)))
    hit,normal,index,dist=bvh.ray_cast(p+Vector((0,0,.25)),Vector((0,0,1)),1.8)
    if hit is not None:fail.append(owners[index]+' headroom at '+str(tuple(round(v,2) for v in p)))
+ if max_slope>40:fail.append('Walking slope exceeds 40 degrees: '+str(round(max_slope,2)))
  checks.append({'route':label,'samples':samples,'max_centerline_slope_degrees':round(max_slope,2),'issues':sorted(set(fail))})
+if any(c['issues'] for c in checks):bpy.ops.wm.save_as_mainfile(filepath='/tmp/mossbell-audit.blend')
 assert all(not c['issues'] for c in checks),checks
 for o in collision_copies:o.hide_render=True;o.hide_set(True)
 # OBJ copies carry metric UVs and are batched; editable source objects remain separate.
@@ -454,7 +390,7 @@ ambient=nodes.new('ShaderNodeBackground');ambient.inputs[0].default_value=(.65,.
 lightpath=nodes.new('ShaderNodeLightPath');worldmix=nodes.new('ShaderNodeMixShader');links.new(lightpath.outputs['Is Camera Ray'],worldmix.inputs[0]);links.new(ambient.outputs[0],worldmix.inputs[1]);links.new(bg.outputs[0],worldmix.inputs[2]);links.new(worldmix.outputs[0],nodes['World Output'].inputs['Surface'])
 active='Review'
 bpy.ops.object.light_add(type='SUN');sun=bpy.context.object;sun.name='Gentle afternoon sun';sun.rotation_euler=(.75,0,.4);sun.data.energy=2.5;sun.data.angle=.14
-scene.render.engine='CYCLES';scene.cycles.samples=32;scene.cycles.use_denoising=False
+scene.render.engine='CYCLES';scene.cycles.samples=16 if '--draft' in sys.argv else 32;scene.cycles.use_denoising=False
 scene.view_settings.view_transform='Standard';scene.view_settings.look='Medium High Contrast';scene.view_settings.exposure=0
 scene.render.resolution_x=1280;scene.render.resolution_y=720;scene.render.resolution_percentage=100
 cameras=[]

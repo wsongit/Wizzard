@@ -1,0 +1,506 @@
+{
+  "source_blend": "/workspace/Wizzard/Blender/MossbellVillage.blend",
+  "door_corridor_width_m": 0.65,
+  "door_corridor_headroom_m": 1.8,
+  "maximum_visible_support_gap_m": 0.025,
+  "cottage_approaches": [
+    {
+      "cottage": "Entrance west",
+      "footprint_rays": 198,
+      "length_m": 2.1,
+      "max_cross_width_height_difference_m": 0.0,
+      "issues": []
+    },
+    {
+      "cottage": "Entrance east",
+      "footprint_rays": 198,
+      "length_m": 2.1,
+      "max_cross_width_height_difference_m": 0.0,
+      "issues": []
+    },
+    {
+      "cottage": "Lower west",
+      "footprint_rays": 198,
+      "length_m": 2.1,
+      "max_cross_width_height_difference_m": 0.0,
+      "issues": []
+    },
+    {
+      "cottage": "Lower east",
+      "footprint_rays": 198,
+      "length_m": 2.1,
+      "max_cross_width_height_difference_m": 0.0,
+      "issues": []
+    },
+    {
+      "cottage": "Middle landmark",
+      "footprint_rays": 198,
+      "length_m": 2.1,
+      "max_cross_width_height_difference_m": 0,
+      "issues": []
+    },
+    {
+      "cottage": "Back terrace cottage",
+      "footprint_rays": 198,
+      "length_m": 2.1,
+      "max_cross_width_height_difference_m": 0,
+      "issues": []
+    }
+  ],
+  "cottage_foundations": [
+    {
+      "cottage": "Entrance west",
+      "perimeter_samples": 150,
+      "maximum_gap_m": -0.045,
+      "closed_attic_and_wall_core": true
+    },
+    {
+      "cottage": "Entrance east",
+      "perimeter_samples": 160,
+      "maximum_gap_m": -0.045,
+      "closed_attic_and_wall_core": true
+    },
+    {
+      "cottage": "Lower west",
+      "perimeter_samples": 136,
+      "maximum_gap_m": -0.045,
+      "closed_attic_and_wall_core": true
+    },
+    {
+      "cottage": "Lower east",
+      "perimeter_samples": 136,
+      "maximum_gap_m": -0.045,
+      "closed_attic_and_wall_core": true
+    },
+    {
+      "cottage": "Middle landmark",
+      "perimeter_samples": 152,
+      "maximum_gap_m": -0.045,
+      "closed_attic_and_wall_core": true
+    },
+    {
+      "cottage": "Back terrace cottage",
+      "perimeter_samples": 130,
+      "maximum_gap_m": -0.045,
+      "closed_attic_and_wall_core": true
+    }
+  ],
+  "grounded_props": [
+    {
+      "object": "Lower west porch post",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Lower west porch post.001",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Lower east porch post",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Lower east porch post.001",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Bell pavilion stone plinth",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Spring basin base",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Spring basin base.001",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Spring shelter post",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Spring shelter post.001",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Spring back pump pier",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Middle west edge post",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle west edge post.001",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle west edge post.002",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle west edge post.003",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle west edge post.004",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle west edge post.005",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle west edge post.006",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle west edge post.007",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle west edge post.008",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle west edge post.009",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle cottage edge post",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle cottage edge post.001",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle cottage edge post.002",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle cottage edge post.003",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle cottage edge post.004",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle cottage edge post.005",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle cottage edge post.006",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle cottage edge post.007",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle cottage edge post.008",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle cottage edge post.009",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle cottage edge post.010",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle cottage edge post.011",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Middle cottage edge post.012",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Bell west terrace edge post",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Bell west terrace edge post.001",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Bell west terrace edge post.002",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Bell west terrace edge post.003",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Bell west terrace edge post.004",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Bell west terrace edge post.005",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Bell east terrace edge post",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Bell east terrace edge post.001",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Bell east terrace edge post.002",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "West foreground fence post",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "West foreground fence post.001",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "West foreground fence post.002",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "East cottage yard post",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "East cottage yard post.001",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "East cottage yard post.002",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "East cottage yard post.003",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "East cottage yard post.004",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "East cottage yard post.005",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "East cottage yard post.006",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "East cottage yard post.007",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.04
+    },
+    {
+      "object": "Yard crate",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Yard crate.001",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Yard crate.002",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Brown garden bird leg",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.01
+    },
+    {
+      "object": "Brown garden bird leg.001",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.01
+    },
+    {
+      "object": "Brown garden bird leg.002",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.01
+    },
+    {
+      "object": "Brown garden bird leg.003",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.01
+    },
+    {
+      "object": "Brown garden bird leg.004",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.01
+    },
+    {
+      "object": "Brown garden bird leg.005",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.01
+    },
+    {
+      "object": "Oak planter soil",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Oak planter side",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Oak planter side.001",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Oak planter end",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Oak planter end.001",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Oak planter soil.001",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Oak planter side.002",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Oak planter side.003",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Oak planter end.002",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Oak planter end.003",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Oak planter soil.002",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Oak planter side.004",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Oak planter side.005",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Oak planter end.004",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Oak planter end.005",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Craft cart storage base",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Craft cart solid wheel",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.0065
+    },
+    {
+      "object": "Craft cart solid wheel.001",
+      "bottom_samples": 5,
+      "maximum_gap_m": -0.0065
+    },
+    {
+      "object": "Bench solid stone seat base",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    },
+    {
+      "object": "Bench solid stone seat base.001",
+      "bottom_samples": 5,
+      "maximum_gap_m": 0.0
+    }
+  ],
+  "limitations": [
+    "Saved Blender geometry and static collision only; Unity physics and Quest headset traversal are not executed.",
+    "Door clearance uses 10 cm longitudinal and 8 cm lateral ray spacing plus horizontal cross rays."
+  ],
+  "issues": [],
+  "passed": true
+}

@@ -21,10 +21,10 @@ for face in faces:
  texcoords=[uv[b-1] for a,b,c in face]
  area=sum(texcoords[i][0]*texcoords[(i+1)%len(face)][1]-texcoords[(i+1)%len(face)][0]*texcoords[i][1] for i in range(len(face)))
  assert abs(area)>1e-10,'Collapsed UV island'
-assert all(n in groups for n in ['Collision','Arrival','Exit','Grass','PathBlend','WindowDark','Masonry','RoofTiles','Wood'])
+assert all(n in groups for n in ['Collision','CollisionTerrain','BoundaryEast','Arrival','Exit','Grass','PathBlend','WindowDark','Masonry','RoofTiles','Wood'])
 assert 'WindowLight' not in groups,'Daytime windows must be muted'
 for key in groups:
- if key in ('Collision','Arrival','Exit'):continue
+ if key.startswith('Collision') or key in ('Arrival','Exit','BoundaryEast'):continue
  path=root/'Assets/Resources/VillageTextures'/f'{key}.png'
  assert path.exists(),key
  assert struct.unpack('>II',path.read_bytes()[16:24])==(64,64),key

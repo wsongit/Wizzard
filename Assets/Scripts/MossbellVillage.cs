@@ -27,7 +27,30 @@ namespace Wizzard
         CameraClearFlags previousClear;
         Camera view;
         TextMesh title;
-        Vector3 gate, arrival, exit;
+        Vector3 gate, arrival, exit, boundaryEast;
+        [System.Serializable] sealed class VillageBoundary { public Vector2[] points; }
+        Vector2[] boundary;
+        MeshCollider terrainCollider;
+        bool OutsideVillage()
+        {
+            if(boundary==null || boundary.Length<3 || terrainCollider==null) return false;
+            Vector3 forward=arrival-exit;forward.y=0;forward.Normalize();
+            // Imported marker positions preserve the model's east direction even
+            // when an OBJ importer changes coordinate-system handedness.
+            Vector3 right=boundaryEast-arrival;right.y=0;right.Normalize();
+            Vector3 offset=player.head.position-arrival;
+            Vector2 p=new Vector2(Vector3.Dot(offset,right),Vector3.Dot(offset,forward)-21f);
+            bool enclosed=false;
+            for(int i=0,j=boundary.Length-1;i<boundary.Length;j=i++)
+            {
+                Vector2 a=boundary[i],b=boundary[j];
+                if((a.y>p.y)!=(b.y>p.y) && p.x<(b.x-a.x)*(p.y-a.y)/(b.y-a.y)+a.x) enclosed=!enclosed;
+            }
+            if(!enclosed || player.head.position.y < arrival.y-2f) return true;
+            // Only the landform is queried: roofs and canopies must not reject a valid player beneath them.
+            Ray ray=new Ray(player.head.position+Vector3.up*60f,Vector3.down);
+            return terrainCollider.Raycast(ray,out RaycastHit ground,120f) && player.head.position.y<ground.point.y+.1f;
+        }
         bool inside, busy;
         float cooldown;
         public void Initialize(GorillaPlayer rig,GameObject world)
@@ -69,6 +92,13 @@ namespace Wizzard
                 return;
             }
             if(ReviewActive) return;
+            if(inside && OutsideVillage())
+            {
+                Vector3 forward=arrival-exit;forward.y=0;
+                player.Teleport(arrival,Quaternion.LookRotation(forward));
+                Physics.SyncTransforms();cooldown=Time.unscaledTime+.5f;
+                return;
+            }
             if(!inside && !XRSettings.isDeviceActive && Keyboard.current!=null && Keyboard.current.vKey.wasPressedThisFrame)
                 player.Teleport(gate+Vector3.back*10,Quaternion.identity);
             Vector3 p=player.head.position;
@@ -142,16 +172,16 @@ namespace Wizzard
             try
             {
             var invisible=new Material(Shader.Find("Wizzard/VillageFade"));invisible.color=Color.clear;
-            bool hasArrival=false,hasExit=false,hasCollision=false;
+            bool hasArrival=false,hasExit=false,hasBoundaryEast=false,hasCollision=false;
             foreach(var filter in village.GetComponentsInChildren<MeshFilter>())
             {
                 filter.gameObject.layer=MeadowWorld.GroundLayer;
                 var renderer=filter.GetComponent<MeshRenderer>();var materials=renderer.sharedMaterials;
-                var triangles=new List<int>();bool hasVisual=false;
+                var triangles=new List<int>();var terrainTriangles=new List<int>();bool hasVisual=false;
                 for(int slot=0;slot<materials.Length;slot++)
                 {
                     string source=materials[slot]!=null?materials[slot].name:"";
-                    bool marker=source.StartsWith("Arrival") || source.StartsWith("Exit");
+                    bool marker=source.StartsWith("Arrival") || source.StartsWith("Exit") || source.StartsWith("BoundaryEast");
                     bool collisionOnly=source.StartsWith("Collision");
                     var indices=filter.sharedMesh.GetTriangles(slot);
                     if(marker)
@@ -160,12 +190,15 @@ namespace Wizzard
                         var bounds=new Bounds(filter.transform.TransformPoint(vertices[indices[0]]),Vector3.zero);
                         foreach(int index in indices) bounds.Encapsulate(filter.transform.TransformPoint(vertices[index]));
                         if(source.StartsWith("Arrival")) { arrival=bounds.center;hasArrival=true; }
-                        else { exit=bounds.center;hasExit=true; }
+                        else if(source.StartsWith("Exit")) { exit=bounds.center;hasExit=true; }
+                        else { boundaryEast=bounds.center;hasBoundaryEast=true; }
                         materials[slot]=invisible;
                     }
                     else if(collisionOnly)
                     {
-                        materials[slot]=invisible;triangles.AddRange(indices);hasCollision=true;
+                        materials[slot]=invisible;hasCollision=true;
+                        if(source.StartsWith("CollisionTerrain")) terrainTriangles.AddRange(indices);
+                        else triangles.AddRange(indices);
                     }
                     else { materials[slot]=VillageMaterials.Get(source);hasVisual=true; }
                 }
@@ -177,9 +210,21 @@ namespace Wizzard
                     var collision=Instantiate(filter.sharedMesh);collision.subMeshCount=1;collision.triangles=triangles.ToArray();
                     filter.gameObject.AddComponent<MeshCollider>().sharedMesh=collision;
                 }
+                if(terrainTriangles.Count>0)
+                {
+                    var terrain=Instantiate(filter.sharedMesh);terrain.subMeshCount=1;terrain.triangles=terrainTriangles.ToArray();
+                    terrainCollider=filter.gameObject.AddComponent<MeshCollider>();terrainCollider.sharedMesh=terrain;
+                }
             }
+            var boundaryAsset=Resources.Load<TextAsset>("VillageBoundary");
+            if(boundaryAsset==null || terrainCollider==null) throw new System.InvalidOperationException("Village boundary or landform collision is missing. Pull all project assets.");
+            boundary=JsonUtility.FromJson<VillageBoundary>(boundaryAsset.text).points;
+            if(boundary==null || boundary.Length<3) throw new System.InvalidOperationException("Invalid village boundary.");
             if(!hasCollision) throw new System.InvalidOperationException("Village dedicated collision mesh missing. Reimport Mossbell.obj.");
             if(!hasArrival || !hasExit) throw new System.InvalidOperationException("Village marker materials were not imported. Enable material import for Mossbell.obj.");
+            if(!hasBoundaryEast) throw new System.InvalidOperationException("Village BoundaryEast marker missing. Pull all project assets and reimport Mossbell.obj.");
+            Vector3 eastDirection=boundaryEast-arrival;eastDirection.y=0;
+            if(eastDirection.sqrMagnitude<.0001f) throw new System.InvalidOperationException("Village BoundaryEast marker overlaps the arrival marker.");
             // Trees, route collision and all props now come from the editable Blender scene.
             village.SetActive(false);
             }
