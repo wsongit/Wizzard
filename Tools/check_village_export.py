@@ -29,8 +29,9 @@ for key in groups:
  assert path.exists(),key
  assert struct.unpack('>II',path.read_bytes()[16:24])==(64,64),key
 for line in asset.with_suffix('.mtl').read_text().splitlines():
- if line.startswith('map_Kd '):
+ if line.startswith(('map_Kd ','map_d ')):
   ref=line.split(maxsplit=1)[1];assert not Path(ref).is_absolute();assert (asset.parent/ref).exists()
+assert (root/'Assets/Resources/VillageTextures/PathBlend.png').read_bytes()[25]==6,'Path PNG must preserve RGBA cutout data'
 report=json.loads((root/'Documentation/village-geometry-checks.json').read_text())
 assert all(not route['issues'] for route in report['routes'])
 assert report['export_triangles_including_collision']==sum(groups.values())

@@ -1,4 +1,69 @@
 {
+  "tree_ground_checks": [
+    {
+      "variant": 1,
+      "root": [
+        -17,
+        12,
+        3.2
+      ],
+      "ground_height_m": 3.2
+    },
+    {
+      "variant": 2,
+      "root": [
+        17,
+        33,
+        8.0
+      ],
+      "ground_height_m": 8.0
+    },
+    {
+      "variant": 3,
+      "root": [
+        -26,
+        -2,
+        0
+      ],
+      "ground_height_m": -0.02
+    },
+    {
+      "variant": 4,
+      "root": [
+        28,
+        10,
+        0
+      ],
+      "ground_height_m": -0.02
+    },
+    {
+      "variant": 5,
+      "root": [
+        -12.8,
+        25,
+        3.2
+      ],
+      "ground_height_m": 3.2
+    },
+    {
+      "variant": 6,
+      "root": [
+        -23,
+        6,
+        0
+      ],
+      "ground_height_m": -0.02
+    },
+    {
+      "variant": 7,
+      "root": [
+        30,
+        -14,
+        0
+      ],
+      "ground_height_m": -0.02
+    }
+  ],
   "units": "metres",
   "doors_m": {
     "height": 2.12,
@@ -42,15 +107,15 @@
       "issues": []
     },
     {
-      "route": "Windmill approach",
+      "route": "Bell approach",
       "samples": 70,
       "max_centerline_slope_degrees": 0,
       "issues": []
     }
   ],
-  "export_triangles_including_collision": 15440,
-  "visual_objects": 782,
-  "collision_objects": 306,
+  "export_triangles_including_collision": 17886,
+  "visual_objects": 882,
+  "collision_objects": 351,
   "uv": "metric face islands; path strips use width-normalized U and 4m V repeat",
   "review_camera": {
     "position_blender": [

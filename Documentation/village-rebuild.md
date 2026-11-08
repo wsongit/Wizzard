@@ -1,4 +1,6 @@
-# Blender village rebuild
+# Blender village rebuild (historical)
+
+The village has since received a new art pass and original bell/spring landmarks. See [the current refresh](village-refresh.md) for current content and validation. This page records the earlier windmill/well version; its linked generated preview images may show the latest model.
 
 The supplied daytime entrance image is the primary composition reference. The other daytime view informs the terrain and buildings. Twilight lighting is deferred. No reference image is used as a flat backdrop; the village remains 3D. The six current-gameplay screenshots described in the pasted brief were not available as separate files in this session.
 

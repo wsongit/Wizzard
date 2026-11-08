@@ -1,6 +1,6 @@
 Shader "Wizzard/VillageSurface"
 {
- Properties { _CastShadows ("Cast shadows", Float) = 1 _MainTex ("Painted 64px tile", 2D) = "white" {} }
+ Properties { _CastShadows ("Cast shadows", Float) = 1 _Cutoff ("Path edge cutout", Range(0,1)) = 0 _MainTex ("Painted 64px tile", 2D) = "white" {} }
  SubShader {
  Tags { "RenderType"="Opaque" }
  Pass {
@@ -15,6 +15,7 @@ Shader "Wizzard/VillageSurface"
  #include "Lighting.cginc"
  #include "AutoLight.cginc"
  sampler2D _MainTex;
+ float _Cutoff;
  struct appdata { float4 vertex:POSITION; float3 normal:NORMAL; float2 uv:TEXCOORD0; UNITY_VERTEX_INPUT_INSTANCE_ID };
  struct v2f { float4 pos:SV_POSITION; float2 uv:TEXCOORD0; float3 normal:TEXCOORD1; float3 worldPos:TEXCOORD2; SHADOW_COORDS(3) UNITY_FOG_COORDS(4) UNITY_VERTEX_OUTPUT_STEREO };
  v2f vert(appdata v) {
@@ -25,6 +26,7 @@ Shader "Wizzard/VillageSurface"
  fixed4 frag(v2f i):SV_Target {
   UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
   fixed4 c=tex2D(_MainTex,i.uv);
+  clip(c.a-_Cutoff);
   UNITY_LIGHT_ATTENUATION(atten,i,i.worldPos);
   float diffuse=saturate(dot(normalize(i.normal),normalize(_WorldSpaceLightPos0.xyz)));
   c.rgb*=float3(.57,.56,.53)+diffuse*atten*float3(.47,.45,.41);

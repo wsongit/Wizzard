@@ -1,5 +1,5 @@
 """Check closed village wall geometry and render front/rear inspection views in Blender."""
-import bpy,bmesh,math,json
+import bpy,bmesh,math,json,sys
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 from pathlib import Path
@@ -19,7 +19,7 @@ def check(name,group):
  assert holes==0 and flipped==0 and volume>0,checks[-1]
 for obj in objects:
  if obj.name.startswith(('Closed rear cliff','Closed distant lavender ridge','Closed irregular perimeter')):check(obj.name,[obj])
-for name in ('Middle terrace','Windmill terrace'):
+for name in ('Middle terrace','Bell terrace'):
  check(name,[bpy.data.objects[name+' weathered cut face'],bpy.data.objects[name+' grassy top']])
 for name in ('Lower right climb','Upper right climb'):
  check(name,[bpy.data.objects[name+' grassy walkable slope'],bpy.data.objects[name+' earth shoulders']])
@@ -39,7 +39,7 @@ for angle in range(0,360,2):
 scene=bpy.context.scene;scene.use_nodes=False;scene.cycles.samples=24
 scene.render.resolution_x=1280;scene.render.resolution_y=720
 camera=scene.camera
-for filename,pos,target in [('village-walls-inside.png',(0,-24,3),(0,20,11)),('village-walls-outside.png',(80,85,60),(0,16,5))]:
+for filename,pos,target in ([] if '--no-render' in sys.argv else [('village-walls-inside.png',(0,-24,3),(0,20,11)),('village-walls-outside.png',(80,85,60),(0,16,5))]):
  camera.location=pos;camera.rotation_euler=(Vector(target)-camera.location).to_track_quat('-Z','Y').to_euler();camera.data.lens=24
  scene.render.filepath=str(root/'Documentation'/filename);bpy.ops.render.render(write_still=True)
 print('PASS:',len(checks),'closed wall shells;',ray_checks,'inside/outside visibility checks')

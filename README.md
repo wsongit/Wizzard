@@ -66,8 +66,7 @@ blender -b Blender/LongMeadow.blend --python Tools/validate_art.py
 - Blender terrain extent, triangle count, mesh indices, hills, texture size,
   and exported avatar: checked by `Tools/validate_art.py`.
 - Unity editor compilation, package resolution, play mode and builds: **unrun**.
-  The editor is not installed; the cloud proxy denies `download.unity3d.com`
-  and `packages.unity.com`. Required network additions were saved as a draft.
+  The required Unity editor and Android toolchain are not installed in this cloud workspace.
 - Headset locomotion, stereo rendering, performance and OpenXR runtime: **unrun**.
   No headset is attached to the cloud.
 
@@ -135,13 +134,13 @@ visits reuse its geometry. Movement velocity and planted-hand contacts reset on
 teleport; head tracking continues during the fade. A short arrival distance and
 cooldown avoid immediately entering the return gate.
 
-The village has been rebuilt in Blender around the supplied daytime entrance reference: six varied timber-and-plaster cottages frame a compact square, a low stone well sits in the centre, left stairs lead to a middle cottage, and two winding ramps reach the raised windmill terrace. Broken rock formations and lavender mountain silhouettes replace the uniform arena wall. The lookout tower is removed. Seven olive-canopy trees, fences, crates and decorative chickens complete the environment.
+Mossbell has its own take on a terraced N64-era village: six varied plaster-and-timber workshops, red and slate roofs, an open three-bell pavilion on the upper hill, and a covered twin spring beside the court. Seven green tree shapes, planters, a potter's handcart, fences and small brown birds complete the setting. The artwork and landmark designs are original; no Nintendo assets or reference-image pixels are included.
 
-Source: `Blender/MossbellVillage.blend`. Export: `Assets/Resources/Village/Mossbell.obj` and `.mtl`. The source preserves editable named objects and packed textures; export copies are batched by material. Houses are exterior shells; chickens and sails are static. Metric UVs, original 64×64 tiles, bilinear filtering and mipmaps replace the village's triplanar/point-filtered surfaces. Daytime windows are dark and muted.
+Source: `Blender/MossbellVillage.blend`. Export: `Assets/Resources/Village/Mossbell.obj` and `.mtl`. The source keeps editable named objects and packed textures; export copies are batched by material. Buildings are exterior shells and props are static. Original 64×64 tiles provide separate grass, dirt, natural rock, stonework, plaster, timber, roof, foliage, cloth, brass and water materials. Bilinear filtering and mipmaps preserve the texture at headset distances.
 
 ![Rebuilt village entrance — actual Blender render](Documentation/mossbell-street.png)
 
-[Matched before/after comparison](Documentation/village-comparison.html) · [Full handoff and validation limits](Documentation/village-rebuild.md) · [Geometry report](Documentation/village-geometry-checks.json)
+[Current refresh and validation limits](Documentation/village-refresh.md) · [Earlier rebuild history](Documentation/village-rebuild.md) · [Geometry report](Documentation/village-geometry-checks.json)
 
 The existing scene loads the new model through the village fade transition. Dedicated collision follows the terrain, ramps, stairs, building shells, fences and tree trunks. Materials use the authored UVs, soft directional shadows and blue-lavender fog. Meadow atmosphere and movement settings restore on exit.
 
@@ -154,6 +153,6 @@ blender -b -t 8 --python-exit-code 1 --python Tools/create_village.py
 python Tools/check_village_export.py
 ```
 
-Blender renders, route support/headroom checks and export integrity checks passed. C# syntax parsing is not a Unity compilation. Unity 2022.3.20f1 and a Quest headset are unavailable here, so shader compilation, actual physics/traversal, stereo rendering and standalone performance remain unverified. Run **Wizzard > Validate project** after import and follow the headset checks in the handoff. This rebuild makes no package manifest change.
+Blender renders, route support/headroom checks and export integrity checks passed. Unity 2022.3.20f1 and a Quest headset are unavailable here, so shader compilation, actual physics/traversal, stereo rendering and standalone performance remain unverified. Run **Wizzard > Validate project** after import and follow the headset checks in the handoff. This rebuild makes no package manifest change.
 
 Village and exterior mountain wall gaps have been repaired. See [wall repair details and inside/outside previews](Documentation/village-wall-repair.md).

@@ -16,7 +16,10 @@ for obj in objects:
   # Test the portable MTL references, not the source scene's packed texture nodes.
   textures=[node.image for node in obj.data.materials[0].node_tree.nodes if node.type=='TEX_IMAGE']
   assert textures and all(image.size[0]==64 and image.size[1]==64 for image in textures),kind
-  if kind=='PathBlend':obj.visible_shadow=False
+  if kind=='PathBlend':
+   obj.visible_shadow=False
+   alpha=list(textures[0].pixels)[3::4]
+   assert min(alpha)<.01 and max(alpha)>.99,'Exported path lost its cutout mask'
  if kind=='Arrival':
   center=sum((obj.matrix_world@v.co for v in obj.data.vertices),Vector())/len(obj.data.vertices)
   assert (center-Vector((0,-21,.035))).length<.001,center

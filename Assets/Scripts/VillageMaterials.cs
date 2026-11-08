@@ -18,6 +18,7 @@ namespace Wizzard
             if(shader==null) throw new System.InvalidOperationException("VillageSurface shader missing");
             var material=new Material(shader) {name="Village "+key, mainTexture=texture};
             material.SetFloat("_CastShadows",key=="PathBlend"?0:1);
+            material.SetFloat("_Cutoff",key == "PathBlend" ? 0.5f : 0f);
             material.enableInstancing=true;
             cache[key]=material;return material;
         }

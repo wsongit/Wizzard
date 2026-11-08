@@ -4,55 +4,55 @@
       "name": "Closed rear cliff",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 1440.115
+      "volume_m3": 1702.61
     },
     {
       "name": "Closed rear cliff.001",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 1580.863
+      "volume_m3": 1320.366
     },
     {
       "name": "Closed rear cliff.002",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 1189.649
+      "volume_m3": 1495.195
     },
     {
       "name": "Closed rear cliff.003",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 1438.962
+      "volume_m3": 1657.519
     },
     {
       "name": "Closed rear cliff.004",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 1537.632
+      "volume_m3": 1688.773
     },
     {
       "name": "Closed rear cliff.005",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 1572.16
+      "volume_m3": 1441.827
     },
     {
       "name": "Closed rear cliff.006",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 1531.396
+      "volume_m3": 1316.84
     },
     {
       "name": "Closed rear cliff.007",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 1507.229
+      "volume_m3": 1545.817
     },
     {
       "name": "Closed rear cliff.008",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 1466.759
+      "volume_m3": 1293.344
     },
     {
       "name": "Closed irregular perimeter",
@@ -64,13 +64,13 @@
       "name": "Closed distant lavender ridge 0",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 71765.276
+      "volume_m3": 78039.373
     },
     {
       "name": "Closed distant lavender ridge 1",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 85383.377
+      "volume_m3": 84106.818
     },
     {
       "name": "Middle terrace",
@@ -79,7 +79,7 @@
       "volume_m3": 2241.664
     },
     {
-      "name": "Windmill terrace",
+      "name": "Bell terrace",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
       "volume_m3": 2230.894
@@ -88,97 +88,97 @@
       "name": "Lower right climb",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 154.816
+      "volume_m3": 156.506
     },
     {
       "name": "Upper right climb",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 609.352
+      "volume_m3": 611.624
     },
     {
       "name": "Irregular side rock",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 664.365
+      "volume_m3": 1672.337
     },
     {
       "name": "Irregular side rock.001",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 995.24
+      "volume_m3": 1224.881
     },
     {
       "name": "Irregular side rock.002",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 1059.413
+      "volume_m3": 1324.276
     },
     {
       "name": "Irregular side rock.003",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 1672.337
+      "volume_m3": 1838.298
     },
     {
       "name": "Irregular side rock.004",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 1224.881
+      "volume_m3": 1086.301
     },
     {
       "name": "Irregular side rock.005",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 1324.276
+      "volume_m3": 1085.327
     },
     {
       "name": "Irregular side rock.006",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 1838.299
+      "volume_m3": 1095.35
     },
     {
       "name": "Irregular side rock.007",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 1115.307
+      "volume_m3": 886.171
     },
     {
       "name": "Irregular side rock.008",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 959.038
+      "volume_m3": 1669.444
     },
     {
       "name": "Irregular side rock.009",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 992.807
+      "volume_m3": 2070.483
     },
     {
       "name": "Irregular side rock.010",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 886.17
+      "volume_m3": 1109.023
     },
     {
       "name": "Irregular side rock.011",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 1669.444
+      "volume_m3": 1205.671
     },
     {
       "name": "Irregular side rock.012",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 2070.483
+      "volume_m3": 871.35
     },
     {
       "name": "Irregular side rock.013",
       "open_or_nonmanifold_edges": 0,
       "inconsistent_edges": 0,
-      "volume_m3": 1109.023
+      "volume_m3": 1049.97
     }
   ],
   "inside_and_outside_visibility_rays": 338,

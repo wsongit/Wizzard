@@ -21,11 +21,14 @@ for name,image in textures.items():
  mat=bpy.data.materials.new(name);mat.use_nodes=True;nodes=mat.node_tree.nodes
  tex=nodes.new('ShaderNodeTexImage');tex.image=image;tex.interpolation='Linear'
  mat.node_tree.links.new(tex.outputs['Color'],nodes.get('Principled BSDF').inputs['Base Color'])
+ if name=='PathBlend':
+  # Portable alpha shoulders reveal real ground; Unity uses a .5 cutout threshold.
+  mat.node_tree.links.new(tex.outputs['Alpha'],nodes.get('Principled BSDF').inputs['Alpha'])
  nodes.get('Principled BSDF').inputs['Roughness'].default_value=1
  materials[name]=mat
 for name in ['Arrival','Exit','Collision']:
  mat=bpy.data.materials.new(name);mat.diffuse_color=(0,0,0,0);materials[name]=mat
-scales={'Grass':.25,'DirtPath':.25,'HousePlaster':.5,'RoofTiles':.5,'Wood':1,'Masonry':.5,'EarthCliff':.2,'Leaves':.4,'SailCloth':.5,'Mountain':.07}
+scales={'Grass':.25,'DirtPath':.25,'HousePlaster':.5,'OchrePlaster':.5,'RoofTiles':.65,'RoofSlate':.65,'Wood':1,'Masonry':.5,'EarthCliff':.35,'Leaves':.7,'SailCloth':.5,'Mountain':.13,'Awning':.5,'Brass':.5,'SpringWater':.4}
 
 def finish(o,name,material,solid=False):
  o.name=name
@@ -102,6 +105,8 @@ def ribbon(name,points,width=3,mat='PathBlend',solid=False):
  return o
 
 def ramp(name,points,width=4.5):
+ # A tiny rise separates overlapping landing surfaces and prevents coplanar flicker.
+ points=[(x,y,z+.02) for x,y,z in points]
  o=ribbon(name+' grassy walkable slope',points,width,'Grass',True)
  # The route sits on earth, not a suspended strip. Side faces are continuous.
  v=[tuple(a.co) for a in o.data.vertices];n=len(v);v.extend([(x,y,-.08) for x,y,z in v])
@@ -125,7 +130,7 @@ def fence(name,points):
 # Compact entrance court and two separate terraced landforms.
 mesh('Uneven village footprint',[(-55,-46,-.02),(60,-46,-.02),(60,30,-.02),(55,68,-.02),(-55,68,-.02),(-55,9,-.02)],[tuple(range(6))],'Grass',True)
 terrace('Middle terrace',[(-25,13),(-18,9),(-13,8),(-7,8),(-2,7),(7,8),(11,14),(11,25),(-9,30),(-24,24)],3.2)
-terrace('Windmill terrace',[(5,23),(9,21),(16,20),(20,24),(20,34),(12,39),(3,35),(1,29)],8.0)
+terrace('Bell terrace',[(5,23),(9,21),(16,20),(20,24),(20,34),(12,39),(3,35),(1,29)],8.0)
 # Square is deliberately small, with irregular path shoulders.
 ribbon('Entrance worn path',[(0,-32,.008),(0,-22,.008),(-1,-13,.008),(-1,-5,.008),(1,3,.008)],7)
 ribbon('Left cottage track',[(-22,-3,.01),(-13,-4,.01),(-3,-3,.01),(1,3,.01)],3.2)
@@ -143,23 +148,23 @@ routes['Left stair']=[(-10,i*.4+.2,(i+1)*.16) for i in range(20)]
 ramp('Lower right climb',[(11,-1,0),(15,5,1.2),(14,9,2.1),(11,14,3.2),(9,15,3.2)])
 ramp('Upper right climb',[(9,19,3.2),(17,18,4.0),(24,22,5.7),(25,28,7.0),(20,30,8.0)])
 ribbon('Middle cottage approach',[(-10,8,3.212),(-9,11,3.212),(-5,11.6,3.212),(5,12,3.212),(9,19,3.212)],2.8)
-ribbon('Windmill approach',[(20,30,8.012),(18,26,8.012),(16,22,8.012),(12,21.8,8.012)],2.8)
+ribbon('Bell approach',[(20,30,8.012),(18,26,8.012),(16,22,8.012),(12,21.8,8.012)],2.8)
 
 routes['Entrance court']=[(0,-21,0),(-3,-6,0),(-5,-2,0),(-10,-1,0),(-10,0,.16)]
 routes['Middle terrace connection']=[(-10,8,3.2),(-9,11,3.2),(-5,11.6,3.2),(5,12,3.2),(9,19,3.2)]
-routes['Windmill approach']=[(20,30,8),(18,26,8),(16,22,8),(12,21.8,8)]
+routes['Bell approach']=[(20,30,8),(18,26,8),(16,22,8),(12,21.8,8)]
 
 active='Cottages'
-def house(label,x,y,w,d,h=3.1,base=0,angle=0,rise=1.8,door_side=.18):
+def house(label,x,y,w,d,h=3.1,base=0,angle=0,rise=1.8,door_side=.18,roof='RoofTiles',plaster='HousePlaster',porch=False):
  before=set(bpy.context.scene.objects)
- box(label+' plaster walls',(0,0,h/2),(w,d,h),'HousePlaster',True)
+ box(label+' plaster walls',(0,0,h/2),(w,d,h),plaster,True)
  box(label+' stone footing',(0,0,.2),(w+.12,d+.12,.4),'Masonry',True)
  # Solid pitched roof with thick eaves and proper outward normals.
  a=w/2+.42;b=d/2+.4;z=h+.05
  vv=[(-a,-b,z),(a,-b,z),(-a,b,z),(a,b,z),(0,-b,z+rise),(0,b,z+rise)]
- mesh(label+' roof planes',vv,[(0,4,5,2),(4,1,3,5)],'RoofTiles',True)
- mesh(label+' front gable',[(-w/2,-d/2,h),(w/2,-d/2,h),(0,-d/2,h+rise-.15)],[(0,1,2)],'HousePlaster',True)
- mesh(label+' rear gable',[(-w/2,d/2,h),(0,d/2,h+rise-.15),(w/2,d/2,h)],[(0,1,2)],'HousePlaster',True)
+ mesh(label+' roof planes',vv,[(0,4,5,2),(4,1,3,5)],roof,True)
+ mesh(label+' front gable',[(-w/2,-d/2,h),(w/2,-d/2,h),(0,-d/2,h+rise-.15)],[(0,1,2)],plaster,True)
+ mesh(label+' rear gable',[(-w/2,d/2,h),(0,d/2,h+rise-.15),(w/2,d/2,h)],[(0,1,2)],plaster,True)
  for sy in (-1,1):
   yy=sy*b
   for sx in (-1,1):beam(label+' chunky bargeboard',(sx*a,yy,z),(0,yy,z+rise),.21,'Wood',True)
@@ -197,6 +202,18 @@ def house(label,x,y,w,d,h=3.1,base=0,angle=0,rise=1.8,door_side=.18):
  window(-w*.27,front-.04)
  for sx in (-1,1):
   for yy in (-d*.24,d*.24):window(sx*(w/2+.08),yy,True)
+ # Split shutters and a doorstep canopy give each workshop a working facade.
+ for sx in (-1,1):
+  box(label+' hinged shutter',(-w*.27+sx*.70,front-.09,1.9),(.25,.10,.90),'Wood')
+ if porch:
+  yy=front-1.35
+  for xx in (-w*.43,w*.43):
+   box(label+' porch post',(xx,yy,1.25),(.14,.14,2.5),'Wood',True)
+   beam(label+' porch bracket',(xx,yy,2.05),(xx,front,2.7),.12)
+  mesh(label+' porch canopy',[(-w*.47,front-.05,2.85),(w*.47,front-.05,2.85),(w*.47,yy-.25,2.5),(-w*.47,yy-.25,2.5)],[(0,3,2,1)],'Awning')
+  beam(label+' porch front beam',(-w*.47,yy,2.48),(w*.47,yy,2.48),.13)
+ # A small original brass bell plaque identifies Mossbell's craft houses.
+ cone(label+' craft plaque',(-w*.27,front-.13,2.72),.18,.18,.055,'Brass',6).rotation_euler.x=math.pi/2
  # Subtle differing chimneys and off-centre doors break repeated fronts.
  box(label+' chimney',(w*.27,d*.2,h+rise*.6),(.58,.65,1.7),'Masonry',True)
  for o in set(bpy.context.scene.objects)-before:
@@ -206,70 +223,111 @@ def house(label,x,y,w,d,h=3.1,base=0,angle=0,rise=1.8,door_side=.18):
   from mathutils import Matrix
   o.data.transform(Matrix.Translation((x,y,base)) @ Matrix.Rotation(math.radians(angle),4,'Z'))
   o['metric_uv_done']=True
-house('Entrance west',-8.7,-16,7,7.5,3.05,angle=-8,rise=1.7,door_side=.16)
+house('Entrance west',-8.7,-16,7,7.5,3.05,angle=-8,rise=1.7,door_side=.16,roof='RoofSlate')
 house('Entrance east',9.3,-14,7.5,8,3.25,angle=10,rise=1.9,door_side=.22)
-house('Lower west',-20,-1,7,6.2,3.1,angle=-4,rise=1.6)
-house('Lower east',23,-3,6.5,6.5,3,angle=8,rise=1.6,door_side=.1)
+house('Lower west',-20,-1,7,6.2,3.1,angle=-4,rise=1.6,plaster='OchrePlaster',porch=True)
+house('Lower east',23,-3,6.5,6.5,3,angle=8,rise=1.6,roof='RoofSlate',porch=True)
 house('Middle landmark',-3,17,8,6.7,3.1,3.2,-18,1.9)
-house('Back terrace cottage',-18,22,6.6,6,2.9,3.2,8,1.55)
+house('Back terrace cottage',-18,22,6.6,6,2.9,3.2,8,1.55,plaster='OchrePlaster')
 
 active='Landmarks'
-# A squat stone windmill above and right of the middle cottage.
+# Mossbell's original landmark: an open timber bell pavilion with offset roofs.
+# It shares the broad hilltop landmark role, not the reference windmill silhouette.
 wx,wy,base=12,25.5,8.0
-cone('Windmill stone tower',(wx,wy,base+3.75),3,2.6,7.5,'Masonry',12,True)
-cone('Windmill simple roof',(wx,wy,base+8.05),2.65,.15,1.6,'RoofTiles',12,True)
-box('Windmill recessed door',(wx,wy-2.98,base+1.05),(1.1,.09,2.1),'Wood')
-for dx in (-.64,.64):box('Windmill door frame',(wx+dx,wy-3.0,base+1.1),(.15,.16,2.2),'Wood')
-box('Windmill door lintel',(wx,wy-3.0,base+2.2),(1.45,.2,.18),'Wood')
-hub=Vector((wx,wy-3.25,base+7.0))
-cone('Windmill axle',hub,.25,.25,.65,'Wood',10).rotation_euler.x=math.pi/2
-for blade in range(4):
- angle=math.radians(29)+blade*math.pi/2;direction=Vector((math.sin(angle),0,math.cos(angle)));side=Vector((math.cos(angle),0,-math.sin(angle)))
- beam('Windmill sail spar',hub,hub+direction*6.2,.16)
- # Broad weathered plank sails, with edge frames and cross battens.
- for j in range(9):
-  distance=1.7+j*.5;mid=hub+direction*distance+side*.28
-  plank=box('Windmill weathered sail plank',mid,(1.5,.12,.49),'SailCloth');plank.rotation_euler.y=angle
- for sign in (-1,1):beam('Windmill sail edging',hub+direction*1.5+side*(.28+sign*.79),hub+direction*6.2+side*(.28+sign*.79),.08)
-# Low open stone well, 2.6m across, with a 2.8m beam.
-well=(0,-1)
-for i in range(12):
- a=i*math.tau/12;b=(i+1)*math.tau/12
- v=[(math.cos(t)*r,-1+math.sin(t)*r,z) for z in (0,.82) for r in (1.05,1.38) for t in (a,b)]
- mesh('Well stone rim segment',v,[(2,3,7,6),(1,0,4,5),(4,6,7,5),(0,1,3,2),(0,2,6,4),(3,1,5,7)],'Masonry',True)
-for x in (-1.58,1.58):
- box('Well oak post',(x,-1,1.4),(.27,.28,2.8),'Wood',True)
- beam('Well diagonal brace',(x,-1,2.1),(x-math.copysign(.65,x),-1,2.7),.15)
-box('Well oak crossbeam',(0,-1,2.72),(3.6,.3,.3),'Wood',True)
-cone('Well hanging rope',(0,-1,1.65),.026,.026,1.85,'SailCloth',6)
-cone('Dark well bottom',(0,-1,-.012),1.04,1.04,.01,'WindowDark',12)
-
+box('Bell pavilion stone plinth',(wx,wy,base+.35),(5.3,5.3,.7),'Masonry',True)
+for dx in (-2.05,2.05):
+ for dy in (-2.05,2.05):
+  box('Bell pavilion oak upright',(wx+dx,wy+dy,base+3.5),(.34,.34,5.6),'Wood',True)
+  box('Bell pavilion foot socket',(wx+dx,wy+dy,base+.78),(.55,.55,.35),'Masonry',True)
+for dy in (-2.05,2.05):
+ beam('Bell pavilion crosshead',(wx-2.3,wy+dy,base+6.2),(wx+2.3,wy+dy,base+6.2),.32,'Wood',True)
+ for dx in (-1,1):beam('Bell pavilion diagonal',(wx+dx*2.05,wy+dy,base+4.3),(wx+dx*.8,wy+dy,base+6.15),.22)
+for dx in (-2.05,2.05):beam('Bell pavilion side head',(wx+dx,wy-2.25,base+6.2),(wx+dx,wy+2.25,base+6.2),.28)
+def hip_roof(label,x,y,z,w,d,rise,mat):
+ v=[(x-w,y-d,z),(x+w,y-d,z),(x+w,y+d,z),(x-w,y+d,z),(x-.35,y,z+rise),(x+.35,y,z+rise)]
+ mesh(label,v,[(0,1,5,4),(1,2,5),(2,3,4,5),(3,0,4),(3,2,1,0)],mat,True)
+ for i in range(4):beam(label+' fascia',v[i],v[(i+1)%4],.18)
+hip_roof('Bell pavilion broad hipped roof',wx,wy,base+6.4,3.0,3.05,2.1,'RoofSlate')
+# Smaller off-centre roof cap gives a different silhouette from the cottages.
+box('Bell pavilion lantern neck',(wx-.35,wy,base+8.55),(1.1,1.1,.8),'Wood',True)
+hip_roof('Bell pavilion lantern cap',wx-.35,wy,base+8.95,.95,.95,.8,'RoofTiles')
+beam('Bell weather vane stem',(wx-.35,wy,base+9.6),(wx-.35,wy,base+10.5),.07,'Brass')
+mesh('Bell weather vane leaf',[(wx-.35,wy,base+10.1),(wx+.8,wy,base+10.4),(wx+.35,wy,base+10.0),(wx+.8,wy,base+9.9)],[(0,1,2),(0,2,3)],'Brass')
+def bell(name,x,y,z,size):
+ profile=[(.15,1.25),(.34,1.05),(.40,.48),(.53,.14),(.68,0),(.55,.02),(.43,.22),(.31,.88),(.10,1.03)]
+ v=[(x+math.cos(i*math.tau/12)*r*size,y+math.sin(i*math.tau/12)*r*size,z+h*size) for r,h in profile for i in range(12)]
+ f=[(j*12+i,j*12+(i+1)%12,(j+1)*12+(i+1)%12,(j+1)*12+i) for j in range(len(profile)-1) for i in range(12)]
+ f.extend([tuple(range(11,-1,-1)),tuple(range(96,108))])
+ mesh(name,v,f,'Brass')
+ beam(name+' suspension',(x,y,z+1.2*size),(x,y,base+6.1),.09,'Wood')
+ cone(name+' clapper',(x,y,z+.1*size),size*.11,size*.11,size*.4,'Wood',8)
+for dx,z,size in [(-1.2,base+4.0,.6),(0,base+3.3,1.1),(1.2,base+4.0,.6)]:bell('Founders bell',wx+dx,wy-.8,z,size)
+# A spring court beside the main path, with twin rectangular basins and a low canopy.
+sx,sy=4.7,-1.5
+for by in (-.7,.8):
+ box('Spring basin base',(sx,sy+by,.15),(2.95,1.4,.3),'Masonry',True)
+ for dx in (-1.35,1.35):box('Spring basin side',(sx+dx,sy+by,.55),(.25,1.4,.5),'Masonry',True)
+ for dy in (-.6,.6):box('Spring basin end',(sx,sy+by+dy,.55),(2.45,.2,.5),'Masonry',True)
+ box('Spring still water',(sx,sy+by,.57),(2.6,1.15,.035),'SpringWater')
+for dx in (-1.8,1.8):
+ box('Spring shelter post',(sx+dx,sy+.25,1.45),(.19,.19,2.9),'Wood',True)
+ beam('Spring shelter brace',(sx+dx,sy+.25,2.1),(sx+dx*.65,sy+.25,2.9),.13)
+hip_roof('Spring shelter tiled cap',sx,sy+.25,2.95,2.15,1.6,.7,'RoofTiles')
+box('Spring back pump pier',(sx,sy+1.7,.9),(.7,.6,1.8),'Masonry',True)
+beam('Spring brass spout',(sx,sy+1.7,1.35),(sx,sy+.9,1.35),.12,'Brass')
+# Named empty for easy source-scene discovery; no flat reference backdrop is used.
 active='Details'
 fence('Middle west edge',[(-24,13,3.2),(-18,9.6,3.2),(-12.3,8.5,3.2)])
 fence('Middle cottage edge',[(-7.8,8.5,3.2),(-2,7.5,3.2),(6.4,8.5,3.2),(9.4,11.8,3.2)])
-fence('Windmill terrace edge',[(4,25,8.0),(7,22.8,8.0),(12,21.2,8.0),(17,21.4,8.0),(21,24.6,8.0)])
+fence('Bell terrace edge',[(4,25,8.0),(7,22.8,8.0),(12,21.2,8.0),(17,21.4,8.0),(21,24.6,8.0)])
 fence('West foreground fence',[(-5.1,-24,0),(-5.3,-21,0)])
 fence('East cottage yard',[(16,-8,0),(16,-3,0),(22,-3,0)])
 for x,y,s in [(17,-3,1),(18,-3,.8),(17,-2,1.1)]:
  box('Yard crate',(x,y,s*.45),(s,s,s*.9),'Wood',True)
  for sign in (-1,1):beam('Crate diagonal',(x-.4*s,y-.51*s,.1),(x+.4*s,y-.51*s,s*.85),.08)
 for x,y,rot in [(-4,-8,0),(18,-6,.3),(20,-5,-.7)]:
- bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1,radius=1,location=(x,y,.35));o=finish(bpy.context.object,'Chicken body','Feathers');o.scale=(.23,.31,.24)
- bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1,radius=.13,location=(x,y-.24,.62));finish(bpy.context.object,'Chicken head','Feathers')
- box('Chicken comb',(x,y-.24,.75),(.08,.13,.1),'Comb');box('Chicken beak',(x,y-.36,.61),(.09,.12,.06),'SailCloth')
- for dx in (-.09,.09):beam('Chicken leg',(x+dx,y,.05),(x+dx,y,.22),.035,'SailCloth')
+ bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1,radius=1,location=(x,y,.35));o=finish(bpy.context.object,'Brown garden bird body','Feathers');o.scale=(.23,.31,.24)
+ bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1,radius=.13,location=(x,y-.24,.62));finish(bpy.context.object,'Brown garden bird head','Feathers')
+ cone('Garden bird russet tail',(x,y+.26,.45),.12,.015,.42,'Comb',4).rotation_euler.x=-.6;box('Brown garden bird beak',(x,y-.36,.61),(.09,.12,.06),'SailCloth')
+ for dx in (-.09,.09):beam('Brown garden bird leg',(x+dx,y,.05),(x+dx,y,.22),.035,'SailCloth')
+
+# Craft yard furniture and small planted patches are original geometry.
+for x,y in [(-14,-6),(18,1),(-6,5.5)]:
+ box('Oak planter soil',(x,y,.2),(1.8,.7,.4),'DirtPath',True)
+ for dy in (-.4,.4):box('Oak planter side',(x,y+dy,.25),(2,.12,.5),'Wood',True)
+ for dx in (-.95,.95):box('Oak planter end',(x+dx,y,.25),(.12,.8,.5),'Wood',True)
+ for i in range(8):
+  px=x-.8+i*.22;py=y+rng.uniform(-.2,.2);h=rng.uniform(.35,.65)
+  beam('Garden flower stem',(px,py,.38),(px,py,.38+h),.035,'Leaves')
+  cone('Golden mossbell blossom',(px,py,.38+h),.13,.05,.12,'Petals',5)
+# A handcart at the potter's yard; two wheels and an open plank bed.
+cx,cy=17,-10
+box('Craft cart bed',(cx,cy,.65),(1.6,2.3,.15),'Wood',True)
+for dx in (-.8,.8):
+ box('Craft cart side',(cx+dx,cy,.98),(.12,2.3,.6),'Wood',True)
+ wheel=cone('Craft cart solid wheel',(cx+dx*1.25,cy,.52),.48,.48,.12,'Wood',10,True);wheel.rotation_euler.y=math.pi/2
+ beam('Craft cart handle',(cx+dx*.7,cy-.5,.65),(cx+dx*.7,cy-2.7,.7),.09,'Wood',True)
+for y in (-1.1,1.1):box('Craft cart end',(cx,cy+y,.98),(1.7,.12,.6),'Wood',True)
+for dx,dy in [(-.4,0),(.3,.5)]:
+ cone('Potter fired crock',(cx+dx,cy+dy,1.12),.22,.28,.7,'OchrePlaster',8)
+ cone('Potter crock dark opening',(cx+dx,cy+dy,1.475),.19,.19,.02,'WindowDark',8)
+# Low benches leave the spring court's walking routes open.
+for x,y in [(8,-5),(-17,5)]:
+ box('Village resting bench',(x,y,.48),(2.0,.48,.13),'Wood',True)
+ for dx in (-.75,.75):box('Bench stone foot',(x+dx,y,.22),(.23,.4,.44),'Masonry',True)
 
 active='Trees'
 def tree(x,y,z,size,seed):
  rand=random.Random(seed)
  cone('Oak %s angular trunk'%seed,(x,y,z+size*1.5),size*.25,size*.12,size*3,'Wood',7,True)
- for i in range(4):
+ for i in range(3+seed%3):
   a=i*2.1+rand.random();p=Vector((x+math.cos(a)*size*.9,y+math.sin(a)*size*.9,z+size*(3+rand.uniform(-.2,.6))))
   beam('Oak branch',(x,y,z+size*1.8),p,size*.13,'Wood',True)
   bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2,radius=size*1.35,location=p)
-  o=finish(bpy.context.object,'Oak %s olive crown %s'%(seed,i),'Leaves');o.scale=(1,rand.uniform(.8,1.1),rand.uniform(.7,1.1))
+  o=finish(bpy.context.object,'Oak %s green crown %s'%(seed,i),'Leaves');o.scale=(1,rand.uniform(.8,1.1),rand.uniform(.7,1.1))
   for vert in o.data.vertices:vert.co*=rand.uniform(.88,1.12)
-for values in [(-17,12,3.2,1.15,1),(23,34,8.0,1.05,2),(-26,-2,0,1.3,3),(28,10,0,1.0,4),(-22,30,3.2,1.1,5),(-29,18,0,.9,6),(30,-14,0,1.2,7)]:tree(*values)
+tree_sites=[(-17,12,3.2,1.15,1),(17,33,8.0,1.05,2),(-26,-2,0,1.3,3),(28,10,0,1.0,4),(-12.8,25,3.2,1.1,5),(-23,6,0,.9,6),(30,-14,0,1.2,7)]
+for values in tree_sites:tree(*values)
 
 active='Terrain'
 # Broken rock formations with stepped/tilted rims; separate distant ridgelines.
@@ -319,6 +377,19 @@ for o in list(bpy.context.scene.objects):
   # Blender joins UV layers by name. One shared name prevents zero-filled UVs
   # when batching primitives, custom meshes and path strips into one material.
   if o.data.uv_layers.active:o.data.uv_layers.active.name='SurfaceUV'
+# Check tree roots against terrain alone so a trunk cannot validate its own floating base.
+bpy.context.view_layer.update()
+terrain_vertices=[];terrain_faces=[]
+for o in collections['Terrain'].objects:
+ if o.type!='MESH':continue
+ offset=len(terrain_vertices);terrain_vertices.extend(o.matrix_world@v.co for v in o.data.vertices)
+ terrain_faces.extend(tuple(offset+i for i in p.vertices) for p in o.data.polygons)
+terrain_bvh=BVHTree.FromPolygons(terrain_vertices,terrain_faces)
+tree_checks=[]
+for x,y,z,size,seed in tree_sites:
+ hit,normal,_,_=terrain_bvh.ray_cast(Vector((x,y,z+30)),Vector((0,0,-1)),35)
+ assert hit is not None and abs(hit.z-z)<.1 and normal.z>.5,('Tree root not on ground',seed,hit,z)
+ tree_checks.append({'variant':seed,'root':[x,y,z],'ground_height_m':round(hit.z,3)})
 # Build dedicated static collision with no leaves, windows, ropes or tiny ornaments.
 active='Collision'
 collision_copies=[]
@@ -365,7 +436,7 @@ for material in materials:
 bpy.ops.object.select_all(action='DESELECT')
 for o in export.objects:o.select_set(True)
 bpy.ops.wm.obj_export(filepath=str(out/'Mossbell.obj'),export_selected_objects=True,forward_axis='NEGATIVE_Z',up_axis='Y',export_materials=True)
-mtl=out/'Mossbell.mtl';mtl.write_text('\n'.join(line.split()[0]+' ../VillageTextures/'+line.split()[-1] if line.startswith('map_Kd ') else line for line in mtl.read_text().splitlines())+'\n')
+mtl=out/'Mossbell.mtl';mtl.write_text('\n'.join(line.split()[0]+' ../VillageTextures/'+line.split()[-1] if line.startswith(('map_Kd ','map_d ')) else line for line in mtl.read_text().splitlines())+'\n')
 export_triangles=sum(sum(len(p.vertices)-2 for p in o.data.polygons) for o in export.objects)
 for o in list(export.objects):bpy.data.objects.remove(o,do_unlink=True)
 bpy.data.collections.remove(export)
@@ -383,11 +454,11 @@ ambient=nodes.new('ShaderNodeBackground');ambient.inputs[0].default_value=(.65,.
 lightpath=nodes.new('ShaderNodeLightPath');worldmix=nodes.new('ShaderNodeMixShader');links.new(lightpath.outputs['Is Camera Ray'],worldmix.inputs[0]);links.new(ambient.outputs[0],worldmix.inputs[1]);links.new(bg.outputs[0],worldmix.inputs[2]);links.new(worldmix.outputs[0],nodes['World Output'].inputs['Surface'])
 active='Review'
 bpy.ops.object.light_add(type='SUN');sun=bpy.context.object;sun.name='Gentle afternoon sun';sun.rotation_euler=(.75,0,.4);sun.data.energy=2.5;sun.data.angle=.14
-scene.render.engine='CYCLES';scene.cycles.samples=64;scene.cycles.use_denoising=False
+scene.render.engine='CYCLES';scene.cycles.samples=32;scene.cycles.use_denoising=False
 scene.view_settings.view_transform='Standard';scene.view_settings.look='Medium High Contrast';scene.view_settings.exposure=0
 scene.render.resolution_x=1280;scene.render.resolution_y=720;scene.render.resolution_percentage=100
 cameras=[]
-for name,pos,target in [('Entrance comparison',(0,-21,1.65),(0,10,3.8)),('Well and terrace',(-4,-8,1.65),(5,20,7)),('Upper terrace overview',(18,30,8.45),(-2,-2,1.7)),('Layout overview',(57,-65,55),(0,6,3))]:
+for name,pos,target in [('Entrance comparison',(0,-21,1.65),(0,10,3.8)),('Spring and terrace',(0,-9,2.3),(4.7,-1.5,1.7)),('Upper terrace overview',(22,25,11),(-6,-6,1.5)),('Layout overview',(57,-65,55),(0,6,3))]:
  bpy.ops.object.camera_add(location=pos);cam=bpy.context.object;cam.name=name;cam.rotation_euler=(Vector(target)-cam.location).to_track_quat('-Z','Y').to_euler();cam.data.lens=28;cam.data.sensor_width=36;cameras.append(cam)
 scene.camera=cameras[0]
 for window in bpy.context.window_manager.windows:
@@ -403,10 +474,10 @@ rl=nodes.new('CompositorNodeRLayers');mapping=nodes.new('CompositorNodeMapRange'
 less=nodes.new('CompositorNodeMath');less.operation='LESS_THAN';less.inputs[1].default_value=500;links.new(rl.outputs['Depth'],less.inputs[0]);mult=nodes.new('CompositorNodeMath');mult.operation='MULTIPLY';links.new(mapping.outputs[0],mult.inputs[0]);links.new(less.outputs[0],mult.inputs[1])
 fog=nodes.new('CompositorNodeMixRGB');links.new(mult.outputs[0],fog.inputs[0]);links.new(rl.outputs['Image'],fog.inputs[1]);fog.inputs[2].default_value=(linear(.55),linear(.56),linear(.70),1)
 comp=nodes.new('CompositorNodeComposite');links.new(fog.outputs[0],comp.inputs[0])
-report={'units':'metres','doors_m':{'height':2.12,'width':1.08},'stairs_m':{'rise':.16,'tread':.4,'width':3.2,'steps':20},'routes':checks,'export_triangles_including_collision':export_triangles,'visual_objects':len(source),'collision_objects':len(collision_copies),'uv':'metric face islands; path strips use width-normalized U and 4m V repeat','review_camera':{'position_blender':[0,-21,1.65],'target_blender':[0,10,3.8],'lens_mm':28,'sensor_width_mm':36,'vertical_fov_degrees':round(math.degrees(2*math.atan(36*9/16/(2*28))),4)},'limitations':['Blender geometry checks only; Unity import/physics and Quest headset traversal not executed.']}
+report={'tree_ground_checks':tree_checks,'units':'metres','doors_m':{'height':2.12,'width':1.08},'stairs_m':{'rise':.16,'tread':.4,'width':3.2,'steps':20},'routes':checks,'export_triangles_including_collision':export_triangles,'visual_objects':len(source),'collision_objects':len(collision_copies),'uv':'metric face islands; path strips use width-normalized U and 4m V repeat','review_camera':{'position_blender':[0,-21,1.65],'target_blender':[0,10,3.8],'lens_mm':28,'sensor_width_mm':36,'vertical_fov_degrees':round(math.degrees(2*math.atan(36*9/16/(2*28))),4)},'limitations':['Blender geometry checks only; Unity import/physics and Quest headset traversal not executed.']}
 (root/'Documentation/village-geometry-checks.json').write_text(json.dumps(report,indent=2)+'\n')
 bpy.ops.wm.save_as_mainfile(filepath=str(root/'Blender/MossbellVillage.blend'))
-for cam,filename in zip(cameras if '--no-render' not in sys.argv else [],['mossbell-street.png','mossbell-well.png','mossbell-terrace.png','mossbell-village.png']):
+for cam,filename in zip(cameras if '--no-render' not in sys.argv else [],['mossbell-street.png','mossbell-spring.png','mossbell-terrace.png','mossbell-village.png']):
  scene.camera=cam;scene.use_nodes=cam.name!='Layout overview'
  scene.render.filepath=str(root/'Documentation'/filename);bpy.ops.render.render(write_still=True)
 print('PASS: editable Blender source, UV OBJ, dedicated collision and route checks; '+('renders skipped (--no-render)' if '--no-render' in sys.argv else 'four comparison views rendered'))
