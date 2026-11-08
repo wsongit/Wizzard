@@ -118,3 +118,52 @@ This Blender preview shows the shapes with simple face colors. Unity applies
 its forest textures. Export geometry and the Blender render were checked;
 Unity imports, shader compilation, collisions and Quest performance still need
 validation in the editor/on device.
+
+## Mossbell Village
+
+An original mountain village is now reached through a gate near meadow coordinates
+**X 240, Z 104**. In desktop Play mode, press **V** to move near that entrance,
+then walk forward through the gate. In VR, travel to the small rocky mountain in
+the meadow and pass between its gate pillars.
+
+The camera fades to black, displays **Entering / Mossbell Village**, instantiates
+the village while the screen is covered, places the player safely inside, and
+fades back in. Walking through the village's exit gate reverses the transition.
+The meadow and village are mutually enabled areas in the same scene, not an
+additive scene download. The village is retained after first entry so return
+visits reuse its geometry. Movement velocity and planted-hand contacts reset on
+teleport; head tracking continues during the fade. A short arrival distance and
+cooldown avoid immediately entering the return gate.
+
+The village has nine plaster cottages/hall buildings with tiled roofs, a well
+square, watchtower with a climbable ladder, gardens, benches, a stepped upper
+terrace and enclosing cliffs. Buildings are exterior models; their doors do not
+open. Models use the existing separate low-resolution prop materials. Houses,
+terrain and cliffs have static mesh collision. Village model import keeps Read/
+Write enabled for Quest runtime marker lookup and collision setup. Arrival and
+exit use dedicated invisible material slots, making placement independent of
+OBJ coordinate conversion or Unity combining meshes.
+
+Source: `Blender/MossbellVillage.blend`; exported geometry:
+`Assets/Resources/Village/Mossbell.obj`. Regenerate from the repository root:
+`blender -b --threads 8 --python Tools/create_village.py`.
+
+![Mossbell village, Blender layout preview](Documentation/mossbell-village.png)
+
+The preview shows simple source colors; Unity applies the game's textures and
+adds trees. Blender generation/render and OBJ index/material/marker checks passed.
+C# syntax parsing passed, which does not establish Unity API or shader compilation.
+Run **Wizzard > Validate project** after import. Then test entry, the black screen
+and title in both eyes, arrival facing the square, walking/collision, terrace
+stairs, exiting, repeat visits and tracking during fades on a physical Quest.
+These Unity/device checks remain unrun in this cloud environment.
+
+Reference research: requests to the following Kakariko reference pages were
+blocked by the cloud proxy (HTTP CONNECT 403); no additional online images were
+viewed or copied. This village is an original layout, not a recreation of that map.
+- https://www.zeldadungeon.net/wiki/Kakariko_Village
+- https://zelda.fandom.com/wiki/Kakariko_Village
+
+The two reference-site domain additions were saved to the environment settings
+draft, preserving existing Unity domains. Apply them there to unblock research;
+saving the draft alone does not change current network access.

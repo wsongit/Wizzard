@@ -11,6 +11,7 @@ namespace Wizzard
     {
         public Transform head, leftHand, rightHand, body;
         public float armLength=.95f, handRadius=.10f, launchMultiplier=1.15f, maxSpeed=8f;
+        public bool MovementLocked { get; set; }
         public LayerMask surfaces=1<<MeadowWorld.GroundLayer;
         CharacterController motor;
         readonly Transform[] arms=new Transform[2];
@@ -37,6 +38,7 @@ namespace Wizzard
             float dt=Mathf.Min(Time.deltaTime,.033f); if(dt<=0) return;
             bool vr=XRSettings.isDeviceActive;
             if(vr) ReadHead(); else DesktopLook();
+            if(MovementLocked) return;
             targets[0]=HandTarget(XRNode.LeftHand,0,vr); targets[1]=HandTarget(XRNode.RightHand,1,vr);
             if(!initialized) { for(int i=0;i<2;i++) previous[i]=targets[i]; initialized=true; }
             Vector3 start=transform.position, push=Vector3.zero; int contacts=0;
@@ -151,7 +153,15 @@ namespace Wizzard
         }
         public void ResetPlayer()
         {
-            motor.enabled=false; transform.position=new Vector3(0,MeadowWorld.Height(0,0)+.2f,0);
+            Teleport(new Vector3(0,MeadowWorld.Height(0,0)+.2f,0),Quaternion.identity);
+        }
+        public void Teleport(Vector3 position,Quaternion rotation)
+        {
+            motor.enabled=false;
+            transform.rotation=rotation; yaw=rotation.eulerAngles.y;
+            // Put the physical head over the destination despite room-scale offsets.
+            Vector3 offset=transform.TransformVector(new Vector3(head.localPosition.x,0,head.localPosition.z));
+            transform.position=position-offset;
             motor.enabled=true; velocity=smoothedVelocity=Vector3.zero; initialized=false;
             touching[0]=touching[1]=false;
         }

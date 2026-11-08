@@ -43,6 +43,7 @@ namespace Wizzard
             var right=Visual("Right palm",rig.transform,Vector3.one*.19f,skin);
             var player=rig.AddComponent<GorillaPlayer>();
             player.head=head.transform; player.body=body.transform; player.leftHand=left.transform; player.rightHand=right.transform;
+            gameObject.AddComponent<MossbellVillage>().Initialize(player,GameObject.Find("2048m rolling meadow"));
             // Match controller and headset coordinates to the physical floor.
             var systems=new System.Collections.Generic.List<XRInputSubsystem>();
             SubsystemManager.GetInstances(systems);
@@ -58,7 +59,9 @@ namespace Wizzard
         void OnGUI()
         {
             if(XRSettings.isDeviceActive) return;
-            GUI.Box(new Rect(16,16,540,85),"WIZZARD • THE LONG MEADOW\n2 × 2 km • OpenXR • arm-driven movement\nDesktop: WASD / Space • Middle click: look • Esc: release mouse\nMouse buttons lower palms (debug only). VR: plant palms and push.");
+            var player=FindObjectOfType<GorillaPlayer>();
+            if(player!=null && player.MovementLocked) return;
+            GUI.Box(new Rect(16,16,540,85),"WIZZARD • THE LONG MEADOW\n2 × 2 km • OpenXR • arm-driven movement\nDesktop: WASD / Space • Middle click: look • Esc: release mouse\nV: visit village entrance • Mouse buttons: lower palms. VR: plant palms and push.");
         }
     }
 }

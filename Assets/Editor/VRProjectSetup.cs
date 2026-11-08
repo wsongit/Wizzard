@@ -94,6 +94,17 @@ namespace Wizzard.Editor
         public static void ValidateProject()
         {
             Configure();
+            var village=Resources.Load<GameObject>("Village/Mossbell");
+            if(village==null) throw new Exception("Mossbell village model missing");
+            bool arrival=false,exit=false;
+            foreach(var filter in village.GetComponentsInChildren<MeshFilter>())
+                if(!filter.sharedMesh.isReadable) throw new Exception("Reimport Mossbell.obj: village meshes must be readable on device");
+            foreach(var renderer in village.GetComponentsInChildren<MeshRenderer>())
+                foreach(var material in renderer.sharedMaterials)
+                    if(material!=null) { arrival|=material.name.StartsWith("Arrival");exit|=material.name.StartsWith("Exit"); }
+            if(!arrival || !exit) throw new Exception("Village arrival/exit marker material slots missing");
+            if(Shader.Find("Wizzard/VillageFade")==null || Shader.Find("Wizzard/VillageTitle")==null)
+                throw new Exception("Village transition shaders missing");
             if(Shader.Find("Wizzard/RetroGrass")==null) throw new Exception("Grass shader missing");
             if(Resources.Load<GameObject>("GorillaTorso")==null) throw new Exception("Blender torso missing");
             for(int i=1;i<=8;i++)

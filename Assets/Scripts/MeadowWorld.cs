@@ -12,6 +12,12 @@ namespace Wizzard
         public const int GroundLayer = 8;
         public static float Height(float x, float z)
         {
+            float distance=Vector2.Distance(new Vector2(x,z),MossbellVillage.MapLocation);
+            float blend=1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(48,72,distance));
+            return Mathf.Lerp(BaseHeight(x,z),BaseHeight(MossbellVillage.MapLocation.x,MossbellVillage.MapLocation.y),blend);
+        }
+        static float BaseHeight(float x,float z)
+        {
             float edge = Mathf.Max(Mathf.Abs(x), Mathf.Abs(z));
             float hills = 5f * Mathf.Sin(x * .012f) * Mathf.Cos(z * .009f)
                         + 2.5f * Mathf.Sin(x * .027f + z * .018f)
@@ -60,7 +66,7 @@ namespace Wizzard
             for(int i=0;i<48;i++)
             {
                 float x=(float)random.NextDouble()*1500-750, z=(float)random.NextDouble()*1500-750;
-                if(new Vector2(x,z).magnitude<25) continue;
+                if(new Vector2(x,z).magnitude<25 || Vector2.Distance(new Vector2(x,z),MossbellVillage.MapLocation)<80) continue;
                 float h=Height(x,z);
                 var rock=GameObject.CreatePrimitive(PrimitiveType.Cube); rock.name="Climbable stone";
                 rock.layer=GroundLayer; rock.transform.SetParent(transform);
