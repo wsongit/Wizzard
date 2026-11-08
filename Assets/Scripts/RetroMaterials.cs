@@ -8,8 +8,8 @@ namespace Wizzard
     {
         public static readonly string[] Names={"Grass","Bark","Stone","Leaves","Fur","Skin","HousePlaster","RoofTiles","Wood"};
         static readonly Dictionary<string,Material> cache=new Dictionary<string,Material>();
-        static readonly Color[] dark={new Color(.09f,.13f,.035f),new Color(.12f,.10f,.055f),new Color(.18f,.19f,.13f),new Color(.18f,.36f,.065f),new Color(.19f,.10f,.045f),new Color(.35f,.23f,.12f),new Color(.40f,.36f,.25f),new Color(.19f,.105f,.075f),new Color(.18f,.105f,.045f)};
-        static readonly Color[] light={new Color(.43f,.45f,.14f),new Color(.39f,.36f,.23f),new Color(.49f,.48f,.34f),new Color(.40f,.62f,.14f),new Color(.43f,.27f,.13f),new Color(.65f,.47f,.25f),new Color(.73f,.67f,.47f),new Color(.49f,.27f,.16f),new Color(.48f,.32f,.14f)};
+        static readonly Color[] dark={new Color(.09f,.13f,.035f),new Color(.12f,.10f,.055f),new Color(.18f,.19f,.13f),new Color(.22f,.72f,.025f),new Color(.19f,.10f,.045f),new Color(.35f,.23f,.12f),new Color(.40f,.36f,.25f),new Color(.19f,.105f,.075f),new Color(.18f,.105f,.045f)};
+        static readonly Color[] light={new Color(.43f,.45f,.14f),new Color(.39f,.36f,.23f),new Color(.49f,.48f,.34f),new Color(.38f,.95f,.055f),new Color(.43f,.27f,.13f),new Color(.65f,.47f,.25f),new Color(.73f,.67f,.47f),new Color(.49f,.27f,.16f),new Color(.48f,.32f,.14f)};
         static float Noise(float x,float y,int seed)
         {
             // Periodic waves give seamless broad mottling instead of independent pixel confetti.
@@ -42,11 +42,12 @@ namespace Wizzard
             {
                 float u=x/64f,v=y/64f;
                 float t=.5f+Noise(u,v,id)+(float)(rng.NextDouble()-.5)*.22f;
-                if(kind=="Leaves") t=.4f+SoftMottle(u,v)*.25f;
-                if(kind=="Bark") t=.35f+SoftMottle(u,v)*.3f+.04f*Mathf.Sin(u*100.53096f+Mathf.Sin(v*6.283185f));
+                // Tiny independent flecks avoid directional patterns and contour bands.
+                if(kind=="Leaves") t=.65f+(float)(rng.NextDouble()-.5)*.08f;
+                if(kind=="Bark") t=.4f+SoftMottle(u,v)*.2f;
                 if(kind=="Wood" || kind=="Fur") t+=.18f*Mathf.Sin(u*100.53096f+Mathf.Sin(v*6.283185f));
                 if(kind=="RoofTiles" && (y%16<2 || (x+(y/16%2)*8)%16<2)) t=.06f;
-                tex.SetPixel(x,y,Color.Lerp(dark[id],light[id],Mathf.Round(Mathf.Clamp01(t)*15)/15));
+                tex.SetPixel(x,y,Color.Lerp(dark[id],light[id],(kind=="Leaves" || kind=="Bark")?t:Mathf.Round(Mathf.Clamp01(t)*15)/15));
             }
             tex.Apply(); return tex;
         }
@@ -55,6 +56,7 @@ namespace Wizzard
             if(cache.TryGetValue(kind,out var existing) && existing!=null) return existing;
             var material=new Material(Shader.Find("Wizzard/RetroGrass")) {name="Retro "+kind,mainTexture=Texture(kind)};
             material.SetFloat("_TileScale",kind=="Grass"?.25f:kind=="Leaves"?.35f:kind=="Bark"?.65f:1f);
+            material.SetFloat("_ShadeStrength",kind=="Leaves"?.12f:.35f);
             cache[kind]=material; return material;
         }
     }

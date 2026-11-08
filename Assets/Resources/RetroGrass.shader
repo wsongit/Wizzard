@@ -1,6 +1,6 @@
 Shader "Wizzard/RetroGrass"
 {
- Properties { _Color ("Tint", Color) = (1,1,1,1) _MainTex ("Low resolution surface", 2D) = "white" {} _TileScale ("Texture repeats per unit", Float) = 1 }
+ Properties { _ShadeStrength ("Directional shading", Range(0,1)) = 0.35 _Color ("Tint", Color) = (1,1,1,1) _MainTex ("Low resolution surface", 2D) = "white" {} _TileScale ("Texture repeats per unit", Float) = 1 }
  SubShader {
  Tags { "RenderType"="Opaque" }
  Pass {
@@ -10,7 +10,7 @@ Shader "Wizzard/RetroGrass"
  #pragma multi_compile_fog
  #pragma multi_compile_instancing
  #include "UnityCG.cginc"
- sampler2D _MainTex; float _TileScale; fixed4 _Color;
+ sampler2D _MainTex; float _TileScale; float _ShadeStrength; fixed4 _Color;
  struct appdata { float4 vertex:POSITION; float3 normal:NORMAL; UNITY_VERTEX_INPUT_INSTANCE_ID };
  struct v2f { float4 vertex:SV_POSITION; float3 pos:TEXCOORD0; float3 normal:TEXCOORD1; UNITY_FOG_COORDS(2) UNITY_VERTEX_OUTPUT_STEREO };
  v2f vert(appdata v) {
@@ -22,7 +22,7 @@ Shader "Wizzard/RetroGrass"
  float3 weights=pow(abs(normalize(i.normal)),4); weights/=max(dot(weights,float3(1,1,1)),.0001);
  fixed4 c=tex2D(_MainTex,i.pos.yz)*weights.x+tex2D(_MainTex,i.pos.xz)*weights.y+tex2D(_MainTex,i.pos.xy)*weights.z;
  c.rgb*=_Color.rgb;
- c.rgb*=.65+.35*saturate(dot(normalize(i.normal),normalize(float3(.4,1,.3))));
+ c.rgb*=(1-_ShadeStrength)+_ShadeStrength*saturate(dot(normalize(i.normal),normalize(float3(.4,1,.3))));
  c.a=1; UNITY_APPLY_FOG(i.fogCoord,c); return c;
  }
  ENDCG
