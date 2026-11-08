@@ -37,7 +37,23 @@ namespace Wizzard
                 {
                     var materials=renderer.sharedMaterials;
                     for(int i=0;i<materials.Length;i++)
-                        materials[i]=filter.name.StartsWith("Crown")?foliage[i%foliage.Length]:RetroMaterials.Get("Bark");
+                    {
+                        // OBJ import can combine trunk and crown into one renderer.
+                        // Material-slot names survive that merge; object names do not.
+                        string source=materials[i]!=null?materials[i].name:"";
+                        if(source.IndexOf("Leaves",System.StringComparison.OrdinalIgnoreCase)>=0)
+                            materials[i]=foliage[i%foliage.Length];
+                        else if(source.IndexOf("Bark",System.StringComparison.OrdinalIgnoreCase)>=0)
+                            materials[i]=RetroMaterials.Get("Bark");
+                        else if(filter.name.StartsWith("Trunk"))
+                            materials[i]=RetroMaterials.Get("Bark");
+                        else
+                        {
+                            materials[i]=foliage[i%foliage.Length];
+                            if(!filter.name.StartsWith("Crown"))
+                                Debug.LogWarning($"Tree material '{source}' was not recognized; using foliage. Check OBJ material import settings.",renderer);
+                        }
+                    }
                     renderer.sharedMaterials=materials;
                 }
                 var collider=filter.gameObject.AddComponent<MeshCollider>();
