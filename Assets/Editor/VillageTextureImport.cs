@@ -9,7 +9,7 @@ namespace Wizzard.Editor
             if(!assetPath.StartsWith("Assets/Resources/VillageTextures/")) return;
             var importer=(TextureImporter)assetImporter;
             importer.maxTextureSize=64;importer.mipmapEnabled=true;importer.sRGBTexture=true;
-            importer.wrapMode=TextureWrapMode.Repeat;importer.filterMode=FilterMode.Point;
+            importer.wrapMode=TextureWrapMode.Repeat;importer.filterMode=FilterMode.Bilinear;
             importer.anisoLevel=0;importer.textureCompression=TextureImporterCompression.Uncompressed;
         }
     }

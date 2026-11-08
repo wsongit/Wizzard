@@ -14,7 +14,16 @@ namespace Wizzard
         GameObject meadow, village;
         Material curtain, villageSky, previousSky;
         Color previousFog;
-        float previousFogStart,previousFogEnd;
+        float previousFogStart,previousFogEnd,previousShadowDistance,previousStepOffset;
+        ShadowQuality previousShadowQuality;
+        ShadowResolution previousShadowResolution;
+        int previousShadowCascades;
+        Light sun;
+        LightShadows previousSunShadows;
+        Quaternion previousSunRotation;
+        Camera reviewCamera;
+        readonly List<Renderer> reviewHidden=new List<Renderer>();
+        public bool ReviewActive => reviewCamera!=null && reviewCamera.enabled;
         CameraClearFlags previousClear;
         Camera view;
         TextMesh title;
@@ -27,6 +36,11 @@ namespace Wizzard
             view=player.head.GetComponent<Camera>();previousClear=view.clearFlags;
             previousSky=RenderSettings.skybox;previousFog=RenderSettings.fogColor;
             previousFogStart=RenderSettings.fogStartDistance;previousFogEnd=RenderSettings.fogEndDistance;
+            previousShadowDistance=QualitySettings.shadowDistance;previousShadowQuality=QualitySettings.shadows;
+            previousShadowResolution=QualitySettings.shadowResolution;previousShadowCascades=QualitySettings.shadowCascades;
+            previousStepOffset=player.GetComponent<CharacterController>().stepOffset;
+            var sunObject=GameObject.Find("Afternoon sun");sun=sunObject!=null?sunObject.GetComponent<Light>():null;
+            if(sun!=null) { previousSunShadows=sun.shadows;previousSunRotation=sun.transform.rotation; }
             villageSky=new Material(Shader.Find("Wizzard/VillageSky"));
             gate=new Vector3(MapLocation.x,MeadowWorld.Height(MapLocation.x,MapLocation.y),MapLocation.y-36);
             CreateMountain();
@@ -46,7 +60,15 @@ namespace Wizzard
         }
         void Update()
         {
-            if(player==null || busy || Time.unscaledTime<cooldown) return;
+            if(player==null) return;
+            if(ReviewActive && XRSettings.isDeviceActive) EndReview();
+            if(busy || Time.unscaledTime<cooldown) return;
+            if(!XRSettings.isDeviceActive && Keyboard.current!=null && Keyboard.current.f8Key.wasPressedThisFrame)
+            {
+                if(ReviewActive) EndReview();else StartCoroutine(BeginReview());
+                return;
+            }
+            if(ReviewActive) return;
             if(!inside && !XRSettings.isDeviceActive && Keyboard.current!=null && Keyboard.current.vKey.wasPressedThisFrame)
                 player.Teleport(gate+Vector3.back*10,Quaternion.identity);
             Vector3 p=player.head.position;
@@ -117,17 +139,20 @@ namespace Wizzard
         void BuildInterior()
         {
             village=Instantiate(Resources.Load<GameObject>("Village/Mossbell")); village.name=VillageName;
+            try
+            {
             var invisible=new Material(Shader.Find("Wizzard/VillageFade"));invisible.color=Color.clear;
-            bool hasArrival=false,hasExit=false;
+            bool hasArrival=false,hasExit=false,hasCollision=false;
             foreach(var filter in village.GetComponentsInChildren<MeshFilter>())
             {
                 filter.gameObject.layer=MeadowWorld.GroundLayer;
                 var renderer=filter.GetComponent<MeshRenderer>();var materials=renderer.sharedMaterials;
-                var triangles=new List<int>();
+                var triangles=new List<int>();bool hasVisual=false;
                 for(int slot=0;slot<materials.Length;slot++)
                 {
                     string source=materials[slot]!=null?materials[slot].name:"";
                     bool marker=source.StartsWith("Arrival") || source.StartsWith("Exit");
+                    bool collisionOnly=source.StartsWith("Collision");
                     var indices=filter.sharedMesh.GetTriangles(slot);
                     if(marker)
                     {
@@ -138,34 +163,92 @@ namespace Wizzard
                         else { exit=bounds.center;hasExit=true; }
                         materials[slot]=invisible;
                     }
-                    else
+                    else if(collisionOnly)
                     {
-                        foreach(string kind in RetroMaterials.Names)
-                            if(source.StartsWith(kind)) { materials[slot]=RetroMaterials.Get(kind);break; }
-                        triangles.AddRange(indices);
+                        materials[slot]=invisible;triangles.AddRange(indices);hasCollision=true;
                     }
+                    else { materials[slot]=VillageMaterials.Get(source);hasVisual=true; }
                 }
                 renderer.sharedMaterials=materials;
+                // Handles both preserved groups and importers that merge material submeshes.
+                renderer.enabled=hasVisual;
                 if(triangles.Count>0)
                 {
                     var collision=Instantiate(filter.sharedMesh);collision.subMeshCount=1;collision.triangles=triangles.ToArray();
                     filter.gameObject.AddComponent<MeshCollider>().sharedMesh=collision;
                 }
             }
+            if(!hasCollision) throw new System.InvalidOperationException("Village dedicated collision mesh missing. Reimport Mossbell.obj.");
             if(!hasArrival || !hasExit) throw new System.InvalidOperationException("Village marker materials were not imported. Enable material import for Mossbell.obj.");
-            // Keep Blender/import coordinate conversion out of arrival/exit calculations.
-            MeadowTrees.Create(2,village.transform,new Vector3(-46,0,-25));
-            MeadowTrees.Create(4,village.transform,new Vector3(46,0,-15));
-            MeadowTrees.Create(1,village.transform,new Vector3(-12,4.05f,38));
+            // Trees, route collision and all props now come from the editable Blender scene.
             village.SetActive(false);
+            }
+            catch
+            {
+                Destroy(village);village=null;throw;
+            }
         }
         void SetAtmosphere(bool villageActive)
         {
             RenderSettings.skybox=villageActive?villageSky:previousSky;
             view.clearFlags=villageActive?CameraClearFlags.Skybox:previousClear;
-            RenderSettings.fogColor=villageActive?new Color(.52f,.55f,.72f):previousFog;
-            RenderSettings.fogStartDistance=villageActive?80:previousFogStart;
-            RenderSettings.fogEndDistance=villageActive?350:previousFogEnd;
+            RenderSettings.fogColor=villageActive?new Color(.55f,.56f,.70f):previousFog;
+            RenderSettings.fogStartDistance=villageActive?35:previousFogStart;
+            RenderSettings.fogEndDistance=villageActive?140:previousFogEnd;
+            QualitySettings.shadows=villageActive?ShadowQuality.All:previousShadowQuality;
+            QualitySettings.shadowDistance=villageActive?55:previousShadowDistance;
+            QualitySettings.shadowResolution=villageActive?ShadowResolution.Medium:previousShadowResolution;
+            QualitySettings.shadowCascades=villageActive?0:previousShadowCascades;
+            if(sun!=null)
+            {
+                sun.shadows=villageActive?LightShadows.Soft:previousSunShadows;
+                Vector3 forward=arrival-exit;forward.y=0;forward.Normalize();
+                Vector3 right=Vector3.Cross(Vector3.up,forward);
+                sun.transform.rotation=villageActive?Quaternion.LookRotation(-right*.265f+forward*.628f+Vector3.down*.732f):previousSunRotation;
+            }
+            player.GetComponent<CharacterController>().stepOffset=villageActive?.2f:previousStepOffset;
+        }
+        IEnumerator BeginReview()
+        {
+            // Separate desktop camera never replaces tracked headset poses.
+            if(XRSettings.isDeviceActive) yield break;
+            if(!inside) yield return Transition(true);
+            if(!inside || XRSettings.isDeviceActive) yield break;
+            if(reviewCamera==null)
+            {
+                reviewCamera=new GameObject("Village entrance comparison camera").AddComponent<Camera>();
+                reviewCamera.CopyFrom(view);reviewCamera.stereoTargetEye=StereoTargetEyeMask.None;
+            }
+            Vector3 forward=arrival-exit;forward.y=0;forward.Normalize();
+            reviewCamera.transform.position=arrival+Vector3.up*(1.65f-arrival.y);
+            reviewCamera.transform.rotation=Quaternion.LookRotation(forward+Vector3.up*(2.15f/31));
+            reviewCamera.fieldOfView=39.7607f;reviewCamera.aspect=16f/9f;
+            reviewCamera.clearFlags=CameraClearFlags.Skybox;
+            reviewCamera.enabled=true;view.enabled=false;player.MovementLocked=true;
+            foreach(var renderer in player.GetComponentsInChildren<Renderer>())
+                if(renderer.enabled) { reviewHidden.Add(renderer);renderer.enabled=false; }
+        }
+        void EndReview()
+        {
+            if(reviewCamera!=null) reviewCamera.enabled=false;
+            foreach(var renderer in reviewHidden) if(renderer!=null) renderer.enabled=true;
+            reviewHidden.Clear();view.enabled=true;player.MovementLocked=false;
+        }
+        public void CaptureReview(string path)
+        {
+            if(!ReviewActive) throw new System.InvalidOperationException("Press F8 and wait for the village review camera first.");
+            var target=new RenderTexture(1280,720,24);var oldTarget=reviewCamera.targetTexture;var oldActive=RenderTexture.active;
+            var image=new Texture2D(1280,720,TextureFormat.RGB24,false);
+            try
+            {
+                reviewCamera.targetTexture=target;reviewCamera.Render();RenderTexture.active=target;
+                image.ReadPixels(new Rect(0,0,1280,720),0,0);image.Apply();
+                System.IO.File.WriteAllBytes(path,image.EncodeToPNG());
+            }
+            finally
+            {
+                reviewCamera.targetTexture=oldTarget;RenderTexture.active=oldActive;Destroy(target);Destroy(image);
+            }
         }
         void CreateMountain()
         {

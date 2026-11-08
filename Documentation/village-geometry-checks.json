@@ -1,0 +1,73 @@
+{
+  "units": "metres",
+  "doors_m": {
+    "height": 2.12,
+    "width": 1.08
+  },
+  "stairs_m": {
+    "rise": 0.16,
+    "tread": 0.4,
+    "width": 3.2,
+    "steps": 20
+  },
+  "routes": [
+    {
+      "route": "Left stair",
+      "samples": 69,
+      "max_centerline_slope_degrees": 21.8,
+      "issues": []
+    },
+    {
+      "route": "Lower right climb",
+      "samples": 104,
+      "max_centerline_slope_degrees": 12.31,
+      "issues": []
+    },
+    {
+      "route": "Upper right climb",
+      "samples": 144,
+      "max_centerline_slope_degrees": 12.06,
+      "issues": []
+    },
+    {
+      "route": "Entrance court",
+      "samples": 135,
+      "max_centerline_slope_degrees": 9.09,
+      "issues": []
+    },
+    {
+      "route": "Middle terrace connection",
+      "samples": 133,
+      "max_centerline_slope_degrees": 0,
+      "issues": []
+    },
+    {
+      "route": "Windmill approach",
+      "samples": 70,
+      "max_centerline_slope_degrees": 0,
+      "issues": []
+    }
+  ],
+  "export_triangles_including_collision": 14656,
+  "visual_objects": 781,
+  "collision_objects": 305,
+  "uv": "metric face islands; path strips use width-normalized U and 4m V repeat",
+  "review_camera": {
+    "position_blender": [
+      0,
+      -21,
+      1.65
+    ],
+    "target_blender": [
+      0,
+      10,
+      3.8
+    ],
+    "lens_mm": 28,
+    "sensor_width_mm": 36,
+    "vertical_fov_degrees": 39.7607
+  },
+  "limitations": [
+    "Blender geometry checks only; Unity import/physics and Quest headset traversal not executed."
+  ]
+}

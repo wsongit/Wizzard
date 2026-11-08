@@ -61,7 +61,7 @@ namespace Wizzard
             if(XRSettings.isDeviceActive) return;
             var player=FindObjectOfType<GorillaPlayer>();
             if(player!=null && player.MovementLocked) return;
-            GUI.Box(new Rect(16,16,540,85),"WIZZARD • THE LONG MEADOW\n2 × 2 km • OpenXR • arm-driven movement\nDesktop: WASD / Space • Middle click: look • Esc: release mouse\nV: visit village entrance • Mouse buttons: lower palms. VR: plant palms and push.");
+            GUI.Box(new Rect(16,16,540,85),"WIZZARD • THE LONG MEADOW\n2 × 2 km • OpenXR • arm-driven movement\nDesktop: WASD / Space • Middle click: look • Esc: release mouse\nV: village entrance • F8: village review • Mouse buttons: lower palms. VR: plant palms and push.");
         }
     }
 }

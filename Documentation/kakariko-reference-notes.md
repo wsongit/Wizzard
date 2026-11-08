@@ -1,3 +1,5 @@
+> Historical reference notes. The current Blender rebuild follows the later daytime entrance brief; see [current handoff](village-rebuild.md). The older layout, glowing windows and four-metre terrace described below are superseded.
+
 # Kakariko N64 reference review
 
 Source: the user's `Kakariko_Village_N64_100_JPGs.zip` (100 JPGs).

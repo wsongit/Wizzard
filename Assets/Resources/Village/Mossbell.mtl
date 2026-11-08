@@ -2,27 +2,27 @@
 # www.blender.org
 
 newmtl Arrival
-Ns 250.000000
+Ns 360.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.000000 0.000000 0.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
+Ni 1.000000
+d 0.000000
+illum 9
 
-newmtl Bark
-Ns 250.000000
+newmtl Collision
+Ns 360.000000
 Ka 1.000000 1.000000 1.000000
-Kd 0.240000 0.160000 0.080000
+Kd 0.000000 0.000000 0.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
+Ni 1.000000
+d 0.000000
+illum 9
 
 newmtl Comb
-Ns 250.000000
+Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
@@ -31,18 +31,8 @@ d 1.000000
 illum 2
 map_Kd ../VillageTextures/Comb.png
 
-newmtl DirtPath
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
-map_Kd ../VillageTextures/DirtPath.png
-
 newmtl EarthCliff
-Ns 250.000000
+Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
@@ -52,17 +42,17 @@ illum 2
 map_Kd ../VillageTextures/EarthCliff.png
 
 newmtl Exit
-Ns 250.000000
+Ns 360.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.000000 0.000000 0.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 1.000000
-illum 2
+Ni 1.000000
+d 0.000000
+illum 9
 
 newmtl Feathers
-Ns 250.000000
+Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
@@ -72,7 +62,7 @@ illum 2
 map_Kd ../VillageTextures/Feathers.png
 
 newmtl Grass
-Ns 250.000000
+Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
@@ -82,7 +72,7 @@ illum 2
 map_Kd ../VillageTextures/Grass.png
 
 newmtl HousePlaster
-Ns 250.000000
+Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
@@ -92,7 +82,7 @@ illum 2
 map_Kd ../VillageTextures/HousePlaster.png
 
 newmtl Leaves
-Ns 250.000000
+Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
@@ -102,7 +92,7 @@ illum 2
 map_Kd ../VillageTextures/Leaves.png
 
 newmtl Masonry
-Ns 250.000000
+Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
@@ -111,18 +101,28 @@ d 1.000000
 illum 2
 map_Kd ../VillageTextures/Masonry.png
 
-newmtl RoofSlate
-Ns 250.000000
+newmtl Mountain
+Ns 0.000000
 Ka 1.000000 1.000000 1.000000
-Kd 0.220000 0.240000 0.320000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
+map_Kd ../VillageTextures/Mountain.png
+
+newmtl PathBlend
+Ns 0.000000
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd ../VillageTextures/PathBlend.png
 
 newmtl RoofTiles
-Ns 250.000000
+Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
@@ -132,7 +132,7 @@ illum 2
 map_Kd ../VillageTextures/RoofTiles.png
 
 newmtl SailCloth
-Ns 250.000000
+Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
@@ -141,28 +141,18 @@ d 1.000000
 illum 2
 map_Kd ../VillageTextures/SailCloth.png
 
-newmtl Stone
-Ns 250.000000
+newmtl WindowDark
+Ns 0.000000
 Ka 1.000000 1.000000 1.000000
-Kd 0.400000 0.420000 0.300000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 2
-
-newmtl WindowLight
-Ns 250.000000
-Ka 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ni 1.500000
-d 1.000000
-illum 2
-map_Kd ../VillageTextures/WindowLight.png
-map_Ke ../VillageTextures/WindowLight.png
+map_Kd ../VillageTextures/WindowDark.png
 
 newmtl Wood
-Ns 250.000000
+Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000

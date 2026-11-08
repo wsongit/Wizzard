@@ -96,21 +96,26 @@ namespace Wizzard.Editor
             Configure();
             var village=Resources.Load<GameObject>("Village/Mossbell");
             if(village==null) throw new Exception("Mossbell village model missing");
-            bool arrival=false,exit=false;
+            bool arrival=false,exit=false,collision=false;
             foreach(var filter in village.GetComponentsInChildren<MeshFilter>())
-                if(!filter.sharedMesh.isReadable) throw new Exception("Reimport Mossbell.obj: village meshes must be readable on device");
+                {
+                    if(!filter.sharedMesh.isReadable) throw new Exception("Reimport Mossbell.obj: village meshes must be readable on device");
+                    if(filter.sharedMesh.uv.Length!=filter.sharedMesh.vertexCount) throw new Exception("Village metric UVs missing");
+                }
             foreach(var renderer in village.GetComponentsInChildren<MeshRenderer>())
                 foreach(var material in renderer.sharedMaterials)
-                    if(material!=null) { arrival|=material.name.StartsWith("Arrival");exit|=material.name.StartsWith("Exit"); }
+                    if(material!=null) { arrival|=material.name.StartsWith("Arrival");exit|=material.name.StartsWith("Exit");collision|=material.name.StartsWith("Collision"); }
+            if(!collision) throw new Exception("Village collision material missing");
             if(!arrival || !exit) throw new Exception("Village arrival/exit marker material slots missing");
             if(Shader.Find("Wizzard/VillageFade")==null || Shader.Find("Wizzard/VillageTitle")==null || Shader.Find("Wizzard/VillageSky")==null)
                 throw new Exception("Village transition shaders missing");
-            foreach(string name in new[]{"HousePlaster","RoofTiles","Masonry","Wood","Grass","Leaves","DirtPath","WindowLight","SailCloth"})
+            foreach(string name in new[]{"HousePlaster","RoofTiles","Masonry","Wood","Grass","Leaves","DirtPath","WindowDark","SailCloth","PathBlend","EarthCliff","Mountain"})
             {
                 var texture=Resources.Load<Texture2D>("VillageTextures/"+name);
                 if(texture==null || texture.width!=64 || texture.height!=64)
                     throw new Exception("Missing or incorrectly sized village texture: "+name);
             }
+            if(Shader.Find("Wizzard/VillageSurface")==null) throw new Exception("Village UV shader missing");
             if(Shader.Find("Wizzard/RetroGrass")==null) throw new Exception("Grass shader missing");
             if(Resources.Load<GameObject>("GorillaTorso")==null) throw new Exception("Blender torso missing");
             for(int i=1;i<=8;i++)

@@ -128,62 +128,30 @@ the meadow and pass between its gate pillars.
 
 The camera fades to black, displays **Entering / Mossbell Village**, instantiates
 the village while the screen is covered, places the player safely inside, and
-fades back in. Walking through the village's exit gate reverses the transition.
+fades back in. Walking back out behind the village arrival point reverses the transition.
 The meadow and village are mutually enabled areas in the same scene, not an
 additive scene download. The village is retained after first entry so return
 visits reuse its geometry. Movement velocity and planted-hand contacts reset on
 teleport; head tracking continues during the fade. A short arrival distance and
 cooldown avoid immediately entering the return gate.
 
-The village has nine plaster cottages/hall buildings with tiled roofs, a well
-square, watchtower with a climbable ladder, gardens, benches, a stepped upper
-terrace and enclosing cliffs. Buildings are exterior models; their doors do not
-open. Models use the existing separate low-resolution prop materials. Houses,
-terrain and cliffs have static mesh collision. Village model import keeps Read/
-Write enabled for Quest runtime marker lookup and collision setup. Arrival and
-exit use dedicated invisible material slots, making placement independent of
-OBJ coordinate conversion or Unity combining meshes.
+The village has been rebuilt in Blender around the supplied daytime entrance reference: six varied timber-and-plaster cottages frame a compact square, a low stone well sits in the centre, left stairs lead to a middle cottage, and two winding ramps reach the raised windmill terrace. Broken rock formations and lavender mountain silhouettes replace the uniform arena wall. The lookout tower is removed. Seven olive-canopy trees, fences, crates and decorative chickens complete the environment.
 
-Source: `Blender/MossbellVillage.blend`; exported geometry:
-`Assets/Resources/Village/Mossbell.obj`. Regenerate from the repository root:
-`blender -b --threads 8 --python Tools/create_village.py`.
+Source: `Blender/MossbellVillage.blend`. Export: `Assets/Resources/Village/Mossbell.obj` and `.mtl`. The source preserves editable named objects and packed textures; export copies are batched by material. Houses are exterior shells; chickens and sails are static. Metric UVs, original 64×64 tiles, bilinear filtering and mipmaps replace the village's triplanar/point-filtered surfaces. Daytime windows are dark and muted.
 
-![Mossbell village, Blender layout preview](Documentation/mossbell-village.png)
+![Rebuilt village entrance — actual Blender render](Documentation/mossbell-street.png)
 
-The latest village previews use the same original 64×64 PNG artwork as Unity.
-Blender lighting differs from the runtime shader; Unity also adds more trees. Blender generation/render and OBJ index/material/marker checks passed.
-C# syntax parsing passed, which does not establish Unity API or shader compilation.
-Run **Wizzard > Validate project** after import. Then test entry, the black screen
-and title in both eyes, arrival facing the square, walking/collision, terrace
-stairs, exiting, repeat visits and tracking during fades on a physical Quest.
-These Unity/device checks remain unrun in this cloud environment.
+[Matched before/after comparison](Documentation/village-comparison.html) · [Full handoff and validation limits](Documentation/village-rebuild.md) · [Geometry report](Documentation/village-geometry-checks.json)
 
-Reference research is now based on the user-supplied
-`Kakariko_Village_N64_100_JPGs.zip`. All 100 images were reviewed as contact
-sheets, with six exterior/landmark frames enlarged. See
-[reference notes](Documentation/kakariko-reference-notes.md) for observations
-and the changes made. Earlier online requests were blocked, but the uploaded
-images resolved the reference-access blocker.
+The existing scene loads the new model through the village fade transition. Dedicated collision follows the terrain, ramps, stairs, building shells, fences and tree trunks. Materials use the authored UVs, soft directional shadows and blue-lavender fog. Meadow atmosphere and movement settings restore on exit.
 
-The latest visual target is the three user-provided images named
-`ChatGPT Image Nov 8, 2026, 02_49_05 AM.png`, `02_48_54 AM.png` and
-`02_48_48 AM.png`. Mossbell now has closer cream houses with prominent timber
-framing, red tiled roofs, warm cross-barred windows, four-metre stone terraces,
-railings, branching dirt paths, an open well, crates, decorative chickens and a
-cloth-sailed windmill. The layout is original. Chickens and windmill sails are
-static props; buildings remain exterior models.
+For a repeatable desktop comparison, play Meadow and press **F8**. It loads the village and switches to the 1.65 m entrance camera with the overlay and avatar hidden. Press F8 again to resume movement. Choose **Wizzard > Capture village comparison** to save an actual Unity capture. This review camera is disabled while XR is active.
 
-![Street-level textured Blender preview](Documentation/mossbell-street.png)
-![Well and windmill textured Blender preview](Documentation/mossbell-well.png)
+Regenerate with:
 
-`Tools/village_textures.py` generates the shared PNG artwork in
-`Assets/Resources/VillageTextures`. The importer uses 64px size, point filtering,
-mipmaps and uncompressed textures. Village texture tiles are used by both Blender
-and Unity; mipmaps keep distant details calmer in VR. Runtime village atmosphere
-uses a blue procedural cloud sky and pale distance haze, restored to the meadow
-settings on exit. Warm windows use full-bright materials rather than additional
-point lights. Materials remain available individually for future house/prop work.
+```sh
+blender -b -t 8 --python-exit-code 1 --python Tools/create_village.py
+python Tools/check_village_export.py
+```
 
-Blender rendering, exported geometry/material checks and C# syntax checks passed.
-Unity shader/API compilation, stereo rendering and headset performance are still
-unvalidated here. The latest change adds no package dependency or manifest edit.
+Blender renders, route support/headroom checks and export integrity checks passed. C# syntax parsing is not a Unity compilation. Unity 2022.3.20f1 and a Quest headset are unavailable here, so shader compilation, actual physics/traversal, stereo rendering and standalone performance remain unverified. Run **Wizzard > Validate project** after import and follow the headset checks in the handoff. This rebuild makes no package manifest change.
