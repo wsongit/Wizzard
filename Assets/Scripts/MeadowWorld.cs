@@ -56,8 +56,6 @@ namespace Wizzard
         void CreateLandmarks()
         {
             var stone = RetroMaterials.Get("Stone");
-            var bark = RetroMaterials.Get("Bark");
-            var leaf = RetroMaterials.Get("Leaves");
             var random = new System.Random(197);
             for(int i=0;i<48;i++)
             {
@@ -70,15 +68,7 @@ namespace Wizzard
                 rock.transform.localScale=new Vector3(4,3,4);
                 rock.transform.rotation=Quaternion.Euler(0,i*37,8);
                 rock.GetComponent<Renderer>().sharedMaterial=stone;
-                var trunk=GameObject.CreatePrimitive(PrimitiveType.Cylinder); trunk.name="Climbable tree";
-                trunk.layer=GroundLayer; trunk.transform.SetParent(transform);
-                trunk.transform.position=new Vector3(x+9,Height(x+9,z)+3,z);
-                trunk.transform.localScale=new Vector3(1.3f,3,1.3f);
-                trunk.GetComponent<Renderer>().sharedMaterial=bark;
-                var crown=GameObject.CreatePrimitive(PrimitiveType.Sphere); crown.name="Canopy";
-                crown.layer=GroundLayer; crown.transform.SetParent(transform);
-                crown.transform.position=trunk.transform.position+Vector3.up*4;
-                crown.transform.localScale=new Vector3(9,7,9); crown.GetComponent<Renderer>().sharedMaterial=leaf;
+                MeadowTrees.Create(i,transform,new Vector3(x+9,Height(x+9,z),z));
             }
         }
     }

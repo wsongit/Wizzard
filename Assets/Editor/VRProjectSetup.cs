@@ -96,6 +96,8 @@ namespace Wizzard.Editor
             Configure();
             if(Shader.Find("Wizzard/RetroGrass")==null) throw new Exception("Grass shader missing");
             if(Resources.Load<GameObject>("GorillaTorso")==null) throw new Exception("Blender torso missing");
+            for(int i=1;i<=8;i++)
+                if(Resources.Load<GameObject>($"Trees/Tree{i:00}")==null) throw new Exception($"Tree model {i} missing");
             if(float.IsNaN(MeadowWorld.Height(0,0))) throw new Exception("Invalid terrain height");
             Debug.Log("Wizzard project asset/configuration checks passed; headset play testing is still required.");
         }
