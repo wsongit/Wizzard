@@ -75,16 +75,18 @@ def terrace(name,poly,height):
  # Inset top lip and broken two-stage cut face; no rectangular arena platform.
  cx=sum(p[0] for p in poly)/len(poly);cy=sum(p[1] for p in poly)/len(poly)
  v=[]
- for ring,z in [(1.04,-.08),(1.02,height*.48),(1,height-.12)]:
+ for ring,z in [(1.04,-.08),(1.02,height*.48),(1,height)]:
   for x,y in poly:v.append((cx+(x-cx)*ring,cy+(y-cy)*ring,z))
  n=len(poly);f=[]
  for j in range(2):
   for i in range(n):k=j*n+i;q=j*n+(i+1)%n;f.append((k,q,q+n,k+n))
+ f.append(tuple(reversed(range(n))))
  mesh(name+' weathered cut face',v,f,'EarthCliff',True)
  mesh(name+' grassy top',[(x,y,height) for x,y in poly],[tuple(range(n))],'Grass',True)
  # A thin uneven moss band at the very top of the cut.
- vv=[(x,y,height+.012) for x,y in poly]+[(x,y,height-.16-.09*math.sin(i*2.4)) for i,(x,y) in enumerate(poly)]
- mesh(name+' grass fringe',vv,[(i,(i+1)%n,(i+1)%n+n,i+n) for i in range(n)],'Grass')
+ rim=[(cx+(x-cx)*1.001,cy+(y-cy)*1.001) for x,y in poly]
+ vv=[(x,y,height+.012) for x,y in rim]+[(x,y,height-.16-.09*math.sin(i*2.4)) for i,(x,y) in enumerate(rim)]
+ mesh(name+' grass fringe',vv,[(i,i+n,(i+1)%n+n,(i+1)%n) for i in range(n)],'Grass')
 
 def ribbon(name,points,width=3,mat='PathBlend',solid=False):
  points=[Vector(p) for p in points];v=[];dist=0;uvs=[]
@@ -105,6 +107,9 @@ def ramp(name,points,width=4.5):
  v=[tuple(a.co) for a in o.data.vertices];n=len(v);v.extend([(x,y,-.08) for x,y,z in v])
  faces=[]
  for i in range(0,n-3,3):faces.extend([(i,i+3,i+3+n,i+n),(i+2,i+2+n,i+5+n,i+5)])
+ faces.extend([(2,1,0,n,n+1,n+2),(n-3,n-2,n-1,2*n-1,2*n-2,2*n-3)])
+ for i in range(0,n-3,3):
+  for j in range(2):faces.append((i+n+j,i+n+j+3,i+n+j+4,i+n+j+1))
  mesh(name+' earth shoulders',v,faces,'EarthCliff',True)
  ribbon(name+' worn track',[(x,y,z+.012) for x,y,z in points],2.9)
  routes[name]=points
@@ -118,7 +123,7 @@ def fence(name,points):
  p=Vector(points[-1]);box(name+' end post',p+Vector((0,0,.55)),(.17,.17,1.1),'Wood',True)
 
 # Compact entrance court and two separate terraced landforms.
-mesh('Uneven village footprint',[(-35,-36,-.02),(33,-36,-.02),(36,14,-.02),(28,42,-.02),(-28,44,-.02),(-36,9,-.02)],[tuple(range(6))],'Grass',True)
+mesh('Uneven village footprint',[(-55,-46,-.02),(60,-46,-.02),(60,30,-.02),(55,68,-.02),(-55,68,-.02),(-55,9,-.02)],[tuple(range(6))],'Grass',True)
 terrace('Middle terrace',[(-25,13),(-18,9),(-13,8),(-7,8),(-2,7),(7,8),(11,14),(11,25),(-9,30),(-24,24)],3.2)
 terrace('Windmill terrace',[(5,23),(9,21),(16,20),(20,24),(20,34),(12,39),(3,35),(1,29)],8.0)
 # Square is deliberately small, with irregular path shoulders.
@@ -274,18 +279,36 @@ for side in (-1,1):
   h=rng.uniform(12,21);w=rng.uniform(6,10);d=rng.uniform(7,11)
   poly=[(x-w*.5,y-d*.5),(x+w*.5,y-d*.4),(x+w*.6,y+d*.5),(x-w*.4,y+d*.6)]
   top=[(px+side*rng.uniform(1,4),py+rng.uniform(-1,1),h+rng.uniform(-2,2)) for px,py in poly]
-  mesh('Irregular side rock',[(px,py,-.15) for px,py in poly]+top,[(i,(i+1)%4,(i+1)%4+4,i+4) for i in range(4)],'EarthCliff',True)
+  mesh('Irregular side rock',[(px,py,-.15) for px,py in poly]+top,[(i,(i+1)%4,(i+1)%4+4,i+4) for i in range(4)]+[(3,2,1,0)],'EarthCliff',True)
   mesh('Uneven grassy rock rim',top,[(0,1,2,3)],'Grass',True)
 for j in range(9):
  x=-36+j*9;y=45+rng.uniform(-2,5);h=rng.uniform(11,17)
- v=[(x-6,y,-1),(x+6,y+2,-1),(x+5,y+3,h),(x-4,y+1,h+rng.uniform(-4,4)),(x-3,y+11,h+3),(x+5,y+12,h+2)]
- mesh('Broken rear cliff',v,[(0,1,2,3),(3,2,5,4)],'EarthCliff',True)
+ v=[(x-6,y,-1),(x+6,y+2,-1),(x+5,y+3,h),(x-4,y+1,h+rng.uniform(-4,4)),(x-3,y+11,h+3),(x+5,y+12,h+2),(x-3,y+11,-1),(x+5,y+12,-1)]
+ mesh('Closed rear cliff',v,[(0,1,2,3),(3,2,5,4),(0,3,4,6),(1,7,5,2),(6,4,5,7),(0,6,7,1)],'EarthCliff',True)
+# Continuous, closed backing connects the decorative rocks without flattening their silhouettes.
+# The only perimeter opening is the 8m entrance corridor at the south.
+wall_path=[(-4,-34),(-18,-35),(-34,-30),(-37,-18),(-36,-5),(-38,9),(-36,23),(-37,39),(-29,51),(-14,54),(0,53),(15,55),(30,52),(42,42),(44,28),(43,14),(42,0),(42,-17),(36,-31),(19,-36),(4,-34)]
+wall_rng=random.Random(944);v=[];f=[]
+for i,(x,y) in enumerate(wall_path):
+ outward=Vector((x,y-8)).normalized()*8
+ height=7 if i in (0,len(wall_path)-1) else wall_rng.uniform(12,19)
+ v.extend([(x,y,-2),(x,y,height),(x+outward.x,y+outward.y,height+wall_rng.uniform(-1,2)),(x+outward.x,y+outward.y,-2)])
+for i in range(len(wall_path)-1):
+ k=i*4
+ f.extend([(k,k+4,k+5,k+1),(k+1,k+5,k+6,k+2),(k+2,k+6,k+7,k+3),(k+3,k+7,k+4,k)])
+f.extend([(0,1,2,3),tuple(range(len(v)-1,len(v)-5,-1))])
+perimeter=mesh('Closed irregular perimeter',v,f,'EarthCliff',True)
+perimeter.data.materials.append(materials['Grass'])
+for i in range(len(wall_path)-1):perimeter.data.polygons[i*4+1].material_index=1
 for layer,depth in enumerate((70,95)):
- verts=[]
+ verts=[];faces=[]
  for i in range(17):
   x=-100+i*12.5;h=20+rng.random()*15+layer*5
-  verts.extend([(x,depth,8),(x,depth+10,h)])
- mesh('Distant lavender ridge %s'%layer,verts,[(i*2,i*2+2,i*2+3,i*2+1) for i in range(16)],'Mountain')
+  verts.extend([(x,depth,-3),(x,depth+10,h),(x,depth+24,-3)])
+ for i in range(16):
+  k=i*3;faces.extend([(k,k+3,k+4,k+1),(k+1,k+4,k+5,k+2),(k+2,k+5,k+3,k)])
+ faces.extend([(0,1,2),(50,49,48)])
+ mesh('Closed distant lavender ridge %s'%layer,verts,faces,'Mountain')
 
 active='Details'
 box('Arrival marker',(0,-21,.035),(.02,.02,.02),'Arrival')
@@ -301,7 +324,9 @@ active='Collision'
 collision_copies=[]
 for src in solids:
  obj=bpy.data.objects.new('Collision '+src.name,src.data.copy());obj.matrix_world=src.matrix_world.copy();collections['Collision'].objects.link(obj)
- obj.data.materials.clear();obj.data.materials.append(materials['Collision']);collision_copies.append(obj)
+ obj.data.materials.clear();obj.data.materials.append(materials['Collision'])
+ for polygon in obj.data.polygons:polygon.material_index=0
+ collision_copies.append(obj)
 # Validate geometry support and clearance in Blender, not a substitute for headset testing.
 bpy.context.view_layer.update()
 verts=[];faces=[];owners=[]

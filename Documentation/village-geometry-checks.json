@@ -48,9 +48,9 @@
       "issues": []
     }
   ],
-  "export_triangles_including_collision": 14656,
-  "visual_objects": 781,
-  "collision_objects": 305,
+  "export_triangles_including_collision": 15440,
+  "visual_objects": 782,
+  "collision_objects": 306,
   "uv": "metric face islands; path strips use width-normalized U and 4m V repeat",
   "review_camera": {
     "position_blender": [

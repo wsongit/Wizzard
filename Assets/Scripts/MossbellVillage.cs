@@ -255,21 +255,30 @@ namespace Wizzard
             var mountain=new GameObject("Mossbell mountain entrance");mountain.transform.SetParent(meadow.transform);
             mountain.transform.position=new Vector3(MapLocation.x,gate.y,MapLocation.y);
             var vertices=new List<Vector3>();var triangles=new List<int>();
-            // Horseshoe mountain: an open southern approach, steep outer slopes and a rocky summit.
-            const int segments=30;
+            // Closed mountain cross-section: outer foot, crest, inner wall and buried base.
+            // Only the intentional southern approach stays open between the capped ends.
+            const int segments=30, rings=5;
             for(int i=0;i<=segments;i++)
             {
                 float a=Mathf.Lerp(-65,245,i/(float)segments)*Mathf.Deg2Rad;
-                for(int ring=0;ring<3;ring++)
+                for(int ring=0;ring<rings;ring++)
                 {
-                    float radius=ring==0?46:ring==1?27:15;
-                    float height=ring==0?0:ring==1?20+Mathf.Sin(a*5)*3:10;
+                    float radius=ring<2?46:ring==2?27:15;
+                    float height=ring==0 || ring==4?-2:ring==1?0:ring==2?20+Mathf.Sin(a*5)*3:10;
                     vertices.Add(new Vector3(Mathf.Cos(a)*radius,height,Mathf.Sin(a)*radius));
                 }
             }
-            for(int i=0;i<segments;i++) for(int r=0;r<2;r++)
-            {int k=i*3+r;triangles.AddRange(new[]{k,k+1,k+3,k+1,k+4,k+3});}
-            var mesh=new Mesh {vertices=vertices.ToArray(),triangles=triangles.ToArray()};mesh.RecalculateNormals();
+            for(int i=0;i<segments;i++) for(int r=0;r<rings;r++)
+            {
+                int k=i*rings+r, next=i*rings+(r+1)%rings;
+                triangles.AddRange(new[]{k,next,k+rings,next,next+rings,k+rings});
+            }
+            for(int r=1;r<rings-1;r++)
+            {
+                triangles.AddRange(new[]{0,r+1,r});
+                int end=segments*rings;triangles.AddRange(new[]{end,end+r,end+r+1});
+            }
+            var mesh=new Mesh {vertices=vertices.ToArray(),triangles=triangles.ToArray()};mesh.RecalculateNormals();mesh.RecalculateBounds();
             mountain.layer=MeadowWorld.GroundLayer;
             mountain.AddComponent<MeshFilter>().sharedMesh=mesh;mountain.AddComponent<MeshRenderer>().sharedMaterial=RetroMaterials.Get("Stone");
             mountain.AddComponent<MeshCollider>().sharedMesh=mesh;

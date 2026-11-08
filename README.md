@@ -155,3 +155,5 @@ python Tools/check_village_export.py
 ```
 
 Blender renders, route support/headroom checks and export integrity checks passed. C# syntax parsing is not a Unity compilation. Unity 2022.3.20f1 and a Quest headset are unavailable here, so shader compilation, actual physics/traversal, stereo rendering and standalone performance remain unverified. Run **Wizzard > Validate project** after import and follow the headset checks in the handoff. This rebuild makes no package manifest change.
+
+Village and exterior mountain wall gaps have been repaired. See [wall repair details and inside/outside previews](Documentation/village-wall-repair.md).
