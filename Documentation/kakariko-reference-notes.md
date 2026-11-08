@@ -35,4 +35,21 @@ it is not an animated or enterable building.
 Blender model generation and overview rendering passed. The exported model's
 indices and material names were checked against runtime material mappings.
 C# syntax parsing passed. Unity compilation, actual texture rendering and Quest
-play testing remain unrun; the Blender preview uses simple material colors.
+play testing remain unrun. The later visual-target refinement uses shared PNG
+textures in Blender and Unity; their lighting models still differ.
+
+
+## Later visual target: three supplied village images
+
+The user clarified that the target is the three ChatGPT images dated Nov 8, 2026
+at 02:49:05, 02:48:54 and 02:48:48. These show stronger timber-framed cream gables,
+red roof tiles, warm divided windows, prominent stone terraces, winding dirt
+paths, a winch well, fenced yards, crates and chickens. Two are daylight views;
+the runtime defaults to that daylight look rather than the first image's dusk.
+
+Implemented those details with original geometry and generated 64px artwork.
+No reference image pixels were copied into textures. The village retains its own
+layout but lower houses were brought closer to the square, the terrace was raised
+to four metres, and routes branch around the well. Ground-level previews are
+renders of the actual generated model and shared texture files. Roof winding
+and path overlaps were corrected while reviewing these views.

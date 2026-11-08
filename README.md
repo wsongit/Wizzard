@@ -150,8 +150,8 @@ Source: `Blender/MossbellVillage.blend`; exported geometry:
 
 ![Mossbell village, Blender layout preview](Documentation/mossbell-village.png)
 
-The preview shows simple source colors; Unity applies the game's textures and
-adds trees. Blender generation/render and OBJ index/material/marker checks passed.
+The latest village previews use the same original 64×64 PNG artwork as Unity.
+Blender lighting differs from the runtime shader; Unity also adds more trees. Blender generation/render and OBJ index/material/marker checks passed.
 C# syntax parsing passed, which does not establish Unity API or shader compilation.
 Run **Wizzard > Validate project** after import. Then test entry, the black screen
 and title in both eyes, arrival facing the square, walking/collision, terrace
@@ -165,9 +165,25 @@ sheets, with six exterior/landmark frames enlarged. See
 and the changes made. Earlier online requests were blocked, but the uploaded
 images resolved the reference-access blocker.
 
-The refined village adds a stone windmill with four static lattice sails,
-cream and brick walls, red and slate roofs, detailed shutter surrounds, an
-open well with a wooden winch, a fenced yard, masonry foundations and retaining
-walls, and irregular grass-topped earth cliffs. Its roads, square and house
-positions retain Mossbell's original layout. New Masonry, RoofSlate, EarthCliff
-and Brick materials are available through the retro material library menu.
+The latest visual target is the three user-provided images named
+`ChatGPT Image Nov 8, 2026, 02_49_05 AM.png`, `02_48_54 AM.png` and
+`02_48_48 AM.png`. Mossbell now has closer cream houses with prominent timber
+framing, red tiled roofs, warm cross-barred windows, four-metre stone terraces,
+railings, branching dirt paths, an open well, crates, decorative chickens and a
+cloth-sailed windmill. The layout is original. Chickens and windmill sails are
+static props; buildings remain exterior models.
+
+![Street-level textured Blender preview](Documentation/mossbell-street.png)
+![Well and windmill textured Blender preview](Documentation/mossbell-well.png)
+
+`Tools/village_textures.py` generates the shared PNG artwork in
+`Assets/Resources/VillageTextures`. The importer uses 64px size, point filtering,
+mipmaps and uncompressed textures. Village texture tiles are used by both Blender
+and Unity; mipmaps keep distant details calmer in VR. Runtime village atmosphere
+uses a blue procedural cloud sky and pale distance haze, restored to the meadow
+settings on exit. Warm windows use full-bright materials rather than additional
+point lights. Materials remain available individually for future house/prop work.
+
+Blender rendering, exported geometry/material checks and C# syntax checks passed.
+Unity shader/API compilation, stereo rendering and headset performance are still
+unvalidated here. The latest change adds no package dependency or manifest edit.

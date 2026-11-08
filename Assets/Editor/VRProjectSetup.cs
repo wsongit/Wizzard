@@ -103,8 +103,14 @@ namespace Wizzard.Editor
                 foreach(var material in renderer.sharedMaterials)
                     if(material!=null) { arrival|=material.name.StartsWith("Arrival");exit|=material.name.StartsWith("Exit"); }
             if(!arrival || !exit) throw new Exception("Village arrival/exit marker material slots missing");
-            if(Shader.Find("Wizzard/VillageFade")==null || Shader.Find("Wizzard/VillageTitle")==null)
+            if(Shader.Find("Wizzard/VillageFade")==null || Shader.Find("Wizzard/VillageTitle")==null || Shader.Find("Wizzard/VillageSky")==null)
                 throw new Exception("Village transition shaders missing");
+            foreach(string name in new[]{"HousePlaster","RoofTiles","Masonry","Wood","Grass","Leaves","DirtPath","WindowLight","SailCloth"})
+            {
+                var texture=Resources.Load<Texture2D>("VillageTextures/"+name);
+                if(texture==null || texture.width!=64 || texture.height!=64)
+                    throw new Exception("Missing or incorrectly sized village texture: "+name);
+            }
             if(Shader.Find("Wizzard/RetroGrass")==null) throw new Exception("Grass shader missing");
             if(Resources.Load<GameObject>("GorillaTorso")==null) throw new Exception("Blender torso missing");
             for(int i=1;i<=8;i++)

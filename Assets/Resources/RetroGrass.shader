@@ -20,7 +20,7 @@ Shader "Wizzard/RetroGrass"
  }
  fixed4 frag(v2f i):SV_Target {
  float3 weights=pow(abs(normalize(i.normal)),4); weights/=max(dot(weights,float3(1,1,1)),.0001);
- fixed4 c=tex2D(_MainTex,i.pos.yz)*weights.x+tex2D(_MainTex,i.pos.xz)*weights.y+tex2D(_MainTex,i.pos.xy)*weights.z;
+ fixed4 c=tex2D(_MainTex,i.pos.zy)*weights.x+tex2D(_MainTex,i.pos.xz)*weights.y+tex2D(_MainTex,i.pos.xy)*weights.z;
  c.rgb*=_Color.rgb;
  c.rgb*=(1-_ShadeStrength)+_ShadeStrength*saturate(dot(normalize(i.normal),normalize(float3(.4,1,.3))));
  c.a=1; UNITY_APPLY_FOG(i.fogCoord,c); return c;

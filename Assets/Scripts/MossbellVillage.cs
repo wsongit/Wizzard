@@ -12,7 +12,11 @@ namespace Wizzard
         public static readonly Vector2 MapLocation=new Vector2(240,140);
         GorillaPlayer player;
         GameObject meadow, village;
-        Material curtain;
+        Material curtain, villageSky, previousSky;
+        Color previousFog;
+        float previousFogStart,previousFogEnd;
+        CameraClearFlags previousClear;
+        Camera view;
         TextMesh title;
         Vector3 gate, arrival, exit;
         bool inside, busy;
@@ -20,6 +24,10 @@ namespace Wizzard
         public void Initialize(GorillaPlayer rig,GameObject world)
         {
             player=rig; meadow=world;
+            view=player.head.GetComponent<Camera>();previousClear=view.clearFlags;
+            previousSky=RenderSettings.skybox;previousFog=RenderSettings.fogColor;
+            previousFogStart=RenderSettings.fogStartDistance;previousFogEnd=RenderSettings.fogEndDistance;
+            villageSky=new Material(Shader.Find("Wizzard/VillageSky"));
             gate=new Vector3(MapLocation.x,MeadowWorld.Height(MapLocation.x,MapLocation.y),MapLocation.y-36);
             CreateMountain();
             // Camera-attached geometry renders in both eyes. Text is in front of the curtain.
@@ -78,7 +86,7 @@ namespace Wizzard
                 meadow.SetActive(true);village.SetActive(false);
                 player.Teleport(gate+Vector3.back*9,Quaternion.Euler(0,180,0));
             }
-            inside=entering;Physics.SyncTransforms();
+            inside=entering;SetAtmosphere(inside);Physics.SyncTransforms();
             yield return new WaitForSecondsRealtime(1.2f);
             title.gameObject.SetActive(false);
             yield return Fade(1,0,.8f);
@@ -88,7 +96,7 @@ namespace Wizzard
             {
                 if(!completed)
                 {
-                    inside=false;meadow.SetActive(true);if(village!=null) village.SetActive(false);
+                    inside=false;SetAtmosphere(false);meadow.SetActive(true);if(village!=null) village.SetActive(false);
                     player.Teleport(gate+Vector3.back*9,Quaternion.identity);
                 }
                 curtain.color=Color.clear;title.gameObject.SetActive(false);
@@ -148,8 +156,16 @@ namespace Wizzard
             // Keep Blender/import coordinate conversion out of arrival/exit calculations.
             MeadowTrees.Create(2,village.transform,new Vector3(-46,0,-25));
             MeadowTrees.Create(4,village.transform,new Vector3(46,0,-15));
-            MeadowTrees.Create(1,village.transform,new Vector3(-12,2.05f,38));
+            MeadowTrees.Create(1,village.transform,new Vector3(-12,4.05f,38));
             village.SetActive(false);
+        }
+        void SetAtmosphere(bool villageActive)
+        {
+            RenderSettings.skybox=villageActive?villageSky:previousSky;
+            view.clearFlags=villageActive?CameraClearFlags.Skybox:previousClear;
+            RenderSettings.fogColor=villageActive?new Color(.52f,.55f,.72f):previousFog;
+            RenderSettings.fogStartDistance=villageActive?80:previousFogStart;
+            RenderSettings.fogEndDistance=villageActive?350:previousFogEnd;
         }
         void CreateMountain()
         {
