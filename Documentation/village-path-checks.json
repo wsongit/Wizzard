@@ -1,0 +1,98 @@
+{
+  "source": "/workspace/Wizzard/Blender/MossbellVillage.blend",
+  "status": "PASS",
+  "representation": "One opaque landform; dirt and grass mixed by a shared PNG mask",
+  "legacy_path_surfaces": [],
+  "mask_dimensions": [
+    1024,
+    1024
+  ],
+  "max_world_uv_error": 0,
+  "projected_ground_triangles_checked": 4456,
+  "overlapping_top_triangle_pairs": 0,
+  "summed_projected_overlap_m2": 0,
+  "painted_mask_samples": 50810,
+  "max_painted_slope_degrees": 33.775,
+  "steep_painted_samples": 0,
+  "mask_component_sizes_pixels": [
+    50810
+  ],
+  "routes": [
+    {
+      "name": "Entrance worn path",
+      "samples": 438,
+      "minimum_mask_coverage": 1,
+      "failures": []
+    },
+    {
+      "name": "Left cottage track",
+      "samples": 330,
+      "minimum_mask_coverage": 1,
+      "failures": []
+    },
+    {
+      "name": "Right cottage track",
+      "samples": 309,
+      "minimum_mask_coverage": 1,
+      "failures": []
+    },
+    {
+      "name": "Lower right climb worn track",
+      "samples": 249,
+      "minimum_mask_coverage": 1,
+      "failures": []
+    },
+    {
+      "name": "Upper right climb worn track",
+      "samples": 351,
+      "minimum_mask_coverage": 1,
+      "failures": []
+    },
+    {
+      "name": "Middle cottage approach",
+      "samples": 321,
+      "minimum_mask_coverage": 1,
+      "failures": []
+    },
+    {
+      "name": "Bell approach",
+      "samples": 87,
+      "minimum_mask_coverage": 1,
+      "failures": []
+    }
+  ],
+  "junctions": [
+    {
+      "name": "Entrance and cottage tracks",
+      "xy": [
+        1,
+        3
+      ],
+      "mask_coverage": 1.0,
+      "passed": true
+    },
+    {
+      "name": "Middle approach to upper climb",
+      "xy": [
+        9,
+        19
+      ],
+      "mask_coverage": 1.0,
+      "passed": true
+    },
+    {
+      "name": "Upper climb to bell approach",
+      "xy": [
+        20,
+        30
+      ],
+      "mask_coverage": 1.0,
+      "passed": true
+    }
+  ],
+  "issues": [],
+  "limits": [
+    "Saved Blender geometry and actual PNG sampling; Unity shader/runtime not executed.",
+    "Corridor samples cover 0.65m width every 0.25m along each authored path."
+  ]
+}

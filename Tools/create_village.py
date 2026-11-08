@@ -11,6 +11,7 @@ sys.path.insert(0,str(root/'Tools'))
 from village_textures import create, linear
 from village_landform import Landform
 from village_buildings import build_house
+from village_paths import bake as bake_paths
 bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False)
 for coll in list(bpy.data.collections):
  if coll.name!='Collection':bpy.data.collections.remove(coll)
@@ -18,7 +19,7 @@ textures=create(root);rng=random.Random(762)
 collections={}
 for name in ['Terrain','Cottages','Landmarks','Trees','Details','Collision','Review']:
  coll=bpy.data.collections.new(name);bpy.context.scene.collection.children.link(coll);collections[name]=coll
-active='Terrain';solids=[];routes={};materials={}
+active='Terrain';solids=[];routes={};materials={};path_layout=[]
 for name,image in textures.items():
  mat=bpy.data.materials.new(name);mat.use_nodes=True;nodes=mat.node_tree.nodes
  tex=nodes.new('ShaderNodeTexImage');tex.image=image;tex.interpolation='Linear'
@@ -75,29 +76,11 @@ def uv_project(o):
   for li in poly.loop_indices:
    p=o.data.vertices[o.data.loops[li].vertex_index].co
    p=Vector((p.x*o.scale.x,p.y*o.scale.y,p.z*o.scale.z))
-   uv.data[li].uv=(p.dot(u)*scale,p.dot(v)*scale)
+   uv.data[li].uv=(p.x*.25,p.y*.25) if o.data.materials[poly.material_index].name=='VillageGround' else (p.dot(u)*scale,p.dot(v)*scale)
 
-def ribbon(name,points,width=3,mat='PathBlend',solid=False):
- if mat=='PathBlend':
-  dense=[]
-  for a,b in zip(points,points[1:]):
-   a,b=Vector(a),Vector(b);count=max(1,math.ceil((b-a).length/.5))
-   dense.extend(a.lerp(b,i/count) for i in range(count))
-  points=dense+[Vector(points[-1])]
- points=[Vector(p) for p in points];v=[];dist=0;uvs=[]
- for i,p in enumerate(points):
-  t=points[min(i+1,len(points)-1)]-points[max(0,i-1)];t.z=0;t.normalize();side=Vector((t.y,-t.x,0))*width/2
-  if i:dist+=(p-points[i-1]).length
-  row=[p-side,p,p+side]
-  if mat=='PathBlend':
-   row=[Vector((q.x,q.y,landform.sample(q.x,q.y)+.018)) for q in row]
-  v.extend(tuple(q) for q in row);uvs.extend([(0,dist*.25),(.5,dist*.25),(1,dist*.25)])
- o=mesh(name,v,[(i*3+j,i*3+j+1,i*3+j+4,i*3+j+3) for i in range(len(points)-1) for j in range(2)],mat,solid)
- uv=o.data.uv_layers.new(name='PathUV')
- for loop in o.data.loops:uv.data[loop.index].uv=uvs[loop.vertex_index]
- o['path_uv']=True
- if mat=='PathBlend':o.visible_shadow=False
- return o
+def ribbon(name,points,width=3):
+ # Roads are material coverage on the single ground surface, never stacked strips.
+ path_layout.append({'name':name,'points':[list(p) for p in points],'width':width})
 
 def ramp(name,points,width=4.5):
  ribbon(name+' worn track',points,2.9)
@@ -136,12 +119,14 @@ for side in (-1,1):
 routes['Left stair']=[(-10,i*.4+.2,(i+1)*.16) for i in range(20)]
 ramp('Lower right climb',[(11,-1,0),(15,5,1.2),(14,9,2.1),(11,14,3.2),(9,15,3.2)])
 ramp('Upper right climb',[(9,19,3.2),(17,18,4.0),(24,22,5.7),(25,28,7.0),(20,30,8.0)])
-ribbon('Middle cottage approach',[(-10,8,3.212),(-9,11,3.212),(-5,11.6,3.212),(5,12,3.212),(9,19,3.212)],2.8)
-ribbon('Bell approach',[(20,30,8.012),(18,26,8.012),(16,22,8.012),(14,21.05,8.012),(12,21.05,8.012)],2.8)
+ribbon('Middle cottage approach',[(-10,8.35,3.212),(-9,11,3.212),(-5,11.6,3.212),(5,12,3.212),(9,19,3.212)],2.8)
+ribbon('Bell approach',[(20,30,8.012),(18,29,8.012),(16.5,27.5,8.012),(16.5,25.5,8.012)],2.8)
 
 routes['Entrance court']=[(0,-21,0),(-3,-6,0),(-5,-2,0),(-10,-1,0),(-10,0,.16)]
 routes['Middle terrace connection']=[(-10,8,3.2),(-9,11,3.2),(-5,11.6,3.2),(5,12,3.2),(9,19,3.2)]
-routes['Bell approach']=[(20,30,8),(18,26,8),(16,22,8),(14,21.05,8),(12,21.05,8)]
+routes['Bell approach']=[(20,30,8),(18,29,8),(16.5,27.5,8),(16.5,25.5,8)]
+
+bake_paths(landform,path_layout,root,materials,textures)
 
 active='Cottages'
 def house(*args,**kwargs):return build_house(globals(),*args,**kwargs)
@@ -160,8 +145,8 @@ box('Bell pavilion stone plinth',(wx,wy,base+.33),(5.3,5.3,.74),'Masonry',True)
 # Four full-width, closed treads meet the pavilion floor without a crawlspace.
 for i in range(4):
  h=(i+1)*.175
- box('Bell pavilion approach step %02d'%i,(wx,wy-3.85+i*.35,base+h/2-.02),(2.7,.37,h+.04),'Masonry',True)
-routes['Bell steps']=[(wx,wy-4.2,base)]+[(wx,wy-3.85+i*.35,base+(i+1)*.175) for i in range(4)]+[(wx,wy-2.4,base+.7)]
+ box('Bell pavilion approach step %02d'%i,(wx+3.85-i*.35,wy,base+h/2-.02),(.37,2.7,h+.04),'Masonry',True)
+routes['Bell steps']=[(wx+4.2,wy,base)]+[(wx+3.85-i*.35,wy,base+(i+1)*.175) for i in range(4)]+[(wx+2.4,wy,base+.7)]
 for dx in (-2.05,2.05):
  for dy in (-2.05,2.05):
   box('Bell pavilion oak upright',(wx+dx,wy+dy,base+3.5),(.34,.34,5.6),'Wood',True)
@@ -372,7 +357,18 @@ for material in materials:
 bpy.ops.object.select_all(action='DESELECT')
 for o in export.objects:o.select_set(True)
 bpy.ops.wm.obj_export(filepath=str(out/'Mossbell.obj'),export_selected_objects=True,forward_axis='NEGATIVE_Z',up_axis='Y',export_materials=True)
-mtl=out/'Mossbell.mtl';mtl.write_text('\n'.join(line.split()[0]+' ../VillageTextures/'+line.split()[-1] if line.startswith(('map_Kd ','map_d ')) else line for line in mtl.read_text().splitlines())+'\n')
+mtl=out/'Mossbell.mtl';lines=[];ground_material=False
+for line in mtl.read_text().splitlines():
+ if line.startswith('newmtl '):
+  ground_material=line.split()[1]=='VillageGround';lines.append(line)
+  if ground_material:
+   lines.extend(['map_Kd ../VillageTextures/Grass.png',
+                 '# Wizzard_ground_dirt ../VillageTextures/DirtPath.png',
+                 '# Wizzard_ground_mask ../VillageMasks/GroundPaths.png'])
+ elif ground_material and line.startswith(('map_Kd ','map_d ')):continue
+ elif line.startswith(('map_Kd ','map_d ')):lines.append(line.split()[0]+' ../VillageTextures/'+line.split()[-1])
+ else:lines.append(line)
+mtl.write_text('\n'.join(lines)+'\n')
 export_triangles=sum(sum(len(p.vertices)-2 for p in o.data.polygons) for o in export.objects)
 for o in list(export.objects):bpy.data.objects.remove(o,do_unlink=True)
 bpy.data.collections.remove(export)
@@ -410,7 +406,7 @@ rl=nodes.new('CompositorNodeRLayers');mapping=nodes.new('CompositorNodeMapRange'
 less=nodes.new('CompositorNodeMath');less.operation='LESS_THAN';less.inputs[1].default_value=500;links.new(rl.outputs['Depth'],less.inputs[0]);mult=nodes.new('CompositorNodeMath');mult.operation='MULTIPLY';links.new(mapping.outputs[0],mult.inputs[0]);links.new(less.outputs[0],mult.inputs[1])
 fog=nodes.new('CompositorNodeMixRGB');links.new(mult.outputs[0],fog.inputs[0]);links.new(rl.outputs['Image'],fog.inputs[1]);fog.inputs[2].default_value=(linear(.55),linear(.56),linear(.70),1)
 comp=nodes.new('CompositorNodeComposite');links.new(fog.outputs[0],comp.inputs[0])
-report={'tree_ground_checks':tree_checks,'units':'metres','doors_m':{'height':2.12,'width':1.08},'stairs_m':{'rise':.16,'tread':.4,'width':3.2,'steps':20},'routes':checks,'export_triangles_including_collision':export_triangles,'visual_objects':len(source),'collision_objects':len(collision_copies),'uv':'metric face islands; path strips use width-normalized U and 4m V repeat','review_camera':{'position_blender':[0,-21,1.65],'target_blender':[0,10,3.8],'lens_mm':28,'sensor_width_mm':36,'vertical_fov_degrees':round(math.degrees(2*math.atan(36*9/16/(2*28))),4)},'limitations':['Blender geometry checks only; Unity import/physics and Quest headset traversal not executed.']}
+report={'tree_ground_checks':tree_checks,'units':'metres','doors_m':{'height':2.12,'width':1.08},'stairs_m':{'rise':.16,'tread':.4,'width':3.2,'steps':20},'routes':checks,'export_triangles_including_collision':export_triangles,'visual_objects':len(source),'collision_objects':len(collision_copies),'uv':'metric face islands; single ground uses shared world-XY UVs at 4m repeat, with a united material mask','review_camera':{'position_blender':[0,-21,1.65],'target_blender':[0,10,3.8],'lens_mm':28,'sensor_width_mm':36,'vertical_fov_degrees':round(math.degrees(2*math.atan(36*9/16/(2*28))),4)},'limitations':['Blender geometry checks only; Unity import/physics and Quest headset traversal not executed.']}
 (root/'Documentation/village-geometry-checks.json').write_text(json.dumps(report,indent=2)+'\n')
 bpy.ops.wm.save_as_mainfile(filepath=str(root/'Blender/MossbellVillage.blend'))
 for cam,filename in zip(cameras if '--no-render' not in sys.argv else [],['mossbell-street.png','mossbell-spring.png','mossbell-terrace.png','mossbell-village.png']):

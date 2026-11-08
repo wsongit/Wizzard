@@ -1,0 +1,1074 @@
+{
+  "rom": {
+    "bytes": 33554432,
+    "sha256": "74f9266fd7fa23cc700b5b46a21fbe99cdc6ea10438bc4b48eeb625763b8611c",
+    "md5": "d714580dd74c2c033f5e1b6dc0aeac77",
+    "title": "THE LEGEND OF ZELDA",
+    "region": "P",
+    "revision": 1
+  },
+  "inventory": {
+    "dma_files": 1511,
+    "yaz0_files": 1457,
+    "decompressed_file_bytes": 53287696,
+    "object_files": 378,
+    "overlay_files": 469,
+    "scene_files": 101,
+    "room_files": 388,
+    "validated_scene_collision_polygons": 87215
+  },
+  "selected_rooms": [
+    {
+      "scene": "spot01",
+      "scope": "default scene header and room 0; both conditional detail branches",
+      "scene_bytes": 115056,
+      "room0_bytes": 40672,
+      "culling_groups": 20,
+      "display_list_roots": 20,
+      "static_triangle_instances": 839,
+      "distinct_loaded_vertex_records": 1496,
+      "texture_image_references": 32,
+      "lit_triangle_instances": 785,
+      "unlit_vertex_colors": 7,
+      "render_tiles": [
+        {
+          "image_pointer": "0x2013b70",
+          "format": "RGBA16",
+          "width": 16,
+          "height": 64,
+          "settings": 2
+        },
+        {
+          "image_pointer": "0x2012b70",
+          "format": "RGBA16",
+          "width": 64,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x200aa70",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2018b70",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2019370",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x201b770",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2017b70",
+          "format": "CI8",
+          "width": 32,
+          "height": 64,
+          "settings": 4
+        },
+        {
+          "image_pointer": "0x200e570",
+          "format": "CI8",
+          "width": 32,
+          "height": 64,
+          "settings": 2
+        },
+        {
+          "image_pointer": "0x200cd70",
+          "format": "CI8",
+          "width": 32,
+          "height": 64,
+          "settings": 2
+        },
+        {
+          "image_pointer": "0x2012970",
+          "format": "CI8",
+          "width": 16,
+          "height": 32,
+          "settings": 2
+        },
+        {
+          "image_pointer": "0x201bf70",
+          "format": "CI8",
+          "width": 16,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x200bf70",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x200c970",
+          "format": "CI8",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2014f70",
+          "format": "CI8",
+          "width": 64,
+          "height": 16,
+          "settings": 3
+        },
+        {
+          "image_pointer": "0x2014b70",
+          "format": "CI8",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x200b770",
+          "format": "CI8",
+          "width": 32,
+          "height": 32,
+          "settings": 3
+        },
+        {
+          "image_pointer": "0x2019b70",
+          "format": "CI8",
+          "width": 32,
+          "height": 32,
+          "settings": 4
+        },
+        {
+          "image_pointer": "0x200c770",
+          "format": "CI8",
+          "width": 16,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2014770",
+          "format": "IA4",
+          "width": 64,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2014370",
+          "format": "IA4",
+          "width": 64,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2015370",
+          "format": "IA4",
+          "width": 64,
+          "height": 64,
+          "settings": 2
+        },
+        {
+          "image_pointer": "0x201af70",
+          "format": "RGBA16",
+          "width": 16,
+          "height": 64,
+          "settings": 2
+        },
+        {
+          "image_pointer": "0x200ed70",
+          "format": "CI4",
+          "width": 64,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x200d570",
+          "format": "I4",
+          "width": 64,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x200dd70",
+          "format": "I4",
+          "width": 64,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2011970",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x8000000",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x201a770",
+          "format": "I4",
+          "width": 64,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2019f70",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2018370",
+          "format": "I4",
+          "width": 64,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x200bb70",
+          "format": "RGBA16",
+          "width": 16,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2010970",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2010170",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x200f970",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x200f570",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 16,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x200b370",
+          "format": "CI8",
+          "width": 16,
+          "height": 64,
+          "settings": 2
+        },
+        {
+          "image_pointer": "0x200b270",
+          "format": "CI8",
+          "width": 16,
+          "height": 16,
+          "settings": 2
+        }
+      ],
+      "material_shared_geometric_edges": 221,
+      "render_boundary_edges": 375,
+      "duplicate_geometric_triangle_instances": 0,
+      "collision": {
+        "vertices": 605,
+        "polygons": 863,
+        "surface_types": 30,
+        "bounds_native_units": [
+          -4501,
+          -862,
+          -4766,
+          2640,
+          2767,
+          1866
+        ]
+      },
+      "unresolved_commands": []
+    },
+    {
+      "scene": "spot00",
+      "scope": "default scene header and room 0; both conditional detail branches",
+      "scene_bytes": 172608,
+      "room0_bytes": 86576,
+      "culling_groups": 36,
+      "display_list_roots": 37,
+      "static_triangle_instances": 1639,
+      "distinct_loaded_vertex_records": 2971,
+      "texture_image_references": 49,
+      "lit_triangle_instances": 1639,
+      "unlit_vertex_colors": 0,
+      "render_tiles": [
+        {
+          "image_pointer": "0x2025038",
+          "format": "I4",
+          "width": 64,
+          "height": 64,
+          "settings": 13
+        },
+        {
+          "image_pointer": "0x2023838",
+          "format": "I4",
+          "width": 64,
+          "height": 64,
+          "settings": 3
+        },
+        {
+          "image_pointer": "0x2024038",
+          "format": "I4",
+          "width": 64,
+          "height": 64,
+          "settings": 12
+        },
+        {
+          "image_pointer": "0x2022038",
+          "format": "IA4",
+          "width": 128,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2020838",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 4
+        },
+        {
+          "image_pointer": "0x2024838",
+          "format": "CI4",
+          "width": 64,
+          "height": 64,
+          "settings": 19
+        },
+        {
+          "image_pointer": "0x20166b8",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 16,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x201bdb8",
+          "format": "RGBA16",
+          "width": 16,
+          "height": 32,
+          "settings": 5
+        },
+        {
+          "image_pointer": "0x2025838",
+          "format": "RGBA16",
+          "width": 8,
+          "height": 8,
+          "settings": 4
+        },
+        {
+          "image_pointer": "0x201bbb8",
+          "format": "RGBA16",
+          "width": 16,
+          "height": 16,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2029fb8",
+          "format": "I4",
+          "width": 32,
+          "height": 32,
+          "settings": 21
+        },
+        {
+          "image_pointer": "0x201f638",
+          "format": "RGBA16",
+          "width": 8,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x20193b8",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x201f5b8",
+          "format": "I4",
+          "width": 16,
+          "height": 16,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x201f1b8",
+          "format": "IA4",
+          "width": 64,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x201e9b8",
+          "format": "IA4",
+          "width": 128,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x201abb8",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 25
+        },
+        {
+          "image_pointer": "0x201b3b8",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 25
+        },
+        {
+          "image_pointer": "0x201d9b8",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 64,
+          "settings": 8
+        },
+        {
+          "image_pointer": "0x20281b8",
+          "format": "RGBA16",
+          "width": 8,
+          "height": 64,
+          "settings": 2
+        },
+        {
+          "image_pointer": "0x20295b8",
+          "format": "I4",
+          "width": 64,
+          "height": 64,
+          "settings": 11
+        },
+        {
+          "image_pointer": "0x2023038",
+          "format": "RGBA16",
+          "width": 64,
+          "height": 16,
+          "settings": 4
+        },
+        {
+          "image_pointer": "0x2022838",
+          "format": "RGBA16",
+          "width": 64,
+          "height": 16,
+          "settings": 3
+        },
+        {
+          "image_pointer": "0x201c1b8",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 3
+        },
+        {
+          "image_pointer": "0x20268b8",
+          "format": "IA4",
+          "width": 16,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2016ab8",
+          "format": "IA4",
+          "width": 16,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x201d1b8",
+          "format": "RGBA16",
+          "width": 64,
+          "height": 16,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2029db8",
+          "format": "I4",
+          "width": 32,
+          "height": 32,
+          "settings": 14
+        },
+        {
+          "image_pointer": "0x2019bb8",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 64,
+          "settings": 5
+        },
+        {
+          "image_pointer": "0x2013db8",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 3
+        },
+        {
+          "image_pointer": "0x2018bb8",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2017bb8",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2016bb8",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2015eb8",
+          "format": "RGBA16",
+          "width": 16,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2015db8",
+          "format": "RGBA16",
+          "width": 8,
+          "height": 16,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x20173b8",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2021838",
+          "format": "RGBA16",
+          "width": 16,
+          "height": 64,
+          "settings": 6
+        },
+        {
+          "image_pointer": "0x20260b8",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x20258b8",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2021038",
+          "format": "RGBA16",
+          "width": 16,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x201c9b8",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x20149b8",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 16,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x20145b8",
+          "format": "RGBA16",
+          "width": 16,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2020038",
+          "format": "I4",
+          "width": 64,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x201f838",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2027db8",
+          "format": "I4",
+          "width": 32,
+          "height": 64,
+          "settings": 5
+        },
+        {
+          "image_pointer": "0x20279b8",
+          "format": "I4",
+          "width": 32,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x20285b8",
+          "format": "RGBA16",
+          "width": 64,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x2014db8",
+          "format": "RGBA16",
+          "width": 64,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x20269b8",
+          "format": "RGBA16",
+          "width": 64,
+          "height": 32,
+          "settings": 1
+        }
+      ],
+      "material_shared_geometric_edges": 350,
+      "render_boundary_edges": 951,
+      "duplicate_geometric_triangle_instances": 0,
+      "collision": {
+        "vertices": 1162,
+        "polygons": 1579,
+        "surface_types": 61,
+        "bounds_native_units": [
+          -11048,
+          -1095,
+          -1811,
+          6732,
+          1407,
+          16529
+        ]
+      },
+      "unresolved_commands": [
+        {
+          "kind": "external_display_list",
+          "address": "0x9000000"
+        },
+        {
+          "kind": "external_display_list",
+          "address": "0x8000000"
+        },
+        {
+          "kind": "external_display_list",
+          "address": "0xa000000"
+        }
+      ]
+    },
+    {
+      "scene": "spot04",
+      "scope": "default scene header and room 0; both conditional detail branches",
+      "scene_bytes": 70256,
+      "room0_bytes": 111760,
+      "culling_groups": 18,
+      "display_list_roots": 21,
+      "static_triangle_instances": 1220,
+      "distinct_loaded_vertex_records": 2078,
+      "texture_image_references": 42,
+      "lit_triangle_instances": 1216,
+      "unlit_vertex_colors": 1,
+      "render_tiles": [
+        {
+          "image_pointer": "0x3013f08",
+          "format": "CI8",
+          "width": 32,
+          "height": 32,
+          "settings": 7
+        },
+        {
+          "image_pointer": "0x3011d08",
+          "format": "CI8",
+          "width": 16,
+          "height": 32,
+          "settings": 6
+        },
+        {
+          "image_pointer": "0x3015b08",
+          "format": "CI8",
+          "width": 16,
+          "height": 32,
+          "settings": 7
+        },
+        {
+          "image_pointer": "0x301a290",
+          "format": "IA8",
+          "width": 16,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x300fd08",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x300f508",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 3
+        },
+        {
+          "image_pointer": "0x300f108",
+          "format": "RGBA16",
+          "width": 64,
+          "height": 8,
+          "settings": 2
+        },
+        {
+          "image_pointer": "0x3010d08",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x300e108",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x300bf08",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x300e908",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x301a490",
+          "format": "IA4",
+          "width": 64,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x301ae90",
+          "format": "IA4",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x301ac90",
+          "format": "IA4",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x3016908",
+          "format": "CI8",
+          "width": 16,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x3018a90",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 2
+        },
+        {
+          "image_pointer": "0x2010648",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x200fe48",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x3019a90",
+          "format": "I4",
+          "width": 64,
+          "height": 64,
+          "settings": 3
+        },
+        {
+          "image_pointer": "0x200f248",
+          "format": "I4",
+          "width": 64,
+          "height": 64,
+          "settings": 3
+        },
+        {
+          "image_pointer": "0x3019290",
+          "format": "I4",
+          "width": 64,
+          "height": 64,
+          "settings": 2
+        },
+        {
+          "image_pointer": "0x200ea48",
+          "format": "I4",
+          "width": 64,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x200e248",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x200fa48",
+          "format": "CI8",
+          "width": 32,
+          "height": 32,
+          "settings": 10
+        },
+        {
+          "image_pointer": "0x3013108",
+          "format": "CI8",
+          "width": 32,
+          "height": 16,
+          "settings": 6
+        },
+        {
+          "image_pointer": "0x3012f08",
+          "format": "CI8",
+          "width": 32,
+          "height": 16,
+          "settings": 5
+        },
+        {
+          "image_pointer": "0x3015308",
+          "format": "RGBA16",
+          "width": 64,
+          "height": 16,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x3014b08",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 2
+        },
+        {
+          "image_pointer": "0x3017108",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 3
+        },
+        {
+          "image_pointer": "0x300d908",
+          "format": "RGBA16",
+          "width": 16,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x3016d08",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 16,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x3013308",
+          "format": "RGBA16",
+          "width": 16,
+          "height": 32,
+          "settings": 3
+        },
+        {
+          "image_pointer": "0x301b090",
+          "format": "RGBA16",
+          "width": 16,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x3011f08",
+          "format": "RGBA16",
+          "width": 64,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x300cf08",
+          "format": "CI8",
+          "width": 32,
+          "height": 32,
+          "settings": 2
+        },
+        {
+          "image_pointer": "0x300d408",
+          "format": "CI8",
+          "width": 16,
+          "height": 16,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x300d308",
+          "format": "CI8",
+          "width": 16,
+          "height": 16,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x3015d08",
+          "format": "CI8",
+          "width": 16,
+          "height": 64,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x3016508",
+          "format": "CI8",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x3016108",
+          "format": "CI8",
+          "width": 16,
+          "height": 64,
+          "settings": 2
+        },
+        {
+          "image_pointer": "0x300d508",
+          "format": "RGBA16",
+          "width": 16,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x300c708",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 16,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x300cb08",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 16,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x3013708",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        },
+        {
+          "image_pointer": "0x3014308",
+          "format": "RGBA16",
+          "width": 32,
+          "height": 32,
+          "settings": 1
+        }
+      ],
+      "material_shared_geometric_edges": 352,
+      "render_boundary_edges": 442,
+      "duplicate_geometric_triangle_instances": 7,
+      "collision": {
+        "vertices": 1081,
+        "polygons": 1692,
+        "surface_types": 46,
+        "bounds_native_units": [
+          -2330,
+          -220,
+          -3062,
+          6044,
+          1944,
+          2429
+        ]
+      },
+      "unresolved_commands": [
+        {
+          "kind": "external_display_list",
+          "address": "0x8000000"
+        },
+        {
+          "kind": "external_display_list",
+          "address": "0x9000000"
+        },
+        {
+          "kind": "external_display_list",
+          "address": "0xb000000"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Not an emulator or per-frame renderer.",
+    "Scene/room measurements use default headers only; alternate layouts and dynamic actors are excluded.",
+    "Unresolved external display lists are reported, not guessed.",
+    "No extracted game assets are written."
+  ]
+}

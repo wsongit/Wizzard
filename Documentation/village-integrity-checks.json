@@ -145,7 +145,7 @@
       "inconsistent_edges": 0,
       "zero_area_faces": 0,
       "connected_components": 1,
-      "volume_m3": 45296.38689
+      "volume_m3": 45236.22484
     },
     {
       "object": "Closed irregular perimeter",
@@ -161,7 +161,7 @@
       "inconsistent_edges": 0,
       "zero_area_faces": 0,
       "connected_components": 1,
-      "volume_m3": 45296.38689
+      "volume_m3": 45236.22484
     },
     {
       "object": "Collision Closed irregular perimeter",

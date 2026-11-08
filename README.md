@@ -142,7 +142,7 @@ Source: `Blender/MossbellVillage.blend`. Export: `Assets/Resources/Village/Mossb
 
 [Current refresh and validation limits](Documentation/village-refresh.md) · [Earlier rebuild history](Documentation/village-rebuild.md) · [Geometry report](Documentation/village-geometry-checks.json)
 
-The existing scene loads the new model through the village fade transition. A single watertight landform joins the lawns and both hill climbs. Dedicated collision follows that exact ground, the continuous perimeter, stairs, sealed building shells, fences and tree trunks. Fence feet follow the final terrain; seven routes and all six cottage door approaches are checked for support and clearance. Materials use the authored UVs, soft directional shadows and blue-lavender fog. Meadow atmosphere and movement settings restore on exit.
+The existing scene loads the new model through the village fade transition. A single watertight landform joins the lawns and both hill climbs. Dedicated collision follows that exact ground, the continuous perimeter, stairs, sealed building shells, fences and tree trunks. Fence feet follow the final terrain; seven routes and all six cottage door approaches are checked for support and clearance. Materials use the authored UVs, soft directional shadows and blue-lavender fog. Dirt and grass now share one ground surface: intersecting roads are blended through one coverage mask, and ramps have full-width roadbeds so adjacent cliffs cannot invade them. Meadow atmosphere and movement settings restore on exit.
 
 For a repeatable desktop comparison, play Meadow and press **F8**. It loads the village and switches to the 1.65 m entrance camera with the overlay and avatar hidden. Press F8 again to resume movement. Choose **Wizzard > Capture village comparison** to save an actual Unity capture. This review camera is disabled while XR is active.
 
@@ -158,3 +158,9 @@ Blender renders, route support/headroom checks and export integrity checks passe
 The village also has room-scale wall sweeps, head occlusion when physical head movement crosses solid scenery, and recovery to the entrance if the player leaves the boundary or falls beneath the ground. These runtime protections require Unity/Quest testing. In desktop Play mode, run **Wizzard > Validate room-scale wall collision** for the real Unity physics check.
 
 See the [current geometry and placement report](Documentation/village-refresh.md), [whole-area integrity results](Documentation/village-integrity-checks.json), and [door/prop placement results](Documentation/village-placement-checks.json).
+
+## Road overlap repair and ROM study
+
+The flickering path junctions and stretched dirt walls have been replaced by dirt blended directly into the solid terrain. The original 64×64 grass/dirt tiles retain a shared physical scale; a separate coverage mask places the paths. The bell steps now approach from its east side, clear of the upper road cut.
+
+[ROM study notes](Documentation/oot-rom-study.md) describe the supplied PAL1.1 data, including all file/scene headers and detailed outdoor room measurements. [Path repair checks](Documentation/village-path-checks.json) validate the actual geometry, UVs and coverage image. [Path repair details and close views](Documentation/village-path-repair.md) explain the screenshot fixes. The new shader still needs Unity/Quest validation.

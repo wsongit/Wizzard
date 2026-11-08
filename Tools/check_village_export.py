@@ -21,17 +21,20 @@ for face in faces:
  texcoords=[uv[b-1] for a,b,c in face]
  area=sum(texcoords[i][0]*texcoords[(i+1)%len(face)][1]-texcoords[(i+1)%len(face)][0]*texcoords[i][1] for i in range(len(face)))
  assert abs(area)>1e-10,'Collapsed UV island'
-assert all(n in groups for n in ['Collision','CollisionTerrain','BoundaryEast','Arrival','Exit','Grass','PathBlend','WindowDark','Masonry','RoofTiles','Wood'])
+assert all(n in groups for n in ['Collision','CollisionTerrain','BoundaryEast','Arrival','Exit','Grass','VillageGround','WindowDark','Masonry','RoofTiles','Wood'])
 assert 'WindowLight' not in groups,'Daytime windows must be muted'
+assert 'PathBlend' not in groups,'Detached overlapping path strips must not be exported'
 for key in groups:
- if key.startswith('Collision') or key in ('Arrival','Exit','BoundaryEast'):continue
+ if key.startswith('Collision') or key in ('Arrival','Exit','BoundaryEast','VillageGround'):continue
  path=root/'Assets/Resources/VillageTextures'/f'{key}.png'
  assert path.exists(),key
  assert struct.unpack('>II',path.read_bytes()[16:24])==(64,64),key
 for line in asset.with_suffix('.mtl').read_text().splitlines():
- if line.startswith(('map_Kd ','map_d ')):
-  ref=line.split(maxsplit=1)[1];assert not Path(ref).is_absolute();assert (asset.parent/ref).exists()
-assert (root/'Assets/Resources/VillageTextures/PathBlend.png').read_bytes()[25]==6,'Path PNG must preserve RGBA cutout data'
+ if line.startswith(('map_Kd ','map_d ','# Wizzard_ground_dirt ','# Wizzard_ground_mask ')):
+  ref=line.split()[-1];assert not Path(ref).is_absolute();assert (asset.parent/ref).exists()
+assert struct.unpack('>II',(root/'Assets/Resources/VillageMasks/GroundPaths.png').read_bytes()[16:24])==(1024,1024),'Ground mask size'
+for tile in ('Grass','DirtPath'):
+ assert struct.unpack('>II',(root/'Assets/Resources/VillageTextures'/f'{tile}.png').read_bytes()[16:24])==(64,64),tile
 report=json.loads((root/'Documentation/village-geometry-checks.json').read_text())
 assert all(not route['issues'] for route in report['routes'])
 assert report['export_triangles_including_collision']==sum(groups.values())

@@ -1,12 +1,12 @@
 {
   "status": "PASS export integrity (not Unity compilation)",
-  "vertices": 20395,
-  "uv_coordinates": 41693,
+  "vertices": 19468,
+  "uv_coordinates": 33176,
   "triangles_by_material": {
-    "Grass": 2502,
-    "EarthCliff": 3200,
-    "PathBlend": 1432,
+    "VillageGround": 2585,
+    "EarthCliff": 3065,
     "Masonry": 1272,
+    "Grass": 220,
     "Mountain": 196,
     "HousePlaster": 64,
     "RoofSlate": 80,
@@ -26,7 +26,7 @@
     "Arrival": 12,
     "Exit": 12,
     "BoundaryEast": 12,
-    "CollisionTerrain": 4818,
+    "CollisionTerrain": 4986,
     "Collision": 4940
   },
   "checked_routes": 7

@@ -23,8 +23,12 @@ def height(x,y):
    dx=b[0]-a[0];dy=b[1]-a[1];t=max(0,min(1,((x-a[0])*dx+(y-a[1])*dy)/(dx*dx+dy*dy)))
    d=math.hypot(x-a[0]-t*dx,y-a[1]-t*dy)
    if d<nearest[0]:nearest=(d,a[2]+t*(b[2]-a[2]))
-  d,z=nearest;shoulder=max(0,min(1,(5.25-d)/3))
-  h=max(h,z*shoulder)
+  d,z=nearest
+  # Give the road its entire cross-section, cutting into higher land as well
+  # as filling low ground. A max-only envelope lets cliffs invade the road.
+  shoulder=1.25 if h>z else 3.0
+  t=max(0,min(1,(d-2.25)/shoulder));weight=1-t*t*(3-2*t)
+  h=h*(1-weight)+z*weight
  # Broad foundations keep whole cottage footprints supported, not just their centres.
  for cx,cy,w,d,z,angle in [(-3,17,8,6.7,3.2,-18),(-18,22,6.6,6,3.2,8)]:
   co=math.cos(math.radians(angle));si=math.sin(math.radians(angle));dx=x-cx;dy=y-cy

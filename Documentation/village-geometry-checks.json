@@ -61,7 +61,7 @@
         -14,
         0
       ],
-      "ground_height_m": -0.0
+      "ground_height_m": 0.0
     }
   ],
   "units": "metres",
@@ -91,7 +91,7 @@
     {
       "route": "Upper right climb",
       "samples": 429,
-      "max_centerline_slope_degrees": 13.33,
+      "max_centerline_slope_degrees": 12.07,
       "issues": []
     },
     {
@@ -108,21 +108,21 @@
     },
     {
       "route": "Bell approach",
-      "samples": 204,
-      "max_centerline_slope_degrees": 0.0,
+      "samples": 99,
+      "max_centerline_slope_degrees": 0,
       "issues": []
     },
     {
       "route": "Bell steps",
-      "samples": 15,
+      "samples": 16,
       "max_centerline_slope_degrees": 26.57,
       "issues": []
     }
   ],
-  "export_triangles_including_collision": 34058,
-  "visual_objects": 1172,
+  "export_triangles_including_collision": 32962,
+  "visual_objects": 1165,
   "collision_objects": 328,
-  "uv": "metric face islands; path strips use width-normalized U and 4m V repeat",
+  "uv": "metric face islands; single ground uses shared world-XY UVs at 4m repeat, with a united material mask",
   "review_camera": {
     "position_blender": [
       0,
