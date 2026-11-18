@@ -61,19 +61,16 @@ namespace Wizzard
         }
         void CreateLandmarks()
         {
-            var stone = RetroMaterials.Get("Stone");
             var random = new System.Random(197);
             for(int i=0;i<48;i++)
             {
                 float x=(float)random.NextDouble()*1500-750, z=(float)random.NextDouble()*1500-750;
                 if(new Vector2(x,z).magnitude<25 || Vector2.Distance(new Vector2(x,z),MossbellVillage.MapLocation)<80) continue;
                 float h=Height(x,z);
-                var rock=GameObject.CreatePrimitive(PrimitiveType.Cube); rock.name="Climbable stone";
-                rock.layer=GroundLayer; rock.transform.SetParent(transform);
-                rock.transform.position=new Vector3(x,h+1.4f,z);
-                rock.transform.localScale=new Vector3(4,3,4);
-                rock.transform.rotation=Quaternion.Euler(0,i*37,8);
-                rock.GetComponent<Renderer>().sharedMaterial=stone;
+                var rock=BellwakeModels.Climbable("MeadowOutcrop",transform);
+                rock.transform.position=new Vector3(x,h,z);
+                rock.transform.rotation=Quaternion.Euler(0,i*37,0);
+                rock.transform.localScale=Vector3.one*(.86f+(i%6)*.055f);
                 MeadowTrees.Create(i,transform,new Vector3(x+9,Height(x+9,z),z));
             }
         }

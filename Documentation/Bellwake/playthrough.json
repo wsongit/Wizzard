@@ -1,0 +1,56 @@
+{
+  "viewport": [
+    768,
+    432
+  ],
+  "renderer": "Chromium SwiftShader",
+  "framesPerRoom": 70,
+  "samples": [
+    {
+      "room": 0,
+      "scale": 0.5120000000000001,
+      "medianMs": 33.30000000000109,
+      "p95Ms": 66.60000000000036,
+      "calls": 24,
+      "triangles": 13436
+    },
+    {
+      "room": 1,
+      "scale": 0.5120000000000001,
+      "medianMs": 33.30000000000291,
+      "p95Ms": 50,
+      "calls": 24,
+      "triangles": 15111
+    },
+    {
+      "room": 2,
+      "scale": 0.5120000000000001,
+      "medianMs": 33.20000000000073,
+      "p95Ms": 50,
+      "calls": 24,
+      "triangles": 10434
+    },
+    {
+      "room": 3,
+      "scale": 0.5120000000000001,
+      "medianMs": 33.29999999999927,
+      "p95Ms": 50,
+      "calls": 25,
+      "triangles": 7282
+    },
+    {
+      "room": 4,
+      "scale": 0.5120000000000001,
+      "medianMs": 33.200000000004366,
+      "p95Ms": 50,
+      "calls": 24,
+      "triangles": 9498
+    }
+  ],
+  "endings": [
+    1,
+    2
+  ],
+  "witnessLeaves": 5,
+  "errors": []
+}

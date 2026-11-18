@@ -76,7 +76,7 @@ namespace Wizzard
             var label=new GameObject("Village transition title"); label.transform.SetParent(player.head,false);
             label.transform.localPosition=new Vector3(0,0,.5f);
             title=label.AddComponent<TextMesh>();title.anchor=TextAnchor.MiddleCenter;title.alignment=TextAlignment.Center;
-            title.font=Resources.GetBuiltinResource<Font>("Arial.ttf");
+            title.font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             var titleMaterial=new Material(Shader.Find("Wizzard/VillageTitle"));
             title.GetComponent<Renderer>().sharedMaterial=titleMaterial;
             title.fontSize=64;title.characterSize=.05f;title.color=Color.white;label.SetActive(false);
@@ -297,46 +297,22 @@ namespace Wizzard
         }
         void CreateMountain()
         {
-            var mountain=new GameObject("Mossbell mountain entrance");mountain.transform.SetParent(meadow.transform);
-            mountain.transform.position=new Vector3(MapLocation.x,gate.y,MapLocation.y);
-            var vertices=new List<Vector3>();var triangles=new List<int>();
-            // Closed mountain cross-section: outer foot, crest, inner wall and buried base.
-            // Only the intentional southern approach stays open between the capped ends.
-            const int segments=30, rings=5;
-            for(int i=0;i<=segments;i++)
+            var mountain=BellwakeModels.Climbable("MossbellApproach",meadow.transform);
+            // Align the authored gate to the existing meadow portal regardless of FBX handedness.
+            Transform marker=null, centre=null;
+            foreach(var point in mountain.GetComponentsInChildren<Transform>())
             {
-                float a=Mathf.Lerp(-65,245,i/(float)segments)*Mathf.Deg2Rad;
-                for(int ring=0;ring<rings;ring++)
-                {
-                    float radius=ring<2?46:ring==2?27:15;
-                    float height=ring==0 || ring==4?-2:ring==1?0:ring==2?20+Mathf.Sin(a*5)*3:10;
-                    vertices.Add(new Vector3(Mathf.Cos(a)*radius,height,Mathf.Sin(a)*radius));
-                }
+                if(point.name=="GateAt") marker=point;
+                if(point.name=="GateIn") centre=point;
             }
-            for(int i=0;i<segments;i++) for(int r=0;r<rings;r++)
-            {
-                int k=i*rings+r, next=i*rings+(r+1)%rings;
-                triangles.AddRange(new[]{k,next,k+rings,next,next+rings,k+rings});
-            }
-            for(int r=1;r<rings-1;r++)
-            {
-                triangles.AddRange(new[]{0,r+1,r});
-                int end=segments*rings;triangles.AddRange(new[]{end,end+r,end+r+1});
-            }
-            var mesh=new Mesh {vertices=vertices.ToArray(),triangles=triangles.ToArray()};mesh.RecalculateNormals();mesh.RecalculateBounds();
-            mountain.layer=MeadowWorld.GroundLayer;
-            mountain.AddComponent<MeshFilter>().sharedMesh=mesh;mountain.AddComponent<MeshRenderer>().sharedMaterial=RetroMaterials.Get("Stone");
-            mountain.AddComponent<MeshCollider>().sharedMesh=mesh;
-            for(int sign=-1;sign<=1;sign+=2) Block(mountain.transform,new Vector3(sign*4,2.5f,-36),new Vector3(2,5,3),"Gate pier","Stone");
-            Block(mountain.transform,new Vector3(0,5,-36),new Vector3(10,1,3),"Gate lintel","Wood");
-            var signObject=new GameObject("Mossbell entrance sign");signObject.transform.SetParent(mountain.transform,false);signObject.transform.localPosition=new Vector3(0,4,-37.6f);
+            if(marker==null || centre==null) throw new System.InvalidOperationException("Mossbell gate markers are missing.");
+            Vector3 approach=centre.position-marker.position;approach.y=0;
+            mountain.transform.rotation=Quaternion.FromToRotation(approach.normalized,Vector3.forward);
+            mountain.transform.position+=gate-marker.position;
+            var signObject=new GameObject("Mossbell entrance sign");
+            signObject.transform.SetParent(meadow.transform,false);
+            signObject.transform.position=gate+Vector3.up*5.4f+Vector3.back*.63f;
             var text=signObject.AddComponent<TextMesh>();text.text=VillageName;text.anchor=TextAnchor.MiddleCenter;text.fontSize=48;text.characterSize=.09f;text.color=Color.white;
-        }
-        static void Block(Transform parent,Vector3 pos,Vector3 scale,string name,string kind)
-        {
-            var obj=GameObject.CreatePrimitive(PrimitiveType.Cube);obj.name=name;obj.layer=MeadowWorld.GroundLayer;
-            obj.transform.SetParent(parent,false);obj.transform.localPosition=pos;obj.transform.localScale=scale;
-            obj.GetComponent<Renderer>().sharedMaterial=RetroMaterials.Get(kind);
         }
     }
 }

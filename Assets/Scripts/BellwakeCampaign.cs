@@ -1,0 +1,672 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.XR;
+using XRUsage = UnityEngine.XR.CommonUsages;
+
+namespace Wizzard
+{
+    public sealed class BellwakeCampaign : MonoBehaviour
+    {
+        const string SaveKey = "Wizzard.Bellwake.v1";
+        const string Path = "Bellwake/";
+        static readonly string[] Tones = { "Leaf", "Ember", "Tide" };
+        static readonly string[] Horizon = { "D3BB93", "A4B890", "AEC4B6", "BA917B", "908BA6" };
+        readonly Dictionary<string, Transform> nodes = new Dictionary<string, Transform>();
+        readonly Dictionary<string, TextMesh> points = new Dictionary<string, TextMesh>();
+        readonly Dictionary<string, Material> paints = new Dictionary<string, Material>();
+        readonly Dictionary<string, Quaternion> rest = new Dictionary<string, Quaternion>();
+        readonly XrPress use = new XrPress(), journal = new XrPress();
+        BellwakeJourney story;
+        BellwakeDisplay display;
+        GorillaPlayer player;
+        GameObject set, meadow, sign;
+        MossbellVillage village;
+        AudioSource score, notes;
+        readonly AudioClip[] chimes = new AudioClip[4];
+        Material sky, curtain;
+        Renderer curtainRenderer;
+        Camera cam;
+        string focus, lastHint, savedCheckpoint;
+        Transform struck;
+        Quaternion strikeRest;
+        Vector3 waveScale;
+        float strikeAt, gestureUntil;
+        int lastSecond = -1;
+        float messageUntil, pulseUntil, restartUntil, cameraCheck;
+        bool loading, outdoors, journalOpen;
+        int journalPage;
+        BellwakeFrameSample profiler;
+        Vector3 spawn;
+        Quaternion facing;
+
+        sealed class XrPress
+        {
+            bool previous;
+            public bool Read(InputFeatureUsage<bool> usage)
+            {
+                var left = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+                var right = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
+                bool down = (left.TryGetFeatureValue(usage, out bool a) && a) ||
+                            (right.TryGetFeatureValue(usage, out bool b) && b);
+                bool pressed = down && !previous;
+                previous = down;
+                return pressed;
+            }
+        }
+        public void Initialize(GorillaPlayer rig)
+        {
+            player = rig;
+            cam = rig.head.GetComponent<Camera>();
+            display = new BellwakeDisplay(rig.head);
+            story = Restore();
+            if (Debug.isDebugBuild)
+            {
+                profiler = gameObject.AddComponent<BellwakeFrameSample>();
+                profiler.enabled = false;
+            }
+            sky = new Material(Shader.Find("Wizzard/BellwakeSky"));
+            score = gameObject.AddComponent<AudioSource>();
+            score.loop = true;
+            score.playOnAwake = false;
+            score.volume = .32f;
+            notes = gameObject.AddComponent<AudioSource>();
+            notes.playOnAwake = false;
+            notes.volume = .57f;
+            for (int i = 0; i < 4; i++)
+                chimes[i] = Resources.Load<AudioClip>(Path + "Audio/" + (i == 3 ? "Toll" : Tones[i]));
+            var cover = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            Destroy(cover.GetComponent<Collider>());
+            cover.transform.SetParent(rig.head, false);
+            cover.transform.localPosition = Vector3.forward * .3f;
+            cover.transform.localScale = Vector3.one * 5;
+            curtain = new Material(Shader.Find("Wizzard/VillageFade"));
+            curtain.renderQueue = 4950;
+            curtainRenderer = cover.GetComponent<Renderer>();
+            curtainRenderer.sharedMaterial = curtain;
+            curtainRenderer.enabled = false;
+            StartCoroutine(EnterRoom());
+        }
+        static BellwakeJourney Restore()
+        {
+            if (PlayerPrefs.HasKey(SaveKey))
+                try
+                {
+                    var data = JsonUtility.FromJson<BellwakeJourney>(PlayerPrefs.GetString(SaveKey));
+                    if (data != null && data.Valid())
+                        return data;
+                }
+                catch (ArgumentException)
+                {
+                    Debug.LogWarning("Bellwake could not read the saved checkpoint.");
+                }
+            return new BellwakeJourney();
+        }
+        void Save()
+        {
+            string checkpoint = JsonUtility.ToJson(story);
+            if (checkpoint == savedCheckpoint)
+                return;
+            PlayerPrefs.SetString(SaveKey, checkpoint);
+            PlayerPrefs.Save();
+            savedCheckpoint = checkpoint;
+        }
+        void Say(string title, string words, float seconds = 11f)
+        {
+            lastHint = null;
+            messageUntil = Time.unscaledTime + seconds;
+            display.Say(title, words);
+        }
+        IEnumerator Fade(float from, float to)
+        {
+            curtainRenderer.enabled = true;
+            for (float t = 0; t < .24f; t += Time.unscaledDeltaTime)
+            {
+                curtain.color = new Color(0, 0, 0, Mathf.Lerp(from, to, t / .24f));
+                yield return null;
+            }
+            curtain.color = new Color(0, 0, 0, to);
+            curtainRenderer.enabled = to > 0;
+        }
+        IEnumerator EnterRoom()
+        {
+            loading = true;
+            if (profiler != null)
+                profiler.enabled = false;
+            player.MovementLocked = true;
+            journalOpen = false;
+            focus = null;
+            struck = null;
+            try
+            {
+                yield return Fade(0, 1);
+                string key = BellwakeJourney.Rooms[story.room];
+                var request = Resources.LoadAsync<GameObject>(Path + "Rooms/" + key);
+                yield return request;
+                if (request.asset == null)
+                    throw new InvalidOperationException("Missing Bellwake room " + key);
+                if (village != null)
+                    village.enabled = false;
+                if (meadow != null)
+                    meadow.SetActive(false);
+                outdoors = false;
+                if (set != null)
+                {
+                    set.SetActive(false);
+                    Destroy(set);
+                }
+                nodes.Clear();
+                points.Clear();
+                rest.Clear();
+                set = Instantiate((GameObject)request.asset);
+                set.name = key;
+                foreach (var t in set.GetComponentsInChildren<Transform>(true))
+                {
+                    nodes[t.name] = t;
+                    if (t.name.StartsWith("Rotor") || t.name == "GreatBell" || t.name == "Familiar" ||
+                        t.name.StartsWith("Speaker"))
+                        rest[t.name] = t.rotation;
+                    if (t.name == "HushWave")
+                        waveScale = t.localScale;
+                    var r = t.GetComponent<MeshRenderer>();
+                    if (r == null)
+                        continue;
+                    if (t.name == "C_Solids")
+                        r.enabled = false;
+                    else
+                        Paint(r);
+                    if (t.name == "Terrain" || t.name == "Rim" || t.name == "Set" || t.name == "C_Solids")
+                    {
+                        t.gameObject.layer = MeadowWorld.GroundLayer;
+                        t.gameObject.AddComponent<MeshCollider>().sharedMesh =
+                            t.GetComponent<MeshFilter>().sharedMesh;
+                    }
+                }
+                foreach (var pair in nodes)
+                    if (pair.Key.StartsWith("A_"))
+                        points.Add(pair.Key, display.Label(pair.Value, Label(pair.Key)));
+                spawn = nodes["Spawn"].position;
+                var dir = nodes["Look"].position - spawn;
+                dir.y = 0;
+                facing = Quaternion.LookRotation(dir);
+                ApplyLook();
+                Sync();
+                player.Teleport(spawn, facing);
+                Physics.SyncTransforms();
+                bool dawn = story.ending != 0;
+                score.clip = Resources.Load<AudioClip>(Path + "Audio/" + (dawn ? "Morning" : key));
+                score.Play();
+                pulseUntil = Time.unscaledTime + 32;
+                Save();
+                Say(dawn ? "BELLWAKE  /  EPILOGUE" : "BELLWAKE  /  " + BellwakeJourney.Titles[story.room],
+                    dawn ? (story.ending == 1 ? "The long watch is over. For the first time, the whole market " +
+                                                "takes its turn at " +
+                                                    "the bell."
+                                              : "At dawn the river sings with a human voice. Tavi has set two " +
+                                                "places for breakfast.")
+                    : story.room == 0 && !story.commissioned
+                        ? "The morning bell failed to ring. Find Tavi on the path. Look at her and press E or a " +
+                              "controller trigger."
+                        : "Chapter " + (story.room == 0 ? "home" : story.room.ToString()) + "   /   " +
+                              story.Objective(),
+                    8);
+                // Let the previous room be released before a second transition.
+                yield return null;
+                yield return Resources.UnloadUnusedAssets();
+                yield return Fade(1, 0);
+                if (profiler != null)
+                    profiler.Begin(key);
+            }
+            finally
+            {
+                loading = false;
+                player.MovementLocked = false;
+                curtainRenderer.enabled = false;
+            }
+        }
+        void Paint(Renderer renderer)
+        {
+            var slots = renderer.sharedMaterials;
+            for (int i = 0; i < slots.Length; i++)
+            {
+                if (slots[i] == null)
+                    continue;
+                string name = slots[i].name;
+                if (!paints.TryGetValue(name, out var mat))
+                {
+                    var tile = Resources.Load<Texture2D>(Path + "Textures/" + name);
+                    if (tile == null)
+                        throw new InvalidOperationException("Unmapped Bellwake paint " + name);
+                    mat = new Material(Shader.Find("Wizzard/BellwakePaint")) { name = name, mainTexture = tile };
+                    if (name == "SeaGlass" || name == "Amber")
+                        mat.SetFloat("_Glow", .88f);
+                    paints.Add(name, mat);
+                }
+                slots[i] = mat;
+            }
+            renderer.sharedMaterials = slots;
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        }
+        void ApplyLook()
+        {
+            int r = story.room;
+            ColorUtility.TryParseHtmlString("#" + Horizon[r], out Color horizon);
+            if (story.ending != 0)
+                horizon = new Color(.94f, .79f, .61f);
+            string panorama = story.ending == 0 ? BellwakeJourney.Rooms[r] : "Morning";
+            sky.SetTexture("_Panorama", Resources.Load<Cubemap>(Path + "Skies/" + panorama));
+            RenderSettings.skybox = sky;
+            cam.clearFlags = CameraClearFlags.Skybox;
+            RenderSettings.fog = true;
+            RenderSettings.fogColor = horizon;
+            RenderSettings.fogStartDistance = 18;
+            RenderSettings.fogEndDistance = 68;
+        }
+        string Label(string id)
+        {
+            switch (id)
+            {
+            case "A_Talk":
+                return story.room == 4 && story.strikes == 3 ? "Ina" : BellwakeJourney.Speakers[story.room];
+            case "A_Ina":
+                return "Ina";
+            case "A_Roster":
+                return "Watch roster";
+            case "A_Letter":
+                return "Witness leaf";
+            case "A_Gate":
+                return story.ending != 0 ? "Begin again" : "Way arch";
+            case "A_Meadow":
+                return "Long Meadow";
+            case "A_End0":
+                return "Share the watch";
+            case "A_End1":
+                return "Free the voice";
+            case "A_Lens":
+                return "Casting cup";
+            default:
+                return story.KeyName(id[id.Length - 1] - '0');
+            }
+        }
+        static void Active(Transform t, bool active)
+        {
+            if (t.gameObject.activeSelf != active)
+                t.gameObject.SetActive(active);
+        }
+        void Toggle(string id, bool active)
+        {
+            if (nodes.TryGetValue(id, out var t))
+                Active(t, active);
+        }
+        void Sync()
+        {
+            bool gate = story.room == 0 ? story.commissioned : story.Solved && story.room < 4;
+            Toggle("GateLight", gate);
+            Toggle("Ina", story.ending == 2);
+            Toggle("A_Ina", story.ending == 2);
+            Toggle("Roster", story.ending == 1);
+            Toggle("A_Roster", story.ending == 1);
+            Toggle("HushWave", story.room == 4 && story.challenged && !story.Solved);
+            for (int i = 0; i < 3; i++)
+            {
+                Toggle("Stray" + i, story.BeamCount == i + 1);
+                Toggle("Call" + i, story.room == 4 && story.challenged && !story.Solved && story.CalledKey == i);
+                Toggle("Flow" + i, (story.water & (1 << i)) != 0);
+                Toggle("Choice" + i, story.room == 4 && story.strikes == 3);
+                Toggle("A_End" + i, story.room == 4 && story.strikes == 3);
+                if (story.room == 3)
+                {
+                    var t = nodes["Rotor" + i];
+                    bool changed = (story.lenses & (1 << i)) != 0;
+                    // Lenses 1 and 2 initially deflect outward. The last starts aimed away too.
+                    bool quarter = !changed;
+                    t.rotation = Quaternion.AngleAxis(quarter ? 90 : 0, Vector3.up) * rest[t.name];
+                }
+            }
+            for (int i = 0; i < 4; i++)
+                Toggle("Ray" + i, i < story.BeamCount);
+            if (story.room == 4)
+            {
+                Toggle("A_Gate", false);
+                points["A_Talk"].text = Label("A_Talk");
+            }
+        }
+        void Update()
+        {
+            if (player == null || loading || player.MovementLocked)
+                return;
+            bool action = use.Read(XRUsage.triggerButton) ||
+                          (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame);
+            bool book = journal.Read(XRUsage.primaryButton) ||
+                        (Keyboard.current != null && Keyboard.current.jKey.wasPressedThisFrame);
+            if (outdoors)
+            {
+                if (sign == null || !sign.activeInHierarchy ||
+                    Vector3.Distance(player.head.position, sign.transform.position + Vector3.up) > 4.3f)
+                {
+                    if (lastHint == "trail")
+                    {
+                        display.Hide();
+                        lastHint = null;
+                    }
+                    return;
+                }
+                if (lastHint != "trail")
+                {
+                    display.Say("Bellmarket trail", "Press E or a trigger to return to Bellwake.");
+                    lastHint = "trail";
+                }
+                if (action)
+                    StartCoroutine(EnterRoom());
+                return;
+            }
+            if (set == null)
+                return;
+            if (book)
+            {
+                journalOpen = !journalOpen;
+                lastHint = null;
+                messageUntil = 0;
+                if (journalOpen)
+                {
+                    journalPage = -1;
+                    ShowBook();
+                }
+            }
+            if (journalOpen)
+            {
+                pulseUntil += Time.unscaledDeltaTime;
+                if (action)
+                {
+                    do
+                    {
+                        journalPage++;
+                    } while (journalPage < 5 && (story.letters & (1 << journalPage)) == 0);
+                    if (journalPage == 5)
+                        journalPage = -1;
+                    ShowBook();
+                }
+                return;
+            }
+            FindFocus();
+            AnimateSet();
+            float now = Time.unscaledTime;
+            if (action && focus != null)
+            {
+                Interact(focus);
+                return;
+            }
+            if (story.room == 4 && story.challenged && !story.Solved && now >= pulseUntil)
+            {
+                var line = story.Miss();
+                notes.PlayOneShot(chimes[3]);
+                pulseUntil = now + 24;
+                Sync();
+                Save();
+                Say("The hollow toll", line, 5);
+            }
+            if (now >= messageUntil)
+            {
+                bool fighting = story.room == 4 && story.challenged && !story.Solved;
+                string id = focus ?? (fighting ? "toll" : "idle");
+                int seconds = Mathf.Max(0, Mathf.CeilToInt(pulseUntil - now));
+                if (id != lastHint || (fighting && seconds != lastSecond))
+                {
+                    lastSecond = seconds;
+                    if (fighting)
+                        display.Say(
+                            "Answer " + story.KeyName(story.CalledKey) + "   /   " + seconds + "s",
+                            (3 - story.wounds) + " breaths left. " +
+                                (focus != null ? "Trigger or E   /   " + Label(focus) : "Find the glowing seal."));
+                    else if (focus != null)
+                        display.Say(Label(focus), "Trigger or E to interact   •   A/X or J for your journal");
+                    else
+                        display.Hide();
+                    lastHint = id;
+                }
+            }
+            if (now >= cameraCheck)
+            {
+                cameraCheck = now + .2f;
+                // The playable terrain is square, with the spawn 14 metres behind its centre.
+                Vector3 centre = spawn + facing * Vector3.forward * 14, p = player.head.position - centre;
+                if (Mathf.Max(Mathf.Abs(p.x), Mathf.Abs(p.z)) > 20.6f || p.y < -.5f)
+                    player.Teleport(spawn, facing);
+            }
+        }
+        void ShowBook()
+        {
+            if (journalPage < 0)
+                display.Say("Witness book   /   " + story.LeafCount + " of 5 leaves",
+                            story.Objective() + "   •   Trigger/E to turn a page. A/X or J to close.");
+            else
+                display.Say(BellwakeJourney.Titles[journalPage], BellwakeJourney.Leaf(journalPage));
+        }
+        void FindFocus()
+        {
+            focus = null;
+            float nearest = float.MaxValue;
+            foreach (var pair in points)
+            {
+                Transform t = nodes[pair.Key];
+                if (!t.gameObject.activeSelf)
+                    continue;
+                Vector3 delta = t.position - player.head.position;
+                float distance = delta.magnitude;
+                bool close = distance < 9;
+                pair.Value.gameObject.SetActive(close);
+                if (!close)
+                    continue;
+                display.Face(pair.Value);
+                bool hand =
+                    XRSettings.isDeviceActive && ((player.leftHand.position - t.position).sqrMagnitude < .8f ||
+                                                  (player.rightHand.position - t.position).sqrMagnitude < .8f);
+                float dot = Vector3.Dot(player.head.forward, delta / Mathf.Max(.01f, distance));
+                if (!hand && (distance > 4.1f || dot < .64f))
+                    continue;
+                if (Physics.Raycast(player.head.position, delta.normalized, Mathf.Max(0, distance - .45f),
+                                    player.surfaces, QueryTriggerInteraction.Ignore))
+                    continue;
+                float weight = hand ? 0 : distance + 4 * (1 - dot);
+                if (weight < nearest)
+                {
+                    nearest = weight;
+                    focus = pair.Key;
+                }
+            }
+        }
+        void AnimateSet()
+        {
+            float t = Time.time;
+            if (struck != null)
+            {
+                float age = t - strikeAt;
+                float angle =
+                    story.room == 2 ? 90 * Mathf.Clamp01(age * 2) : 18 * Mathf.Sin(age * 15) * Mathf.Exp(-age * 4);
+                struck.rotation =
+                    Quaternion.AngleAxis(angle, story.room == 2 ? Vector3.up : facing * Vector3.forward) *
+                    strikeRest;
+                if (age > 1.4f)
+                    struck = null;
+            }
+            if (story.room == 4 && story.challenged && !story.Solved)
+            {
+                var wave = nodes["HushWave"];
+                float phase = 1 - Mathf.Clamp01((pulseUntil - Time.unscaledTime) / 24);
+                wave.localScale = waveScale * Mathf.Lerp(1, 13, phase);
+            }
+            if (nodes.TryGetValue("SpeakerHead", out var face))
+            {
+                Vector3 toPlayer = player.head.position - face.position;
+                toPlayer.y = 0;
+                Vector3 neutral = -(facing * Vector3.forward);
+                float turn = toPlayer.sqrMagnitude < 72
+                                 ? Mathf.Clamp(Vector3.SignedAngle(neutral, toPlayer, Vector3.up), -32, 32)
+                                 : 0;
+                face.rotation = Quaternion.Slerp(
+                    face.rotation, Quaternion.AngleAxis(turn, Vector3.up) * rest[face.name], Time.deltaTime * 5);
+                var arm = nodes["SpeakerArm"];
+                float gesture =
+                    Mathf.Clamp01(gestureUntil - t) * Mathf.Min(1, (3 - Mathf.Clamp(gestureUntil - t, 0, 3)) * 4);
+                arm.rotation =
+                    Quaternion.AngleAxis(2 * Mathf.Sin(t * 1.6f) + gesture * (16 + 5 * Mathf.Sin(t * 5)),
+                                         facing * Vector3.right) *
+                    rest[arm.name];
+            }
+            if (nodes.TryGetValue("Familiar", out var pet))
+                pet.rotation = Quaternion.AngleAxis(8 * Mathf.Sin(t * .85f), Vector3.up) * rest["Familiar"];
+            if (story.room == 4 && nodes.TryGetValue("GreatBell", out var bell))
+                bell.rotation =
+                    Quaternion.AngleAxis((story.challenged && !story.Solved ? 7 : 1) * Mathf.Sin(t * 1.8f),
+                                         facing * Vector3.forward) *
+                    rest["GreatBell"];
+        }
+        void Interact(string id)
+        {
+            string line;
+            switch (id)
+            {
+            case "A_Ina":
+            case "A_Roster":
+                line = story.Epilogue();
+                break;
+            case "A_Meadow":
+                StartCoroutine(EnterMeadow());
+                return;
+            case "A_Talk":
+                gestureUntil = Time.time + 3;
+                bool was = story.challenged;
+                line = story.Talk();
+                if (!was)
+                    pulseUntil = Time.unscaledTime + 32;
+                break;
+            case "A_Letter":
+                line = story.ReadLetter();
+                break;
+            case "A_Gate":
+                if (story.ending != 0)
+                {
+                    if (Time.unscaledTime < restartUntil)
+                    {
+                        story = new BellwakeJourney();
+                        StartCoroutine(EnterRoom());
+                        return;
+                    }
+                    restartUntil = Time.unscaledTime + 4;
+                    line = "Use the arch again within four seconds to replace your completed journey.";
+                    break;
+                }
+                if (story.Gate())
+                {
+                    StartCoroutine(EnterRoom());
+                    return;
+                }
+                line = story.Objective();
+                break;
+            case "A_Lens":
+                line = story.BeamCount == 4 ? "Molten amber sings in the casting cup."
+                                            : "The casting cup is cold. Trace the light back to the kiln.";
+                break;
+            case "A_End0":
+            case "A_End1":
+                if (story.Choose(id == "A_End0" ? 1 : 2))
+                {
+                    notes.PlayOneShot(chimes[0]);
+                    StartCoroutine(EnterRoom());
+                    return;
+                }
+                line = story.Objective();
+                break;
+            default:
+                int key = id[id.Length - 1] - '0';
+                if (story.room == 1 || story.room == 2)
+                {
+                    if (struck != null && story.room == 1)
+                        struck.rotation = strikeRest;
+                    struck = nodes["Rotor" + key];
+                    strikeRest = struck.rotation;
+                    strikeAt = Time.time;
+                }
+                int wounds = story.wounds;
+                line = story.Key(key);
+                notes.PlayOneShot(
+                    chimes[story.room == 4 && (story.wounds > wounds || !story.challenged) ? 3 : key]);
+                if (story.room == 4)
+                    pulseUntil = Time.unscaledTime + 24;
+                break;
+            }
+            Sync();
+            Save();
+            Say(Label(id), line);
+        }
+        IEnumerator EnterMeadow()
+        {
+            loading = true;
+            if (profiler != null)
+                profiler.enabled = false;
+            player.MovementLocked = true;
+            try
+            {
+                yield return Fade(0, 1);
+                display.Hide();
+                lastHint = null;
+                if (set != null)
+                {
+                    set.SetActive(false);
+                    Destroy(set);
+                }
+                nodes.Clear();
+                points.Clear();
+                rest.Clear();
+                score.Stop();
+                score.clip = null;
+                RenderSettings.skybox = null;
+                cam.clearFlags = CameraClearFlags.SolidColor;
+                RenderSettings.fogColor = new Color(.66f, .78f, .75f);
+                RenderSettings.fogStartDistance = 180;
+                RenderSettings.fogEndDistance = 850;
+                if (meadow == null)
+                {
+                    meadow = new GameObject("2048m rolling meadow");
+                    meadow.AddComponent<MeadowWorld>();
+                    village = gameObject.AddComponent<MossbellVillage>();
+                    village.Initialize(player, meadow);
+                    sign = Instantiate(Resources.Load<GameObject>(Path + "Rooms/TrailSign"), meadow.transform);
+                    sign.transform.position = new Vector3(0, MeadowWorld.Height(0, 3), 3);
+                    foreach (var r in sign.GetComponentsInChildren<MeshRenderer>())
+                        Paint(r);
+                }
+                else
+                {
+                    meadow.SetActive(true);
+                    village.enabled = true;
+                }
+                outdoors = true;
+                player.ResetPlayer();
+                Physics.SyncTransforms();
+                yield return Fade(1, 0);
+            }
+            finally
+            {
+                loading = false;
+                player.MovementLocked = false;
+                curtainRenderer.enabled = false;
+            }
+        }
+        void OnDestroy()
+        {
+            if (set != null)
+                Destroy(set);
+            if (display != null)
+                display.Dispose();
+            foreach (var m in paints.Values)
+                Destroy(m);
+            if (curtain != null)
+                Destroy(curtain);
+            if (sky != null)
+                Destroy(sky);
+        }
+    }
+}

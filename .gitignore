@@ -9,3 +9,5 @@ UserSettings/
 *.sln
 *.blend1
 __pycache__/
+Tools/bellwake/.web-assets/
+Tools/bellwake/web/node_modules/

@@ -27,10 +27,6 @@ namespace Wizzard.Editor
                 var head=new GameObject("Test tracked head");head.transform.SetParent(rig.transform,false);
                 head.transform.localPosition=new Vector3(0,1.65f,0);
                 var player=rig.AddComponent<GorillaPlayer>();player.enabled=false;player.head=head.transform;
-                // Awake schedules arm colliders for destruction at end of frame. This
-                // synchronous check must remove them before exercising the controller.
-                foreach(var collider in rig.GetComponentsInChildren<Collider>())
-                    if(collider!=motor) UnityEngine.Object.DestroyImmediate(collider);
                 Physics.SyncTransforms();
                 var apply=typeof(GorillaPlayer).GetMethod("ApplyTrackedHeadPosition",BindingFlags.Instance|BindingFlags.NonPublic);
                 var guard=typeof(GorillaPlayer).GetMethod("UpdateHeadGuard",BindingFlags.Instance|BindingFlags.NonPublic);

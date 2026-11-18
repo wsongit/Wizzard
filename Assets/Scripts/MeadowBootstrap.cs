@@ -16,8 +16,6 @@ namespace Wizzard
             var sun=new GameObject("Afternoon sun").AddComponent<Light>();
             sun.type=LightType.Directional; sun.intensity=1.1f;
             sun.transform.rotation=Quaternion.Euler(48,-30,0);
-            new GameObject("2048m rolling meadow").AddComponent<MeadowWorld>();
-            Physics.SyncTransforms();
             var rig=new GameObject("Gorilla XR Origin");
             rig.transform.position=new Vector3(0,MeadowWorld.Height(0,0)+.2f,0);
             var motor=rig.AddComponent<CharacterController>();
@@ -30,38 +28,23 @@ namespace Wizzard
             head.AddComponent<AudioListener>();
             var fur=RetroMaterials.Get("Fur");
             var skin=RetroMaterials.Get("Skin");
-            var body=Visual("Gorilla torso",rig.transform,new Vector3(.48f,.58f,.28f),fur);
-            var torso=Resources.Load<GameObject>("GorillaTorso");
-            if(torso!=null) { Destroy(body); body=Instantiate(torso,rig.transform); body.name="Blender gorilla torso"; }
+            var body=Instantiate(Resources.Load<GameObject>("GorillaTorso"),rig.transform);
+            body.name="Blender gorilla torso";
             foreach(var renderer in body.GetComponentsInChildren<Renderer>())
             {
                 var materials=renderer.sharedMaterials;
                 for(int i=0;i<materials.Length;i++) materials[i]=materials[i]!=null && materials[i].name.Contains("muzzle")?skin:fur;
                 renderer.sharedMaterials=materials;
             }
-            var left=Visual("Left palm",rig.transform,Vector3.one*.19f,skin);
-            var right=Visual("Right palm",rig.transform,Vector3.one*.19f,skin);
+            var left=BellwakeModels.Create("LeftPalm",rig.transform);
+            var right=BellwakeModels.Create("RightPalm",rig.transform);
             var player=rig.AddComponent<GorillaPlayer>();
             player.head=head.transform; player.body=body.transform; player.leftHand=left.transform; player.rightHand=right.transform;
-            gameObject.AddComponent<MossbellVillage>().Initialize(player,GameObject.Find("2048m rolling meadow"));
+            gameObject.AddComponent<BellwakeCampaign>().Initialize(player);
             // Match controller and headset coordinates to the physical floor.
             var systems=new System.Collections.Generic.List<XRInputSubsystem>();
             SubsystemManager.GetInstances(systems);
             foreach(var system in systems) system.TrySetTrackingOriginMode(TrackingOriginModeFlags.Floor);
-        }
-        GameObject Visual(string label,Transform parent,Vector3 scale,Material material)
-        {
-            var obj=GameObject.CreatePrimitive(PrimitiveType.Sphere); obj.name=label;
-            obj.transform.SetParent(parent,false); obj.transform.localScale=scale;
-            Destroy(obj.GetComponent<Collider>()); obj.GetComponent<Renderer>().sharedMaterial=material;
-            return obj;
-        }
-        void OnGUI()
-        {
-            if(XRSettings.isDeviceActive) return;
-            var player=FindObjectOfType<GorillaPlayer>();
-            if(player!=null && player.MovementLocked) return;
-            GUI.Box(new Rect(16,16,540,85),"WIZZARD • THE LONG MEADOW\n2 × 2 km • OpenXR • arm-driven movement\nDesktop: WASD / Space • Middle click: look • Esc: release mouse\nV: village entrance • F8: village review • Mouse buttons: lower palms. VR: plant palms and push.");
         }
     }
 }

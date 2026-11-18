@@ -72,10 +72,18 @@ namespace Wizzard.Editor
             tags.FindProperty("layers").GetArrayElementAtIndex(MeadowWorld.GroundLayer).stringValue="Climbable";
             tags.ApplyModifiedPropertiesWithoutUndo();
             RetroMaterialLibrary.Create();
-            PlayerSettings.companyName="Wizzard"; PlayerSettings.productName="The Long Meadow";
+            PlayerSettings.companyName="Wizzard"; PlayerSettings.productName="Wizzard Bellwake";
             EditorBuildSettings.scenes=new[]{new EditorBuildSettingsScene("Assets/Scenes/Meadow.unity",true)};
             EditorUtility.SetDirty(targets);
             AssetDatabase.SaveAssets(); Debug.Log("Wizzard: Quest ARM64 and PC OpenXR configured. Open Meadow and press Play.");
+        }
+        [MenuItem("Wizzard/Play Bellwake")]
+        public static void PlayBellwake()
+        {
+            if(EditorApplication.isPlayingOrWillChangePlaymode) return;
+            if(!UnityEditor.SceneManagement.EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/Scenes/Meadow.unity");
+            EditorApplication.isPlaying=true;
         }
         [MenuItem("Wizzard/Build Quest APK")]
         public static void BuildQuest()
@@ -94,6 +102,7 @@ namespace Wizzard.Editor
         public static void ValidateProject()
         {
             Configure();
+            BellwakeValidation.Validate();
             var village=Resources.Load<GameObject>("Village/Mossbell");
             if(village==null) throw new Exception("Mossbell village model missing");
             bool arrival=false,exit=false,collision=false;

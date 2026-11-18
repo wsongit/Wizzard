@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <title>Bellwake · Wizzard</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #182527;
+        color: #fff5db;
+        font:
+          16px system-ui,
+          sans-serif;
+      }
+      canvas#world {
+        width: 100%;
+        height: 100%;
+        display: block;
+        touch-action: none;
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      #cover,
+      #book {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          rgba(14, 28, 28, 0.91),
+          rgba(16, 29, 31, 0.55) 37%,
+          transparent 79%
+        );
+        display: flex;
+        align-items: flex-end;
+      }
+      #intro {
+        margin: 0 6vw 9vh;
+        max-width: 500px;
+      }
+      .eyebrow,
+      #chapter,
+      #act,
+      #signature {
+        font-size: 12px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        font-weight: 650;
+        color: #f2d48d;
+      }
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+      h1,
+      h2,
+      h3,
+      .quote,
+      #location {
+        font-family: Georgia, "Times New Roman", serif;
+        font-weight: normal;
+      }
+      h1 {
+        font-size: clamp(76px, 11vw, 168px);
+        line-height: 1.08;
+        letter-spacing: -0.07em;
+        text-shadow: 0 5px 30px #15202070;
+      }
+      #intro .quote {
+        font-size: clamp(20px, 2vw, 29px);
+        line-height: 1.32;
+        margin: 8px 0 32px;
+        max-width: 390px;
+      }
+      .primary {
+        background: #f5dda7;
+        color: #253229;
+        border: 1px solid #eedba9;
+        padding: 13px 30px;
+        border-radius: 2px;
+        font-weight: 650;
+      }
+      .primary:hover,
+      .primary:focus-visible {
+        background: #fff2cd;
+      }
+      #controls {
+        font-size: 12px;
+        color: #e1e1d1;
+        margin-top: 18px;
+      }
+      #hud {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(180deg, #14221e72, transparent 19%, transparent 82%, #11231d40);
+      }
+      #area {
+        position: absolute;
+        top: 4vh;
+        left: 3.5vw;
+        text-shadow: 0 1px 7px #0d201b;
+      }
+      #location {
+        font-size: clamp(24px, 3vw, 43px);
+        margin-top: 2px;
+      }
+      #journal {
+        pointer-events: auto;
+        position: absolute;
+        right: 3vw;
+        top: 4vh;
+        background: #172a25dd;
+        color: #fff3d7;
+        border: 1px solid #cfb77999;
+        padding: 8px 13px;
+        border-radius: 2px;
+      }
+      #dot {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 5px;
+        height: 5px;
+        margin: -2px;
+        border-radius: 50%;
+        background: #fff6d0;
+        box-shadow: 0 0 3px #000;
+      }
+      #prompt {
+        position: absolute;
+        left: 50%;
+        top: 56%;
+        transform: translateX(-50%);
+        background: #172922ee;
+        border: 1px solid #e5c5828c;
+        padding: 7px 13px;
+        font-size: 14px;
+        white-space: nowrap;
+      }
+      #speech {
+        position: absolute;
+        bottom: 5vh;
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(660px, 90vw);
+        background: #172923f2;
+        padding: 15px 22px 18px;
+        border-left: 3px solid #dfb566;
+        box-shadow: 0 3px 20px #13201c55;
+      }
+      #words {
+        font:
+          clamp(16px, 2.15vw, 22px) / 1.36 Georgia,
+          serif;
+        margin-top: 4px;
+      }
+      #book {
+        background: #0d211ce6;
+        align-items: center;
+        justify-content: center;
+      }
+      article {
+        max-height: 90vh;
+        overflow: auto;
+        max-width: 640px;
+        width: 90%;
+        padding: clamp(24px, 5vw, 46px);
+        background: #ece0bc;
+        color: #2b382e;
+        border-top: 5px solid #a97942;
+      }
+      article h2 {
+        font-size: 45px;
+        margin: 5px 0 12px;
+      }
+      article .eyebrow {
+        color: #705637;
+      }
+      article p {
+        line-height: 1.55;
+      }
+      article ol {
+        padding-left: 21px;
+        font:
+          17px/1.45 Georgia,
+          serif;
+      }
+      article li + li {
+        margin-top: 7px;
+      }
+      article button {
+        background: #263d32;
+        color: #fff0cf;
+        border: 0;
+        padding: 10px 18px;
+      }
+      #veil {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: #15241f;
+        opacity: 0;
+        transition: opacity 0.18s;
+      }
+      #clock {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 4.5vh;
+        font-weight: 650;
+        background: #35282be6;
+        padding: 7px 14px;
+        border-bottom: 2px solid #deb77b;
+      }
+      #error {
+        position: absolute;
+        left: 5vw;
+        right: 5vw;
+        top: 10vh;
+        background: #352a26;
+        color: white;
+        padding: 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="world" aria-label="First-person game world"></canvas>
+    <section id="cover">
+      <div id="intro">
+        <div class="eyebrow">Wizzard</div>
+        <h1>Bellwake</h1>
+        <p class="quote">The morning bell has stolen a voice. Follow its echo home.</p>
+        <button id="start" class="primary" disabled>Opening the market…</button>
+        <button id="vr" class="primary" hidden>Enter VR</button>
+        <div id="controls">WASD to walk · Mouse or arrow keys to look · E to interact</div>
+      </div>
+    </section>
+    <div id="hud" hidden>
+      <div id="area">
+        <div id="chapter"></div>
+        <div id="location"></div>
+      </div>
+      <button id="journal">Journal · J</button>
+      <div id="dot"></div>
+      <div id="prompt" hidden></div>
+      <div id="clock" hidden></div>
+      <div id="speech" hidden>
+        <div id="act"></div>
+        <p id="words"></p>
+      </div>
+    </div>
+    <section id="book" hidden>
+      <article>
+        <div class="eyebrow">Witness book</div>
+        <h2 id="booktitle"></h2>
+        <p id="objective"></p>
+        <ol id="leaves"></ol>
+        <p id="bookcontrols">
+          WASD moves. Hold Shift to run. Drag or use the arrow keys to look. Press Space to jump and E to
+          interact.
+        </p>
+        <p style="margin-top: 16px">
+          <button id="close">Return to the path</button> <button id="reenter" hidden>Enter VR</button>
+          <button id="sound">Mute sound</button>
+        </p>
+      </article>
+    </section>
+    <div id="veil"></div>
+    <div id="error" hidden></div>
+    <script>
+      /* DATA */
+    </script>
+    <script>
+      /* GAME */
+    </script>
+  </body>
+</html>

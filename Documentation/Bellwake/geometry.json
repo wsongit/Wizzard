@@ -1,0 +1,76 @@
+[
+  {
+    "asset": "Bellmarket",
+    "groundProbes": 5929,
+    "boundaryRays": 3140,
+    "walkableCells": 4734,
+    "stations": 6,
+    "minApproaches": 74,
+    "triangles": 13310,
+    "visibleMaterialSlots": 29
+  },
+  {
+    "asset": "CinderLens",
+    "groundProbes": 5929,
+    "boundaryRays": 3140,
+    "walkableCells": 5595,
+    "stations": 7,
+    "minApproaches": 97,
+    "triangles": 6614,
+    "visibleMaterialSlots": 31
+  },
+  {
+    "asset": "LeftPalm",
+    "triangles": 1088
+  },
+  {
+    "asset": "MeadowOutcrop",
+    "triangles": 86
+  },
+  {
+    "asset": "MossbellApproach",
+    "triangles": 874
+  },
+  {
+    "asset": "Reedwater",
+    "groundProbes": 5929,
+    "boundaryRays": 3140,
+    "walkableCells": 5033,
+    "stations": 6,
+    "minApproaches": 78,
+    "triangles": 9702,
+    "visibleMaterialSlots": 28
+  },
+  {
+    "asset": "RightPalm",
+    "triangles": 1088
+  },
+  {
+    "asset": "RootChoir",
+    "groundProbes": 5929,
+    "boundaryRays": 3140,
+    "walkableCells": 5329,
+    "stations": 6,
+    "minApproaches": 84,
+    "triangles": 14343,
+    "visibleMaterialSlots": 25
+  },
+  {
+    "asset": "RunnerArm",
+    "triangles": 192
+  },
+  {
+    "asset": "StillBelfry",
+    "groundProbes": 5929,
+    "boundaryRays": 3140,
+    "walkableCells": 5497,
+    "stations": 8,
+    "minApproaches": 89,
+    "triangles": 9738,
+    "visibleMaterialSlots": 36
+  },
+  {
+    "asset": "TrailSign",
+    "triangles": 200
+  }
+]

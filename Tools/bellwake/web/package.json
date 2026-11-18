@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "three": "0.169.0"
+  },
+  "name": "wizzard-bellwake",
+  "private": true,
+  "devDependencies": {
+    "esbuild": "0.25.11",
+    "iwer": "2.8.0"
+  }
+}

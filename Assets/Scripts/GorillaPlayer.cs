@@ -30,14 +30,8 @@ namespace Wizzard
         {
             motor=GetComponent<CharacterController>();
             motor.minMoveDistance=0;
-            var fur=RetroMaterials.Get("Fur");
             for(int i=0;i<2;i++)
-            {
-                var arm=GameObject.CreatePrimitive(PrimitiveType.Capsule);
-                arm.name=i==0?"Left arm":"Right arm"; arm.transform.SetParent(transform,false);
-                Destroy(arm.GetComponent<Collider>()); arm.GetComponent<Renderer>().sharedMaterial=fur;
-                arms[i]=arm.transform;
-            }
+                arms[i]=BellwakeModels.Create("RunnerArm",transform).transform;
         }
         void Update()
         {
@@ -102,8 +96,8 @@ namespace Wizzard
                 Vector3 shoulder=body.position+body.right*(i==0?-.27f:.27f)+Vector3.up*.18f;
                 Vector3 palm=(i==0?leftHand:rightHand).position;
                 arms[i].position=(shoulder+palm)*.5f;
-                arms[i].up=palm-shoulder;
-                arms[i].localScale=new Vector3(.15f,Vector3.Distance(shoulder,palm)*.5f,.15f);
+                arms[i].up=shoulder-palm;
+                arms[i].localScale=new Vector3(1,Vector3.Distance(shoulder,palm),1);
             }
             if(vr) SnapTurn();
             if(head.position.y < -30) ResetPlayer();
@@ -193,6 +187,8 @@ namespace Wizzard
                 tracked[i]=device.isValid && device.TryGetFeatureValue(CommonUsages.isTracked,out bool t) && t;
                 if(tracked[i] && device.TryGetFeatureValue(CommonUsages.devicePosition,out Vector3 p)) local=p;
                 else tracked[i]=false;
+                if(tracked[i] && device.TryGetFeatureValue(CommonUsages.deviceRotation,out Quaternion rotation))
+                    (i==0?leftHand:rightHand).rotation=transform.rotation*rotation;
             }
             else if(Mouse.current!=null)
             {

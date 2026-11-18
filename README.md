@@ -1,15 +1,14 @@
-# Wizzard — The Long Meadow
+# Wizzard · Bellwake
 
-An original N64-style grassy VR playground: **2,048 × 2,048 metres**, small rolling
-hills, mottled 64×64 grass, 48 scattered climbable stone/tree landmarks, and a
-simple brown gorilla avatar. Arm-driven locomotion is implemented from scratch;
-no Gorilla Tag code or Nintendo assets are included.
+An original, N64-inspired adventure for standalone Meta Quest and desktop. Tavi the bellmender needs your help finding the voice her sister gave to the village bell. Follow the story through five Blender-built districts, solve the three dungeon puzzles, face the keeper and choose how the village greets the morning.
 
-The Blender preview below shows the earlier terrain layout and palette. The updated
-Unity materials use darker, softly filtered forest textures; their in-game appearance
-has not yet been rendered or validated here.
+![Bellwake in play](Documentation/Bellwake/worlds.jpg)
 
-![Earlier Blender landscape preview](Documentation/meadow-preview.png)
+**Play immediately** by opening `Play/Bellwake.html` in Chrome or Edge. Use WASD to move, drag to look, E to interact and J to open your witness book. The same file offers immersive WebXR on supported secure origins.
+
+**Open in Unity** with Unity 2022.3.20f1 and choose **Wizzard → Play Bellwake**. The market sign leads to the original two-kilometre Long Meadow and its Mossbell Village gate.
+
+[Story, controls, Quest Browser setup and editable art](Documentation/Bellwake/guide.md) · [Validation results](Documentation/Bellwake/validation.md)
 
 ## Open the Unity project (standalone Meta Quest)
 
@@ -20,15 +19,14 @@ has not yet been rendered or validated here.
 3. The editor setup script configures Quest Android and PC OpenXR with controller profiles.
    You can run **Wizzard → Configure Quest and PC OpenXR** again. Run OpenXR Project
    Validation and resolve any runtime/platform-specific requirements.
-4. Open `Assets/Scenes/Meadow.unity` and press **Play**. The scene creates the
-   terrain and player when entering Play mode; it is intentionally empty in edit mode.
+4. Choose **Wizzard → Play Bellwake**, or open `Assets/Scenes/Meadow.unity` and press **Play**. The bootstrap creates the market and player at runtime.
 5. In **File → Build Settings**, switch to **Android**. The setup uses ARM64,
    IL2CPP, OpenGL ES 3, linear color, single-pass stereo, Meta Quest Support,
    and Touch controller interaction profiles. Run OpenXR Project Validation for Android.
 6. Run **Wizzard → Build Quest APK** to create `Builds/LongMeadow-Quest.apk`.
    Enable developer mode on your Quest and connect it by USB. Authorize USB
    debugging, then install with `adb install -r Builds/LongMeadow-Quest.apk`.
-   Launch **The Long Meadow** from the headset's Unknown Sources library.
+   Launch **Wizzard Bellwake** from the headset's Unknown Sources library.
    This creates a development/sideload build; store submission is not configured.
 7. Optional: for PC Play mode through Quest Link, switch to the PC build target,
    enable Meta's PC OpenXR runtime, connect Link, and press Play.
@@ -36,9 +34,7 @@ has not yet been rendered or validated here.
 Plant either palm against terrain, a stone, or a tree, then push/pull your arm to
 move. Push down and release for a jump. Crouch physically to reach the ground.
 Right stick snaps rotation 45°. Tracking uses floor space; match your runtime's
-floor calibration. There is no grip-button requirement. This is a prototype;
-headset comfort, collision edge cases, and real-world controller behavior still
-need play testing.
+floor calibration. There is no grip-button requirement. Physical headset comfort and frame timing still need device testing.
 
 Without a headset: **WASD** moves, **Space** jumps, **middle click** captures mouse
 look, **Escape** releases it. Mouse buttons lower the corresponding debug palms;
@@ -49,11 +45,11 @@ this mode is for inspecting the map, not a faithful VR hand simulator.
 Blender **4.3.2** is installed in the cloud at `/usr/bin/blender`.
 `Blender/LongMeadow.blend` contains the complete landscape and example avatar.
 `Assets/Resources/GorillaTorso.obj` is the exported avatar body used by Unity;
-the game creates tracked palms and arm segments. The first-person head is the
+the tracked palms and arms use the new Bellwake Blender models. The first-person head is the
 camera. Blender source stays outside Assets to avoid Unity's automatic Blender
 conversion and its external FBX tooling requirements.
 
-Regenerate all artwork and the Blender preview from the repository root:
+Regenerate the legacy meadow artwork and preview from the repository root.
 
 ```sh
 blender -b --threads 8 --python Tools/create_art.py
@@ -62,23 +58,13 @@ blender -b Blender/LongMeadow.blend --python Tools/validate_art.py
 
 ## Validation status
 
-- Blender asset generation and CPU preview render: **passed**.
-- Blender terrain extent, triangle count, mesh indices, hills, texture size,
-  and exported avatar: checked by `Tools/validate_art.py`.
-- Unity editor compilation, package resolution, play mode and builds: **unrun**.
-  The required Unity editor and Android toolchain are not installed in this cloud workspace.
-- Headset locomotion, stereo rendering, performance and OpenXR runtime: **unrun**.
-  No headset is attached to the cloud.
+The campaign has end-to-end browser playthroughs, emulated Quest input checks, FBX placement and collision audits, and a C# compilation check using Unity’s 2022.3.20f1 assemblies. The installed editor stopped at license activation before Play mode and APK export. Device frame timing and physical headset comfort remain open. Development APKs log the median, 95th percentile and maximum frame interval in each room.
 
-After Unity is available, run **Wizzard → Validate project**, then test in Play
-mode. Check both hands on flat ground and slopes, push-off jumping, rocks/trees,
-snap turns, tracking loss/recovery, room-scale head collision, and repeated Play
-sessions. Inspect GC allocation and frame time on the target headset. The Quest APK build, controller tracking and performance must be validated on a
-physical device once Unity and the Android toolchain are installed.
+[Read the measured results and test scope](Documentation/Bellwake/validation.md)
 
 ## Forest-style textures and future props
 
-All current Unity world and avatar surfaces use distinct original 64×64 textures
+The legacy meadow and village surfaces use distinct original 64×64 textures
 with muted colors, broad mottling, bilinear filtering and mipmaps. This approximates
 the soft, low-resolution forest surfaces in the supplied reference. Texture
 projection supports models without UVs, including the exported gorilla torso.
@@ -153,7 +139,7 @@ blender -b -t 8 --python-exit-code 1 --python Tools/create_village.py
 python Tools/check_village_export.py
 ```
 
-Blender renders, route support/headroom checks and export integrity checks passed. Unity 2022.3.20f1 and a Quest headset are unavailable here, so shader compilation, actual physics/traversal, stereo rendering and standalone performance remain unverified. Run **Wizzard > Validate project** after import and follow the headset checks in the handoff. This rebuild makes no package manifest change.
+Blender renders, route support/headroom checks and export integrity checks passed. The cloud editor requires license activation, and native physics, shaders and standalone headset performance still need device validation. Run **Wizzard > Validate project** after import and follow the headset checks in the handoff. This rebuild makes no package manifest change.
 
 The village also has room-scale wall sweeps, head occlusion when physical head movement crosses solid scenery, and recovery to the entrance if the player leaves the boundary or falls beneath the ground. These runtime protections require Unity/Quest testing. In desktop Play mode, run **Wizzard > Validate room-scale wall collision** for the real Unity physics check.
 
