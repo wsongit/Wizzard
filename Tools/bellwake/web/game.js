@@ -1,7 +1,7 @@
 import * as T from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { TrackedRunner } from "./vr.js";
-import { Octree } from "three/examples/jsm/math/Octree.js";
+import { loadCollision } from "./collision.js";
 import { Capsule } from "three/examples/jsm/math/Capsule.js";
 
 const data = window.BELLWAKE,
@@ -31,6 +31,12 @@ function save() {
 }
 function fail(error) {
   $("error").textContent = String(error);
+  if (busy) {
+    const retry = document.createElement("button");
+    retry.textContent = "Reload last checkpoint";
+    retry.onclick = () => location.reload();
+    $("error").append(" ", retry);
+  }
   $("error").hidden = false;
 }
 window.addEventListener("unhandledrejection", (e) => fail(e.reason));
@@ -56,25 +62,30 @@ const loader = new GLTFLoader(),
   side = new T.Vector3(),
   step = new T.Vector3();
 const capsule = new Capsule(new T.Vector3(), new T.Vector3(), 0.26);
-const tracks = new Map();
+const effects = new Map();
 let music = null;
-function track(name) {
-  if (!tracks.has(name)) {
-    const a = new Audio("data:audio/ogg;base64," + data.sounds[name]);
-    tracks.set(name, a);
-  }
-  return tracks.get(name);
+function assetURL(kind, name, mime) {
+  return data.streamed ? data[kind][name] : "data:" + mime + ";base64," + data[kind][name];
+}
+function dropMusic() {
+  if (!music) return;
+  music.pause();
+  music.removeAttribute("src");
+  music.load();
+  music = null;
 }
 function playMusic() {
-  if (music) music.pause();
-  music = track(state().ending ? "Morning" : graph.rooms[state().room]);
+  dropMusic();
+  music = new Audio(assetURL("sounds", state().ending ? "Morning" : graph.rooms[state().room], "audio/ogg"));
   music.loop = true;
   music.volume = 0.35;
   music.muted = muted;
   music.play().catch(() => {});
 }
 function tone(i) {
-  const a = track(["Leaf", "Ember", "Tide", "Toll"][i]);
+  const key = ["Leaf", "Ember", "Tide", "Toll"][i];
+  if (!effects.has(key)) effects.set(key, new Audio(assetURL("sounds", key, "audio/ogg")));
+  const a = effects.get(key);
   a.currentTime = 0;
   a.volume = 0.5;
   a.muted = muted;
@@ -97,8 +108,12 @@ let group = null,
   restartEnd = 0;
 const keys = new Set(),
   ray = new T.Raycaster();
-function bytes(key) {
-  let b = atob(data.models[key]),
+async function loadModel(key) {
+  if (data.streamed) return (await loader.loadAsync(data.models[key])).scene;
+  return (await loader.parseAsync(bytes(data.models[key]), "")).scene;
+}
+function bytes(encoded) {
+  let b = atob(encoded),
     array = new Uint8Array(b.length);
   for (let i = 0; i < b.length; i++) array[i] = b.charCodeAt(i);
   return array.buffer;
@@ -119,7 +134,7 @@ const vr = new TrackedRunner(
   scene,
   camera,
   renderer,
-  async (name) => (await loader.parseAsync(bytes(name), "")).scene,
+  loadModel,
   () => ({ tree, spawn: nodes.Spawn?.position }),
   () => {
     if (!book) interact(focus);
@@ -127,7 +142,7 @@ const vr = new TrackedRunner(
   () => toggleBook(!book),
   () => {
     toggleBook(false);
-    resetFeet();
+    if (!busy && nodes.Spawn) resetFeet();
   },
 );
 navigator.xr
@@ -178,26 +193,62 @@ function dispose(old) {
   old.traverse((o) => {
     if (!o.isMesh) return;
     geos.add(o.geometry);
-    materials.add(o.material);
-    if (o.material.map) textures.add(o.material.map);
+    for (const material of [].concat(o.material)) {
+      materials.add(material);
+      for (const value of Object.values(material)) if (value?.isTexture) textures.add(value);
+    }
   });
   geos.forEach((x) => x.dispose());
   materials.forEach((x) => x.dispose());
-  textures.forEach((x) => x.dispose());
+  const images = new Set();
+  textures.forEach((x) => { images.add(x.source.data); x.dispose(); });
+  images.forEach((img) => img?.close?.());
   scene.remove(old);
 }
+let resolveFrame, retired;
+function loadingFrame() {
+  return new Promise((resolve) => { resolveFrame = resolve; });
+}
 async function room() {
+  try {
+    await loadRoom();
+    return true;
+  } catch (error) {
+    fail(error);
+    return false;
+  }
+}
+async function loadRoom() {
   busy = true;
   $("veil").style.opacity = 1;
   const s = state(),
     k = s.room;
-  const gltf = await loader.parseAsync(bytes(graph.rooms[k]), "");
-  if (group) dispose(group);
-  group = gltf.scene;
+  if (group) {
+    if (__TEST__) retired = [group, tree, sky.material.map].map((value) => new WeakRef(value));
+    dispose(group);
+    group = null;
+    tree.clear();
+    tree = null;
+    ring = null;
+    sky.material.map.dispose();
+    sky.material.map = null;
+    renderer.renderLists.dispose();
+    dropMusic();
+  }
   nodes = {};
   markers = [];
-  const palette = new Map(),
-    solids = new T.Group();
+  focus = "";
+  // Submit an opaque frame in the headset as well as the desktop canvas.
+  await loadingFrame();
+  const key = graph.rooms[k], theme = s.ending ? "Morning" : key;
+  const [model, collision, panorama] = await Promise.all([
+    loadModel(key),
+    data.streamed ? new T.FileLoader().setResponseType("arraybuffer").loadAsync(data.collision[key]) : bytes(data.collision[key]),
+    new T.TextureLoader().loadAsync(assetURL("skies", theme, "image/jpeg")),
+  ]);
+  group = model;
+  tree = loadCollision(collision);
+  const palette = new Map();
   group.traverse((o) => {
     if (o.name) nodes[o.name] = o;
     if (o.name.startsWith("A_")) markers.push(o);
@@ -221,19 +272,23 @@ async function room() {
   });
   palette.forEach((_, old) => old.dispose());
   group.updateMatrixWorld(true);
-  for (const id of ["Terrain", "Rim", "Set", "C_Solids"]) solids.add(nodes[id].clone(true));
-  tree = new Octree().fromGraphNode(solids);
+
   nodes.C_Solids.visible = false;
   scene.add(group);
   const color = s.ending ? "#efd3a7" : horizons[k];
   scene.fog = new T.Fog(color, 19, 65);
-  const panorama = await new T.TextureLoader().loadAsync(
-    "data:image/jpeg;base64," + data.skies[s.ending ? "Morning" : graph.rooms[k]],
-  );
   panorama.colorSpace = T.SRGBColorSpace;
-  if (sky.material.map) sky.material.map.dispose();
   sky.material.map = panorama;
   sky.material.needsUpdate = true;
+  // Spread texture uploads over loading frames before returning control to the player.
+  const maps = new Set([panorama]);
+  palette.forEach((material) => { if (material.map) maps.add(material.map); });
+  let slice = performance.now();
+  for (const map of maps) {
+    renderer.initTexture(map);
+    if (performance.now() - slice >= 3) { await loadingFrame(); slice = performance.now(); }
+  }
+  await renderer.compileAsync(scene, camera);
   ring = null;
   resetFeet();
   sync();
@@ -306,8 +361,7 @@ async function interact(id) {
     }
     number = 0;
     leaves = 0;
-    await room();
-    welcome();
+    if (await room()) welcome();
     return;
   }
   if (id === "A_Talk") gestureEnd = performance.now() + 3000;
@@ -322,8 +376,7 @@ async function interact(id) {
   number = move[0];
   if (id === "A_Letter") leaves |= 1 << prev.room;
   if (prev.room !== state().room) {
-    await room();
-    welcome();
+    if (await room()) welcome();
     return;
   }
   if (id.startsWith("A_Key") || id === "Toll") {
@@ -434,7 +487,8 @@ $("journal").onclick = () => toggleBook(true);
 $("close").onclick = () => toggleBook(false);
 $("sound").onclick = () => {
   muted = !muted;
-  tracks.forEach((a) => (a.muted = muted));
+  effects.forEach((a) => (a.muted = muted));
+  if (music) music.muted = muted;
   $("sound").textContent = muted ? "Enable sound" : "Mute sound";
   save();
 };
@@ -509,7 +563,12 @@ function loop(time, frame) {
   if (previous && !busy && !book && !vr.session) adapt(time - previous);
   const delta = Math.min(0.066, Math.max(0, (time - previous) / 1000));
   previous = time;
-  if (!group || busy) return;
+  if (busy) {
+    renderer.clear();
+    if (resolveFrame) { const ready = resolveFrame; resolveFrame = null; ready(); }
+    return;
+  }
+  if (!group) return;
   if (vr.session) vr.update(frame, delta, book);
   if (!started) {
     camera.position.set(11 + Math.sin(time * 0.00012) * 1.3, 5.6, 15.8);
@@ -584,6 +643,10 @@ function loop(time, frame) {
 if (__TEST__)
   window.bellProbe = () => ({
     number,
+    gpu: { ...renderer.info.memory, programs: renderer.info.programs.length },
+    retiredAlive: retired?.filter((ref) => ref.deref()).length || 0,
+    trees: tree ? 1 : 0, music: music ? 1 : 0, effects: effects.size,
+    sets: group && scene.children.includes(group) ? 1 : 0,
     room: state().room,
     focus,
     busy,
@@ -605,10 +668,19 @@ if (__TEST__)
     timer,
     book,
   });
+if (__TEST__) window.bellTravel = async (index) => {
+  if (busy) throw Error("Travel already in progress");
+  const target = graph.states.findIndex((s) => s.room === index);
+  if (target < 0) throw Error("Unknown chapter");
+  number = target;
+  await room();
+};
+renderer.setAnimationLoop(loop);
 room()
-  .then(() => {
+  .then((loaded) => {
+    if (!loaded) return;
     $("start").disabled = false;
     $("start").textContent = number ? "Continue journey" : "Begin journey";
-    renderer.setAnimationLoop(loop);
+
   })
   .catch(fail);

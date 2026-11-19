@@ -4,10 +4,15 @@ using UnityEngine;
 namespace Wizzard
 {
     // UVs are authored in Blender in metres; keep meadow's triplanar material separate.
-    public static class VillageMaterials
+    public sealed class VillageMaterials
     {
-        static readonly Dictionary<string,Material> cache=new Dictionary<string,Material>();
-        public static Material Get(string name)
+        readonly Dictionary<string,Material> cache=new Dictionary<string,Material>();
+        public void Clear()
+        {
+            foreach (var material in cache.Values) Object.Destroy(material);
+            cache.Clear();
+        }
+        public Material Get(string name)
         {
             // Unity's importer may append instance suffixes to a source material name.
             string key=name.Split(' ')[0];

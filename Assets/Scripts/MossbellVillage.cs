@@ -11,7 +11,10 @@ namespace Wizzard
         public const string VillageName="Mossbell Village";
         public static readonly Vector2 MapLocation=new Vector2(240,140);
         GorillaPlayer player;
-        GameObject meadow, village;
+        GameObject meadow, village, cover;
+        readonly VillageMaterials paints = new VillageMaterials();
+        readonly List<Mesh> colliders = new List<Mesh>();
+        Material invisible, titleMaterial;
         Material curtain, villageSky, previousSky;
         Color previousFog;
         float previousFogStart,previousFogEnd,previousShadowDistance,previousStepOffset;
@@ -68,7 +71,7 @@ namespace Wizzard
             gate=new Vector3(MapLocation.x,MeadowWorld.Height(MapLocation.x,MapLocation.y),MapLocation.y-36);
             CreateMountain();
             // Camera-attached geometry renders in both eyes. Text is in front of the curtain.
-            var quad=GameObject.CreatePrimitive(PrimitiveType.Quad); quad.name="Village fade curtain";
+            var quad=cover=GameObject.CreatePrimitive(PrimitiveType.Quad); quad.name="Village fade curtain";
             Destroy(quad.GetComponent<Collider>()); quad.transform.SetParent(player.head,false);
             quad.transform.localPosition=new Vector3(0,0,.8f); quad.transform.localScale=Vector3.one*20;
             curtain=new Material(Shader.Find("Wizzard/VillageFade"));curtain.color=Color.clear;
@@ -77,7 +80,7 @@ namespace Wizzard
             label.transform.localPosition=new Vector3(0,0,.5f);
             title=label.AddComponent<TextMesh>();title.anchor=TextAnchor.MiddleCenter;title.alignment=TextAlignment.Center;
             title.font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            var titleMaterial=new Material(Shader.Find("Wizzard/VillageTitle"));
+            titleMaterial=new Material(Shader.Find("Wizzard/VillageTitle"));
             title.GetComponent<Renderer>().sharedMaterial=titleMaterial;
             title.fontSize=64;title.characterSize=.05f;title.color=Color.white;label.SetActive(false);
         }
@@ -106,6 +109,15 @@ namespace Wizzard
             if(Mathf.Abs(p.x-target.x)<3 && Mathf.Abs(p.z-target.z)<2 && Mathf.Abs(p.y-target.y)<5)
                 StartCoroutine(Transition(!inside));
         }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        public IEnumerator CheckCrossing(bool entering)
+        {
+            yield return Transition(entering);
+            if (inside != entering || meadow.activeSelf == entering ||
+                (village != null) != entering || (terrainCollider != null) != entering)
+                throw new System.InvalidOperationException("Village streaming state mismatch");
+        }
+#endif
         IEnumerator Transition(bool entering)
         {
             busy=true;
@@ -125,7 +137,16 @@ namespace Wizzard
             title.transform.localScale=Vector3.one*Mathf.Min(.65f/Mathf.Max(.001f,titleBounds.size.x),.15f/Mathf.Max(.001f,titleBounds.size.y));
             // The expensive instantiate/import work only occurs after a fully black frame.
             yield return null;
-            if(entering && village==null) BuildInterior();
+            if(entering)
+            {
+                meadow.SetActive(false);
+                yield return null;
+                yield return Resources.UnloadUnusedAssets();
+                var request=Resources.LoadAsync<GameObject>("Village/Mossbell");
+                yield return request;
+                var build = BuildInterior((GameObject)request.asset);
+                while (build.MoveNext()) yield return build.Current;
+            }
             yield return null;
             if(entering)
             {
@@ -135,11 +156,13 @@ namespace Wizzard
             }
             else
             {
-                meadow.SetActive(true);village.SetActive(false);
+                ReleaseInterior();
+                meadow.SetActive(true);
+                meadow.GetComponent<MeadowWorld>().GroundAt(gate+Vector3.back*9);
                 player.Teleport(gate+Vector3.back*9,Quaternion.Euler(0,180,0));
             }
             inside=entering;SetAtmosphere(inside);Physics.SyncTransforms();
-            yield return new WaitForSecondsRealtime(1.2f);
+            if (!entering) { yield return null; yield return Resources.UnloadUnusedAssets(); }
             title.gameObject.SetActive(false);
             yield return Fade(1,0,.8f);
             completed=true;
@@ -148,7 +171,7 @@ namespace Wizzard
             {
                 if(!completed)
                 {
-                    inside=false;SetAtmosphere(false);meadow.SetActive(true);if(village!=null) village.SetActive(false);
+                    inside=false;SetAtmosphere(false);meadow.SetActive(true);ReleaseInterior();meadow.GetComponent<MeadowWorld>().GroundAt(gate+Vector3.back*9);
                     player.Teleport(gate+Vector3.back*9,Quaternion.identity);
                 }
                 curtain.color=Color.clear;title.gameObject.SetActive(false);
@@ -166,15 +189,20 @@ namespace Wizzard
             }
             curtain.color=new Color(0,0,0,to);
         }
-        void BuildInterior()
+        IEnumerator BuildInterior(GameObject prefab)
         {
-            village=Instantiate(Resources.Load<GameObject>("Village/Mossbell")); village.name=VillageName;
-            try
-            {
-            var invisible=new Material(Shader.Find("Wizzard/VillageFade"));invisible.color=Color.clear;
+            village=Instantiate(prefab); village.name=VillageName;
+            village.SetActive(false);
+            float slice = Time.realtimeSinceStartup;
+            invisible=new Material(Shader.Find("Wizzard/VillageFade"));invisible.color=Color.clear;
             bool hasArrival=false,hasExit=false,hasBoundaryEast=false,hasCollision=false;
-            foreach(var filter in village.GetComponentsInChildren<MeshFilter>())
+            foreach(var filter in village.GetComponentsInChildren<MeshFilter>(true))
             {
+                if (Time.realtimeSinceStartup-slice >= .003f)
+                {
+                    yield return null;
+                    slice = Time.realtimeSinceStartup;
+                }
                 filter.gameObject.layer=MeadowWorld.GroundLayer;
                 var renderer=filter.GetComponent<MeshRenderer>();var materials=renderer.sharedMaterials;
                 var triangles=new List<int>();var terrainTriangles=new List<int>();bool hasVisual=false;
@@ -183,7 +211,7 @@ namespace Wizzard
                     string source=materials[slot]!=null?materials[slot].name:"";
                     bool marker=source.StartsWith("Arrival") || source.StartsWith("Exit") || source.StartsWith("BoundaryEast");
                     bool collisionOnly=source.StartsWith("Collision");
-                    var indices=filter.sharedMesh.GetTriangles(slot);
+                    var indices=marker || collisionOnly ? filter.sharedMesh.GetTriangles(slot) : null;
                     if(marker)
                     {
                         var vertices=filter.sharedMesh.vertices;
@@ -200,19 +228,19 @@ namespace Wizzard
                         if(source.StartsWith("CollisionTerrain")) terrainTriangles.AddRange(indices);
                         else triangles.AddRange(indices);
                     }
-                    else { materials[slot]=VillageMaterials.Get(source);hasVisual=true; }
+                    else { materials[slot]=paints.Get(source);hasVisual=true; }
                 }
                 renderer.sharedMaterials=materials;
                 // Handles both preserved groups and importers that merge material submeshes.
                 renderer.enabled=hasVisual;
                 if(triangles.Count>0)
                 {
-                    var collision=Instantiate(filter.sharedMesh);collision.subMeshCount=1;collision.triangles=triangles.ToArray();
+                    var collision=Instantiate(filter.sharedMesh);colliders.Add(collision);collision.subMeshCount=1;collision.triangles=triangles.ToArray();
                     filter.gameObject.AddComponent<MeshCollider>().sharedMesh=collision;
                 }
                 if(terrainTriangles.Count>0)
                 {
-                    var terrain=Instantiate(filter.sharedMesh);terrain.subMeshCount=1;terrain.triangles=terrainTriangles.ToArray();
+                    var terrain=Instantiate(filter.sharedMesh);colliders.Add(terrain);terrain.subMeshCount=1;terrain.triangles=terrainTriangles.ToArray();
                     terrainCollider=filter.gameObject.AddComponent<MeshCollider>();terrainCollider.sharedMesh=terrain;
                 }
             }
@@ -225,13 +253,28 @@ namespace Wizzard
             if(!hasBoundaryEast) throw new System.InvalidOperationException("Village BoundaryEast marker missing. Pull all project assets and reimport Mossbell.obj.");
             Vector3 eastDirection=boundaryEast-arrival;eastDirection.y=0;
             if(eastDirection.sqrMagnitude<.0001f) throw new System.InvalidOperationException("Village BoundaryEast marker overlaps the arrival marker.");
-            // Trees, route collision and all props now come from the editable Blender scene.
-            village.SetActive(false);
-            }
-            catch
-            {
-                Destroy(village);village=null;throw;
-            }
+
+        }
+        void ReleaseInterior()
+        {
+            if(village!=null) { village.SetActive(false); Destroy(village); village=null; }
+            foreach(var mesh in colliders) Destroy(mesh);
+            colliders.Clear();
+            paints.Clear();
+            if(invisible!=null) Destroy(invisible);
+            invisible=null; terrainCollider=null; boundary=null;
+        }
+        void OnDestroy()
+        {
+            if(ReviewActive) EndReview();
+            if(inside && player!=null && view!=null) SetAtmosphere(false);
+            ReleaseInterior();
+            if(cover!=null) Destroy(cover);
+            if(title!=null) Destroy(title.gameObject);
+            if(reviewCamera!=null) Destroy(reviewCamera.gameObject);
+            if(curtain!=null) Destroy(curtain);
+            if(titleMaterial!=null) Destroy(titleMaterial);
+            if(villageSky!=null) Destroy(villageSky);
         }
         void SetAtmosphere(bool villageActive)
         {
@@ -297,7 +340,7 @@ namespace Wizzard
         }
         void CreateMountain()
         {
-            var mountain=BellwakeModels.Climbable("MossbellApproach",meadow.transform);
+            var mountain=BellwakeModels.Climbable("MossbellApproach",meadow.transform,meadow.GetComponent<MeadowWorld>().LandmarkPaints);
             // Align the authored gate to the existing meadow portal regardless of FBX handedness.
             Transform marker=null, centre=null;
             foreach(var point in mountain.GetComponentsInChildren<Transform>())

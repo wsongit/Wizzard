@@ -10,8 +10,22 @@ namespace Wizzard
         string room;
         float warmup;
         int count;
+        bool travelling;
+        float loadStart, worstFrame;
+        public void StartTravel()
+        {
+            travelling = true;
+            loadStart = Time.realtimeSinceStartup;
+            worstFrame = 0;
+            enabled = true;
+        }
         public void Begin(string name)
         {
+            if (travelling)
+                Debug.LogFormat("Bellwake loaded {0} in {1:F0} ms including fades. Worst transition frame {2:F1} ms. Allocated {3:F1} MiB.",
+                    name, (Time.realtimeSinceStartup-loadStart)*1000, worstFrame,
+                    UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() / 1048576f);
+            travelling = false;
             room = name;
             warmup = Time.unscaledTime + 3;
             count = 0;
@@ -19,6 +33,11 @@ namespace Wizzard
         }
         void Update()
         {
+            if (travelling)
+            {
+                worstFrame = Mathf.Max(worstFrame, Time.unscaledDeltaTime * 1000);
+                return;
+            }
             if (Time.unscaledTime < warmup)
                 return;
             frames[count++] = Time.unscaledDeltaTime * 1000;

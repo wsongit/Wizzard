@@ -29,7 +29,7 @@ Crouching makes the ground easier to reach with the palms. The journal pauses th
 
 Double-click `Play/Bellwake.html` in the downloaded project or extract the standalone play ZIP and open its HTML file. Geometry, textures, music and the JavaScript player are embedded. The browser edition contains the five campaign districts. The large meadow and Mossbell Village are accessible through the Unity edition.
 
-For Quest Browser, serve the HTML over HTTPS and choose **Enter VR**. With a USB-connected developer-mode Quest, a local alternative uses Python and Android platform tools on the PC. From the repository root, run these in separate terminals.
+For Quest Browser, serve the entire `Play` directory over HTTPS and open `index.html` for on-demand chapter downloads and choose **Enter VR**. With a USB-connected developer-mode Quest, a local alternative uses Python and Android platform tools on the PC. From the repository root, run these in separate terminals.
 
 ```shell
 py -m http.server 8090 --bind 127.0.0.1 --directory Play
@@ -39,7 +39,7 @@ py -m http.server 8090 --bind 127.0.0.1 --directory Play
 adb reverse tcp:8090 tcp:8090
 ```
 
-Open `http://localhost:8090/Bellwake.html` in Quest Browser while USB forwarding is active. A compatible browser offers **Enter VR** on the opening screen.
+Open `http://localhost:8090/index.html` in Quest Browser while USB forwarding is active. A compatible browser offers **Enter VR** on the opening screen.
 
 ## Editable art and sound
 

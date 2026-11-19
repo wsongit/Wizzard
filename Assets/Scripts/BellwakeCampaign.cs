@@ -104,8 +104,10 @@ namespace Wizzard
                 }
             return new BellwakeJourney();
         }
+        bool checkingTravel;
         void Save()
         {
+            if (checkingTravel) return;
             string checkpoint = JsonUtility.ToJson(story);
             if (checkpoint == savedCheckpoint)
                 return;
@@ -130,11 +132,30 @@ namespace Wizzard
             curtain.color = new Color(0, 0, 0, to);
             curtainRenderer.enabled = to > 0;
         }
+        IEnumerator ReleaseArea()
+        {
+            focus = lastHint = null;
+            struck = null;
+            nodes.Clear();
+            points.Clear();
+            rest.Clear();
+            score.Stop();
+            score.clip = null;
+            sky.SetTexture("_Panorama", null);
+            if (set != null) { set.SetActive(false); Destroy(set); set = null; }
+            if (village != null) { village.enabled = false; Destroy(village); village = null; }
+            if (meadow != null) { meadow.SetActive(false); Destroy(meadow); meadow = null; sign = null; }
+            foreach (var material in paints.Values) Destroy(material);
+            paints.Clear();
+            // Destroy is deferred until the frame ends. Drop references before the engine sweep.
+            yield return null;
+            yield return Resources.UnloadUnusedAssets();
+        }
         IEnumerator EnterRoom()
         {
             loading = true;
             if (profiler != null)
-                profiler.enabled = false;
+                profiler.StartTravel();
             player.MovementLocked = true;
             journalOpen = false;
             focus = null;
@@ -142,28 +163,23 @@ namespace Wizzard
             try
             {
                 yield return Fade(0, 1);
+                yield return ReleaseArea();
                 string key = BellwakeJourney.Rooms[story.room];
                 var request = Resources.LoadAsync<GameObject>(Path + "Rooms/" + key);
                 yield return request;
                 if (request.asset == null)
                     throw new InvalidOperationException("Missing Bellwake room " + key);
-                if (village != null)
-                    village.enabled = false;
-                if (meadow != null)
-                    meadow.SetActive(false);
                 outdoors = false;
-                if (set != null)
-                {
-                    set.SetActive(false);
-                    Destroy(set);
-                }
-                nodes.Clear();
-                points.Clear();
-                rest.Clear();
                 set = Instantiate((GameObject)request.asset);
                 set.name = key;
+                float sliceStart = Time.realtimeSinceStartup;
                 foreach (var t in set.GetComponentsInChildren<Transform>(true))
                 {
+                    if (Time.realtimeSinceStartup - sliceStart >= .003f)
+                    {
+                        yield return null;
+                        sliceStart = Time.realtimeSinceStartup;
+                    }
                     nodes[t.name] = t;
                     if (t.name.StartsWith("Rotor") || t.name == "GreatBell" || t.name == "Familiar" ||
                         t.name.StartsWith("Speaker"))
@@ -191,12 +207,17 @@ namespace Wizzard
                 var dir = nodes["Look"].position - spawn;
                 dir.y = 0;
                 facing = Quaternion.LookRotation(dir);
-                ApplyLook();
+                bool dawn = story.ending != 0;
+                string theme = dawn ? "Morning" : key;
+                var panorama = Resources.LoadAsync<Cubemap>(Path + "Skies/" + theme);
+                var song = Resources.LoadAsync<AudioClip>(Path + "Audio/" + theme);
+                yield return panorama;
+                ApplyLook((Cubemap)panorama.asset);
                 Sync();
                 player.Teleport(spawn, facing);
                 Physics.SyncTransforms();
-                bool dawn = story.ending != 0;
-                score.clip = Resources.Load<AudioClip>(Path + "Audio/" + (dawn ? "Morning" : key));
+                yield return song;
+                score.clip = (AudioClip)song.asset;
                 score.Play();
                 pulseUntil = Time.unscaledTime + 32;
                 Save();
@@ -212,9 +233,6 @@ namespace Wizzard
                         : "Chapter " + (story.room == 0 ? "home" : story.room.ToString()) + "   /   " +
                               story.Objective(),
                     8);
-                // Let the previous room be released before a second transition.
-                yield return null;
-                yield return Resources.UnloadUnusedAssets();
                 yield return Fade(1, 0);
                 if (profiler != null)
                     profiler.Begin(key);
@@ -249,14 +267,13 @@ namespace Wizzard
             renderer.sharedMaterials = slots;
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         }
-        void ApplyLook()
+        void ApplyLook(Cubemap panorama)
         {
             int r = story.room;
             ColorUtility.TryParseHtmlString("#" + Horizon[r], out Color horizon);
             if (story.ending != 0)
                 horizon = new Color(.94f, .79f, .61f);
-            string panorama = story.ending == 0 ? BellwakeJourney.Rooms[r] : "Morning";
-            sky.SetTexture("_Panorama", Resources.Load<Cubemap>(Path + "Skies/" + panorama));
+            sky.SetTexture("_Panorama", panorama);
             RenderSettings.skybox = sky;
             cam.clearFlags = CameraClearFlags.Skybox;
             RenderSettings.fog = true;
@@ -335,7 +352,7 @@ namespace Wizzard
         }
         void Update()
         {
-            if (player == null || loading || player.MovementLocked)
+            if (player == null || loading || checkingTravel || player.MovementLocked)
                 return;
             bool action = use.Read(XRUsage.triggerButton) ||
                           (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame);
@@ -605,48 +622,33 @@ namespace Wizzard
         {
             loading = true;
             if (profiler != null)
-                profiler.enabled = false;
+                profiler.StartTravel();
             player.MovementLocked = true;
             try
             {
                 yield return Fade(0, 1);
                 display.Hide();
                 lastHint = null;
-                if (set != null)
-                {
-                    set.SetActive(false);
-                    Destroy(set);
-                }
-                nodes.Clear();
-                points.Clear();
-                rest.Clear();
-                score.Stop();
-                score.clip = null;
+                yield return ReleaseArea();
                 RenderSettings.skybox = null;
                 cam.clearFlags = CameraClearFlags.SolidColor;
                 RenderSettings.fogColor = new Color(.66f, .78f, .75f);
                 RenderSettings.fogStartDistance = 180;
-                RenderSettings.fogEndDistance = 850;
-                if (meadow == null)
-                {
-                    meadow = new GameObject("2048m rolling meadow");
-                    meadow.AddComponent<MeadowWorld>();
-                    village = gameObject.AddComponent<MossbellVillage>();
-                    village.Initialize(player, meadow);
-                    sign = Instantiate(Resources.Load<GameObject>(Path + "Rooms/TrailSign"), meadow.transform);
-                    sign.transform.position = new Vector3(0, MeadowWorld.Height(0, 3), 3);
-                    foreach (var r in sign.GetComponentsInChildren<MeshRenderer>())
-                        Paint(r);
-                }
-                else
-                {
-                    meadow.SetActive(true);
-                    village.enabled = true;
-                }
+                RenderSettings.fogEndDistance = MeadowTileWindow.Visible - 20;
+                meadow = new GameObject("2048m rolling meadow");
+                var terrain = meadow.AddComponent<MeadowWorld>();
+                terrain.Initialize(player);
+                village = gameObject.AddComponent<MossbellVillage>();
+                village.Initialize(player, meadow);
+                sign = Instantiate(Resources.Load<GameObject>(Path + "Rooms/TrailSign"), meadow.transform);
+                sign.transform.position = new Vector3(0, MeadowWorld.Height(0, 3), 3);
+                foreach (var r in sign.GetComponentsInChildren<MeshRenderer>())
+                    Paint(r);
                 outdoors = true;
                 player.ResetPlayer();
                 Physics.SyncTransforms();
                 yield return Fade(1, 0);
+                if (profiler != null) profiler.Begin("Long Meadow");
             }
             finally
             {
@@ -655,12 +657,54 @@ namespace Wizzard
                 curtainRenderer.enabled = false;
             }
         }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        [ContextMenu("Run Bellwake round-trip check (Play Mode)")]
+        void CheckTravel()
+        {
+            if (Application.isPlaying && !loading && !outdoors && !checkingTravel)
+                StartCoroutine(RoundTrips());
+        }
+
+        IEnumerator RoundTrips()
+        {
+            var previousStory = story;
+            checkingTravel = true;
+            try
+            {
+                for (int lap = 0; lap < 3; lap++)
+                {
+                    for (int r = 0; r < BellwakeJourney.Rooms.Length; r++)
+                    {
+                        story = new BellwakeJourney { room = r, commissioned = true, seals = Mathf.Max(0,r-1) };
+                        yield return EnterRoom();
+                        if (set == null || set.name != BellwakeJourney.Rooms[r] ||
+                            meadow != null || village != null || paints.Count == 0 ||
+                            !Physics.Raycast(spawn + Vector3.up, Vector3.down, 3, player.surfaces))
+                            throw new InvalidOperationException("Round-trip room or floor missing at " + r);
+                    }
+                    yield return EnterMeadow();
+                    if (set != null || nodes.Count != 0 || score.clip != null || sky.GetTexture("_Panorama") != null)
+                        throw new InvalidOperationException("A chapter still owns resources in the meadow.");
+                    yield return village.CheckCrossing(true);
+                    yield return village.CheckCrossing(false);
+                }
+                Debug.Log("Bellwake passed 15 chapter loads and three meadow/village round trips.");
+            }
+            finally
+            {
+                story = previousStory;
+                checkingTravel = false;
+                StartCoroutine(EnterRoom());
+            }
+        }
+#endif
         void OnDestroy()
         {
             if (set != null)
                 Destroy(set);
-            if (display != null)
-                display.Dispose();
+            if (meadow != null) Destroy(meadow);
+            if (village != null) Destroy(village);
+            if (display != null) display.Dispose();
             foreach (var m in paints.Values)
                 Destroy(m);
             if (curtain != null)

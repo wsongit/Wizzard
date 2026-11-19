@@ -51,3 +51,13 @@ python Tools/bellwake/web/xr_playtest.py http://localhost:8090/game.html
 ```
 
 In Unity, **Wizzard → Validate Bellwake rooms** checks the actual Unity-imported meshes, UVs, interaction markers, material names, cubemaps and audio clips. The Quest build menu runs this validation before building.
+
+## Area streaming
+
+The streamed browser build fetched only Bellmarket's model on startup. A single Chromium tab then visited all five districts three times. Each return matched the first visit's live geometry, texture and shader-program counts. One world, one collision hierarchy and one music player remained after each arrival. Weak references to the previous room root, collision hierarchy and panorama all cleared after garbage collection on every trip. Forced collection took place after the timing sample. The test also interrupted a room download and recovered the previous checkpoint. The offline HTML keeps the compressed source payload in the document and releases decoded room resources on travel.
+
+On the cloud CPU renderer at 768 × 432, the median door-to-ready sample (including three presentation frames) was 248 ms and the largest presentation interval during a transition was 150 ms. Resource lifetime passed. These timings leave physical Quest frame pacing unverified. Both endings and all five witness leaves passed through normal keyboard interactions using the baked collision data. A separate emulated Quest 3 session crossed four room transitions and retained both tracked palms. [Per-trip measurements](streaming.json)
+
+The C# meadow window passed 3,327 positions over three laps including map edges and teleports. The run counted 1,617 loads and 1,613 releases with four tiles at the final corner. Peak residency was 21 of 64 chunks. This check executes the selection and eviction code independently of Unity physics.
+
+To repeat the browser travel test, package the test page with `--test --streamed`, serve it, and run `python Tools/bellwake/web/travel_test.py http://localhost:8090/index.html travel.json`. To exercise the native assets in a licensed Unity editor, enter Play mode and choose **Run Bellwake round-trip check (Play Mode)** from the BellwakeCampaign component's context menu. It traverses 15 chapters and three meadow/village round trips while preserving the checkpoint. Development builds log transition duration, worst frame and allocated memory, followed by a 360-frame sample. Native runtime and device measurements require a licensed editor and a Quest.

@@ -223,8 +223,10 @@ namespace Wizzard
         {
             Teleport(new Vector3(0,MeadowWorld.Height(0,0)+.2f,0),Quaternion.identity);
         }
+        public event System.Action<Vector3> Teleporting;
         public void Teleport(Vector3 position,Quaternion rotation)
         {
+            Teleporting?.Invoke(position);
             motor.enabled=false;
             transform.rotation=rotation; yaw=rotation.eulerAngles.y;
             // Put the physical head over the destination despite room-scale offsets.

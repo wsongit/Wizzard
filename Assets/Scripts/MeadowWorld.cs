@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.Rendering;
+using System.Collections.Generic;
 
 namespace Wizzard
 {
@@ -28,14 +28,95 @@ namespace Wizzard
         {
             return RetroMaterials.Get("Grass").mainTexture as Texture2D;
         }
-        void Awake()
+        readonly MeadowTileWindow window = new MeadowTileWindow();
+        readonly GameObject[] chunks = new GameObject[MeadowTileWindow.Count];
+        readonly List<Landmark>[] landmarks = new List<Landmark>[MeadowTileWindow.Count];
+        readonly struct Landmark
         {
-            var material=RetroMaterials.Get("Grass");
-            for(int z=0; z<8; z++) for(int x=0; x<8; x++) CreateChunk(x,z,material);
-            CreateLandmarks();
+            public readonly int index;
+            public readonly float x, z;
+            public Landmark(int index, float x, float z) { this.index=index; this.x=x; this.z=z; }
         }
-
-        void CreateChunk(int cx, int cz, Material material)
+        public readonly Dictionary<string, Material> LandmarkPaints = new Dictionary<string, Material>();
+        void OnDestroy()
+        {
+            if (rig != null) rig.Teleporting -= GroundAt;
+            foreach (var paint in LandmarkPaints.Values) Destroy(paint);
+            LandmarkPaints.Clear();
+        }
+        GorillaPlayer rig;
+        Transform viewer;
+        Material grass;
+        public void Initialize(GorillaPlayer player)
+        {
+            rig = player;
+            viewer = rig.head;
+            rig.Teleporting += GroundAt;
+            grass = RetroMaterials.Get("Grass");
+            var random = new System.Random(197);
+            for (int i=0; i<48; i++)
+            {
+                float x=(float)random.NextDouble()*1500-750, z=(float)random.NextDouble()*1500-750;
+                if(new Vector2(x,z).magnitude<25 || Vector2.Distance(new Vector2(x,z),MossbellVillage.MapLocation)<80) continue;
+                int tile = TileAt(x,z);
+                if (landmarks[tile] == null) landmarks[tile] = new List<Landmark>();
+                landmarks[tile].Add(new Landmark(i,x,z));
+            }
+        }
+        static int TileAt(float x, float z)
+        {
+            return Mathf.Clamp(Mathf.FloorToInt((x+Size/2)/ChunkSize),0,7)
+                + 8*Mathf.Clamp(Mathf.FloorToInt((z+Size/2)/ChunkSize),0,7);
+        }
+        public void GroundAt(Vector3 position)
+        {
+            if (!isActiveAndEnabled) return;
+            // A capsule or a planted palm can straddle a seam after a teleport.
+            for (int dz=-1; dz<=1; dz+=2)
+                for (int dx=-1; dx<=1; dx+=2)
+                    EnsureChunk(TileAt(position.x+dx, position.z+dz));
+        }
+        void Update()
+        {
+            if (viewer == null) return;
+            Vector3 position = viewer.position;
+            int current = TileAt(position.x, position.z);
+            if (chunks[current] == null) { EnsureChunk(current); return; }
+            int next = window.Next(Mathf.Clamp(position.x,-Size/2,Size/2), Mathf.Clamp(position.z,-Size/2,Size/2), Release);
+            if (next >= 0) EnsureChunk(next);
+        }
+        void EnsureChunk(int i)
+        {
+            if (chunks[i] != null) return;
+            var chunk = CreateChunk(i % 8, i / 8, grass);
+            chunks[i] = chunk;
+            window.Added(i);
+            if (landmarks[i] == null) return;
+            foreach (var mark in landmarks[i])
+            {
+                var rock=BellwakeModels.Climbable("MeadowOutcrop",chunk.transform,LandmarkPaints);
+                rock.transform.position=new Vector3(mark.x,Height(mark.x,mark.z),mark.z);
+                rock.transform.rotation=Quaternion.Euler(0,mark.index*37,0);
+                rock.transform.localScale=Vector3.one*(.86f+(mark.index%6)*.055f);
+                MeadowTrees.Create(mark.index,chunk.transform,new Vector3(mark.x+9,Height(mark.x+9,mark.z),mark.z));
+            }
+        }
+        void Release(int i)
+        {
+            var chunk = chunks[i];
+            if (chunk == null) return;
+            chunk.SetActive(false);
+            Destroy(chunk.GetComponent<MeshFilter>().sharedMesh);
+            Destroy(chunk);
+            chunks[i] = null;
+            window.Removed(i);
+        }
+        void OnDisable()
+        {
+            for (int i=0;i<chunks.Length;i++) Release(i);
+            MeadowTrees.Release();
+        }
+        GameObject CreateChunk(int cx, int cz, Material material)
         {
             var vertices = new Vector3[33*33]; var uvs = new Vector2[vertices.Length];
             var tris = new int[32*32*6];
@@ -58,21 +139,7 @@ namespace Wizzard
             chunk.AddComponent<MeshFilter>().sharedMesh=mesh;
             chunk.AddComponent<MeshRenderer>().sharedMaterial=material;
             chunk.AddComponent<MeshCollider>().sharedMesh=mesh;
-        }
-        void CreateLandmarks()
-        {
-            var random = new System.Random(197);
-            for(int i=0;i<48;i++)
-            {
-                float x=(float)random.NextDouble()*1500-750, z=(float)random.NextDouble()*1500-750;
-                if(new Vector2(x,z).magnitude<25 || Vector2.Distance(new Vector2(x,z),MossbellVillage.MapLocation)<80) continue;
-                float h=Height(x,z);
-                var rock=BellwakeModels.Climbable("MeadowOutcrop",transform);
-                rock.transform.position=new Vector3(x,h,z);
-                rock.transform.rotation=Quaternion.Euler(0,i*37,0);
-                rock.transform.localScale=Vector3.one*(.86f+(i%6)*.055f);
-                MeadowTrees.Create(i,transform,new Vector3(x+9,Height(x+9,z),z));
-            }
+            return chunk;
         }
     }
 }

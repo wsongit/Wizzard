@@ -5,8 +5,12 @@ namespace Wizzard
 {
     public static class BellwakeModels
     {
-        static readonly Dictionary<string, Material> materials = new Dictionary<string, Material>();
+        static readonly Dictionary<string, Material> avatarPaints = new Dictionary<string, Material>();
         public static GameObject Create(string name, Transform parent)
+        {
+            return Create(name, parent, avatarPaints);
+        }
+        static GameObject Create(string name, Transform parent, Dictionary<string, Material> materials)
         {
             var model = Object.Instantiate(Resources.Load<GameObject>("Bellwake/Rooms/" + name), parent, false);
             foreach (var renderer in model.GetComponentsInChildren<MeshRenderer>())
@@ -28,9 +32,9 @@ namespace Wizzard
             }
             return model;
         }
-        public static GameObject Climbable(string name, Transform parent)
+        public static GameObject Climbable(string name, Transform parent, Dictionary<string, Material> materials)
         {
-            var model = Create(name, parent);
+            var model = Create(name, parent, materials);
             foreach (var filter in model.GetComponentsInChildren<MeshFilter>())
             {
                 filter.gameObject.layer = MeadowWorld.GroundLayer;

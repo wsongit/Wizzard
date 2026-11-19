@@ -4,7 +4,7 @@ An original, N64-inspired adventure for standalone Meta Quest and desktop. Tavi 
 
 ![Bellwake in play](Documentation/Bellwake/worlds.jpg)
 
-**Play immediately** by opening `Play/Bellwake.html` in Chrome or Edge. Use WASD to move, drag to look, E to interact and J to open your witness book. The same file offers immersive WebXR on supported secure origins.
+**Play immediately** by opening `Play/Bellwake.html` in Chrome or Edge. Use WASD to move, drag to look, E to interact and J to open your witness book. When hosting for Quest Browser, use `Play/index.html` and its adjacent `assets` folder to download districts as you enter them. Both editions support immersive WebXR on secure origins.
 
 **Open in Unity** with Unity 2022.3.20f1 and choose **Wizzard → Play Bellwake**. The market sign leads to the original two-kilometre Long Meadow and its Mossbell Village gate.
 

@@ -6,6 +6,12 @@ namespace Wizzard
     {
         static readonly GameObject[] models=new GameObject[8];
         static Material[] foliage;
+        public static void Release()
+        {
+            System.Array.Clear(models,0,models.Length);
+            if (foliage != null) foreach (var material in foliage) Object.Destroy(material);
+            foliage = null;
+        }
         public static GameObject Create(int index, Transform parent, Vector3 position)
         {
             int variant=index%models.Length;
