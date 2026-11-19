@@ -14,7 +14,10 @@ namespace Wizzard
         {
             return part.StartsWith("FieldCell_",StringComparison.Ordinal) || part=="Terrain" || part=="Rim" || part=="Set" || part=="C_Solids";
         }
-        const string SaveKey = "Wizzard.Bellwake.v1";
+        public bool OpeningReady { get; private set; }
+        string SaveKey;
+        BellwakeTrade trade;
+        BellwakeDaylight daylight;
         const string Path = "Bellwake/";
         static readonly string[] Tones = { "Leaf", "Ember", "Tide" };
         static readonly string[] Horizon = { "D3BB93", "A4B890", "AEC4B6", "BA917B", "908BA6" };
@@ -130,8 +133,9 @@ namespace Wizzard
                 return pressed;
             }
         }
-        public void Initialize(GorillaPlayer rig)
+        public void Initialize(GorillaPlayer rig, string saveKey)
         {
+            SaveKey = saveKey;
             player = rig;
             cam = rig.head.GetComponent<Camera>();
             display = new BellwakeDisplay(rig.head);
@@ -164,10 +168,17 @@ namespace Wizzard
             curtainRenderer = cover.GetComponent<Renderer>();
             curtainRenderer.sharedMaterial = curtain;
             curtainRenderer.enabled = false;
+            trade=gameObject.AddComponent<BellwakeTrade>();
+            trade.Initialize(rig,story.satchel,Save,(title,text)=>Say(title,text,5),display.Face);
+            daylight=gameObject.AddComponent<BellwakeDaylight>();
+            daylight.Bind(story.satchel);
             StartCoroutine(EnterRoom());
         }
         void PrepareRoute()
         {
+            if (story.satchel==null) story.satchel=new BellwakeSatchel();
+            if (trade!=null) trade.Bind(story.satchel);
+            if (daylight!=null) daylight.Bind(story.satchel);
             if (Route == null) story.passage = new BellwakePassage();
             if(story.works==null) story.works=new BellwakeWorks();
             int savedChamber=story.works.chamber;
@@ -183,7 +194,7 @@ namespace Wizzard
             if (Route.completed != story.room || story.ending != 0 || story.room >= atlas.regions.Length)
                 Route.active=false;
         }
-        static BellwakeJourney Restore()
+        BellwakeJourney Restore()
         {
             if (PlayerPrefs.HasKey(SaveKey))
                 try
@@ -218,7 +229,9 @@ namespace Wizzard
             curtain.renderQueue = 3800;
             curtain.color = new Color(0, 0, 0, .52f);
             curtainRenderer.enabled = true;
-            Say(title + "   ·   E / trigger to continue", words, float.PositiveInfinity);
+            lastHint = null;
+            messageUntil = float.PositiveInfinity;
+            display.BeginDialogue(title + "   ·   E / trigger", words);
         }
         void EndDialogue()
         {
@@ -239,6 +252,7 @@ namespace Wizzard
         }
         IEnumerator Fade(float from, float to)
         {
+            if (to < from) OpeningReady = true;
             curtainRenderer.enabled = true;
             for (float t = 0; t < .24f; t += Time.unscaledDeltaTime)
             {
@@ -250,6 +264,8 @@ namespace Wizzard
         }
         IEnumerator ReleaseArea(string nextMusic=null)
         {
+            trade.enabled = true;
+            trade.Leave();
             CancelRehearsal();
             instruments.Clear();
             hadPalm[0] = hadPalm[1] = false;
@@ -364,6 +380,7 @@ namespace Wizzard
                     var entrance=nodes["Spawn"].position;
                     player.Teleport(entrance,Quaternion.LookRotation(nodes["Look"].position-entrance));
                     Physics.SyncTransforms();
+                    trade.Arrive(story.roadVisit,set,entrance,nodes["Terrain"],display.Label,nodes.Values);
                     yield return Fade(1,0);
                     player.MovementLocked=false;
                     float nextHint=0;
@@ -398,6 +415,7 @@ namespace Wizzard
                 var direction=target.position-here; direction.y=0;
                 player.Teleport(here,direction.sqrMagnitude>.001f ? Quaternion.LookRotation(direction) : Quaternion.identity);
                 Physics.SyncTransforms();
+                trade.Arrive("Highroad",set,here,nodes["Terrain"],display.Label,nodes.Values);
                 cells.Follow();
                 if (profiler != null) profiler.Begin("Bellwake Highroad", cells);
                 var label=display.Label(target,title);
@@ -644,6 +662,7 @@ namespace Wizzard
                 Sync();
                 player.Teleport(spawn, facing);
                 Physics.SyncTransforms();
+                if (!checkingTravel) trade.Arrive(key,set,nodes["Spawn"].position,nodes["Terrain"],display.Label,nodes.Values);
                 if(song!=null)
                 {
                     yield return song;
@@ -672,6 +691,7 @@ namespace Wizzard
             finally
             {
                 loading = false;
+                OpeningReady = true;
                 player.MovementLocked = false;
                 curtainRenderer.enabled = false;
             }
@@ -726,7 +746,7 @@ namespace Wizzard
             RenderSettings.skybox = sky;
             cam.clearFlags = CameraClearFlags.Skybox;
             RenderSettings.fog = true;
-            RenderSettings.fogColor = horizon;
+            daylight.SetHorizon(horizon);
             RenderSettings.fogStartDistance = RoomRadius * .9f;
             RenderSettings.fogEndDistance = RoomRadius * 3.4f;
         }
@@ -900,7 +920,9 @@ namespace Wizzard
                         (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame);
             if (speaking)
             {
+                display.TickDialogue(BellwakeTitle.LettersPerSecond);
                 pulseUntil += Time.unscaledDeltaTime;
+                if (action && display.Typing) { display.FinishDialogue(); return; }
                 if (action || book || (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame))
                     EndDialogue();
                 if (!book) return;
@@ -940,6 +962,7 @@ namespace Wizzard
             if (book)
             {
                 journalOpen = !journalOpen;
+                trade.enabled = !journalOpen;
                 hadPalm[0] = hadPalm[1] = false;
                 if (!journalOpen) CloseBookPrint();
                 StopObserving();
@@ -1746,7 +1769,7 @@ namespace Wizzard
                 yield return ReleaseArea();
                 RenderSettings.skybox = null;
                 cam.clearFlags = CameraClearFlags.SolidColor;
-                RenderSettings.fogColor = new Color(.66f, .78f, .75f);
+                daylight.SetHorizon(new Color(.66f, .78f, .75f));
                 RenderSettings.fogStartDistance = 180;
                 RenderSettings.fogEndDistance = MeadowTileWindow.Visible - 20;
                 meadow = new GameObject("2048m rolling meadow");
@@ -1766,7 +1789,7 @@ namespace Wizzard
                     else Paint(r);
                 }
                 outdoors = true;
-                player.ResetPlayer();
+                player.Teleport(new Vector3(0,MeadowWorld.Height(0,0)+.09f,0),Quaternion.identity);
                 Physics.SyncTransforms();
                 yield return Fade(1, 0);
                 if (profiler != null) profiler.Begin("Long Meadow");

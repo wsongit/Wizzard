@@ -264,16 +264,31 @@ def dress(k):
             ("Back terrace cottage", -12, 15, 5.6, -9),
             ("Lower east", 15, -9, 5.4, -49),
         ]:
-            cottage(prefix, x, y, ground(k, x, y), h, r)
+            cottage(prefix, x, y, ground(k, x, y), h, r, lambda a,b: ground(k,a,b))
             collision("Cottage core", x, y, ground(k, x, y) - 0.2, 3.5, 3.5, h * 0.6)
         for id, name, x, y, h, r in [
             ("WZ_VIL_P02", "Striped market awning", -9, -5, 3.6, 25),
             ("WZ_VIL_P08", "Bake oven", 9, 4, 2.7, 0),
-            ("WZ_VIL_P03", "Covered well", -4, 7, 2.6, 20),
             ("WZ_VIL_P04", "Delivery cart", 8, -6, 1.65, -35),
             ("WZ_VIL_P05", "Flour casks", 10, 2, 1.1, 0),
         ]:
             prop(id, name, x, y, h, r, (1, 1, h * 0.75), k)
+        # Turn the masonry, lip and inner wall as a single continuous, hollow profile.
+        x,y=-4,7
+        z=ground(k,x,y)
+        sections=[(.87,-.25),(.93,.07),(.91,.68),(.98,.72),(.98,.84),
+                  (.69,.84),(.66,.74),(.66,-.14),(.87,-.25)]
+        ring=sections[:-1];count=32
+        points=[(x+r*math.cos(j*math.tau/count),y+r*math.sin(j*math.tau/count),z+h)
+                for r,h in ring for j in range(count)]
+        faces=[(i*count+j,i*count+(j+1)%count,((i+1)%len(ring))*count+(j+1)%count,
+                ((i+1)%len(ring))*count+j) for i in range(len(ring)) for j in range(count)]
+        geometry("Bellmarket spring well",points,faces,"Masonry")
+        lathe("Spring surface",x,y,z,[(.67,.09),(.67,.11)],"SeaGlass",32)
+        for side in (-1,1):
+            shaft("Well post",(x+side*.79,y,z+.65),(x+side*.79,y,z+2.15),.085,.074,"Wood",12)
+        shaft("Winding beam",(x-.94,y,z+2.1),(x+.94,y,z+2.1),.105,.105,"Wood",16)
+        shaft("Plumb line",(x,y,z+.19),(x,y,z+2.1),.014,.014,"Wood",8)
         for s in [-1, 1]:
             pine(s * 15, -2, 0, 7, 3 + s)
             lamp(s * 4, -7, 0)

@@ -54,6 +54,8 @@ namespace Wizzard
             Ray ray=new Ray(player.head.position+Vector3.up*60f,Vector3.down);
             return terrainCollider.Raycast(ray,out RaycastHit ground,120f) && player.head.position.y<ground.point.y+.1f;
         }
+        BellwakeDaylight daylight;
+        Color meadowHorizon;
         bool inside, busy;
         float cooldown;
         public void Initialize(GorillaPlayer rig,GameObject world)
@@ -61,6 +63,8 @@ namespace Wizzard
             player=rig; meadow=world;
             view=player.head.GetComponent<Camera>();previousClear=view.clearFlags;
             previousSky=RenderSettings.skybox;previousFog=RenderSettings.fogColor;
+            daylight=GetComponent<BellwakeDaylight>();
+            if(daylight)meadowHorizon=daylight.Horizon;
             previousFogStart=RenderSettings.fogStartDistance;previousFogEnd=RenderSettings.fogEndDistance;
             previousShadowDistance=QualitySettings.shadowDistance;previousShadowQuality=QualitySettings.shadows;
             previousShadowResolution=QualitySettings.shadowResolution;previousShadowCascades=QualitySettings.shadowCascades;
@@ -280,7 +284,9 @@ namespace Wizzard
         {
             RenderSettings.skybox=villageActive?villageSky:previousSky;
             view.clearFlags=villageActive?CameraClearFlags.Skybox:previousClear;
-            RenderSettings.fogColor=villageActive?new Color(.55f,.56f,.70f):previousFog;
+            var villageHorizon=new Color(.55f,.56f,.70f);
+            if(daylight) daylight.SetHorizon(villageActive?villageHorizon:meadowHorizon);
+            else RenderSettings.fogColor=villageActive?villageHorizon:previousFog;
             RenderSettings.fogStartDistance=villageActive?35:previousFogStart;
             RenderSettings.fogEndDistance=villageActive?140:previousFogEnd;
             QualitySettings.shadows=villageActive?ShadowQuality.All:previousShadowQuality;

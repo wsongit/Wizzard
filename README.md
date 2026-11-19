@@ -4,7 +4,9 @@ An original, N64-inspired adventure for standalone Meta Quest and desktop. Tavi 
 
 ![Tavi in the opening market and the drawing Ina made for her](Documentation/Bellwake/tavi-and-ina.jpg)
 
-**Standalone Quest game.** Open this folder in Unity 2022.3.20f1 with Android Build Support and select **Wizzard → Build Quest APK**. The native Unity player starts in Bellmarket, runs the campaign in C#, and uses tracked palms against the floor and walls to move. A successful build writes `Wizzard-Bellwake-Quest.apk` to this folder. You can also run `Build-Quest.cmd` from Windows with the editor closed. The earlier browser launcher is archived as `Play/Wizzard-Bellwake-WebXR.apk`.
+**Standalone Quest game.** Open this folder in Unity 2022.3.20f1 with Android Build Support and select **Wizzard → Build Quest APK**. Choose one of three save files and name your bellrunner. On a new file, Pip wakes you beneath the bellroot before you reach Bellmarket. Move by planting your palms against the floor and walls. A successful build writes `Wizzard-Bellwake-Quest.apk` to this folder. You can also run `Build-Quest.cmd` from Windows with the editor closed. The earlier browser launcher is archived as `Play/Wizzard-Bellwake-WebXR.apk`.
+
+[Opening illustration, save files, shops and equipment controls](Documentation/Bellwake/guide.md#starting-a-native-quest-journey)
 
 Each district has an entrance on the Bellwake Highroad. Walk to the gold marker to continue the story, or enter another named gate to explore. Conversations hold your position until you press E or a trigger. [Native highroad, Blender views and art notes](Documentation/Bellwake/native-field.md)
 
@@ -23,7 +25,7 @@ Each district has an entrance on the Bellwake Highroad. Walk to the gold marker 
 3. The editor setup script configures Quest Android and PC OpenXR with controller profiles.
    You can run **Wizzard → Configure Quest and PC OpenXR** again. Run OpenXR Project
    Validation and resolve any runtime/platform-specific requirements.
-4. Choose **Wizzard → Play Bellwake**, or open `Assets/Scenes/Meadow.unity` and press **Play**. The bootstrap creates the market and player at runtime.
+4. Choose **Wizzard → Play Bellwake**, or open `Assets/Scenes/Meadow.unity` and press **Play**. The opening menu appears in the Game view.
 5. In **File → Build Settings**, switch to **Android**. The setup uses ARM64,
    IL2CPP, OpenGL ES 3, linear color, single-pass stereo, Meta Quest Support,
    and Touch controller interaction profiles. Run OpenXR Project Validation for Android.
@@ -36,8 +38,7 @@ Each district has an entrance on the Bellwake Highroad. Walk to the gold marker 
    enable Meta's PC OpenXR runtime, connect Link, and press Play.
 
 Plant either palm against terrain, a stone, or a tree, then push/pull your arm to
-move. Push down and release for a jump. Crouch physically to reach the ground.
-Right stick snaps rotation 45°. Tracking uses floor space; match your runtime's
+move. Push down and release for a jump. Lower a controller to plant a palm. Settings lets you change floor reach assist and the default 45° snap turn. Tracking uses floor space; match your runtime's
 floor calibration. There is no grip-button requirement. Physical headset comfort and frame timing still need device testing.
 
 Without a headset: **WASD** moves, **Space** jumps, **middle click** captures mouse
@@ -48,9 +49,7 @@ this mode is for inspecting the map, not a faithful VR hand simulator.
 
 Blender **4.3.2** is installed in the cloud at `/usr/bin/blender`.
 `Blender/LongMeadow.blend` contains the complete landscape and example avatar.
-`Assets/Resources/GorillaTorso.obj` is the exported avatar body used by Unity;
-the tracked palms and arms use the new Bellwake Blender models. The first-person head is the
-camera. Blender source stays outside Assets to avoid Unity's automatic Blender
+`Blender/Bellwake/Wayfarer.blend` contains the playable bellrunner, its two articulated boots, the bellroot, Pip, both creatures and the shop stock. The arms and tracked palms have their own Blender sources. Blender source stays outside Assets to avoid Unity's automatic Blender
 conversion and its external FBX tooling requirements.
 
 Regenerate the legacy meadow artwork and preview from the repository root.

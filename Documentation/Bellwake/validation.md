@@ -4,6 +4,14 @@
 
 The new field passed 37,761 road clearance samples on 72 connections. The C# rules and Blender room checks passed. The native Android export stopped before import because this machine needs Unity license activation. Quest frame timing and native playthrough time are pending. [Field measurements, controls and art](native-field.md)
 
+## Native bellrunner and market
+
+The Unity 2022.3.20f1 runtime and editor scripts compile with the Android defines and pinned XR packages. The palm reach calculation passed 5,016 lowered controller positions for eye heights from 1.20 to 2.10 metres. The highest palm centre in those poses was 3.5 cm above the tracking floor, within the 10 cm contact radius. Shoulder-height and assist-off checks also passed.
+
+The twelve shipping Blender models contain 11,328 triangles in total. Reimport checks found closed surfaces, nondegenerate UV faces, mapped texture files and both boot and wing pivots. All 528 Bellmarket footing samples were below the walking surface. The Mossbell audit checked 864 foundation samples and 82 grounded props. Ground and clearance checks found space for both shops and encounters in all six authored districts.
+
+The inventory checks cover prices, repeat purchases, insufficient funds, equipment, healing, and saving after each encounter. The story graph still reaches both endings from every unfinished state. The field traversal peaked at 18 of 42 scenery cells using the native streaming distances. Headset frame times and the feel of floor strokes still need a physical Quest.
+
 ## Earlier browser highroad
 
 The exported map passed 17,496 ground and overhead-clearance samples on 72 links. The headset emulator spoke with Tavi, checked that a tracked step held the player in place, dismissed the conversation and walked to Paper Court. A desktop check reloaded during a visit and halfway along the road, then reached the quest destination with one active world and collision tree. [Highroad controls and reference notes](highroad.md)

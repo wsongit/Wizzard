@@ -126,7 +126,25 @@ Set out supper to bring the three night workers to the table. Look for their con
 | Call Mara’s waywren in the five wards | Left grip | Q | Q |
 | Read a collected leaf | With the book open, a trigger turns the page | E with the book open | Collected leaves appear in the book |
 
-Crouching makes the ground easier to reach with the palms. The journal pauses the final encounter’s countdown.
+## Starting a native Quest journey
+
+Select a file using either thumbstick and a trigger. On desktop, use the arrow keys and Enter. For a new file, spell your name with the controller alphabet and select **Begin**, or type it on your keyboard. The original checkpoint appears in File 1. The other two files have their own story, inventory and clock.
+
+**Settings** controls floor reach assist, snap turn, volume and dialogue speed. With assist enabled, lowering either controller extends that arm towards the floor. NPC dialogue appears one letter at a time. Press a trigger or E to reveal the rest, then press again to continue.
+
+![Pip finds the bellrunner under the bellroot](bellroot-waking.jpg)
+
+The camera stays with your head while Pip flies down to wake you. A trigger or E skips the prologue. In Bellmarket and Reedwater, walk up to the provisions counter. You start with 12 ferry marks.
+
+| Action | Quest | Desktop |
+| --- | --- | --- |
+| Browse stock or cycle carried items away from a counter | Y | R |
+| Buy the selected item | B | F |
+| Attack with your equipped sword or staff | Swing the right hand or press B | F |
+| Guard with an owned shield | Hold left grip | Hold left Shift |
+| Eat an equipped pear to restore one heart | B | F |
+
+The toll sword costs 6 marks, the shield 4, the staff 8 and a pear 2. Local creatures drop marks once per encounter. Your purchases, hearts and cleared encounters are saved. A full day lasts 16 minutes of active play. The journal pauses combat and the final encounter’s countdown.
 
 ## Direct browser play
 
@@ -160,11 +178,11 @@ The procedural authoring scripts are in `Tools/bellwake`. Rebuilding from those 
 
 ## Rebuild the portable edition
 
-Run the packed-scene exporter without a room argument to prepare all GLBs. Compile `Tools/bellwake/StoryGraph.cs` together with `Assets/Scripts/BellwakeJourney.cs` with `Assets/Scripts/BellwakePassage.cs` and `Assets/Scripts/BellwakeWorks.cs` using Mono’s C# compiler and `System.Web.Extensions`. The resulting executable accepts the destination of the JSON story table. It checks that both endings are reachable from every unfinished state before writing the file.
+Run the packed-scene exporter without a room argument to prepare all GLBs. Compile `Tools/bellwake/StoryGraph.cs` together with `Assets/Scripts/BellwakeJourney.cs`, `Assets/Scripts/BellwakeSatchel.cs`, `Assets/Scripts/BellwakePassage.cs` and `Assets/Scripts/BellwakeWorks.cs` using Mono’s C# compiler and `System.Web.Extensions`. The resulting executable accepts the destination of the JSON story table. It checks that both endings are reachable from every unfinished state before writing the file.
 
 ```sh
 blender -b --python-exit-code 1 --python Tools/bellwake/export.py
-mcs -r:System.Web.Extensions -out:/tmp/BellwakeStory.exe Tools/bellwake/StoryGraph.cs Assets/Scripts/BellwakeJourney.cs Assets/Scripts/BellwakePassage.cs Assets/Scripts/BellwakeWorks.cs
+mcs -r:System.Web.Extensions -out:/tmp/BellwakeStory.exe Tools/bellwake/StoryGraph.cs Assets/Scripts/BellwakeJourney.cs Assets/Scripts/BellwakeSatchel.cs Assets/Scripts/BellwakePassage.cs Assets/Scripts/BellwakeWorks.cs
 mono /tmp/BellwakeStory.exe Tools/bellwake/.web-assets/story.json
 npm ci --prefix Tools/bellwake/web
 python Tools/bellwake/web/package.py Play/Bellwake.html

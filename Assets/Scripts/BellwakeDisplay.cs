@@ -34,7 +34,11 @@ namespace Wizzard
                 : voice=="RootWoodCall" ? new Color(.46f,.28f,.18f) : new Color(.61f,.22f,.19f);
             line.gameObject.SetActive(true);
         }
-        readonly Material panelMaterial, captionInk, worldInk;
+        readonly Material panelMaterial, frameMaterial, captionInk, worldInk;
+        string revealText;
+        int revealed;
+        float revealStart;
+        public bool Typing => revealText != null;
         public BellwakeDisplay(Transform head)
         {
             this.head = head;
@@ -54,11 +58,21 @@ namespace Wizzard
             panelMaterial =
                 new Material(shader) { color = new Color(.043f, .086f, .09f, .96f), renderQueue = 3900 };
             panelMaterial.SetFloat("_Depth", 8);
-            panel.GetComponent<Renderer>().sharedMaterial = panelMaterial;
+            frameMaterial = new Material(panelMaterial) {
+                color = Color.white, mainTexture = Resources.Load<Texture2D>("Bellwake/Textures/Letterpress")
+            };
+            frameMaterial.SetFloat("_FullColor", 1);
+            panel.GetComponent<Renderer>().sharedMaterial = frameMaterial;
             heading =
                 Text(card, new Vector3(-.595f, .153f, -.006f), TextAnchor.UpperLeft, new Color(1, .81f, .42f));
             body =
                 Text(card, new Vector3(-.595f, .068f, -.006f), TextAnchor.UpperLeft, new Color(.98f, .96f, .86f));
+        }
+        public void SetQueue(int queue)
+        {
+            frameMaterial.renderQueue = queue;
+            captionInk.renderQueue = queue + 1;
+            if (surveyInk!=null) surveyInk.renderQueue=queue;
         }
         void RefreshAtlas(Font changed)
         {
@@ -142,10 +156,35 @@ namespace Wizzard
             }
             survey.gameObject.SetActive(true);
         }
+        public void BeginDialogue(string title, string text)
+        {
+            Say(title, text);
+            revealText = body.text;
+            revealed = 0;
+            revealStart = Time.unscaledTime;
+            body.text = "";
+        }
+        public void TickDialogue(float lettersPerSecond)
+        {
+            if (!Typing) return;
+            int count = Mathf.Min(revealText.Length, 1 + (int)((Time.unscaledTime-revealStart)*lettersPerSecond));
+            if (count == revealText.Length) FinishDialogue();
+            else if (count != revealed)
+            {
+                revealed = count;
+                body.text = revealText.Substring(0,count);
+            }
+        }
+        public void FinishDialogue()
+        {
+            if (Typing) body.text = revealText;
+            revealText = null;
+        }
         public void Say(string title, string text)
         {
             ClearSurvey();
             card.gameObject.SetActive(true);
+            revealText = null;
             heading.text = title.ToUpperInvariant();
             body.text = Wrap(text, 51);
             Fit(heading, 1.18f, .068f, .84f);
@@ -172,6 +211,7 @@ namespace Wizzard
         public void Hide()
         {
             ClearSurvey();
+            revealText = null;
             card.gameObject.SetActive(false);
         }
         public void Dispose()
@@ -180,6 +220,7 @@ namespace Wizzard
             Object.Destroy(captionInk);
             Object.Destroy(worldInk);
             Object.Destroy(panelMaterial);
+            Object.Destroy(frameMaterial);
             if(surveyInk!=null) Object.Destroy(surveyInk);
             foreach (var line in bearings) Object.Destroy(line.GetComponent<Renderer>().sharedMaterial);
             if(pinInk!=null) Object.Destroy(pinInk);

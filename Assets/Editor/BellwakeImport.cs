@@ -23,6 +23,7 @@ namespace Wizzard.Editor
         bool IsBellwakeModel()
         {
             return assetPath.StartsWith("Assets/Resources/Bellwake/Rooms/") ||
+                assetPath.StartsWith("Assets/Resources/Bellwake/Wayfarer/") ||
                 assetPath.StartsWith("Assets/Resources/Bellwake/Field/");
         }
         void OnPreprocessModel()
@@ -57,13 +58,13 @@ namespace Wizzard.Editor
                 var page = (TextureImporter)assetImporter;
                 page.npotScale = TextureImporterNPOTScale.None;
                 page.wrapMode = TextureWrapMode.Clamp;
-                page.filterMode = FilterMode.Bilinear;
+                page.filterMode = assetPath.EndsWith("/BellrootDawn.png") ? FilterMode.Point : FilterMode.Bilinear;
                 return;
             }
             if (!assetPath.StartsWith("Assets/Resources/Bellwake/Textures/"))
                 return;
             var tile = (TextureImporter)assetImporter;
-            if (assetPath.EndsWith("Survey.png") || assetPath.EndsWith("Signs.png"))
+            if (assetPath.EndsWith("/Letterpress.png") || assetPath.EndsWith("Survey.png") || assetPath.EndsWith("Signs.png"))
                 tile.npotScale = TextureImporterNPOTScale.None;
             if (assetPath.EndsWith("/RoadSorrel.png"))
             {
@@ -73,7 +74,7 @@ namespace Wizzard.Editor
             }
             tile.mipmapEnabled = true;
             tile.wrapMode = TextureWrapMode.Repeat;
-            tile.filterMode = FilterMode.Bilinear;
+            tile.filterMode = assetPath.EndsWith("/Letterpress.png") ? FilterMode.Point : FilterMode.Bilinear;
             tile.anisoLevel = 2;
             tile.textureCompression = TextureImporterCompression.Uncompressed;
         }

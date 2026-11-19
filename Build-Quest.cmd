@@ -16,7 +16,7 @@ if not exist Builds mkdir Builds
 "%UNITY_EDITOR%" -batchmode -nographics -quit -projectPath "%CD%" -buildTarget Android -executeMethod Wizzard.Editor.VRProjectSetup.%BUILD_METHOD% -logFile "%CD%\Builds\Quest-build.log"
 if errorlevel 1 (
   echo Unity build failed. Full log: "%CD%\Builds\Quest-build.log"
-  if exist "Builds\Quest-build.log" powershell -NoProfile -Command "Select-String -LiteralPath 'Builds/Quest-build.log' -Pattern 'error (CS|BC)[0-9]+|shader error|[A-Za-z]*Exception:|^Error:|^FAILURE:|^What went wrong|No valid Unity Editor license|Aborting batchmode' | Select-Object -First 5 | ForEach-Object { $_.Line }"
+  if exist "Builds\Quest-build.log" powershell -NoProfile -Command "$log='Builds/Quest-build.log'; $xr=Select-String -LiteralPath $log -Pattern 'OpenXRProjectValidation[.:]LogBuildValidationIssues' -Context 8,0; $xr | Where-Object { $_.Context.PreContext -match 'Debug[.:]LogError' } | ForEach-Object { $_.Context.PreContext } | Where-Object { $_ -match '\S' -and $_ -notmatch '^\s*(at |UnityEngine[.:]|UnityEditor[.:]|\(Filename:|0x)' } | Select-Object -Unique; Select-String -LiteralPath $log -Pattern 'OpenXR validation failed|error (CS|BC)[0-9]+|shader error|[A-Za-z]*Exception:|^Error:|^FAILURE:|^What went wrong|No valid Unity Editor license|Aborting batchmode' | Select-Object -First 10 | ForEach-Object { $_.Line }"
   exit /b 1
 )
 if not exist "%CD%\%APK_NAME%" exit /b 1

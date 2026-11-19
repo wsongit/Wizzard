@@ -180,7 +180,10 @@ namespace Wizzard.Editor
             }
             if(Shader.Find("Wizzard/VillageSurface")==null) throw new Exception("Village UV shader missing");
             if(Shader.Find("Wizzard/RetroGrass")==null) throw new Exception("Grass shader missing");
-            if(Resources.Load<GameObject>("GorillaTorso")==null) throw new Exception("Blender torso missing");
+            foreach (string name in new[] { "Bellrunner","RunnerHead","LanternMoth","Bellroot","GroveBank",
+                "Waystall","TollSword","FerryShield","ReedStaff","MarketPear","RillBeetle","MireSkipper" })
+                if (!Resources.Load<GameObject>("Bellwake/Wayfarer/"+name))
+                    throw new InvalidDataException("Missing Bellwake model " + name);
             for(int i=1;i<=8;i++)
                 if(Resources.Load<GameObject>($"Trees/Tree{i:00}")==null) throw new Exception($"Tree model {i} missing");
             if(float.IsNaN(MeadowWorld.Height(0,0))) throw new Exception("Invalid terrain height");

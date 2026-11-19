@@ -6,13 +6,17 @@ namespace Wizzard
     public static class BellwakeModels
     {
         static readonly Dictionary<string, Material> avatarPaints = new Dictionary<string, Material>();
+        public static GameObject Wayfarer(string name, Transform parent)
+        {
+            return Create("Bellwake/Wayfarer/" + name, parent, avatarPaints);
+        }
         public static GameObject Create(string name, Transform parent)
         {
-            return Create(name, parent, avatarPaints);
+            return Create("Bellwake/Rooms/" + name, parent, avatarPaints);
         }
-        static GameObject Create(string name, Transform parent, Dictionary<string, Material> materials)
+        static GameObject Create(string path, Transform parent, Dictionary<string, Material> materials)
         {
-            var model = Object.Instantiate(Resources.Load<GameObject>("Bellwake/Rooms/" + name), parent, false);
+            var model = Object.Instantiate(Resources.Load<GameObject>(path), parent, false);
             foreach (var renderer in model.GetComponentsInChildren<MeshRenderer>())
             {
                 var slots = renderer.sharedMaterials;
@@ -34,7 +38,7 @@ namespace Wizzard
         }
         public static GameObject Climbable(string name, Transform parent, Dictionary<string, Material> materials)
         {
-            var model = Create(name, parent, materials);
+            var model = Create("Bellwake/Rooms/" + name, parent, materials);
             foreach (var filter in model.GetComponentsInChildren<MeshFilter>())
             {
                 filter.gameObject.layer = MeadowWorld.GroundLayer;

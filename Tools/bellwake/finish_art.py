@@ -5,7 +5,7 @@ import atelier
 from mathutils.bvhtree import BVHTree
 
 
-def cottage(prefix, x, y, z, height, angle):
+def cottage(prefix, x, y, z, height, angle, floor_height):
     with bpy.data.libraries.load(str(ROOT / "Blender/MossbellVillage.blend")) as (source, target):
         target.objects = [
             name
@@ -29,6 +29,15 @@ def cottage(prefix, x, y, z, height, angle):
         if not o.users_collection:
             bpy.context.collection.objects.link(o)
         o.matrix_world = place @ o.matrix_world
+        if o.name.endswith("continuous stone footing"):
+            o.data=o.data.copy()
+            inverse=o.matrix_world.inverted()
+            verts=[(v,o.matrix_world @ v.co) for v in o.data.vertices]
+            low=min(p.z for _,p in verts)
+            for v,p in verts:
+                if p.z < low+.001:
+                    p.z=min(p.z,floor_height(p.x,p.y)-.22)
+                    v.co=inverse @ p
         # Unity and glTF use the first UV set for the texture. Keep a common
         # name before batching meshes authored in different Blender scenes.
         o.data.uv_layers.active.name = "Paint"

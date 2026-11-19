@@ -11,6 +11,11 @@ namespace Wizzard
     {
         public Transform head, leftHand, rightHand, body;
         public float armLength=.95f, handRadius=.10f, launchMultiplier=1.15f, maxSpeed=8f;
+        public float turnAngle = 45;
+        public bool floorAssist = true;
+        Transform leftBoot, rightBoot;
+        Quaternion leftRest, rightRest;
+        float stride;
         public bool MovementLocked { get; set; }
         public bool ConversationActive { get; set; }
         public LayerMask surfaces=1<<MeadowWorld.GroundLayer;
@@ -37,6 +42,15 @@ namespace Wizzard
             motor.minMoveDistance=0;
             for(int i=0;i<2;i++)
                 arms[i]=BellwakeModels.Create("RunnerArm",transform).transform;
+        }
+        void Start()
+        {
+            if (body == null) return;
+            foreach (var t in body.GetComponentsInChildren<Transform>())
+            {
+                if (t.name == "LeftBoot") { leftBoot = t; leftRest = t.localRotation; }
+                if (t.name == "RightBoot") { rightBoot = t; rightRest = t.localRotation; }
+            }
         }
         void Update()
         {
@@ -117,12 +131,20 @@ namespace Wizzard
                 hand.position=touching[i]?previous[i]:targets[i]+(transform.position-start);
                 if(!touching[i]) previous[i]=hand.position;
             }
-            body.position=head.position+Vector3.down*.65f;
+            float eyeHeight = head.position.y - transform.position.y;
+            float bodyScale = Mathf.Clamp(eyeHeight / 1.25f, .30f, 1f);
+            body.localScale = Vector3.one * bodyScale;
+            body.position = head.position - Vector3.up * Mathf.Min(.49f, eyeHeight * .4f);
+            float speed = Vector3.ProjectOnPlane(transform.position-start,Vector3.up).magnitude / dt;
+            stride += dt * (2.8f + Mathf.Min(speed,5)*3);
+            float kick = Mathf.Sin(stride) * (4+Mathf.Min(speed,5)*4);
+            if (leftBoot != null) leftBoot.localRotation = Quaternion.AngleAxis(kick,Vector3.right)*leftRest;
+            if (rightBoot != null) rightBoot.localRotation = Quaternion.AngleAxis(-kick,Vector3.right)*rightRest;
             body.rotation=Quaternion.Euler(0,head.eulerAngles.y,0);
             for(int i=0;i<2;i++)
             {
                 if (!tracked[i]) continue;
-                Vector3 shoulder=body.position+body.right*(i==0?-.27f:.27f)+Vector3.up*.18f;
+                Vector3 shoulder=body.position+body.right*(i==0?-.18f:.18f)*bodyScale+Vector3.up*.18f;
                 Vector3 palm=(i==0?leftHand:rightHand).position;
                 arms[i].position=(shoulder+palm)*.5f;
                 arms[i].up=shoulder-palm;
@@ -144,8 +166,17 @@ namespace Wizzard
             }
             // Check where the controller is now. The old anchor stays next to
             // the surface even after the player has lifted their hand away.
-            return planted && delta.sqrMagnitude < .16f &&
-                Physics.CheckSphere(target, handRadius + .025f, surfaces, QueryTriggerInteraction.Ignore);
+            if (!Physics.CheckSphere(target, handRadius + .025f, surfaces, QueryTriggerInteraction.Ignore))
+                return false;
+            if (planted) return delta.sqrMagnitude < .16f;
+            // A restored or newly tracked palm may already overlap the floor on its first frame.
+            if (Physics.SphereCast(target+Vector3.up*(handRadius*2+.05f),handRadius,Vector3.down,
+                out var floor,handRadius*2+.08f,surfaces,QueryTriggerInteraction.Ignore) && floor.normal.y>.65f)
+            {
+                anchor=floor.point+floor.normal*(handRadius+.01f);
+                return true;
+            }
+            return false;
         }
         void ReadHead()
         {
@@ -241,7 +272,18 @@ namespace Wizzard
             }
             Quaternion facing=Quaternion.Euler(0,head.eulerAngles.y,0);
             Vector3 shoulder=head.position+facing*new Vector3(i==0?-.18f:.18f,-.25f,0);
-            return shoulder+Vector3.ClampMagnitude(transform.TransformPoint(local)-shoulder,armLength);
+            Vector3 offset = transform.TransformPoint(local)-shoulder;
+            return shoulder + ReachOffset(offset,head.localPosition.y,local.y,armLength,floorAssist);
+        }
+        // Work in metres relative to the tracking origin. A tall player and a short player can
+        // both plant their palms by lowering a controller, including just after tracking resumes.
+        static Vector3 ReachOffset(Vector3 offset,float eyes,float handHeight,float arm,bool assist)
+        {
+            float down = assist ? Mathf.SmoothStep(0,1,Mathf.InverseLerp(.32f,.82f,eyes-handHeight)) : 0;
+            float height = Mathf.Max(.035f,Mathf.Lerp(handHeight,.035f,down));
+            offset.y += height-handHeight;
+            float reach = arm + down*Mathf.Max(0,eyes-.12f-arm);
+            return Vector3.ClampMagnitude(offset,reach);
         }
         void DesktopLook()
         {
@@ -259,7 +301,7 @@ namespace Wizzard
             if(Mathf.Abs(axis.x)<.3f) turnReady=true;
             if(turnReady && Mathf.Abs(axis.x)>.75f)
             {
-                transform.RotateAround(head.position,Vector3.up,Mathf.Sign(axis.x)*45);
+                transform.RotateAround(head.position,Vector3.up,Mathf.Sign(axis.x)*turnAngle);
                 for(int i=0;i<2;i++) touching[i]=false;
                 initialized=false; smoothedVelocity=Vector3.zero; turnReady=false;
             }

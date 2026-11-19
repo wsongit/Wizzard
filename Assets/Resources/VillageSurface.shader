@@ -14,6 +14,7 @@ Shader "Wizzard/VillageSurface"
  #include "UnityCG.cginc"
  #include "Lighting.cginc"
  #include "AutoLight.cginc"
+ half _BellwakeNight;
  sampler2D _MainTex;
  float _Cutoff;
  struct appdata { float4 vertex:POSITION; float3 normal:NORMAL; float2 uv:TEXCOORD0; UNITY_VERTEX_INPUT_INSTANCE_ID };
@@ -30,7 +31,8 @@ Shader "Wizzard/VillageSurface"
   UNITY_LIGHT_ATTENUATION(atten,i,i.worldPos);
   float diffuse=saturate(dot(normalize(i.normal),normalize(_WorldSpaceLightPos0.xyz)));
   c.rgb*=float3(.57,.56,.53)+diffuse*atten*float3(.47,.45,.41);
-  c.a=1;UNITY_APPLY_FOG(i.fogCoord,c);return c;
+  c.a=1;c.rgb*=lerp(half3(1,1,1),half3(.34,.44,.65),_BellwakeNight);
+  UNITY_APPLY_FOG(i.fogCoord,c);return c;
  }
  ENDCG
  }

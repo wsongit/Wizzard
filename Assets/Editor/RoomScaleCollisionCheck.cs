@@ -35,10 +35,25 @@ namespace Wizzard.Editor
 
                 var palm = typeof(GorillaPlayer).GetMethod("FindPalmContact", BindingFlags.Instance | BindingFlags.NonPublic);
                 Require(palm != null, "Palm contact check is missing.");
+                var reach = typeof(GorillaPlayer).GetMethod("ReachOffset",BindingFlags.Static|BindingFlags.NonPublic);
+                foreach(float eyes in new[]{1.25f,1.65f,1.95f,2.05f})
+                {
+                    float handHeight=eyes-.82f;
+                    Vector3 offset=new Vector3(.12f,handHeight-eyes+.25f,.22f);
+                    var target=(Vector3)reach.Invoke(null,new object[]{offset,eyes,handHeight,.95f,true});
+                    Require(eyes-.25f+target.y < player.handRadius,"A lowered controller cannot touch the floor.");
+                    Vector3 high=new Vector3(.40f,.05f,.20f);
+                    var grab=(Vector3)reach.Invoke(null,new object[]{high,eyes,eyes-.20f,.95f,true});
+                    Require((grab-high).sqrMagnitude<.000001f,"Floor assist changed a high handhold.");
+                }
                 var palmStart = new Vector3(4997, .55f, 4997);
                 object[] stroke = { palmStart, palmStart + Vector3.down * .53f, false, Vector3.zero };
                 Require((bool)palm.Invoke(player, stroke), "A downward palm stroke missed the floor.");
                 var planted = (Vector3)stroke[3];
+                Vector3 lowPalm = palmStart + Vector3.down * .51f;
+                object[] restored = { lowPalm, lowPalm, false, Vector3.zero };
+                Require((bool)palm.Invoke(player, restored) && ((Vector3)restored[3]).y > .09f,
+                        "A newly tracked palm already touching the floor could not plant.");
                 Require((bool)palm.Invoke(player, new object[]{planted, planted + Vector3.right * .06f, true, Vector3.zero}),
                         "A tangential floor stroke lost its anchor.");
                 Require(!(bool)palm.Invoke(player, new object[]{planted, planted + Vector3.up * .16f, true, Vector3.zero}),

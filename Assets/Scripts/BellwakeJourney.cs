@@ -6,6 +6,7 @@ namespace Wizzard
     [Serializable]
     public sealed class BellwakeJourney
     {
+        public BellwakeSatchel satchel;
         public BellwakePassage passage;
         public BellwakeWorks works;
         public float[] secondsByPlace;
