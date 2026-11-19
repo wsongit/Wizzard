@@ -125,12 +125,21 @@ async def trigger_station(page, name, check):
     await page.wait_for_timeout(300)
 
 async def palm_instruments(browser):
+    plan=json.loads((here.parents[2]/"Assets/Resources/Bellwake/Underworks.json").read_text())
+    words=[0]*((len(plan["flags"])+29)//30)
+    for flag in ("woodBook","heardRootWest","heardRootEast"):
+        word,bit=divmod(plan["flags"].index(flag),30)
+        words[word] |= 1 << bit
+    wood_save={"number":2,"leaves":1,"works":{"active":True,"chamber":27,"camp":"RestMiddle",
+                "badges":words[0],"furtherBadges":words[1:]}}
     for district, save, order in (
+        ("RowanHollow",wood_save,["Short","Middle","Long","Short"]),
         ("KettleYard", {"number": 21, "works": {"active": True, "chamber": 18, "camp": "RestLow"}},
          ["Low", "High", "Low", "Middle", "Middle", "High", "High", "Low", "Middle"]),
         ("RootChoir", {"number": 2}, ["Key2", "Key1", "Key0"]),
         ("StillBelfry", {"number": 23}, ["Key0", "Key2", "Key1"]),
     ):
+        if "--wood-palms" in sys.argv and district!="RowanHollow": continue
         if "--belfry-palms" in sys.argv and district!="StillBelfry": continue
         page = await browser.new_page(viewport={"width": 630, "height": 380})
         errors = []
@@ -172,6 +181,8 @@ async def palm_instruments(browser):
             contact=await page.evaluate("([name,side])=>tapBell(name,side)", [name, "left" if j%2 else "right"])
             state=await page.evaluate("bellProbe()")
             assert len(state["recentTones"])==before+1,(district,name,contact,state["recentTones"])
+            if district=="RowanHollow":
+                assert state["works"]["signals"]["drumBeat"]==j+1, state["works"]
             if district=="KettleYard":
                 assert state["works"]["signals"]["supperBeat"]==j+1, state["works"]
             print(district, name, "palm stroke", j+1, flush=True)
@@ -217,6 +228,37 @@ async def theatre_checkpoint(browser):
     assert not errors,errors
     await page.close()
     print("PASS market invitation, blue door, casting pattern and woodcut figure reel with tracked controllers",flush=True)
+
+
+async def listening_checkpoint(browser):
+    page=await browser.new_page(viewport={"width":630,"height":380})
+    errors=[]
+    page.on("pageerror",lambda e:errors.append(str(e)))
+    await page.add_init_script(script=harness)
+    plan=json.loads((here.parents[2]/"Assets/Resources/Bellwake/Underworks.json").read_text())
+    word,bit=divmod(plan["flags"].index("woodBook"),30)
+    words=[0]*(word+1)
+    words[word] = 1 << bit
+    save={"number":2,"leaves":1,"works":{"active":True,"chamber":27,"camp":"RestRainWest",
+                                          "badges":words[0],"furtherBadges":words[1:]}}
+    await page.add_init_script("localStorage.setItem('wizzard.bellwake.desktop.v1',"+json.dumps(json.dumps(save))+")")
+    await page.goto(sys.argv[1])
+    await page.click("#vr",timeout=60000)
+    await page.wait_for_function("bellProbe().vr && bellProbe().district==='RowanHollow'")
+    await tracked_navigation(page)
+    await trigger_station(page,"RainWest","bellProbe().sight && bellProbe().forestAudio?.playing")
+    await page.evaluate("sightToward(bellProbe().sight.target)")
+    await page.wait_for_function("bellProbe().sight?.linedUp")
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',1)")
+    await page.wait_for_function("!bellProbe().forestAudio && bellProbe().works.signals.heardRainWest===1")
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',0)")
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('a-button',1)")
+    await page.wait_for_function("bellProbe().vrMap")
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('a-button',0)")
+    await page.evaluate("testDevice.activeSession.end()")
+    assert not errors,errors
+    await page.close()
+    print("PASS tracked listening horn, acoustic bearing, release and witness map",flush=True)
 
 
 async def parish_checkpoint(browser):
@@ -627,6 +669,14 @@ async def run():
             return
         if "--single-palm" in sys.argv:
             await single_palm_release(b)
+            await b.close()
+            return
+        if "--wood-palms" in sys.argv:
+            await palm_instruments(b)
+            await b.close()
+            return
+        if "--wood" in sys.argv:
+            await listening_checkpoint(b)
             await b.close()
             return
         if "--press" in sys.argv:

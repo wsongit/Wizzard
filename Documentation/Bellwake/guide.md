@@ -7,7 +7,8 @@ Tavi made a warning bell during the flood. Her sister Ina gave it a voice for a 
 | Bellmender’s Market | Visit Tavi on the path. Step through the blue courtyard door beside her stall, then return with the programme to receive her commission. The wooden sign leads to the Long Meadow in Unity. |
 | Tavi’s Paper Theatre | Read the four keepsakes, set the figure, scenery and property reels and light each scene. Choose how the programme will remember Ina. |
 | Saltwake Sound | Find Marn’s three witness posts. At the chart chest, steer the skiff through currents, touch the brass buoy, then reach the white mooring ring. |
-| The Pilgrims’ Cut | Restore the Quince Fold, Saffron Kilns, Vellum Walk, Cairnwatch Rise and Rain Court. The road continues to the Root Choir. |
+| The Pilgrims’ Cut | Restore the Quince Fold, Saffron Kilns, Vellum Walk, Cairnwatch Rise and Rain Court. The road continues to Rowan Hollow. |
+| Rowan Hollow | Meet Linn at the sawyer’s hut. Use six listening horns to find and mend the voices of rain, root and wren. The north wicket leads to the Root Choir. |
 | The Root Choir | Listen to Moss. Ring the three individually pitched bells in the order described by the forest round. |
 | The Rimeway Post | Recover the lost post. Slide the mail sled through the cache and stop it at the landing. |
 | Three houses of Sillwater | Meet Ada at ebb. Consult the field map in your witness book, visit the survey stands at both tides and reconstruct the three addresses in the map office. |
@@ -27,7 +28,7 @@ The market, Root Choir, Reedwater, Cinder Lens and belfry each hold a witness le
 
 The witness book shows active playtime. Loading, the open journal and unfocused play are excluded. The clock starts with this update for existing checkpoints. Players already past a new district retain their place in the story.
 
-The 34-place main campaign reached its first ending in 35 minutes 16 seconds of active play with known solutions. The optional music-box verses and harbour kitchen are additional. The design target is 25–30 hours for a first-time player. A human completion time has yet to be measured. [Playthrough details](validation.md)
+Before Rowan Hollow, the 34-place main campaign reached its first ending in 35 minutes 16 seconds of active play with known solutions. The optional music-box verses and harbour kitchen are additional. The design target is 25–30 hours for a first-time player. A human completion time has yet to be measured. [Playthrough details](validation.md)
 
 ## Quest Browser frame timings
 
@@ -48,6 +49,12 @@ At the grafting bench, take Mara’s brass waywren. Press Q or squeeze the left 
 On the final morning, an illuminated book is fastened to the west pier of the market arch. Each household has sent a letter. Turn the pages with E or a trigger to learn how your decision at the belfry changed their lives. [The public road book in Bellmarket](public-road-book.jpg)
 
 [Five work yards and the orchard survey as they appear in play](pilgrims-cut.jpg)
+
+## Rowan Hollow
+
+Take the linen field book from Linn outside the sawyer’s hut. Each pair of horns listens to one instrument. Stand close to a horn and press E or a trigger to listen. Turn in place. When the call is straight ahead, press again to draw the bearing. Opening the book shows the lines you have marked so far. The three walks can be taken in any order.
+
+At the spring, follow the carved marks on the high and low watercourses. At the beech, read the notched stave and strike the three hollow drums. On Quest you can tap them with either palm. At the loft, move the bronze poise until the beam lies level, then sound the reed. Once all three instruments sing, speak to Linn again or follow the north path into the choir. [Four views from the game](rowan-hollow.jpg)
 
 ## Three houses of Sillwater
 

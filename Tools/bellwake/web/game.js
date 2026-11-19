@@ -1,3 +1,4 @@
+import {ForestCall,callAngle} from "./forest_call.js";
 import * as T from "three";
 import { PalmInstruments } from "./instruments.js";
 import { Underworks } from "./underworks.js";
@@ -44,7 +45,7 @@ const savedRoom = data.works.rooms[savedWorks?.chamber];
 let works = new Underworks(
   data.works,
   savedWorks,
-  savedRoom?.prologue ? state().room === 0 :
+  savedRoom?.homeRoom ? state().room===savedRoom.homeRoom && !state().ending : savedRoom?.prologue ? state().room === 0 :
     savedRoom?.middle ? state().room === 2 || (state().room === 0 && savedWorks?.returnTicket) : savedRoom?.early ? state().room === 1 && !state().ending : state().room === 3 && state().solved,
 );
 const roomRadius = () => (works.active && works.room.halfSpan) || 20;
@@ -163,6 +164,8 @@ function soundStation(station, scene) {
       if (i === 0) tone(pitch);
       else rehearsal.push(setTimeout(() => tone(pitch), i * 400));
     });
+  } else if (nodes.SourceRoot && nodes["Hit_"+station.id.slice(2)]) {
+    tone(station.note,["BeechHigh","BeechMiddle","BeechLow"][station.note]);
   } else tone(station.note);
   if (swing) {
     if (ring) ring.rotation.z = initialAngle;
@@ -173,7 +176,7 @@ function soundStation(station, scene) {
 }
 const keeperCues = ["KeeperCue0", "KeeperCue1", "KeeperCue2"];
 let keeperPitch = -1, keeperFlash = 0;
-function tone(i) {
+function tone(i, voice) {
   if (nodes.KeeperMask && i < 3) {
     keeperPitch = i;
     keeperFlash = performance.now() + 330;
@@ -182,7 +185,7 @@ function tone(i) {
     recentTones.push(i);
     if (recentTones.length > 12) recentTones.shift();
   }
-  const key = ["Leaf", "Ember", "Tide", "Toll"][i];
+  const key = voice || ["Leaf", "Ember", "Tide", "Toll"][i];
   if (!effects.has(key)) effects.set(key, new Audio(assetURL("sounds", key, "audio/ogg")));
   const a = effects.get(key);
   a.currentTime = 0;
@@ -341,6 +344,7 @@ function dispose(old) {
   images.forEach((img) => img?.close?.());
   scene.remove(old);
 }
+const forestCall=new ForestCall();
 let pilotReply = null, replyName = "";
 function clearPilotReply() {
   if (!pilotReply) return;
@@ -382,7 +386,7 @@ async function loadRoom() {
   const s = state(),
     k = s.room;
   if (group) {
-    if (__TEST__) retired = [group, tree, sky.material.map, pilotReply, musicTheme !== musicKey() ? music : null].filter(Boolean).map((value) => new WeakRef(value));
+    if (__TEST__) retired = [group, tree, sky.material.map, pilotReply, forestCall.audio, forestCall.context, musicTheme !== musicKey() ? music : null].filter(Boolean).map((value) => new WeakRef(value));
     dispose(group);
     group = null;
     tree.clear();
@@ -394,6 +398,11 @@ async function loadRoom() {
     if (musicTheme !== musicKey()) dropMusic();
   }
   clearPilotReply();
+  forestCall.release();
+  for (const [key, audio] of effects) {
+    if (!key.startsWith("Beech")) continue;
+    audio.pause(); audio.removeAttribute("src"); audio.load(); effects.delete(key);
+  }
   movingTrail = null;
   roadPage = 0;
   fixtures = [];
@@ -505,6 +514,7 @@ async function loadRoom() {
   ring = null;
   resetFeet();
   if (works.active) {
+    for (const v of works.room.visuals) if (v.mount) nodes[v.mount].attach(nodes[v.node]);
     if (nodes.Drum) {
       for (let j = 0; j < 3; j++) {
         const aim = nodes["Bearing" + j].position,
@@ -700,13 +710,18 @@ async function interact(id, palm = -1) {
     if (station.sight && works.signals[station.prime || "charter"] && !works.signals[station.evidence]) {
       if (observation !== station) {
         observation = station;
+        if (station.call) {
+          forestCall.start(assetURL("sounds",station.call,"audio/ogg"),muted);
+          forestCall.turn(listeningAngle());
+        }
         say(station.label, station.direction, 18);
         return;
       }
       if (!bearingClear()) {
-        say(station.label, "The mark is outside the sight. " + station.direction, 12);
+        say(station.label, station.call ? listeningHint() : "The mark is outside the sight. " + station.direction, 12);
         return;
       }
+      forestCall.stop();
       observation = null;
     }
     const scene = works.room.prologue && id==="A_Light" ? works.signals.paperAct : -1;
@@ -902,7 +917,17 @@ async function interact(id, palm = -1) {
   const dawnSong = id==="A_Talk" && state().ending && works.signals.dawnStep===10 ? " "+data.works.dawnEnding[state().ending-1] : "";
   say(name, move[1] + dawnSong + portrait + programme + pilotLine + supperLine + parishLine + swallowLine + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
 }
+function listeningAngle() {
+  return callAngle(vr.session ? vr.head : camera.position,
+    vr.session ? vr.direction : camera.getWorldDirection(forward), nodes[observation.sight].position);
+}
+function listeningHint() {
+  const angle=listeningAngle();
+  if (Math.abs(angle)<14*Math.PI/180) return "The call is straight ahead. Record this bearing.";
+  return angle>0 ? "The call is to your right." : "The call is to your left.";
+}
 function bearingClear() {
+  if (observation.call) return Math.abs(listeningAngle())<14*Math.PI/180;
   const origin = vr.session ? vr.head : camera.position;
   if (vr.session) forward.copy(vr.direction);
   else camera.getWorldDirection(forward);
@@ -933,9 +958,11 @@ function pick() {
     if (nodes[observation.id].position.distanceTo(origin) <= 4.3) {
       focus = observation.id;
       $("prompt").hidden = false;
-      $("prompt").textContent = bearingClear() ? "E   ·   Record this bearing" : "Sight the offshore mark";
+      if (observation.call) forestCall.turn(listeningAngle());
+      $("prompt").textContent = bearingClear() ? "E   ·   Record this bearing" : observation.call ? listeningHint() : "Sight the offshore mark";
       return;
     }
+    forestCall.stop();
     observation = null;
   }
   for (const o of markers) {
@@ -1113,6 +1140,20 @@ function drawSurvey() {
   const c = canvas.getContext("2d");
   const pilotPage = nodes["Page"+works.signals.pilotNo];
   c.drawImage(nodes.Roost0 && works.signals.rookWarden && pilotPage ? pilotPage.material.map.source.data : surveyImage,0,0,768,544);
+  if (works.active) {
+    c.save();
+    c.beginPath(); c.rect(16,32,480,480); c.clip();
+    for (const station of works.room.stations) {
+      if (!station.call || !works.signals[station.evidence]) continue;
+      const horn=nodes[station.id].position, source=nodes[station.sight].position;
+      const px=p=>16+480*(p.x-origin.x)/(east.x-origin.x);
+      const py=p=>512-480*(p.z-origin.z)/(north.z-origin.z);
+      c.strokeStyle={RainWoodCall:"#325c79",RootWoodCall:"#76482d",WrenWoodCall:"#9b3931"}[station.call];
+      c.lineWidth=2.5; c.beginPath(); c.moveTo(px(horn),py(horn));
+      c.lineTo(px(horn)+(px(source)-px(horn))*1.15,py(horn)+(py(source)-py(horn))*1.15); c.stroke();
+    }
+    c.restore();
+  }
   const x = 16 + 480 * u,
     y = 512 - 480 * v;
   c.fillStyle = "#c83422";
@@ -1142,7 +1183,7 @@ function addBookPrint(key, caption, alt) {
 function toggleBook(open) {
   if (!started || busy) return;
   book = open;
-  if (book) observation = null;
+  if (book) { forestCall.stop(); observation = null; }
   keys.clear();
   $("book").hidden = !open;
   $("hud").hidden = open;
@@ -1181,7 +1222,7 @@ function toggleBook(open) {
       page.textContent = data.works.logTitle + "   ·   " + data.works.logEntry;
       $("leaves").append(page);
     }
-    if (works.active && !works.room.early && !works.room.prologue && !works.room.middle) {
+    if (works.active && !works.room.homeRoom && !works.room.early && !works.room.prologue && !works.room.middle) {
       const item = document.createElement("li");
       item.textContent = works.register();
       $("leaves").append(item);
@@ -1232,6 +1273,7 @@ $("sound").onclick = () => {
   effects.forEach((a) => (a.muted = muted));
   if (music) music.muted = muted;
   if (pilotReply) pilotReply.muted=muted;
+  if (forestCall.audio) forestCall.audio.muted=muted;
   $("sound").textContent = muted ? "Enable sound" : "Mute sound";
   save();
 };
@@ -1489,6 +1531,7 @@ if (__TEST__)
       passage.active && passage.book
         ? { ...passage.progress, hint: passage.piece.hint, win: passage.piece.win }
         : null,
+    forestAudio: forestCall.audio ? {playing:!forestCall.audio.paused,position:forestCall.pan.positionX.value} : null,
     sight: observation
       ? { target: nodes[observation.sight].position.toArray(), linedUp: bearingClear() }
       : null,
@@ -1553,9 +1596,10 @@ if (__TEST__)
     const expansion = index - graph.rooms.length;
     const chamber = expansion - data.regions.length;
     const early = data.works.rooms[chamber]?.early, prologue = data.works.rooms[chamber]?.prologue, middle=data.works.rooms[chamber]?.middle;
-    const base = chamber >= 0 ? (prologue ? 0 : middle ? 2 : early ? 1 : 3) : expansion >= 0 ? expansion : index;
+    const homeRoom = data.works.rooms[chamber]?.homeRoom;
+    const base = chamber >= 0 ? (homeRoom || (prologue ? 0 : middle ? 2 : early ? 1 : 3)) : expansion >= 0 ? expansion : index;
     const target = graph.states.findIndex(
-      (s) => s.room === base && (prologue ? !s.commissioned : expansion < 0 || s.commissioned) && (chamber < 0 || prologue || middle || early || s.solved),
+      (s) => s.room === base && (prologue ? !s.commissioned : expansion < 0 || s.commissioned) && (chamber < 0 || homeRoom || prologue || middle || early || s.solved),
     );
     if (target < 0 || chamber >= data.works.rooms.length) throw Error("Unknown district");
     number = target;

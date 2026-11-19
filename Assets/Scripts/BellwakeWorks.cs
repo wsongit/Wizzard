@@ -42,6 +42,7 @@ namespace Wizzard
     {
         public string key, title, intro, theme, score, chapter, fog;
         public bool early, prologue, middle;
+        public int homeRoom;
         public WorksRule[] goals;
         public float halfSpan;
         public float[] ground;
@@ -51,7 +52,7 @@ namespace Wizzard
     [Serializable]
     public sealed class WorksStation
     {
-        public string id, label, sight, search, evidence, direction, camp, trail, tune, swing, prime;
+        public string id, label, sight, search, evidence, direction, camp, trail, tune, swing, prime, call;
         public int note;
         public WorksRule[] rules;
     }
@@ -70,7 +71,7 @@ namespace Wizzard
     [Serializable]
     public sealed class WorksVisual
     {
-        public string node, signal, kind, stack, visibleSignal;
+        public string node, signal, kind, stack, visibleSignal, mount;
         public float amount, rise;
         public int match;
     }

@@ -59,4 +59,4 @@ async def walk_wards(act, page, start, out, only=None):
         }
         (out / "pilgrims-cut.json").write_text(json.dumps(report, indent=2) + "\n")
     if not only:
-        assert state["district"] == "RootChoir"
+        assert state["district"] == "RowanHollow"

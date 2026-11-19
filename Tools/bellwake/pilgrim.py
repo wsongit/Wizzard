@@ -422,7 +422,7 @@ def add_chapter(room, post, step, visual, machine):
             visual(r, "Proof" + name, key + name, "show")
         r["goals"] = goals
         x, y = world(sites[-1])
-        destination = FIELDS[i + 1][0] if i + 1 < len(FIELDS) else "@choir"
+        destination = FIELDS[i + 1][0] if i + 1 < len(FIELDS) else "RowanHollow"
         post(
             r,
             "Gate",

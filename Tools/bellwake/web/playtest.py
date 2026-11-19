@@ -8,6 +8,7 @@ from pathlib import Path
 from playwright.async_api import async_playwright
 from pilgrim_route import walk_wards, TRAILS
 from works_route import complete_works, complete_coast
+from wood_route import restore_wood
 from quiet_route import morning_song
 from press_route import print_plates
 from pilot_route import lead_pilots, pilot_letters
@@ -147,8 +148,11 @@ async def run():
         endings_only = "--endings" in sys.argv or nameplate
         parish_only = "--parish" in sys.argv
         lock_only="--swallow" in sys.argv
-        if song_only or press_only or pilots_only or lock_only or parish_only or target_post or glasscut_only or endings_only or works_only or coast_only or ward_only or engine_only or supper_only:
+        wood_only="--wood" in sys.argv
+        if wood_only or song_only or press_only or pilots_only or lock_only or parish_only or target_post or glasscut_only or endings_only or works_only or coast_only or ward_only or engine_only or supper_only:
             saved = {"number": 13, "leaves": 7}
+            if wood_only:
+                saved={"number":2,"leaves":1,"works":{"active":True,"chamber":27}}
             if song_only:
                 saved={"number":22,"leaves":31}
             if lock_only:
@@ -325,6 +329,11 @@ async def run():
             )
             await b.close()
             return
+        if wood_only:
+            await restore_wood(act,page,start,out,extended=True)
+            assert not errors,errors
+            await b.close()
+            return
         if song_only:
             await morning_song(act,page,start,out)
             assert not errors, errors
@@ -405,6 +414,7 @@ async def run():
                 await act("A_Gate")
                 await passage("Saltwake")
                 await walk_wards(act,page,start,out)
+                await restore_wood(act,page,start,out)
                 await profile()
                 await act("A_Talk")
                 await act("A_Key0")

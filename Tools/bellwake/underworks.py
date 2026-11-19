@@ -966,6 +966,9 @@ def turn_music_box(state, op):
     return (n+1 if op==DAWN_TUNES[bar][beat] else 1+3*bar,)
 machine("dawnwatch", ["dawnStep"], ("wind","0","1","2"), (0,), turn_music_box, lambda state:state)
 
+from choir_wood import build as build_wood
+build_wood(room, post, step, v, machine, flags)
+
 for descriptor in rooms:
     for station in descriptor["stations"]:
         station["note"] = {

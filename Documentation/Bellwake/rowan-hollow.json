@@ -1,0 +1,78 @@
+{
+  "geometry": {
+    "asset": "RowanHollow",
+    "groundProbes": 42025,
+    "boundaryRays": 8260,
+    "interiorCrossings": 0,
+    "walkableCells": 40246,
+    "stations": 18,
+    "minApproaches": 64,
+    "triangles": 38534,
+    "visibleMaterialSlots": 50
+  },
+  "collision": {
+    "room": "RowanHollow",
+    "queries": 3072,
+    "visibilityQueries": 3774,
+    "hits": {
+      "capsule": 304,
+      "sphere": 209,
+      "ray": 490
+    },
+    "packedBytes": 1067844,
+    "referenceHeap": 12998096,
+    "packedHeap": 2624,
+    "referenceLoadMs": 57.291996,
+    "packedLoadMs": 1.6083730000000003
+  },
+  "chapterPlaytest": {
+    "bearings": 6,
+    "voices": 3,
+    "savedAndResumed": true,
+    "testedWrongBearings": true,
+    "activeSeconds": 135.0444999999991
+  },
+  "native": {
+    "unityAssemblies": "2022.3.20f1",
+    "machineStates": 3258,
+    "transitions": 17746,
+    "restorationOrders": 6
+  },
+  "questControllerEmulation": [
+    "Spatial call from the Rain West horn",
+    "Head rotation aligned bearing",
+    "Recorded direction and opened linen map",
+    "Short, middle, long, short on alternating palms"
+  ],
+  "streaming": {
+    "transfers": 15,
+    "laps": 3,
+    "forestVisits": 6,
+    "activeSets": 1,
+    "activeCollisionTrees": 1,
+    "musicPlayers": 1,
+    "previousWorldsRetained": 0,
+    "revisitGPU": {
+      "geometries": 26,
+      "textures": 26,
+      "programs": 5
+    },
+    "compressedModelBytes": 1758194
+  },
+  "isolatedFrameSample": {
+    "renderer": "Chromium SwiftShader",
+    "samples": [
+      {
+        "district": "RowanHollow",
+        "samples": 90,
+        "scale": 0.5120000000000001,
+        "medianMs": 33.399999999999636,
+        "p95Ms": 99.89999999999964,
+        "calls": 28,
+        "triangles": 38254
+      }
+    ]
+  },
+  "standaloneHTML": "Loaded one release HTML over loopback, blocked all other HTTP requests, opened the map with the fallback decompressor.",
+  "hardware": "No physical Quest frame-time or comfort measurement."
+}

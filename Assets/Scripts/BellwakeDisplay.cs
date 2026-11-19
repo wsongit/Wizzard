@@ -12,6 +12,28 @@ namespace Wizzard
         readonly Font font;
         Transform survey,pin;
         Material surveyInk,pinInk;
+        readonly System.Collections.Generic.List<Transform> bearings = new System.Collections.Generic.List<Transform>();
+        int usedBearings;
+        static Vector2 MapPoint(Vector2 p) => new Vector2((16+480*p.x)/768f-.5f, .5f-(512-480*p.y)/544f);
+        public void AddBearing(Vector2 from, Vector2 source, string voice)
+        {
+            if (usedBearings == bearings.Count)
+            {
+                var obj = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                Object.Destroy(obj.GetComponent<Collider>());
+                obj.transform.SetParent(survey, false);
+                obj.GetComponent<Renderer>().sharedMaterial = new Material(panelMaterial) { renderQueue = 3901 };
+                bearings.Add(obj.transform);
+            }
+            var line = bearings[usedBearings++];
+            Vector2 a = MapPoint(from), b = MapPoint(source+(source-from)*.15f), d = b-a;
+            line.localPosition = new Vector3((a.x+b.x)*.5f, (a.y+b.y)*.5f, -.003f);
+            line.localRotation = Quaternion.Euler(0,0,Mathf.Atan2(d.y,d.x)*Mathf.Rad2Deg);
+            line.localScale = new Vector3(d.magnitude,.0045f,1);
+            line.GetComponent<Renderer>().sharedMaterial.color = voice=="RainWoodCall" ? new Color(.20f,.36f,.48f)
+                : voice=="RootWoodCall" ? new Color(.46f,.28f,.18f) : new Color(.61f,.22f,.19f);
+            line.gameObject.SetActive(true);
+        }
         readonly Material panelMaterial, captionInk, worldInk;
         public BellwakeDisplay(Transform head)
         {
@@ -91,6 +113,8 @@ namespace Wizzard
             if (survey==null) return;
             survey.gameObject.SetActive(false);
             surveyInk.mainTexture=null;
+            foreach (var line in bearings) line.gameObject.SetActive(false);
+            usedBearings=0;
         }
         public void Survey(Texture image, Vector2? position = null)
         {
@@ -156,6 +180,7 @@ namespace Wizzard
             Object.Destroy(worldInk);
             Object.Destroy(panelMaterial);
             if(surveyInk!=null) Object.Destroy(surveyInk);
+            foreach (var line in bearings) Object.Destroy(line.GetComponent<Renderer>().sharedMaterial);
             if(pinInk!=null) Object.Destroy(pinInk);
             Object.Destroy(card.gameObject);
         }

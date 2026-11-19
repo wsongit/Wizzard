@@ -2,7 +2,13 @@
 
 ## Full playthrough
 
-The latest fresh-save run reached the first ending in **35 minutes 16 seconds of active play** across 34 required districts. The runner used normal movement and known solutions, earned all 27 dispatch stamps and five witness leaves, developed all three photographs, guided the pilot birds and retried the keeper. It skipped the optional kitchen and the music-box coda. Its original report assertion still expected 33 places and stopped after the first ending. The saved timer and first-ending checkpoint contained all 34. The reporter now compares the actual district names against the campaign manifest. A second run loaded the earned pre-choice checkpoint in the final release candidate and played through both morning markets, including the five witness leaves and the public road book. First-time human and physical-headset times remain unmeasured. [Timing by location](known-route.json)
+The last fresh-save run before Rowan Hollow reached the first ending in **35 minutes 16 seconds of active play** across 34 required districts. The runner used normal movement and known solutions, earned all 27 dispatch stamps and five witness leaves, developed all three photographs, guided the pilot birds and retried the keeper. It skipped the optional kitchen and the music-box coda. Its original report assertion still expected 33 places and stopped after the first ending. The saved timer and first-ending checkpoint contained all 34. The reporter now compares the actual district names against the campaign manifest. A second run loaded the earned pre-choice checkpoint in the final release candidate and played through both morning markets, including the five witness leaves and the public road book. First-time human and physical-headset times remain unmeasured. [Timing by location](known-route.json)
+
+## Rowan Hollow
+
+The keyboard playthrough took six acoustic bearings and restored all three instruments. It rejected off-axis bearings, an incorrect drum phrase and an unbalanced clay bird. Reloading at the spring kept its water flowing. The northern wicket opened into the Root Choir after the third repair. The Quest emulator recorded a bearing from a tracked head turn, opened the linen survey and struck the beech drums with alternating hands. The native puzzle check completed all six orders of restoration.
+
+Blender reimported the FBX and checked 42,025 ground samples and 8,260 boundary rays. Each of the 18 stations had at least 64 reachable approaches. A three-lap travel check made 15 transfers with one world, one collision tree and one music player active after every transfer. The previous worlds were collectible and the renderer returned to the same GPU resource counts on each revisit. [In-game views](rowan-hollow.jpg) · [Measurements](rowan-hollow.json)
 
 ## The Still Belfry
 

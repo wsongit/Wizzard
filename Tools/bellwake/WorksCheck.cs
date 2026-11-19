@@ -36,6 +36,9 @@ class WorksCheck
         switch (m.key)
         {
         case "dawnwatch": return s("dawnStep")==10;
+        case "springharp": return s("rainMended")==1;
+        case "beechdrum": return s("rootMended")==1;
+        case "kitevoice": return s("wrenMended")==1;
         case "proofs": return s("glassProof")==3;
         case "pilots": return s("pilotNo")==3;
         case "stairlock": return s("voyageNo")==4;
@@ -237,6 +240,26 @@ class WorksCheck
         Require(darkroom.PlayMorningSong("0")==4 && darkroom.PlayMorningSong("wind")==4,"lost first verse");
         foreach(char pitch in plan.dawnTunes[1]+plan.dawnTunes[2]) darkroom.PlayMorningSong(pitch.ToString());
         Require(darkroom.PlayMorningSong("wind")==10,"lost morning coda");
+        foreach (string order in new[] {"012","021","102","120","201","210"})
+        {
+            var wood = new BellwakeWorks {active=true,chamber=Array.FindIndex(plan.rooms,r=>r.key=="RowanHollow")};
+            wood.Bind(plan);
+            string door;
+            Run(wood,"RainWest Short Breath");
+            Require(wood.Signal("heardRainWest")==0 && wood.Signal("drumBeat")==0,"unearned hearing");
+            Run(wood,"Linn");
+            foreach (char part in order)
+            {
+                wood.Use("A_Gate",out door);
+                Require(string.IsNullOrEmpty(door),"unfinished forest wicket");
+                if(part=='0') Run(wood,"RainWest RainEast Ridge Ridge Sill Spill");
+                if(part=='1') Run(wood,"RootEast RootWest Short Long Short Middle Long Short");
+                if(part=='2') Run(wood,"WrenWest WrenEast Slide Breath Slide Slide Breath Slide Slide Slide Breath");
+                wood=Reload(plan,wood);
+            }
+            wood.Use("A_Gate",out door);
+            Require(door=="@choir","forest restoration failed in order "+order);
+        }
         var pilgrimage = new BellwakeWorks { active=true, chamber=Array.FindIndex(plan.rooms,r=>r.early) };
         pilgrimage.Bind(plan);
         Require(pilgrimage.GuideTrail(0).Count == 0, "unearned waywren");
@@ -265,7 +288,7 @@ class WorksCheck
             Require(destination=="#RestGate" && pilgrimage.camp=="RestGate", "mile line");
             pilgrimage.Use("A_Gate",out destination);
             Require(!string.IsNullOrEmpty(destination) && pilgrimage.camp=="", "gate checkpoint");
-            if(room.key=="RainCourt") Require(destination=="@choir","missing choir connection");
+            if(room.key=="RainCourt") Require(destination=="RowanHollow","missing forest connection");
         }
         foreach (string order in new[] { "012", "021", "102", "120", "201", "210" })
         {

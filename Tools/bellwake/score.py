@@ -166,3 +166,30 @@ for name in ("GlassPilots", "AlderFerry"):
 if not sys.argv[1:] or "SilverBath" in sys.argv[1:]:
     from field_music import silver_bath
     save("SilverBath", silver_bath(rate, voice))
+
+# Leave quiet space between phrases so a listener can compare the next head angle.
+for family, notes in (("Rain", (72, 76, 79)), ("Root", (67, 62, 55, 67)), ("Wren", (84, 88, 84, 91))):
+    name = family + "WoodCall"
+    strikes = ["BeechHigh", "BeechMiddle", "BeechLow"] if family == "Root" else []
+    wanted = sys.argv[1:]
+    if wanted and name not in wanted and not any(key in wanted for key in strikes):
+        continue
+    sound = np.zeros(rate * 3)
+    for i, note in enumerate(notes):
+        duration = {"Rain": .56, "Root": .38, "Wren": .24}[family]
+        t = np.arange(round(duration * rate)) / rate
+        frequency = 440 * 2 ** ((note - 69) / 12)
+        phase = 2 * np.pi * frequency * t
+        if family == "Wren":
+            phase += 1.9 * np.sin(2 * np.pi * 20 * t)
+            pulse = np.sin(np.pi * t / duration) * (.8 * np.sin(phase) + .15 * np.sin(2 * phase))
+        elif family == "Root":
+            pulse = (np.sin(phase) + .42 * np.sin(2.57 * phase)) * np.exp(-15*t) * np.minimum(1, t/.004)
+        else:
+            pulse = voice(note, duration, "reed") + .18 * np.sin(phase*3.17) * np.exp(-8*t)
+        if i < len(strikes) and (not wanted or strikes[i] in wanted):
+            save(strikes[i],pulse)
+        at = round((.10 + i * (.27 if family == "Wren" else .41)) * rate)
+        sound[at:at+len(t)] += .72 * pulse
+    if not wanted or name in wanted:
+        save(name, sound)

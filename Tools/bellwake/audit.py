@@ -118,7 +118,7 @@ def main(key):
     assert (spawn - Vector((0, -14, 0.08))).length < 0.02, (key, spawn)
     markers = {n: o.matrix_world.translation for n, o in objects.items() if n.startswith("A_")}
     target_names = {n[4:] for n in objects if n.startswith("Hit_")}
-    expected = {"Key0","Key1","Key2"} if key in ("RootChoir","StillBelfry") else {"Low","Middle","High"} if key=="KettleYard" else set()
+    expected = {"Key0","Key1","Key2"} if key in ("RootChoir","StillBelfry") else {"Low","Middle","High"} if key=="KettleYard" else {"Long","Middle","Short"} if key=="RowanHollow" else set()
     assert target_names == expected, (key, target_names)
     for name in target_names:
         centre = objects["Hit_"+name].matrix_world.translation

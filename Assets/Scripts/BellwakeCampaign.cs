@@ -30,6 +30,16 @@ namespace Wizzard
         PassageAtlas atlas;
         WorksPlan worksPlan;
         WorksStation observation;
+        readonly Dictionary<string, AudioSource> forestVoices = new Dictionary<string, AudioSource>();
+        AudioSource forestVoice;
+        AudioClip[] beechStrikes;
+        static readonly string[] BeechNotes = {"BeechHigh","BeechMiddle","BeechLow"};
+        void StopObserving()
+        {
+            if (forestVoice != null) forestVoice.Stop();
+            forestVoice = null;
+            observation = null;
+        }
         float voyageFraction, motionLeft;
         bool InWorks => story.works!=null && story.works.active;
         WorksVisual[] fixtures=Array.Empty<WorksVisual>();
@@ -137,7 +147,7 @@ namespace Wizzard
             if(story.works==null) story.works=new BellwakeWorks();
             int savedChamber=story.works.chamber;
             var chamber = savedChamber >= 0 && savedChamber < worksPlan.rooms.Length ? worksPlan.rooms[savedChamber] : null;
-            bool eligible = chamber != null && (chamber.prologue ? story.room == 0 :
+            bool eligible = chamber != null && (chamber.homeRoom>0 ? story.room==chamber.homeRoom && story.ending==0 : chamber.prologue ? story.room == 0 :
                 chamber.middle ? story.room==2 || (story.room==0 && story.works.returnTicket) : chamber.early ? story.room == 1 && story.ending == 0 : story.room == 3 && story.Solved);
             if (!eligible) story.works.active = false;
             story.works.Bind(worksPlan);
@@ -202,7 +212,9 @@ namespace Wizzard
             CloseBookPrint();
             fixtures=Array.Empty<WorksVisual>();
             motionLeft=0;
-            observation=null;
+            StopObserving();
+            forestVoices.Clear();
+            beechStrikes = null;
             uncoveredFind=null;
             handFork=null; pilotFlights=null; forkRang=-10f;
             roadPage=0;
@@ -250,8 +262,12 @@ namespace Wizzard
                 var panorama = Resources.LoadAsync<Cubemap>(Path + "Skies/" + theme);
                 var song = score.clip == null ? Resources.LoadAsync<AudioClip>(Path + "Audio/" + music) : null;
                 Dictionary<string, ResourceRequest> pilotCalls = null;
+                var forestLoads = new Dictionary<string, ResourceRequest>();
                 if (InWorks)
                 {
+                    foreach (var station in story.works.Room.stations)
+                        if (!string.IsNullOrEmpty(station.call) && !forestLoads.ContainsKey(station.sight))
+                            forestLoads.Add(station.sight, Resources.LoadAsync<AudioClip>(Path + "Audio/" + station.call));
                     foreach (var visual in story.works.Room.visuals)
                     {
                         if (visual.kind != "perch") continue;
@@ -325,6 +341,8 @@ namespace Wizzard
                     if (nodes.TryGetValue("HandFork",out handFork) || nodes.TryGetValue("HandWhistle",out handFork)) handFork.localScale *= .49f;
                     if (nodes.TryGetValue("RailStart",out var railStart))
                         railAxis=(nodes["RailEnd"].position-railStart.position).normalized;
+                    foreach (var v in fixtures)
+                        if (!string.IsNullOrEmpty(v.mount)) nodes[v.node].SetParent(nodes[v.mount],true);
                     fixtureLocations=Array.ConvertAll(fixtures,v=>nodes[v.node].position);
                     fixtureAngles=Array.ConvertAll(fixtures,v=>nodes[v.node].rotation);
                     if (nodes.TryGetValue("Drum",out var drum))
@@ -348,6 +366,30 @@ namespace Wizzard
                                 nodes[v.node + "Right"], roosts, nodes["MapNW"].position - nodes["MapSW"].position,
                                 v.amount, (AudioClip)call.asset);
                         }
+                    }
+                    if (forestLoads.Count>0)
+                    {
+                        beechStrikes = new AudioClip[BeechNotes.Length];
+                        for(int i=0;i<BeechNotes.Length;i++)
+                        {
+                            var strike = Resources.LoadAsync<AudioClip>(Path + "Audio/" + BeechNotes[i]);
+                            yield return strike;
+                            beechStrikes[i]=(AudioClip)strike.asset;
+                        }
+                    }
+                    foreach (var pair in forestLoads)
+                    {
+                        yield return pair.Value;
+                        var voice = nodes[pair.Key].gameObject.AddComponent<AudioSource>();
+                        voice.playOnAwake = false;
+                        voice.loop = true;
+                        voice.spatialBlend = 1;
+                        voice.minDistance = 65;
+                        voice.maxDistance = 130;
+                        voice.dopplerLevel = 0;
+                        voice.volume = .76f;
+                        voice.clip = (AudioClip)pair.Value.asset;
+                        forestVoices.Add(pair.Key, voice);
                     }
                     AnimateWorks(true);
                 }
@@ -638,7 +680,7 @@ namespace Wizzard
                 journalOpen = !journalOpen;
                 hadPalm[0] = hadPalm[1] = false;
                 if (!journalOpen) CloseBookPrint();
-                observation = null;
+                StopObserving();
                 lastHint = null;
                 messageUntil = 0;
                 if (journalOpen)
@@ -657,7 +699,7 @@ namespace Wizzard
                     {
                         journalPage++;
                     } while (journalPage < 5 && (story.letters & (1 << journalPage)) == 0);
-                    if (journalPage == 5 && (!InWorks || story.works.Room.early || story.works.Room.prologue || story.works.Room.middle)) journalPage++;
+                    if (journalPage == 5 && (!InWorks || story.works.Room.homeRoom>0 || story.works.Room.early || story.works.Room.prologue || story.works.Room.middle)) journalPage++;
                     if (journalPage == 6 && !HasFloodBook) journalPage++;
                     if (journalPage == 7 && story.works.KitchenJournal().Length == 0) journalPage++;
                     if (journalPage == 8 && !story.works.Remembered(worksPlan, "parishSigned")) journalPage++;
@@ -896,6 +938,10 @@ namespace Wizzard
                         ? "Page"+story.works.Signal("pilotNo") : "Survey";
                     display.Survey(paints[story.works.Room.key+sheet].mainTexture,
                                    SurveyPosition(player.head.position));
+                    foreach (var station in story.works.Room.stations)
+                        if (!string.IsNullOrEmpty(station.call) && story.works.Signal(station.evidence)!=0)
+                            display.AddBearing(SurveyPosition(nodes[station.id].position),
+                                SurveyPosition(nodes[station.sight].position),station.call);
                 }
             }
             else if (journalPage == 11)
@@ -921,8 +967,15 @@ namespace Wizzard
             else
                 display.Say(BellwakeJourney.Titles[journalPage], BellwakeJourney.Leaf(journalPage));
         }
+        float ListeningAngle()
+        {
+            Vector3 source = nodes[observation.sight].position - player.head.position;
+            return Vector3.SignedAngle(Vector3.ProjectOnPlane(player.head.forward, Vector3.up),
+                Vector3.ProjectOnPlane(source, Vector3.up), Vector3.up);
+        }
         bool BearingClear()
         {
+            if (!string.IsNullOrEmpty(observation.call)) return Mathf.Abs(ListeningAngle()) < 14;
             Vector3 eye = player.head.position;
             Vector3 target = nodes[observation.sight].position - eye;
             Vector3 line = target.normalized;
@@ -943,7 +996,7 @@ namespace Wizzard
                     focus = observation.id;
                     return;
                 }
-                observation = null;
+                StopObserving();
             }
             float nearest = float.MaxValue;
             bool leftTracked = player.PalmTracked(0), rightTracked = player.PalmTracked(1);
@@ -1032,7 +1085,9 @@ namespace Wizzard
                 tune=worksPlan.theatreCadences[scene];
                 swing="PuppetArm"+story.works.Signal("paperActor");
             }
-            if (string.IsNullOrEmpty(tune)) notes.PlayOneShot(chimes[station.note]);
+            if (beechStrikes != null && nodes.ContainsKey("Hit_"+station.id.Substring(2)))
+                notes.PlayOneShot(beechStrikes[station.note]);
+            else if (string.IsNullOrEmpty(tune)) notes.PlayOneShot(chimes[station.note]);
             else rehearsal = StartCoroutine(Rehearse(tune));
             if (string.IsNullOrEmpty(swing)) return;
             if (struck != null) struck.rotation = strikeRest;
@@ -1183,16 +1238,19 @@ namespace Wizzard
                 {
                     if (observation != station)
                     {
+                        StopObserving();
                         observation = station;
+                        if (forestVoices.TryGetValue(station.sight, out forestVoice)) forestVoice.Play();
                         Say(title,station.direction,18);
                         return;
                     }
                     if (!BearingClear())
                     {
-                        Say(title,"The mark is outside the sight. "+station.direction);
+                        Say(title,string.IsNullOrEmpty(station.call) ? "The mark is outside the sight. "+station.direction :
+                            ListeningAngle()>0 ? "The call is to your right." : "The call is to your left.");
                         return;
                     }
-                    observation = null;
+                    StopObserving();
                 }
                 CancelRehearsal();
                 int scene = story.works.Room.prologue && id=="A_Light" ? story.works.Signal("paperAct") : -1;
@@ -1453,7 +1511,7 @@ namespace Wizzard
                     }
                     for(int r=0;r<worksPlan.rooms.Length;r++)
                     {
-                        story=new BellwakeJourney {room=worksPlan.rooms[r].prologue ? 0 : worksPlan.rooms[r].middle ? 2 : worksPlan.rooms[r].early ? 1 : 3,seals=3,commissioned=!worksPlan.rooms[r].prologue,
+                        story=new BellwakeJourney {room=worksPlan.rooms[r].homeRoom>0 ? worksPlan.rooms[r].homeRoom : worksPlan.rooms[r].prologue ? 0 : worksPlan.rooms[r].middle ? 2 : worksPlan.rooms[r].early ? 1 : 3,seals=3,commissioned=!worksPlan.rooms[r].prologue,
                             works=new BellwakeWorks {active=true,chamber=r}};
                         yield return EnterRoom();
                         if(!InWorks || set.name!=worksPlan.rooms[r].key ||
