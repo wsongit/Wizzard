@@ -26,7 +26,7 @@ The market, Root Choir, Reedwater, Cinder Lens and belfry each hold a witness le
 
 The witness book shows active playtime. Loading, the open journal and unfocused play are excluded. The clock starts with this update for existing checkpoints. Players already past a new district retain their place in the story.
 
-The 32-place Drift Fen route reached its first ending in 36 minutes 36 seconds of active play with known solutions. The Glass Rookery extends that route. The design target is 25–30 hours for a first-time player. A human completion time has yet to be measured. [Playthrough details](validation.md)
+The 33-place campaign reached its first ending in 35 minutes 27 seconds of active play with known solutions. The design target is 25–30 hours for a first-time player. A human completion time has yet to be measured. [Playthrough details](validation.md)
 
 ## Quest Browser frame timings
 

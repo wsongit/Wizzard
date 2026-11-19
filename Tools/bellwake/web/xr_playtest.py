@@ -142,6 +142,10 @@ async def palm_instruments(browser):
                 const s=bellProbe(), target=s.instruments['A_'+name], [x,y,z]=target.centre;
                 const frame=()=>new Promise(resolve=>setTimeout(resolve,95));
                 // Pull both hands behind the approach plane when walking across an instrument.
+                if (s.district === "StillBelfry" && name === "Key1") {
+                    // Leave the east plinth on its open side, then pass east of the keeper.
+                    for (const [px,pz] of [[7,1],[3,1],[3,-6.2],[0,-6.2]]) await walkSurvey(px,pz);
+                }
                 await walkSurvey(x,z+1.03);
                 const grip=testDevice.controllers[side];
                 const pose=(depth)=>{

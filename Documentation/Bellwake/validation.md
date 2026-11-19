@@ -1,8 +1,8 @@
 # Bellwake release checks
 
-## Previous full playthrough
+## Full playthrough
 
-The 32-place Drift Fen route reached its first ending in **36 minutes 36 seconds of active play**, or 37 minutes 10 seconds elapsed. The fresh-save runner used normal movement and known solutions. It recovered four missing cargoes, completed the hydraulic crossings, collected all five witness leaves and reached both endings. It reported zero application errors. This run predates the Glass Rookery. Different workloads on the shared software renderer affect movement time. First-time human and physical-headset completion times remain unmeasured. [Timing by location](known-route.json)
+The 33-place campaign reached its first ending in **35 minutes 27 seconds of active play**, or 35 minutes 55 seconds elapsed. The fresh-save runner used normal movement and known solutions. It recovered the four Drift Fen cargoes, completed the hydraulic crossings, guided all three pilot birds home, collected five witness leaves and reached both endings. It reported zero application errors. This run used the complete Glass Rookery story. The subsequent character, sound and controller updates have separate checks below. First-time human and physical-headset completion times remain unmeasured. [Timing by location](known-route.json)
 
 ## Tavi and Ina’s letter
 
@@ -19,6 +19,8 @@ The Quest controller emulator planted a single palm and pushed 0.376 m with the 
 Three complete laps made 117 transfers through all 34 districts. One set, one collision tree and one background music player remained active at every destination. The previous scene, panorama, collision data and any replaced music player were collectible at every stop. Returning to the same district produced identical GPU resource counts. Drift Fen, Swallow Stair and the Glass Rookery each played their own score. [Streaming and audio checks](glass-rookery.json)
 
 The optional Quest Browser timing report was exercised in an emulated 90 Hz session. The exported JSON included play intervals for Bellmarket, Drift Fen and the Glass Rookery, as well as both in-headset area loads. The emulator uses a cloud software renderer. Target frame time on a physical Quest is still unverified.
+
+A 768 × 432 desktop software-rendering pass warmed each of five districts for 90 frames and turned through a further 90. The 95th-percentile intervals were 216.6 ms in Bellmarket, 33.4 ms in PaperCourt, 50.1 ms in SwallowLock, 50.0 ms in DriftFen, 50.0 ms in GlassRookery. Adaptive rendering scale varied across the run. These cloud intervals exceed the 13.9 ms budget for a 72 Hz headset. [Frame samples and the measured rendering scale](field-frames.json)
 
 ## The Glass Rookery
 

@@ -92,6 +92,9 @@ namespace Wizzard
             for(int i=0;i<2;i++)
             {
                 var hand=i==0?leftHand:rightHand;
+                if (hand.gameObject.activeSelf != tracked[i]) hand.gameObject.SetActive(tracked[i]);
+                if (arms[i].gameObject.activeSelf != tracked[i]) arms[i].gameObject.SetActive(tracked[i]);
+                if (!tracked[i]) continue;
                 hand.position=touching[i]?previous[i]:targets[i]+(transform.position-start);
                 if(!touching[i]) previous[i]=hand.position;
             }
@@ -99,6 +102,7 @@ namespace Wizzard
             body.rotation=Quaternion.Euler(0,head.eulerAngles.y,0);
             for(int i=0;i<2;i++)
             {
+                if (!tracked[i]) continue;
                 Vector3 shoulder=body.position+body.right*(i==0?-.27f:.27f)+Vector3.up*.18f;
                 Vector3 palm=(i==0?leftHand:rightHand).position;
                 arms[i].position=(shoulder+palm)*.5f;

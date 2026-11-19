@@ -900,6 +900,7 @@ namespace Wizzard
                 observation = null;
             }
             float nearest = float.MaxValue;
+            bool leftTracked = player.PalmTracked(0), rightTracked = player.PalmTracked(1);
             foreach (var pair in points)
             {
                 Transform t = nodes[pair.Key];
@@ -913,8 +914,8 @@ namespace Wizzard
                     continue;
                 display.Face(pair.Value);
                 bool hand =
-                    XRSettings.isDeviceActive && ((player.leftHand.position - t.position).sqrMagnitude < .8f ||
-                                                  (player.rightHand.position - t.position).sqrMagnitude < .8f);
+                    (leftTracked && (player.leftHand.position - t.position).sqrMagnitude < .8f) ||
+                    (rightTracked && (player.rightHand.position - t.position).sqrMagnitude < .8f);
                 float dot = Vector3.Dot(player.head.forward, delta / Mathf.Max(.01f, distance));
                 if (!hand && (distance > 4.1f || dot < .64f))
                     continue;
