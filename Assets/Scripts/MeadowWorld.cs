@@ -10,11 +10,18 @@ namespace Wizzard
         public const int ChunkSize = 256;
         public const int Resolution = 32;
         public const int GroundLayer = 8;
+        static readonly float villageHeight = BaseHeight(MossbellVillage.MapLocation.x, MossbellVillage.MapLocation.y);
+        readonly MeadowGroundMesh surface = new MeadowGroundMesh();
+
         public static float Height(float x, float z)
         {
-            float distance=Vector2.Distance(new Vector2(x,z),MossbellVillage.MapLocation);
-            float blend=1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(48,72,distance));
-            return Mathf.Lerp(BaseHeight(x,z),BaseHeight(MossbellVillage.MapLocation.x,MossbellVillage.MapLocation.y),blend);
+            float dx = x - MossbellVillage.MapLocation.x, dz = z - MossbellVillage.MapLocation.y;
+            float squared = dx * dx + dz * dz;
+            if (squared <= 48 * 48) return villageHeight;
+            float terrain = BaseHeight(x, z);
+            if (squared >= 72 * 72) return terrain;
+            float blend = 1 - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(48, 72, Mathf.Sqrt(squared)));
+            return Mathf.Lerp(terrain, villageHeight, blend);
         }
         static float BaseHeight(float x,float z)
         {
@@ -82,7 +89,7 @@ namespace Wizzard
             Vector3 position = viewer.position;
             int current = TileAt(position.x, position.z);
             if (chunks[current] == null) { EnsureChunk(current); return; }
-            int next = window.Next(Mathf.Clamp(position.x,-Size/2,Size/2), Mathf.Clamp(position.z,-Size/2,Size/2), Release);
+            int next = window.Next(Mathf.Clamp(position.x,-Size/2,Size/2), Mathf.Clamp(position.z,-Size/2,Size/2), Release, MeadowTileWindow.ReleasesPerFrame);
             if (next >= 0) EnsureChunk(next);
         }
         void EnsureChunk(int i)
@@ -118,23 +125,13 @@ namespace Wizzard
         }
         GameObject CreateChunk(int cx, int cz, Material material)
         {
-            var vertices = new Vector3[33*33]; var uvs = new Vector2[vertices.Length];
-            var tris = new int[32*32*6];
-            float ox=cx*ChunkSize-Size/2, oz=cz*ChunkSize-Size/2;
-            for(int z=0;z<=Resolution;z++) for(int x=0;x<=Resolution;x++)
+            surface.Fill(cx, cz);
+            // Mesh setters copy the buffers. The next tile can reuse the same staging memory.
+            var mesh = new Mesh
             {
-                int i=z*33+x; float px=ox+x*8, pz=oz+z*8;
-                vertices[i]=new Vector3(px,Height(px,pz),pz); uvs[i]=new Vector2(px/8,pz/8);
-            }
-            int n=0;
-            for(int z=0;z<32;z++) for(int x=0;x<32;x++)
-            {
-                int i=z*33+x;
-                tris[n++]=i; tris[n++]=i+33; tris[n++]=i+1;
-                tris[n++]=i+1; tris[n++]=i+33; tris[n++]=i+34;
-            }
-            var mesh=new Mesh {name=$"Meadow chunk {cx},{cz}", vertices=vertices, uv=uvs, triangles=tris};
-            mesh.RecalculateNormals(); mesh.RecalculateBounds();
+                name = $"Meadow chunk {cx},{cz}", vertices = surface.Vertices,
+                normals = surface.Normals, uv = surface.UV, triangles = MeadowGroundMesh.Triangles
+            };
             var chunk=new GameObject(mesh.name); chunk.layer=GroundLayer; chunk.transform.SetParent(transform,false);
             chunk.AddComponent<MeshFilter>().sharedMesh=mesh;
             chunk.AddComponent<MeshRenderer>().sharedMaterial=material;

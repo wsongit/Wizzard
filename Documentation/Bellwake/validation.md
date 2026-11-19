@@ -1,5 +1,11 @@
 # Bellwake release checks
 
+## Long Meadow ground streaming
+
+The native meadow reuses its vertex, UV, normal and triangle buffers as the player crosses the two-kilometre map. Adjacent tiles compute their edge lighting from the same surrounding heights. A managed test using Unity’s 2022.3 assemblies compared 69,696 vertices against the previous ground surface. The largest change in height was under one micrometre. Positions, UVs and normals matched at all 3,696 shared edge samples. Refilling the terrain buffers 640 times allocated zero managed bytes during the measured loop. Unity still allocates the mesh and its collider when a tile enters the world.
+
+An additional travel test simulated 24 long-distance teleports over 1,536 streaming frames. Ground stayed available during each arrival, the maximum retirement count was two chunks per frame and the peak was 19 loaded tiles. A separate sweep covered 3,327 positions and peaked at 21 of 64. These checks exercise terrain generation and tile ownership. Frame timing on a physical Quest remains unmeasured.
+
 ## Three houses of Sillwater
 
 A player-input test took all six optical bearings, rejected off-target sightings, restored the north landing after a reload, triangulated three deeds from the observed directions and left for Reedwater with Ada’s seal. A Quest 3 controller emulator opened and closed the field sheet, sighted the oar and moved the chart carriage 1.52 metres. The self-contained browser edition restored the flood map and signed title with external asset requests blocked.

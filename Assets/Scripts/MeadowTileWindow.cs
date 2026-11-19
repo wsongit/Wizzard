@@ -7,9 +7,10 @@ namespace Wizzard
     {
         public const int Across = 8, Width = 256, Count = Across * Across;
         public const float Visible = 400, Retain = 464;
+        public const int ReleasesPerFrame = 2;
         readonly bool[] loaded = new bool[Count];
 
-        public int Next(float x, float z, Action<int> release)
+        public int Next(float x, float z, Action<int> release, int maxReleases = Count)
         {
             int nearest = -1;
             float best = float.MaxValue;
@@ -18,8 +19,9 @@ namespace Wizzard
                 float dx = Math.Max(0, Math.Abs(x - Centre(i % Across)) - Width * .5f);
                 float dz = Math.Max(0, Math.Abs(z - Centre(i / Across)) - Width * .5f);
                 float distance = dx * dx + dz * dz;
-                if (loaded[i] && distance > Retain * Retain)
+                if (loaded[i] && distance > Retain * Retain && maxReleases > 0)
                 {
+                    maxReleases--;
                     release(i);
                     loaded[i] = false;
                 }
