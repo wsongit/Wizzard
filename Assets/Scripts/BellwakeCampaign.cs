@@ -399,7 +399,7 @@ namespace Wizzard
                 player.Teleport(here,direction.sqrMagnitude>.001f ? Quaternion.LookRotation(direction) : Quaternion.identity);
                 Physics.SyncTransforms();
                 cells.Follow();
-                if (profiler != null) profiler.Begin("Bellwake Highroad");
+                if (profiler != null) profiler.Begin("Bellwake Highroad", cells);
                 var label=display.Label(target,title);
                 label.transform.position=target.position+Vector3.up*4.2f;
                 label.gameObject.SetActive(true);

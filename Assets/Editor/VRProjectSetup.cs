@@ -98,7 +98,12 @@ namespace Wizzard.Editor
             EditorApplication.isPlaying=true;
         }
         [MenuItem("Wizzard/Build Quest APK")]
-        public static void BuildQuest()
+        public static void BuildQuest() => BuildQuestPlayer(false);
+
+        [MenuItem("Wizzard/Build Quest profiling APK")]
+        public static void BuildQuestProfile() => BuildQuestPlayer(true);
+
+        static void BuildQuestPlayer(bool profile)
         {
             if(!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.Android,BuildTarget.Android))
                 throw new Exception("Install Android Build Support for this Unity Editor.");
@@ -106,10 +111,11 @@ namespace Wizzard.Editor
                 throw new Exception("Switch to Android in File > Build Settings first. Android Build Support, SDK, NDK and OpenJDK are required.");
             ValidateProject();
             Directory.CreateDirectory("Builds");
-            const string path = "Builds/Wizzard-Bellwake-Quest.apk";
+            string filename = profile ? "Wizzard-Bellwake-Quest-Profile.apk" : "Wizzard-Bellwake-Quest.apk";
+            string path = Path.Combine("Builds", filename);
             var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions {
                 scenes=new[]{"Assets/Scenes/Meadow.unity"}, target=BuildTarget.Android,
-                locationPathName=path, options=BuildOptions.None });
+                locationPathName=path, options=profile ? BuildOptions.Development : BuildOptions.None });
             if(report.summary.result!=UnityEditor.Build.Reporting.BuildResult.Succeeded)
                 throw new Exception("Quest APK build failed: "+report.summary.result);
             using(var input=File.OpenRead(path))
@@ -121,8 +127,8 @@ namespace Wizzard.Editor
                     if(package.GetEntry(entry)==null) throw new InvalidDataException("Native player missing "+entry);
                 if(package.GetEntry("assets/index.html")!=null) throw new InvalidDataException("Unexpected web launcher");
             }
-            File.Copy(path,"Wizzard-Bellwake-Quest.apk",true);
-            Debug.Log("Native Unity Quest build: "+Path.GetFullPath("Wizzard-Bellwake-Quest.apk"));
+            File.Copy(path,filename,true);
+            Debug.Log("Native Unity Quest build: "+Path.GetFullPath(filename));
         }
         [MenuItem("Wizzard/Validate project")]
         public static void ValidateProject()

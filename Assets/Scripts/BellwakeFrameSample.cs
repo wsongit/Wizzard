@@ -3,23 +3,25 @@ using UnityEngine;
 
 namespace Wizzard
 {
-    // Development APKs report the actual presentation interval after room loading.
+    // Development APKs measure Unity frame intervals. Headset compositor timing is separate.
     public sealed class BellwakeFrameSample : MonoBehaviour
     {
         readonly float[] frames = new float[360];
         string room;
+        BellwakeField field;
         float warmup;
         int count;
         bool travelling;
         float loadStart, worstFrame;
         public void StartTravel()
         {
+            field = null;
             travelling = true;
             loadStart = Time.realtimeSinceStartup;
             worstFrame = 0;
             enabled = true;
         }
-        public void Begin(string name)
+        public void Begin(string name, BellwakeField activeField = null)
         {
             if (travelling)
                 Debug.LogFormat("Bellwake loaded {0} in {1:F0} ms including fades. Worst transition frame {2:F1} ms. Allocated {3:F1} MiB.",
@@ -27,7 +29,8 @@ namespace Wizzard
                     UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() / 1048576f);
             travelling = false;
             room = name;
-            warmup = Time.unscaledTime + 3;
+            field = activeField;
+            warmup = Time.unscaledTime + (field == null ? 3 : 0);
             count = 0;
             enabled = true;
         }
@@ -48,7 +51,15 @@ namespace Wizzard
                             "ms over {5} frames.",
                             room, SystemInfo.deviceModel, frames[count / 2], frames[(int)(count * .95f)],
                             frames[count - 1], count);
-            enabled = false;
+            if (field == null)
+            {
+                enabled = false;
+                return;
+            }
+            Debug.LogFormat("Bellwake field: {0} resident, {1} loaded, {2} retired, {3} memory sweeps this visit. Unity allocated {4:F1} MiB.",
+                field.LoadedCells - field.RetiredCells, field.LoadedCells, field.RetiredCells, field.CompletedSweeps,
+                UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() / 1048576f);
+            count = 0;
         }
     }
 }

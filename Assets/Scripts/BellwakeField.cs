@@ -16,6 +16,10 @@ namespace Wizzard
             public GameObject instance;
         }
         readonly List<Cell> cells = new List<Cell>();
+        public int LoadedCells { get; private set; }
+        public int RetiredCells { get; private set; }
+        public int CompletedSweeps { get; private set; }
+
         int retiredSinceSweep;
         float lastSweep;
         Transform eye;
@@ -74,6 +78,7 @@ namespace Wizzard
                 Destroy(cell.instance);
                 cell.instance = null;
                 retiredSinceSweep++;
+                RetiredCells++;
             }
             // Nearest first so a restored checkpoint always has hand contacts when the fade opens.
             cells.Sort((a,b) => (a.centre-position).sqrMagnitude.CompareTo((b.centre-position).sqrMagnitude));
@@ -87,6 +92,7 @@ namespace Wizzard
                 if (prefab == null) throw new InvalidOperationException("Missing field scenery " + cell.resource);
                 yield return loadPaints(prefab);
                 cell.instance = Instantiate(prefab, transform, false);
+                LoadedCells++;
                 foreach (var renderer in cell.instance.GetComponentsInChildren<MeshRenderer>()) paint(renderer);
             }
             // Batch global sweeps on long walks. Retired colliders disappear immediately.
@@ -97,6 +103,7 @@ namespace Wizzard
         {
             yield return null;
             yield return Resources.UnloadUnusedAssets();
+            CompletedSweeps++;
             retiredSinceSweep = 0;
             lastSweep = Time.realtimeSinceStartup;
         }

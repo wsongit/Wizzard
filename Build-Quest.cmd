@@ -6,11 +6,17 @@ if not exist "%UNITY_EDITOR%" (
   echo Install Unity 2022.3.20f1 with Android Build Support or set UNITY_EDITOR to its Unity.exe.
   exit /b 1
 )
+set "BUILD_METHOD=BuildQuest"
+set "APK_NAME=Wizzard-Bellwake-Quest.apk"
+if /i "%~1"=="profile" (
+  set "BUILD_METHOD=BuildQuestProfile"
+  set "APK_NAME=Wizzard-Bellwake-Quest-Profile.apk"
+)
 if not exist Builds mkdir Builds
-"%UNITY_EDITOR%" -batchmode -nographics -quit -projectPath "%CD%" -buildTarget Android -executeMethod Wizzard.Editor.VRProjectSetup.BuildQuest -logFile "%CD%\Builds\Quest-build.log"
+"%UNITY_EDITOR%" -batchmode -nographics -quit -projectPath "%CD%" -buildTarget Android -executeMethod Wizzard.Editor.VRProjectSetup.%BUILD_METHOD% -logFile "%CD%\Builds\Quest-build.log"
 if errorlevel 1 (
   type "%CD%\Builds\Quest-build.log"
   exit /b 1
 )
-if not exist "%CD%\Wizzard-Bellwake-Quest.apk" exit /b 1
-echo Native Unity APK ready at "%CD%\Wizzard-Bellwake-Quest.apk"
+if not exist "%CD%\%APK_NAME%" exit /b 1
+echo Native Unity APK ready at "%CD%\%APK_NAME%"
