@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.IO.Compression;
@@ -8,6 +9,8 @@ using UnityEditor.XR.Management.Metadata;
 using UnityEngine;
 using UnityEngine.XR.Management;
 using UnityEngine.XR.OpenXR;
+using UnityEngine.XR.OpenXR.Features;
+using UnityEngine.XR.OpenXR.Features.Interactions;
 
 namespace Wizzard.Editor
 {
@@ -47,14 +50,13 @@ namespace Wizzard.Editor
                 if(openXR!=null)
                 {
                     openXR.renderMode=OpenXRSettings.RenderMode.SinglePassInstanced;
-                    foreach(var feature in openXR.GetFeatures<UnityEngine.XR.OpenXR.Features.OpenXRFeature>())
+                    foreach (var feature in openXR.GetFeatures<OpenXRFeature>())
                     {
-                        string type=feature.GetType().Name;
-                        if(type=="OculusTouchControllerProfile" || type=="KHRSimpleControllerProfile" ||
-                            (group==BuildTargetGroup.Android && type=="MetaQuestFeature") ||
-                            (group==BuildTargetGroup.Standalone && (type=="ValveIndexControllerProfile" ||
-                             type=="HTCViveControllerProfile" || type=="MicrosoftMotionControllerProfile")))
-                            feature.enabled=true;
+                        if (feature == null) continue;
+                        bool enable = UseFeature(group, feature);
+                        if (feature.enabled == enable) continue;
+                        feature.enabled = enable;
+                        EditorUtility.SetDirty(feature);
                     }
                     if (group == BuildTargetGroup.Android)
                     {
@@ -89,6 +91,21 @@ namespace Wizzard.Editor
             EditorUtility.SetDirty(targets);
             AssetDatabase.SaveAssets(); Debug.Log("Wizzard: Quest ARM64 and PC OpenXR configured. Open Meadow and press Play.");
         }
+        static bool UseFeature(BuildTargetGroup group, OpenXRFeature feature)
+        {
+            if (group == BuildTargetGroup.Android)
+            {
+                // Meta Quest Support in OpenXR 1.9.1 accepts only these Touch profiles.
+                if (feature is OpenXRInteractionFeature)
+                    return feature is OculusTouchControllerProfile ||
+                        (feature is MetaQuestTouchProControllerProfile && feature.enabled);
+                return feature.GetType().Name == "MetaQuestFeature" || feature.enabled;
+            }
+            return feature is OculusTouchControllerProfile || feature is KHRSimpleControllerProfile ||
+                feature is ValveIndexControllerProfile || feature is HTCViveControllerProfile ||
+                feature is MicrosoftMotionControllerProfile || feature.enabled;
+        }
+
         [MenuItem("Wizzard/Play Bellwake")]
         public static void PlayBellwake()
         {
@@ -110,6 +127,11 @@ namespace Wizzard.Editor
             if(EditorUserBuildSettings.activeBuildTarget!=BuildTarget.Android)
                 throw new Exception("Switch to Android in File > Build Settings first. Android Build Support, SDK, NDK and OpenJDK are required.");
             ValidateProject();
+            var issues = new List<OpenXRFeature.ValidationRule>();
+            UnityEditor.XR.OpenXR.OpenXRProjectValidation.GetCurrentValidationIssues(issues, BuildTargetGroup.Android);
+            var errors = issues.Where(rule => rule.error).Select(rule => rule.message).ToArray();
+            if (errors.Length > 0)
+                throw new InvalidOperationException("OpenXR validation failed: " + string.Join(" | ", errors));
             Directory.CreateDirectory("Builds");
             string filename = profile ? "Wizzard-Bellwake-Quest-Profile.apk" : "Wizzard-Bellwake-Quest.apk";
             string path = Path.Combine("Builds", filename);
