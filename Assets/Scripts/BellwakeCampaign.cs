@@ -35,7 +35,9 @@ namespace Wizzard
         bool HasFloodBook => !InWorks && (story.room == 4 || story.ending != 0) && story.works.Remembered(worksPlan,"landed");
         float RoomRadius => InWorks && story.works.Room.halfSpan > 0 ? story.works.Room.halfSpan : 20f;
         string RoomTitle => InWorks ? story.works.Room.title : InPassage ? Route.region.title : BellwakeJourney.Titles[story.room];
-        string Objective => InWorks ? story.works.Objective() : InPassage ? Route.Objective() : story.Objective();
+        string Objective => !InWorks && !InPassage && story.room==0 && !story.commissioned && story.works.invited
+            ? story.works.Signal("paperCredit")>0 ? "Take the printed programme back to Tavi." : "Visit the blue playhouse door beside Tavi’s market stall."
+            : InWorks ? story.works.Objective() : InPassage ? Route.Objective() : story.Objective();
         BellwakeDisplay display;
         GorillaPlayer player;
         GameObject set, meadow, sign;
@@ -126,8 +128,10 @@ namespace Wizzard
             if (Route == null) story.passage = new BellwakePassage();
             if(story.works==null) story.works=new BellwakeWorks();
             int savedChamber=story.works.chamber;
-            bool early=savedChamber>=0 && savedChamber<worksPlan.rooms.Length && worksPlan.rooms[savedChamber].early;
-            if(early ? story.room!=1 || story.ending!=0 : story.room!=3 || !story.Solved) story.works.active=false;
+            var chamber = savedChamber >= 0 && savedChamber < worksPlan.rooms.Length ? worksPlan.rooms[savedChamber] : null;
+            bool eligible = chamber != null && (chamber.prologue ? story.room == 0 :
+                chamber.early ? story.room == 1 && story.ending == 0 : story.room == 3 && story.Solved);
+            if (!eligible) story.works.active = false;
             story.works.Bind(worksPlan);
             int slots=BellwakeJourney.Rooms.Length+atlas.regions.Length+1+worksPlan.rooms.Length;
             if (story.secondsByPlace==null || story.secondsByPlace.Length<slots)
@@ -227,7 +231,7 @@ namespace Wizzard
                 yield return Fade(0, 1);
                 PrepareRoute();
                 string key = InWorks ? story.works.Room.key : InPassage ? atlas.regions[story.room].key : BellwakeJourney.Rooms[story.room];
-                bool dawn = story.ending != 0;
+                bool dawn = story.ending != 0 && !InWorks;
                 string theme = dawn ? "Morning" : InWorks ? story.works.Room.theme : key;
                 yield return ReleaseArea(theme);
                 if (InPassage)
@@ -326,7 +330,7 @@ namespace Wizzard
                                                 "places for breakfast.")
                     : InPassage || InWorks ? Objective
                     : story.room == 0 && !story.commissioned
-                        ? "The morning bell failed to ring. Find Tavi on the path. Look at her and press E or a " +
+                        ? story.works.invited ? Objective : "The morning bell failed to ring. Find Tavi on the path. Look at her and press E or a " +
                               "controller trigger."
                         : "Chapter " + (story.room == 0 ? "home" : story.room.ToString()) + "   /   " +
                               story.Objective(),
@@ -405,6 +409,7 @@ namespace Wizzard
                 return "Witness leaf";
             case "A_Gate":
                 return story.ending != 0 ? "Begin again" : "Way arch";
+            case "A_Playhouse": return "Paper theatre door";
             case "A_Meadow":
                 return "Long Meadow";
             case "A_End0":
@@ -586,7 +591,7 @@ namespace Wizzard
                     {
                         journalPage++;
                     } while (journalPage < 5 && (story.letters & (1 << journalPage)) == 0);
-                    if (journalPage == 5 && (!InWorks || story.works.Room.early)) journalPage++;
+                    if (journalPage == 5 && (!InWorks || story.works.Room.early || story.works.Room.prologue)) journalPage++;
                     if (journalPage == 6 && !HasFloodBook) journalPage++;
                     if (journalPage > 7 || (journalPage == 7 && story.works.KitchenJournal().Length == 0))
                         journalPage = -1;
@@ -802,13 +807,19 @@ namespace Wizzard
             }
             rehearsal = null;
         }
-        void SoundStation(WorksStation station)
+        void SoundStation(WorksStation station, int scene)
         {
-            if (string.IsNullOrEmpty(station.tune)) notes.PlayOneShot(chimes[station.note]);
-            else rehearsal = StartCoroutine(Rehearse(station.tune));
-            if (string.IsNullOrEmpty(station.swing)) return;
+            string tune=station.tune, swing=station.swing;
+            if (scene>=0 && story.works.Signal("paperAct")>scene)
+            {
+                tune=worksPlan.theatreCadences[scene];
+                swing="PuppetArm"+story.works.Signal("paperActor");
+            }
+            if (string.IsNullOrEmpty(tune)) notes.PlayOneShot(chimes[station.note]);
+            else rehearsal = StartCoroutine(Rehearse(tune));
+            if (string.IsNullOrEmpty(swing)) return;
             if (struck != null) struck.rotation = strikeRest;
-            struck = nodes[station.swing];
+            struck = nodes[swing];
             strikeRest = struck.rotation;
             strikeAt = Time.time;
         }
@@ -941,6 +952,7 @@ namespace Wizzard
                     observation = null;
                 }
                 CancelRehearsal();
+                int scene = story.works.Room.prologue && id=="A_Light" ? story.works.Signal("paperAct") : -1;
                 line=story.works.Use(id,out string destination);
                 if(!string.IsNullOrEmpty(destination))
                 {
@@ -948,11 +960,11 @@ namespace Wizzard
                     {
                         spawn=Arrival(); player.Teleport(spawn,facing); Save(); Say(title,line); return;
                     }
-                    if(destination=="@choir") story.works.active=false;
+                    if(destination=="@choir" || destination=="@market") story.works.active=false;
                     if(destination=="@final") { story.works.active=false;story.Gate(); }
                     StartCoroutine(EnterRoom());
                 }
-                else { SoundStation(station);Sync();Save();Say(title,line); }
+                else { SoundStation(station,scene);Sync();Save();Say(title,line); }
                 return;
             }
             if (InPassage)
@@ -996,13 +1008,28 @@ namespace Wizzard
                 if(story.works.Remembered(worksPlan,"named")) line+=" Below it hangs a new brass plate: Ina, fourth hand of the night shift.";
 
                 break;
+            case "A_Playhouse":
+                if (!story.commissioned && !story.works.invited) { line="Two names on a faded playbill. Tavi keeps the tickets at her stall."; break; }
+                story.works.active = true;
+                story.works.chamber = Array.FindIndex(worksPlan.rooms,r=>r.prologue);
+                story.works.camp = "";
+                StartCoroutine(EnterRoom());
+                return;
             case "A_Meadow":
                 StartCoroutine(EnterMeadow());
                 return;
             case "A_Talk":
                 gestureUntil = Time.time + 3;
+                if (story.room==0 && !story.commissioned && story.works.Signal("paperCredit")==0)
+                {
+                    story.works.invited = true;
+                    line = worksPlan.theatreInvitation;
+                    break;
+                }
                 bool was = story.challenged;
                 line = story.Talk();
+                int credit = story.works.Signal("paperCredit");
+                if (story.ending!=0 && credit>0) line += " "+worksPlan.theatreCredits[credit-1];
                 if (!was)
                     pulseUntil = Time.unscaledTime + 32;
                 break;
@@ -1154,7 +1181,7 @@ namespace Wizzard
                     }
                     for(int r=0;r<worksPlan.rooms.Length;r++)
                     {
-                        story=new BellwakeJourney {room=worksPlan.rooms[r].early ? 1 : 3,seals=3,commissioned=true,
+                        story=new BellwakeJourney {room=worksPlan.rooms[r].prologue ? 0 : worksPlan.rooms[r].early ? 1 : 3,seals=3,commissioned=!worksPlan.rooms[r].prologue,
                             works=new BellwakeWorks {active=true,chamber=r}};
                         yield return EnterRoom();
                         if(!InWorks || set.name!=worksPlan.rooms[r].key ||

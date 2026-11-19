@@ -35,6 +35,7 @@ class WorksCheck
         if (m.channels[0].StartsWith(m.key)) return row.values[row.values.Length-1]==1;
         switch (m.key)
         {
+        case "paperstage": return s("paperCredit")!=0;
         case "potcall": return s("supperBeat")==9;
         case "distribution": return s("drumBearing")==2;
         case "towlines": return s("towJob")==4;
@@ -126,6 +127,30 @@ class WorksCheck
                     if (good.Add(i))
                         q.Enqueue(i);
             Require(good.Count == m.rows.Length, m.key + " stranded mechanism");
+        }
+        foreach (string credit in new[] {"Maker","Runner"})
+        {
+            var court=new BellwakeWorks {active=true,chamber=Array.FindIndex(plan.rooms,r=>r.prologue)};
+            court.Bind(plan);
+            Run(court,"Maker Light");
+            Require(court.Signal("paperCredit")==0 && court.Signal("paperAct")==0,"unearned programme");
+            string[] objects={"Pattern","Log","Boot","Carbon"};
+            int[,] cues={{0,0,2},{2,2,1},{1,1,0},{1,0,2}};
+            string[] reels={"Figure","Place","Prop"}, channels={"paperActor","paperPlace","paperProp"};
+            for(int act=0;act<4;act++)
+            {
+                for(int j=0;j<3;j++) while(court.Signal(channels[j])!=cues[act,j]) Run(court,reels[j]);
+                Run(court,"Light");
+                Require(court.Signal("paperAct")==act,"skipped keepsake");
+                Run(court,objects[act]+" Light");
+                court=Reload(plan,court);
+                Require(court.Signal("paperPlayed"+act)==1,"missing act");
+            }
+            Run(court,credit+" Maker Runner");
+            Require(court.Signal("paperCredit")==(credit=="Maker"?1:2),"overwritten credit");
+            string destination;
+            court.Use("A_Door",out destination);
+            Require(destination=="@market","missing exit");
         }
         var pilgrimage = new BellwakeWorks { active=true, chamber=Array.FindIndex(plan.rooms,r=>r.early) };
         pilgrimage.Bind(plan);

@@ -27,6 +27,9 @@ for room in args[1:] or ROOMS + passage_keys + work_keys + ["Runner", "Trails"]:
     elif room in [field[0] for field in FIELDS]:
         from pilgrim_art import make as make_ward
         make_ward(next(i for i,f in enumerate(FIELDS) if f[0]==room), Path(args[0]))
+    elif room=="PaperCourt":
+        from theatre_art import make as make_theatre
+        make_theatre(Path(args[0]))
     elif room=="KettleYard":
         from kitchen_art import make as make_kitchen
         make_kitchen(Path(args[0]))

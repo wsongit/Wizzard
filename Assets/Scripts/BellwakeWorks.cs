@@ -6,8 +6,8 @@ namespace Wizzard
     [Serializable]
     public sealed class WorksPlan
     {
-        public string logTitle, logEntry;
-        public string[] logEndings, supperEndings;
+        public string logTitle, logEntry, theatreInvitation;
+        public string[] logEndings, supperEndings, theatreCredits, theatreCadences;
         public SupperNote[] supperNotes;
         public RoadLeaf[] roadLeaves;
         public string[] flags;
@@ -40,7 +40,7 @@ namespace Wizzard
     public sealed class WorksRoom
     {
         public string key, title, intro, theme, chapter, fog;
-        public bool early;
+        public bool early, prologue;
         public WorksRule[] goals;
         public float halfSpan;
         public float[] ground;
@@ -77,7 +77,7 @@ namespace Wizzard
     [Serializable]
     public sealed class BellwakeWorks
     {
-        public bool active;
+        public bool active, invited;
         public int chamber, badges;
         public string camp;
         public int[] machines;

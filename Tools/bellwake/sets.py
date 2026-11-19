@@ -576,6 +576,8 @@ def make(key, lib):
     k = ROOMS.index(key)
     if k == 0:
         from pilgrim_art import road_leaf_paint
+        from theatre_art import ticket_poster
+        ticket_poster()
         road_leaf_paint()
     init(lib, 4971 + k)
     floor(k)
@@ -585,6 +587,8 @@ def make(key, lib):
     machinery(k)
     portal(k)
     if k==0:
+        from theatre_art import ticket_door
+        ticket_door(-9,-10.9,ground(0,-9,-10.9))
         night_roll()
         public_road_book()
     marker("Spawn", 0, -14, 0.08)

@@ -37,11 +37,12 @@ try {
 const state = () => graph.states[number];
 let passage = new Passage(data.regions, savedPassage, state().room, state().ending);
 const openingWard = data.works.rooms.findIndex((r) => r.early);
-const savedEarly = !!data.works.rooms[savedWorks?.chamber]?.early;
+const savedRoom = data.works.rooms[savedWorks?.chamber];
 let works = new Underworks(
   data.works,
   savedWorks,
-  savedEarly ? state().room === 1 && !state().ending : state().room === 3 && state().solved,
+  savedRoom?.prologue ? state().room === 0 :
+    savedRoom?.early ? state().room === 1 && !state().ending : state().room === 3 && state().solved,
 );
 const roomRadius = () => (works.active && works.room.halfSpan) || 20;
 const locationKey = () =>
@@ -51,7 +52,10 @@ const hasFloodBook = () =>
 const locationName = () =>
   works.active ? works.room.title : passage.active ? passage.region.title : graph.titles[state().room];
 const objective = () =>
-  works.active ? works.objective() : passage.active ? passage.objective() : state().objective;
+  works.active ? works.objective() : passage.active ? passage.objective() :
+    state().room===0 && !state().commissioned && works.progress.invited
+      ? works.signals.paperCredit ? "Take the printed programme back to Tavi." : "Visit the blue playhouse door beside Tavi’s market stall."
+      : state().objective;
 function save(timerOnly = false) {
   try {
     if (timerOnly && localStorage.getItem(store) !== lastCheckpoint) return;
@@ -115,7 +119,7 @@ const instruments = new PalmInstruments();
 let music = null,
   musicTheme = "",
   musicGeneration = 0;
-const themeKey = () => (state().ending ? "Morning" : works.active ? works.room.theme : locationKey());
+const themeKey = () => (works.active ? works.room.theme : state().ending ? "Morning" : locationKey());
 function assetURL(kind, name, mime) {
   return data.streamed ? data[kind][name] : "data:" + mime + ";base64," + data[kind][name];
 }
@@ -144,16 +148,21 @@ function cancelRehearsal() {
   for (const timer of rehearsal) clearTimeout(timer);
   rehearsal.length = 0;
 }
-function soundStation(station) {
-  if (station.tune) {
-    Array.from(station.tune, Number).forEach((pitch, i) => {
+function soundStation(station, scene) {
+  let { tune, swing } = station;
+  if (scene>=0 && works.signals.paperAct>scene) {
+    tune=data.works.theatreCadences[scene];
+    swing="PuppetArm"+works.signals.paperActor;
+  }
+  if (tune) {
+    Array.from(tune, Number).forEach((pitch, i) => {
       if (i === 0) tone(pitch);
       else rehearsal.push(setTimeout(() => tone(pitch), i * 400));
     });
   } else tone(station.note);
-  if (station.swing) {
+  if (swing) {
     if (ring) ring.rotation.z = initialAngle;
-    ring = nodes[station.swing];
+    ring = nodes[swing];
     initialAngle = ring.rotation.z;
     ringTime = performance.now();
   }
@@ -292,6 +301,7 @@ function label(id) {
     A_End1: "Free the voice",
     A_Lens: "Casting cup",
     A_Meadow: "Long Meadow trail",
+    A_Playhouse: "Paper theatre door",
   }[id];
 }
 function dispose(old) {
@@ -598,7 +608,7 @@ function sync() {
 }
 function welcome() {
   const s = state();
-  if (s.ending)
+  if (s.ending && !works.active)
     say(
       "Epilogue",
       s.ending === 1
@@ -640,6 +650,7 @@ async function interact(id, palm = -1) {
       }
       observation = null;
     }
+    const scene = works.room.prologue && id==="A_Light" ? works.signals.paperAct : -1;
     const name = label(id),
       result = works.use(id);
     if (result.to?.startsWith("#")) {
@@ -649,14 +660,14 @@ async function interact(id, palm = -1) {
       return;
     }
     if (result.to) {
-      if (result.to === "@choir") works.progress.active = false;
+      if (result.to === "@choir" || result.to === "@market") works.progress.active = false;
       if (result.to === "@final") {
         works.progress.active = false;
         number = state().moves.A_Gate[0];
       }
       if (await room()) welcome();
     } else {
-      soundStation(station);
+      soundStation(station, scene);
       sync();
       save();
       say(name, result.line, 10);
@@ -726,6 +737,24 @@ async function interact(id, palm = -1) {
     if (await room()) welcome();
     return;
   }
+  if (id === "A_Talk" && prev.room===0 && !prev.commissioned && !works.signals.paperCredit) {
+    works.progress.invited = true;
+    gestureEnd = performance.now() + 3000;
+    save();
+    say("Tavi",data.works.theatreInvitation,16);
+    return;
+  }
+  if (id === "A_Playhouse") {
+    if (!prev.commissioned && !works.progress.invited) {
+      say("Paper theatre door","Two names on a faded playbill. Tavi keeps the tickets at her stall.");
+      return;
+    }
+    works.progress.active = true;
+    works.progress.chamber = data.works.rooms.findIndex(r=>r.prologue);
+    works.progress.camp = "";
+    if (await room()) welcome();
+    return;
+  }
   if (id === "A_Talk") gestureEnd = performance.now() + 3000;
   const move = prev.moves[id];
   if (!move) return;
@@ -775,7 +804,9 @@ async function interact(id, palm = -1) {
       : "";
   const supperLine = (id === "A_Ina" || id === "A_Roster") && state().ending && works.signals.supperServed
     ? " " + data.works.supperEndings[state().ending - 1] : "";
-  say(name, move[1] + pilotLine + supperLine + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
+  const programme = id === "A_Talk" && state().ending && works.signals.paperCredit
+    ? " " + data.works.theatreCredits[works.signals.paperCredit - 1] : "";
+  say(name, move[1] + programme + pilotLine + supperLine + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
 }
 function bearingClear() {
   const origin = vr.session ? vr.head : camera.position;
@@ -961,7 +992,7 @@ function toggleBook(open) {
       page.textContent = data.works.logTitle + "   ·   " + data.works.logEntry;
       $("leaves").append(page);
     }
-    if (works.active && !works.room.early) {
+    if (works.active && !works.room.early && !works.room.prologue) {
       const item = document.createElement("li");
       item.textContent = works.register();
       $("leaves").append(item);
@@ -1206,6 +1237,13 @@ if (__TEST__)
     recentTones: recentTones.slice(),
     instruments: Object.fromEntries(instruments.targets.map(t => [t.id, {centre:t.centre.toArray(),radius:t.radius}])),
     handPositions: vr.palms?.map(p => p.position.toArray()),
+    playhouse: nodes.PuppetArm0 ? {
+      figures: [0,1,2].filter(i=>nodes["Figure"+i].visible),
+      places: [0,1,2].filter(i=>nodes["Place"+i].visible),
+      props: [0,1,2].filter(i=>nodes["Prop"+i].visible),
+      lamps: [0,1,2,3].filter(i=>nodes["LitShell"+i].visible).length,
+      gesture: ring?.name
+    } : null,
     meal: nodes.ServedTable ? { served: nodes.ServedTable.visible, crew: nodes.MessCrew.visible, lamp: nodes.KitchenLamp.visible } : null,
     retiredAlive: retired?.filter((ref) => ref.deref()).length || 0,
     trees: tree ? 1 : 0,
@@ -1266,10 +1304,10 @@ if (__TEST__)
     if (busy) throw Error("Travel already in progress");
     const expansion = index - graph.rooms.length;
     const chamber = expansion - data.regions.length;
-    const early = data.works.rooms[chamber]?.early;
-    const base = chamber >= 0 ? (early ? 1 : 3) : expansion >= 0 ? expansion : index;
+    const early = data.works.rooms[chamber]?.early, prologue = data.works.rooms[chamber]?.prologue;
+    const base = chamber >= 0 ? (prologue ? 0 : early ? 1 : 3) : expansion >= 0 ? expansion : index;
     const target = graph.states.findIndex(
-      (s) => s.room === base && (expansion < 0 || s.commissioned) && (chamber < 0 || early || s.solved),
+      (s) => s.room === base && (prologue ? !s.commissioned : expansion < 0 || s.commissioned) && (chamber < 0 || prologue || early || s.solved),
     );
     if (target < 0 || chamber >= data.works.rooms.length) throw Error("Unknown district");
     number = target;
@@ -1283,6 +1321,6 @@ room()
   .then((loaded) => {
     if (!loaded) return;
     $("start").disabled = $("vr").disabled = false;
-    $("start").textContent = number ? "Continue journey" : "Begin journey";
+    $("start").textContent = number || works.active || works.signals.paperAct ? "Continue journey" : "Begin journey";
   })
   .catch(fail);

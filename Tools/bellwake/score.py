@@ -101,6 +101,7 @@ sets.extend([
     ("Countertide",.63,[52,57,55,59],[0,None,7,4,9,None,5,7,None,3,2,0],"bronze"),
     ("Chainwater",.50,[55,60,57,62],[7,9,None,7,4,None,2,5,7,None,4,0],"lute"),
     ("SignalCloth",.61,[62,60,65,57],[4,7,5,None,9,7,None,4,2,None,3,0],"reed"),
+    ("PaperLight",.48,[60,65,57,67],[0,4,7,None,2,5,4,0,None,7,5,2],"lute"),
     ("KettleLight",.67,[55,60,57,55],[0,7,0,None,4,4,7,None,7,0,4,None],"lute"),
 ])
 for idx, (name, beat, roots, line, instr) in enumerate(sets):

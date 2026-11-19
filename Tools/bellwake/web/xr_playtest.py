@@ -171,6 +171,30 @@ async def palm_instruments(browser):
     print("PASS two-handed physical music, close repeated notes and held-hand rejection",flush=True)
 
 
+async def theatre_checkpoint(browser):
+    page = await browser.new_page(viewport={"width":630,"height":380})
+    errors=[]
+    page.on("pageerror",lambda err:errors.append(str(err)))
+    await page.add_init_script(script=harness)
+    await page.goto(sys.argv[1])
+    await page.click("#vr",timeout=60000)
+    await page.wait_for_function("bellProbe().vr && bellProbe().palms.every(Boolean)")
+    await tracked_navigation(page)
+    async def visit(key, arrived):
+        await page.evaluate("""async name=>{const [x,y,z]=bellProbe().markers['A_'+name];
+            await walkSurvey(x,z+1.8)}""",key)
+        await trigger_station(page,key,arrived)
+    await visit("Talk","document.getElementById('words').textContent.includes('blue courtyard door')")
+    await visit("Playhouse","!bellProbe().busy && bellProbe().district==='PaperCourt'")
+    await visit("Pattern","bellProbe().works.signals.paperPattern===1")
+    await visit("Figure","bellProbe().works.signals.paperActor===2")
+    assert (await page.evaluate("bellProbe().playhouse.figures"))==[2]
+    await page.evaluate("testDevice.activeSession.end()")
+    assert not errors,errors
+    await page.close()
+    print("PASS market invitation, blue door, casting pattern and woodcut figure reel with tracked controllers",flush=True)
+
+
 async def kitchen_checkpoint(browser):
     page = await browser.new_page(viewport={"width": 630, "height": 380})
     errors = []
@@ -229,6 +253,10 @@ async def run():
                 "--enable-unsafe-swiftshader",
             ],
         )
+        if "--theatre" in sys.argv:
+            await theatre_checkpoint(b)
+            await b.close()
+            return
         if "--palms" in sys.argv or "--belfry-palms" in sys.argv:
             await palm_instruments(b)
             await b.close()
@@ -299,7 +327,7 @@ async def run():
         )
         await p.wait_for_function("bellProbe().focus==='A_Talk'", timeout=10000)
         await p.evaluate("testDevice.controllers.right.updateButtonValue('trigger',1)")
-        await p.wait_for_function("bellProbe().number===1")
+        await p.wait_for_function("document.getElementById('words').textContent.includes('blue courtyard door')")
         await p.evaluate("testDevice.controllers.right.updateButtonValue('trigger',0)")
         await p.evaluate("testDevice.controllers.right.updateAxes('thumbstick',1,0)")
         await p.wait_for_function("Math.abs(bellProbe().vrForward[0])>.5")
@@ -309,7 +337,7 @@ async def run():
         await p.wait_for_function("!bellProbe().palms[0]")
         await p.evaluate("testDevice.controllers.left.connected=true")
         await p.wait_for_function("bellProbe().palms[0]")
-        for room in [5, 17, 18, 19, 20, 21, 1, 6, 2, 7, 8, 9, 11, 14, 15, 16, 22, 23, 24, 25, 26, 0]:
+        for room in [5, 17, 18, 19, 20, 21, 1, 6, 2, 7, 8, 9, 11, 14, 15, 16, 22, 23, 24, 25, 26, 27, 0]:
             await p.evaluate("room => bellTravel(room)", room)
             await p.wait_for_function(
                 "bellProbe().vr && bellProbe().sets === 1 && bellProbe().palms.every(Boolean)"

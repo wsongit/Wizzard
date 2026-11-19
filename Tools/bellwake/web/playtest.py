@@ -8,6 +8,7 @@ from pathlib import Path
 from playwright.async_api import async_playwright
 from pilgrim_route import walk_wards, TRAILS
 from works_route import complete_works, complete_coast
+from theatre_route import perform
 from engine_route import complete_engine, complete_supper
 
 url, navdir, outdir = sys.argv[1:4]
@@ -328,12 +329,17 @@ async def run():
             await complete_works(act, page, start, out)
             await b.close()
             return
+        if "--theatre" in sys.argv:
+            await perform(act,page,start,out,True)
+            assert not errors,errors
+            await b.close()
+            return
         if not endings_only:
             if glasscut_only:
                 await act("A_Gate")
             else:
                 await profile()
-                await act("A_Talk")
+                await perform(act,page,start,out)
                 await act("A_Letter")
                 await act("A_Gate")
                 await passage("Saltwake")
@@ -382,7 +388,7 @@ async def run():
         assert final["ending"] == 1 and final["leaves"] == 31
         if timed:
             durations = final["secondsByPlace"]
-            assert len(durations) == 26, durations
+            assert len(durations) == 27, durations
             (out / "known-route.json").write_text(
                 json.dumps(
                     {

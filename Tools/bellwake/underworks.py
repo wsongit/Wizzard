@@ -938,6 +938,9 @@ add_engine(room,post,step,v,machine)
 from supper import add_kitchen
 supper_notes=add_kitchen(rooms,flags,room,post,step,v,machine)
 
+from theatre import build as build_theatre, CADENCES, INVITATION
+theatre_credits=build_theatre(room,post,step,v,machine,flags)
+
 for descriptor in rooms:
     for station in descriptor["stations"]:
         station["note"] = {
@@ -954,6 +957,9 @@ if __name__ == "__main__":
         json.dumps(
             dict(
                 roadLeaves=ROAD_LEAVES,
+                theatreInvitation=INVITATION,
+                theatreCredits=theatre_credits,
+                theatreCadences=CADENCES,
                 supperNotes=supper_notes,
                 supperEndings=[
                     "Nell, Ara and Wen sign together for the first morning watch. Iona brings four bowls up to the tower.",

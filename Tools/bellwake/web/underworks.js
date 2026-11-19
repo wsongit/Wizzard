@@ -4,6 +4,7 @@ export class Underworks {
     const saved = data || {};
     this.progress = {
       active: !!saved.active && eligible,
+      invited: !!saved.invited,
       camp: typeof saved.camp === "string" ? saved.camp : "",
       chamber: Number.isInteger(saved.chamber) && plan.rooms[saved.chamber] ? saved.chamber : 0,
       badges: (saved.badges | 0) & ((1 << plan.flags.length) - 1),

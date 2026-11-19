@@ -4,7 +4,8 @@ Tavi made a warning bell during the flood. Her sister Ina gave it a voice for a 
 
 | Place | What to do |
 | --- | --- |
-| Bellmender’s Market | Find Tavi on the path, then follow the brass way arch. The wooden sign leads to the Long Meadow in Unity. |
+| Bellmender’s Market | Visit Tavi on the path. Step through the blue courtyard door beside her stall, then return with the programme to receive her commission. The wooden sign leads to the Long Meadow in Unity. |
+| Tavi’s Paper Theatre | Read the four keepsakes, set the figure, scenery and property reels and light each scene. Choose how the programme will remember Ina. |
 | Saltwake Sound | Find Marn’s three witness posts. At the chart chest, steer the skiff through currents, touch the brass buoy, then reach the white mooring ring. |
 | The Pilgrims’ Cut | Restore the Quince Fold, Saffron Kilns, Vellum Walk, Cairnwatch Rise and Rain Court. The road continues to the Root Choir. |
 | The Root Choir | Listen to Moss. Ring the three individually pitched bells in the order described by the forest round. |
@@ -22,7 +23,13 @@ The market, Root Choir, Reedwater, Cinder Lens and belfry each hold a witness le
 
 The witness book shows active playtime. Loading, the open journal and unfocused play are excluded. The clock starts with this update for existing checkpoints. Players already past a new district retain their place in the story.
 
-A fresh desktop run through the twenty-six required areas reached its first ending in 29 minutes 14 seconds of active play. The test already knew the routes and puzzle solutions, and shared the cloud renderer with other checks. First-time human and headset completion times remain unmeasured. [Playthrough details](validation.md)
+Before the paper-theatre opening was added, a fresh desktop run through the twenty-six required areas reached its first ending in 29 minutes 14 seconds of active play. The test already knew the routes and puzzle solutions, and shared the cloud renderer with other checks. First-time human and headset completion times remain unmeasured. [Playthrough details](validation.md)
+
+## Tavi’s Paper Theatre
+
+The sisters’ theatre stands in the courtyard behind the blue ticket door. Each scene takes its evidence from an object in the yard. The three reels place a person, a setting and a prop onstage. A correct performance lights another lamp on the marquee. The reels and lit lamps survive a checkpoint reload or a trip back to the market. On the final programme, credit Ina as a bellmender or a lock runner. Tavi recalls your choice in both endings.
+
+Existing market and epilogue saves can visit through the same door. [Courtyard and puppet-stage photographs](paper-theatre.jpg)
 
 ## The Pilgrims’ Cut
 
@@ -83,7 +90,7 @@ Crouching makes the ground easier to reach with the palms. The journal pauses th
 
 ## Direct browser play
 
-Double-click `Play/Bellwake.html` in the downloaded project or extract the standalone play ZIP and open its HTML file. Geometry, textures, music and the JavaScript player are embedded. The browser edition contains all twenty-seven campaign areas. The large meadow and Mossbell Village are accessible through the Unity edition.
+Double-click `Play/Bellwake.html` in the downloaded project or extract the standalone play ZIP and open its HTML file. Geometry, textures, music and the JavaScript player are embedded. The browser edition contains all twenty-eight campaign areas. The large meadow and Mossbell Village are accessible through the Unity edition.
 
 For Quest Browser, serve the entire `Play` directory over HTTPS and open `index.html` for on-demand chapter downloads and choose **Enter VR**. With a USB-connected developer-mode Quest, a local alternative uses Python and Android platform tools on the PC. From the repository root, run these in separate terminals.
 
@@ -99,7 +106,7 @@ Open `http://localhost:8090/index.html` in Quest Browser while USB forwarding is
 
 ## Editable art and sound
 
-The packed Blender sources in `Blender/Bellwake` contain the twenty-seven campaign sets, the meadow trail sign, the runner’s arms, the two individually modeled hands, the meadow outcrop and the mountain gate. The campaign reuses characters and props from the supplied Wizzard Themed Library, with articulated head and arm pivots on speakers. The cottages use the existing Mossbell Blender artwork. The court geometry, interactive mechanisms, bell tower, escarpments, banners, floor paintings, skies and score were authored for this campaign.
+The packed Blender sources in `Blender/Bellwake` contain the twenty-eight campaign sets, the meadow trail sign, the runner’s arms, the two individually modeled hands, the meadow outcrop and the mountain gate. The campaign reuses characters and props from the supplied Wizzard Themed Library, with articulated head and arm pivots on speakers. The cottages use the existing Mossbell Blender artwork. The court geometry, interactive mechanisms, bell tower, escarpments, banners, floor paintings, skies and score were authored for this campaign.
 
 Ground and path share one continuous mesh. Lighting includes baked ground contact shadows. Buildings, clothing, brass and foliage use their own paintings and UV atlases. The Unity player loads one campaign room at a time and adds mesh colliders to the terrain, visible static set, rim and solid cores.
 

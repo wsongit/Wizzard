@@ -1,5 +1,11 @@
 # Bellwake release checks
 
+## Tavi’s Paper Theatre
+
+The browser route followed Tavi’s invitation, left and re-entered the courtyard, reconstructed four scenes from physical keepsakes, restored a mid-play checkpoint and played the four projector melodies. It printed both possible credits and checked the corresponding line from Tavi after both endings. Legacy morning-market checkpoints could enter and leave without losing their endings. An emulated Quest 3 used tracked controllers to talk to Tavi, enter the blue door, inspect the casting pattern and turn the figure reel.
+
+Blender reimported the theatre FBX and checked 5,929 ground positions, 3,140 boundary rays and all twelve stations. The courtyard contains 11,694 visible-model triangles including the alternate scene pieces. Three laps of all 28 districts on the chapter candidate made 93 room transfers. Every transfer released the previous world, terrain collision and sky. Repeated visits reported identical GPU resource counts. [Paper theatre in play](paper-theatre.jpg)
+
 ## The Countertide Engine and the Harbour Mess
 
 Ordinary walking and interactions completed 11 dispatches across three galleries. Four cargo deliveries took 16 station inputs, three crane assemblies took 91, and four signal flags took 50. The test restored each mechanism mid-job. The C# rules check covered 1,946 machine positions, 8,074 transitions and all six orders for the galleries.
