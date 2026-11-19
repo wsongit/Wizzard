@@ -1,6 +1,6 @@
 """Bundle the downloadable Windows/macOS/Linux desktop browser game into one offline HTML file."""
 
-import base64, json, subprocess, sys, shutil, hashlib
+import base64, gzip, json, subprocess, sys, hashlib
 from pathlib import Path
 
 folder = Path(__file__).resolve().parent
@@ -15,13 +15,18 @@ streamed = "--streamed" in sys.argv
 
 
 def asset(path):
+    payload = path.read_bytes()
+    packed = path.suffix in (".glb", ".bvh")
+    if packed:
+        payload = gzip.compress(payload, compresslevel=6, mtime=0)
     if streamed:
-        digest = hashlib.sha256(path.read_bytes()).hexdigest()[:12]
-        relative = Path("assets") / (path.stem + "-" + digest + path.suffix)
+        digest = hashlib.sha256(payload).hexdigest()[:12]
+        suffix = path.suffix + (".gz" if packed else "")
+        relative = Path("assets") / (path.stem + "-" + digest + suffix)
         (out.parent / relative).parent.mkdir(exist_ok=True)
-        shutil.copyfile(path, out.parent / relative)
+        (out.parent / relative).write_bytes(payload)
         return relative.as_posix()
-    return base64.b64encode(path.read_bytes()).decode("ascii")
+    return base64.b64encode(payload).decode("ascii")
 
 
 regions = json.loads((root / "Assets/Resources/Bellwake/Passages.json").read_text())[

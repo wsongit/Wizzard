@@ -55,7 +55,7 @@ async def main():
             Path(destination).write_text(json.dumps({"renderer":"Chromium SwiftShader","samples":samples},indent=2)+"\n")
             await browser.close()
             return
-        route = [5, 17,18,19,20,21, 1, 6, 2, 7, 3, 8, 9, 10, 11, 12, 13, 14, 15, 16, 22, 23, 22, 24, 22, 25, 4, 0]
+        route = [5, 17,18,19,20,21, 1, 6, 2, 7, 3, 8, 9, 10, 11, 12, 13, 14, 15, 16, 22, 23, 22, 24, 22, 25, 22, 26, 4, 0]
         for lap in range(3):
             for room in route:
                 sample = await page.evaluate(
@@ -97,10 +97,10 @@ async def main():
                 print(sample, flush=True)
         if initial:
             # Simulate a lost asset request. The retry must restore the committed checkpoint.
-            await page.route("**/RootChoir-*.glb", lambda route: route.abort())
+            await page.route("**/RootChoir-*.glb.gz", lambda route: route.abort())
             await page.evaluate("() => bellTravel(1)")
             await page.get_by_text("Reload last checkpoint").wait_for()
-            await page.unroute("**/RootChoir-*.glb")
+            await page.unroute("**/RootChoir-*.glb.gz")
             await page.get_by_text("Reload last checkpoint").click()
             await page.wait_for_selector("#start:enabled")
             assert (await page.evaluate("bellProbe()"))["room"] == 0

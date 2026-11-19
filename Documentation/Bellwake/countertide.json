@@ -1,0 +1,296 @@
+{
+  "geometry": [
+    {
+      "asset": "ChainDock",
+      "groundProbes": 5929,
+      "boundaryRays": 3140,
+      "interiorCrossings": 0,
+      "walkableCells": 4494,
+      "stations": 7,
+      "minApproaches": 58,
+      "triangles": 18660,
+      "visibleMaterialSlots": 45
+    },
+    {
+      "asset": "DrumHouse",
+      "groundProbes": 5929,
+      "boundaryRays": 3140,
+      "interiorCrossings": 0,
+      "walkableCells": 5277,
+      "stations": 8,
+      "minApproaches": 58,
+      "triangles": 16580,
+      "visibleMaterialSlots": 31
+    },
+    {
+      "asset": "KettleYard",
+      "groundProbes": 5929,
+      "boundaryRays": 3140,
+      "interiorCrossings": 0,
+      "walkableCells": 5371,
+      "stations": 7,
+      "minApproaches": 52,
+      "triangles": 12758,
+      "visibleMaterialSlots": 39
+    },
+    {
+      "asset": "MouldLoft",
+      "groundProbes": 5929,
+      "boundaryRays": 3140,
+      "interiorCrossings": 0,
+      "walkableCells": 4891,
+      "stations": 7,
+      "minApproaches": 88,
+      "triangles": 21928,
+      "visibleMaterialSlots": 40
+    },
+    {
+      "asset": "SignalLoom",
+      "groundProbes": 5929,
+      "boundaryRays": 3140,
+      "interiorCrossings": 0,
+      "walkableCells": 5167,
+      "stations": 8,
+      "minApproaches": 88,
+      "triangles": 16448,
+      "visibleMaterialSlots": 56
+    }
+  ],
+  "controls": {
+    "towlines": {
+      "stationInputs": 16,
+      "completed": 4,
+      "checkpoint": true,
+      "modelFrom": [
+        0,
+        0,
+        0
+      ],
+      "modelTo": [
+        0,
+        0,
+        -5.799022105858136
+      ]
+    },
+    "moulds": {
+      "stationInputs": 91,
+      "completed": 3,
+      "checkpoint": true,
+      "modelFrom": [
+        0,
+        0.98,
+        0
+      ],
+      "modelTo": [
+        9.994639054429257,
+        1.958949254668134,
+        0
+      ]
+    },
+    "weaving": {
+      "stationInputs": 50,
+      "completed": 4,
+      "checkpoint": true,
+      "modelFrom": [
+        0,
+        0,
+        0
+      ],
+      "modelTo": [
+        0,
+        2.923589110523167e-21,
+        0
+      ]
+    }
+  },
+  "rules": {
+    "positions": 1946,
+    "transitions": 8074,
+    "galleryOrders": 6
+  },
+  "collision": [
+    {
+      "room": "DrumHouse",
+      "queries": 3072,
+      "hits": {
+        "capsule": 275,
+        "sphere": 208,
+        "ray": 638
+      },
+      "packedBytes": 639900,
+      "referenceHeap": 8202488,
+      "packedHeap": -1024,
+      "referenceLoadMs": 61.22879499999999,
+      "packedLoadMs": 1.1225130000000263
+    },
+    {
+      "room": "ChainDock",
+      "queries": 3072,
+      "hits": {
+        "capsule": 274,
+        "sphere": 233,
+        "ray": 629
+      },
+      "packedBytes": 677700,
+      "referenceHeap": 8540360,
+      "packedHeap": -2512,
+      "referenceLoadMs": 17.99787900000001,
+      "packedLoadMs": 0.6027139999999918
+    },
+    {
+      "room": "MouldLoft",
+      "queries": 3072,
+      "hits": {
+        "capsule": 252,
+        "sphere": 201,
+        "ray": 615
+      },
+      "packedBytes": 716652,
+      "referenceHeap": 8895632,
+      "packedHeap": 1760,
+      "referenceLoadMs": 21.573129999999992,
+      "packedLoadMs": 0.07625399999983529
+    },
+    {
+      "room": "SignalLoom",
+      "queries": 3072,
+      "hits": {
+        "capsule": 257,
+        "sphere": 219,
+        "ray": 582
+      },
+      "packedBytes": 630396,
+      "referenceHeap": 8110912,
+      "packedHeap": 1144,
+      "referenceLoadMs": 77.67095199999994,
+      "packedLoadMs": 0.06803199999990284
+    },
+    {
+      "room": "KettleYard",
+      "queries": 3072,
+      "hits": {
+        "capsule": 223,
+        "sphere": 198,
+        "ray": 662
+      },
+      "packedBytes": 357556,
+      "referenceHeap": 4374592,
+      "packedHeap": -6448,
+      "referenceLoadMs": 2.3127079999999296,
+      "packedLoadMs": 0.18039999999996326
+    }
+  ],
+  "harbour": {
+    "pitches": 9,
+    "keepsakes": 3,
+    "checkpoints": true,
+    "wrongNoteRecovery": true,
+    "epilogues": [
+      1,
+      2
+    ],
+    "controllerPhrase": [
+      2,
+      0,
+      2
+    ]
+  },
+  "package": {
+    "assets": 110,
+    "modelAndCollisionBytesBefore": 63967072,
+    "modelAndCollisionBytesPacked": 25943181,
+    "offlineBytes": 40521532,
+    "streamedAssetsBytes": 29712995
+  },
+  "network": {
+    "downloadMegabitsPerSecond": 8,
+    "roundTripMs": 40,
+    "raw": [
+      {
+        "district": "DrumHouse",
+        "ms": 2949,
+        "bytes": 2484632,
+        "sets": 1,
+        "trees": 1,
+        "gpu": {
+          "geometries": 1,
+          "textures": 17,
+          "programs": 5
+        }
+      },
+      {
+        "district": "MouldLoft",
+        "ms": 3103,
+        "bytes": 2791228,
+        "sets": 1,
+        "trees": 1,
+        "gpu": {
+          "geometries": 1,
+          "textures": 17,
+          "programs": 5
+        }
+      },
+      {
+        "district": "KettleYard",
+        "ms": 2282,
+        "bytes": 1909560,
+        "sets": 1,
+        "trees": 1,
+        "gpu": {
+          "geometries": 1,
+          "textures": 23,
+          "programs": 5
+        }
+      }
+    ],
+    "packed": [
+      {
+        "district": "DrumHouse",
+        "ms": 1740,
+        "bytes": 1122593,
+        "sets": 1,
+        "trees": 1,
+        "gpu": {
+          "geometries": 1,
+          "textures": 17,
+          "programs": 5
+        }
+      },
+      {
+        "district": "MouldLoft",
+        "ms": 1401,
+        "bytes": 1078337,
+        "sets": 1,
+        "trees": 1,
+        "gpu": {
+          "geometries": 1,
+          "textures": 17,
+          "programs": 5
+        }
+      },
+      {
+        "district": "KettleYard",
+        "ms": 1195,
+        "bytes": 931198,
+        "sets": 1,
+        "trees": 1,
+        "gpu": {
+          "geometries": 1,
+          "textures": 23,
+          "programs": 5
+        }
+      }
+    ]
+  },
+  "beforeCompressionStreaming": {
+    "transfers": 90,
+    "loadsMs": {
+      "median": 603.5,
+      "p95": 1056,
+      "worst": 1160
+    },
+    "retiredObjects": 0,
+    "allSingleWorld": true
+  },
+  "renderer": "Chromium SwiftShader"
+}

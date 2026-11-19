@@ -580,6 +580,9 @@ def make(k, lib):
                 0,
                 "Speaker",
             )
+        elif s["style"] == "keepsake":
+            from kitchen_art import keepsake
+            keepsake(k,x,y,z)
         elif s["style"] == "lift":
             arch(x, y, z - 0.08, 2.95, 3.15, "Basalt", GOLD)
             for side in (-1, 1):

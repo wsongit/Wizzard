@@ -73,3 +73,61 @@ async def complete_engine(act, page, start, out):
     assert state["district"] == "StillBelfry" and state["works"] is None
     (out / "countertide.json").write_text(json.dumps(report, indent=2) + "\n")
     return state
+
+
+async def complete_supper(act, page, start, out):
+    async def use(name):
+        return await act("A_" + name)
+
+    await use("Kitchen")
+    assert not (await use("Serve"))["meal"]["served"]
+    await use("Home")
+    journals = []
+    for i, (door, tones, label) in enumerate(
+        (("Dock", [2, 0, 2], "Nell"), ("Crane", [1, 1, 0], "Ara"), ("Loom", [0, 2, 1], "Wen"))
+    ):
+        if i:
+            await use("Turn")
+        await use(door)
+        await use("MessNote")
+        await page.wait_for_function(
+            "notes => JSON.stringify(bellProbe().recentTones.slice(-3))===JSON.stringify(notes)",
+            arg=tones,
+        )
+        await page.mouse.up()
+        await start()
+        await page.keyboard.press("j")
+        book = await page.locator("#leaves").inner_text()
+        assert label in book
+        journals.append(book)
+        await page.keyboard.press("j")
+        await use("Home")
+
+    await use("Kitchen")
+    await use("Cook")
+    await use("Score")
+    for note in ("Low", "High", "Low", "Low"):
+        state = await use(note)
+    assert state["works"]["signals"]["supperBeat"] == 3
+    await page.mouse.up()
+    await start()
+    assert (await page.evaluate("bellProbe()"))["works"]["signals"]["supperBeat"] == 3
+    for note in ("Middle", "Middle", "High", "High", "Low", "Middle"):
+        state = await use(note)
+    assert state["works"]["signals"]["thirdPhrase"] and not state["meal"]["served"]
+    assert all((await use("Serve"))["meal"].values())
+    await page.mouse.up()
+    await start()
+    assert all((await page.evaluate("bellProbe()"))["meal"].values())
+    await use("Home")
+    (out / "supper.json").write_text(
+        json.dumps(
+            dict(journals=journals, pitches=9, badNoteRecovery=True, checkpoint=True, served=True),
+            indent=2,
+        )
+        + "\n"
+    )
+    print(
+        "PASS three audible fragments, witness journal, wrong note recovery, checkpoint and harbour supper",
+        flush=True,
+    )

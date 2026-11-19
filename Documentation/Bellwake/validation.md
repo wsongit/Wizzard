@@ -1,5 +1,15 @@
 # Bellwake release checks
 
+## The Countertide Engine and the Harbour Mess
+
+Ordinary walking and interactions completed 11 dispatches across three galleries. Four cargo deliveries took 16 station inputs, three crane assemblies took 91, and four signal flags took 50. The test restored each mechanism mid-job. The C# rules check covered 1,946 machine positions, 8,074 transitions and all six orders for the galleries.
+
+The optional kitchen test learned all three audible fragments, read the journal after checkpoint reloads, recovered from a wrong note and served the returning crew. Each ending acknowledged their supper. The emulated Quest 3 operated the crane and the three-note kitchen phrase with tracked controller triggers. The release browser also restored the kitchen and its readable witness leaves with external requests blocked and the JavaScript decompression fallback active.
+
+The five FBXs passed 5,929 ground samples and 3,140 boundary rays apiece. Every station had at least 52 walkable approach positions. The sets contain 12,758–21,928 triangles each. A separate differential test matched 15,360 body, palm and ray queries against the reference collision implementation.
+
+Lossless compression reduced the browser models and collision buffers from 63,967,072 to 25,943,181 bytes. On an emulated 8 Mbit/s connection with 40 ms latency and cache disabled, a cold transfer to the Drum House fell from 2.95 to 1.74 seconds, the Mould Loft from 3.10 to 1.40 seconds and the Harbour Mess from 2.28 to 1.20 seconds. These measurements run from the start of the transfer until the room unlocks. [Geometry, controls, loading and transfer measurements](countertide.json)
+
 ## Fresh-save completion time
 
 The 22-area route candidate reached the first ending in **25 minutes 55 seconds of active play** and 26 minutes 18 seconds elapsed. The runner used ordinary keyboard movement, a known route and chart hints. It completed all 29 work-yard actions, 27 dispatches, five witness leaves and the optional night roll. A checkpoint replay reached the second ending. It logged zero application errors. Concurrent software-rendering tests affected the clock. Final scenery, the public road book, waywren controls and the packed collision loader were tested separately. [Times for all 22 areas](known-route.json)
@@ -15,6 +25,16 @@ Three laps of all 22 areas made 66 transfers in Chromium. Each arrived with one 
 A separate test warmed each ward for 90 frames and turned through the scene for another 90. At 768 × 432 with adaptive rendering scale 0.512, SwiftShader median frame intervals ranged from 66.6 to 100 ms and the 95th percentiles from 116.6 to 200 ms. These cloud runs do not establish a comfortable headset frame rate.
 
 The browser now queries the baked collision buffer directly. Across the five wards the previous loader added 11.1–19.0 MB to the Node JavaScript heap at load. The packed loader retained 0.95–1.56 MB of binary data per ward and added less than 9 KB to that heap at load, before the small contact pool warmed up. A differential check compared 67,584 capsule, sphere and ray queries in the 22 areas, including the contact normals and hit positions. The emulated Quest 3 tested the survey with A, tool acquisition with a trigger, a moving waywren with the left grip and hand-powered movement. Physical Quest frame timing and a first-time human completion remain unmeasured. [District, geometry, memory and transfer measurements](pilgrims-cut.json)
+
+## The Countertide Engine and the Harbour Mess
+
+Ordinary walking and interactions completed 11 dispatches across three galleries. Four cargo deliveries took 16 station inputs, three crane assemblies took 91, and four signal flags took 50. The test restored each mechanism mid-job. The C# rules check covered 1,946 machine positions, 8,074 transitions and all six orders for the galleries.
+
+The optional kitchen test learned all three audible fragments, read the journal after checkpoint reloads, recovered from a wrong note and served the returning crew. Each ending acknowledged their supper. The emulated Quest 3 operated the crane and the three-note kitchen phrase with tracked controller triggers. The release browser also restored the kitchen and its readable witness leaves with external requests blocked and the JavaScript decompression fallback active.
+
+The five FBXs passed 5,929 ground samples and 3,140 boundary rays apiece. Every station had at least 52 walkable approach positions. The sets contain 12,758–21,928 triangles each. A separate differential test matched 15,360 body, palm and ray queries against the reference collision implementation.
+
+Lossless compression reduced the browser models and collision buffers from 63,967,072 to 25,943,181 bytes. On an emulated 8 Mbit/s connection with 40 ms latency and cache disabled, a cold transfer to the Drum House fell from 2.95 to 1.74 seconds, the Mould Loft from 3.10 to 1.40 seconds and the Harbour Mess from 2.28 to 1.20 seconds. These measurements run from the start of the transfer until the room unlocks. [Geometry, controls, loading and transfer measurements](countertide.json)
 
 ## Fresh-save completion time before the Pilgrims’ Cut
 

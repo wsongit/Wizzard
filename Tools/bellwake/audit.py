@@ -120,6 +120,7 @@ def main(key):
     if key in works:
         assert set(markers)=={s["id"] for s in works[key]["stations"]},key
         assert all(v["node"] in objects for v in works[key]["visuals"]),key
+        assert all(s["swing"] in objects for s in works[key]["stations"] if s.get("swing")),key
         assert all(s["sight"] in objects for s in works[key]["stations"] if s.get("sight")),key
         for visual in works[key]["visuals"]:
             if visual["kind"]=="slide":assert {"RailStart","RailEnd"}.issubset(objects),key

@@ -213,11 +213,17 @@ def add_engine(room, post, step, visual, machine):
         -5,
         "gong",
         step("Every boat is alongside. Nell has signed the log.", {"towJob": 4}),
-        step(
-            "Nell casts off the load and stamps the manifest. Loads entered: {towJob}/4.",
-            {"towReady": 1},
-            move="towlines.seal",
-        ),
+        *[
+            step(line, {"towReady": 1, "towJob": j}, move="towlines.seal")
+            for j, line in enumerate(
+                (
+                    "Nell slips the painter. The medical launch noses out first. A little girl on the quay runs beside it until she runs out of quay.",
+                    "Cedar carries a painted cradle, Rush a bag of winter coats. Nell crosses ‘orphaned cargo’ off the manifest and writes ‘belongings’.",
+                    "The lamp-oil lighter clears the boom. One by one, the windows on the far bank begin to shine.",
+                    "Nell counts twice. Every night worker is on the last ferry. She signs the flood book with a thumb still black from the chain.",
+                )
+            )
+        ],
         step("One or more hulls are at the wrong berth. Read the order board before ringing."),
     )
     back(r)
@@ -300,11 +306,16 @@ def add_engine(room, post, step, visual, machine):
         -5,
         "gong",
         step("Ara has signed the flood-bell casting.", {"craneJob": 3}),
-        step(
-            "A clear note carries through the loft. Ara enters the pattern in the flood book. Moulds passed: {craneJob}/3.",
-            {"craneReady": 1},
-            move="moulds.seal",
-        ),
+        *[
+            step(line, {"craneReady": 1, "craneJob": j}, move="moulds.seal")
+            for j, line in enumerate(
+                (
+                    "Ara strikes the handbell pattern with her nail. Her apprentice in the furnace shed looks up. ‘Good. That one will carry across a room.’",
+                    "The harbour pattern gives a lower note. Nell answers with a gong from the dock. Ara draws a second circle beside your name.",
+                    "The five collars settle together. The long note makes dust dance on the rafters. Ara puts away her measuring string and signs the book.",
+                )
+            )
+        ],
         step(
             "The witness mark is incomplete. Assemble the entire stack on the rack named on the pattern card."
         ),
@@ -401,6 +412,19 @@ def add_engine(room, post, step, visual, machine):
         -5,
         "gong",
         step("The home signal is flying.", {"loomFlag": 4}),
+        *[
+            step(
+                line, {"loomReady": 1, "loomFlag": j, "loomRow": len(FLAGS[j]) - 1}, move="weaving.beat"
+            )
+            for j, line in enumerate(
+                (
+                    "Wen ties off First Light. A pale stripe climbs the mast above the waking dock.",
+                    "The Open Channel flag snaps flat. The skiffs unship their oars and pass the western shoal.",
+                    "Outbound Pilot clears the eaves. A small figure on the far pier lifts a hand to answer.",
+                    "The last shuttle comes back empty. All Hands Home hangs above Wen’s bench. She leaves a loose end for the next weaver.",
+                )
+            )
+        ],
         step(
             "Wen passes the shuttle. Flags finished: {loomFlag}/4. Rows in the current flag: {loomRow}.",
             {"loomReady": 1},

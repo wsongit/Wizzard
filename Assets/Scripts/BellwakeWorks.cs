@@ -7,11 +7,17 @@ namespace Wizzard
     public sealed class WorksPlan
     {
         public string logTitle, logEntry;
-        public string[] logEndings;
+        public string[] logEndings, supperEndings;
+        public SupperNote[] supperNotes;
         public RoadLeaf[] roadLeaves;
         public string[] flags;
         public WorksMachine[] machines;
         public WorksRoom[] rooms;
+    }
+    [Serializable]
+    public sealed class SupperNote
+    {
+        public string signal, title, notes;
     }
     [Serializable]
     public sealed class RoadLeaf
@@ -44,7 +50,7 @@ namespace Wizzard
     [Serializable]
     public sealed class WorksStation
     {
-        public string id, label, sight, evidence, direction, camp, trail;
+        public string id, label, sight, evidence, direction, camp, trail, tune, swing;
         public int note;
         public WorksRule[] rules;
     }
@@ -113,6 +119,13 @@ namespace Wizzard
         {
             int index = Array.IndexOf(layout.flags, name);
             return index >= 0 && (badges & (1 << index)) != 0;
+        }
+        public string KitchenJournal()
+        {
+            var parts = new List<string>();
+            foreach (var slip in plan.supperNotes)
+                if (Signal(slip.signal) != 0) parts.Add(slip.title + "   ·   " + slip.notes);
+            return string.Join("   /   ", parts);
         }
         public string Register()
         {

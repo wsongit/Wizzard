@@ -4,6 +4,7 @@ import { Passage } from "./passage.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { TrackedRunner } from "./vr.js";
 import { loadCollision } from "./collision.js";
+import { gunzipSync } from "three/examples/jsm/libs/fflate.module.js";
 import { Capsule } from "three/examples/jsm/math/Capsule.js";
 
 const data = window.BELLWAKE,
@@ -135,7 +136,31 @@ function playMusic() {
   music.muted = muted;
   music.play().catch(() => {});
 }
+const recentTones = [];
+const rehearsal = [];
+function cancelRehearsal() {
+  for (const timer of rehearsal) clearTimeout(timer);
+  rehearsal.length = 0;
+}
+function soundStation(station) {
+  if (station.tune) {
+    Array.from(station.tune, Number).forEach((pitch, i) => {
+      if (i === 0) tone(pitch);
+      else rehearsal.push(setTimeout(() => tone(pitch), i * 400));
+    });
+  } else tone(station.note);
+  if (station.swing) {
+    if (ring) ring.rotation.z = initialAngle;
+    ring = nodes[station.swing];
+    initialAngle = ring.rotation.z;
+    ringTime = performance.now();
+  }
+}
 function tone(i) {
+  if (__TEST__) {
+    recentTones.push(i);
+    if (recentTones.length > 12) recentTones.shift();
+  }
   const key = ["Leaf", "Ember", "Tide", "Toll"][i];
   if (!effects.has(key)) effects.set(key, new Audio(assetURL("sounds", key, "audio/ogg")));
   const a = effects.get(key);
@@ -166,9 +191,22 @@ let group = null,
   restartEnd = 0;
 const keys = new Set(),
   ray = new T.Raycaster();
+async function loadPackedAsset(source) {
+  let payload;
+  if (data.streamed) {
+    const response = await fetch(source);
+    if (!response.ok) throw Error("Could not load " + source + " (" + response.status + ")");
+    payload = await response.arrayBuffer();
+  } else payload = bytes(source);
+  const header = new Uint8Array(payload, 0, 2);
+  // Hosts that advertise Content-Encoding: gzip already deliver decoded bytes to fetch.
+  if (header[0] !== 31 || header[1] !== 139) return payload;
+  if (typeof DecompressionStream === "undefined") return gunzipSync(new Uint8Array(payload)).buffer;
+  const stream = new Blob([payload]).stream().pipeThrough(new DecompressionStream("gzip"));
+  return new Response(stream).arrayBuffer();
+}
 async function loadModel(key) {
-  if (data.streamed) return (await loader.loadAsync(data.models[key])).scene;
-  return (await loader.parseAsync(bytes(data.models[key]), "")).scene;
+  return (await loader.parseAsync(await loadPackedAsset(data.models[key]), "")).scene;
 }
 function bytes(encoded) {
   let b = atob(encoded),
@@ -292,6 +330,7 @@ async function room() {
   }
 }
 async function loadRoom() {
+  cancelRehearsal();
   busy = true;
   $("veil").style.opacity = 1;
   const s = state(),
@@ -324,9 +363,7 @@ async function loadRoom() {
     theme = themeKey();
   const [model, collision, panorama, booklet] = await Promise.all([
     loadModel(key),
-    data.streamed
-      ? new T.FileLoader().setResponseType("arraybuffer").loadAsync(data.collision[key])
-      : bytes(data.collision[key]),
+    loadPackedAsset(data.collision[key]),
     new T.TextureLoader().loadAsync(assetURL("skies", theme, "image/jpeg")),
     passage.active
       ? data.streamed
@@ -571,6 +608,7 @@ async function interact(id) {
   if (!started || busy || book || !id) return;
   if (works.active) {
     const station = works.station(id);
+    cancelRehearsal();
     if (id === "A_Book" && nodes.Linnet && works.signals.landed && voyageFraction < 1) {
       say(
         station.label,
@@ -606,7 +644,7 @@ async function interact(id) {
       }
       if (await room()) welcome();
     } else {
-      tone(works.station(id).note);
+      soundStation(station);
       sync();
       save();
       say(name, result.line, 10);
@@ -723,7 +761,9 @@ async function interact(id) {
     (id === "A_Ina" || id === "A_Roster") && state().ending && hasFloodBook()
       ? " " + data.works.logEndings[state().ending - 1]
       : "";
-  say(name, move[1] + pilotLine + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
+  const supperLine = (id === "A_Ina" || id === "A_Roster") && state().ending && works.signals.supperServed
+    ? " " + data.works.supperEndings[state().ending - 1] : "";
+  say(name, move[1] + pilotLine + supperLine + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
 }
 function bearingClear() {
   const origin = vr.session ? vr.head : camera.position;
@@ -899,6 +939,11 @@ function toggleBook(open) {
     $("booktitle").textContent = locationName() + "   ·   " + playTime();
     $("objective").textContent = objective() + "   ·   " + state().seals + " of 3 vows";
     $("leaves").replaceChildren();
+    if (works.kitchenJournal()) {
+      const slip = document.createElement("li");
+      slip.textContent = "The supper call   ·   " + works.kitchenJournal();
+      $("leaves").append(slip);
+    }
     if (hasFloodBook()) {
       const page = document.createElement("li");
       page.textContent = data.works.logTitle + "   ·   " + data.works.logEntry;
@@ -914,8 +959,8 @@ function toggleBook(open) {
         const li = document.createElement("li");
         li.textContent = graph.states
           .find((x) => x.room === i)
-          .moves.A_Letter[1][1].split(" / ")
-          .pop();
+          .moves.A_Letter[1].split(" / ")
+          .pop().trim();
         $("leaves").append(li);
       }
     if (!leaves) {
@@ -1094,7 +1139,11 @@ function loop(time, frame) {
     let age = (time - ringTime) / 1000;
     if (state().room === 2) ring.rotation.y = initialAngle + Math.PI * 0.5 * Math.min(1, age * 2);
     else ring.rotation.z = Math.sin(age * 15) * 0.32 * Math.exp(-age * 4);
-    if (age > 1.4) ring = null;
+    if (works.active) ring.rotation.z += initialAngle;
+    if (age > 1.4) {
+      if (works.active) ring.rotation.z = initialAngle;
+      ring = null;
+    }
   }
   if (nodes.SpeakerHead) {
     const head = nodes.SpeakerHead,
@@ -1135,6 +1184,8 @@ if (__TEST__)
   window.bellProbe = () => ({
     number,
     gpu: { ...renderer.info.memory, programs: renderer.info.programs.length },
+    recentTones: recentTones.slice(),
+    meal: nodes.ServedTable ? { served: nodes.ServedTable.visible, crew: nodes.MessCrew.visible, lamp: nodes.KitchenLamp.visible } : null,
     retiredAlive: retired?.filter((ref) => ref.deref()).length || 0,
     trees: tree ? 1 : 0,
     music: music ? 1 : 0,

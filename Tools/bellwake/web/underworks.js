@@ -30,6 +30,11 @@ export class Underworks {
   station(id) {
     return this.room.stations.find((s) => s.id === id);
   }
+  kitchenJournal() {
+    return this.plan.supperNotes
+      .filter((slip) => this.signals[slip.signal])
+      .map((slip) => slip.title + "   ·   " + slip.notes).join("   /   ");
+  }
   register() {
     const s = this.signals;
     if (s.named) return "Ina is on the night roll. Her nameplate will be waiting at the market.";

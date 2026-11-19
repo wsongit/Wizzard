@@ -935,6 +935,8 @@ from pilgrim import add_chapter, ROAD_LEAVES
 add_chapter(room,post,step,v,machine)
 from tide_engine import add_engine
 add_engine(room,post,step,v,machine)
+from supper import add_kitchen
+supper_notes=add_kitchen(rooms,flags,room,post,step,v,machine)
 
 for descriptor in rooms:
     for station in descriptor["stations"]:
@@ -946,12 +948,17 @@ for descriptor in rooms:
             "A_River": 0,
             "A_Forge": 1,
             "A_Sky": 2,
-        }.get(station["id"], 2 if station["style"] == "person" else 0)
+        }.get(station["id"], station.get("note",2 if station["style"] == "person" else 0))
 if __name__ == "__main__":
     (RES / "Underworks.json").write_text(
         json.dumps(
             dict(
                 roadLeaves=ROAD_LEAVES,
+                supperNotes=supper_notes,
+                supperEndings=[
+                    "Nell, Ara and Wen sign together for the first morning watch. Iona brings four bowls up to the tower.",
+                    "Ina hears the pans from the harbour kitchen. ‘I remember that one.’ She takes a fourth bowl and calls for Tavi.",
+                ],
                 flags=flags,
                 machines=machines,
                 rooms=rooms,

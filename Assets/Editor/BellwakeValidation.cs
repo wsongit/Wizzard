@@ -44,6 +44,11 @@ namespace Wizzard.Editor
                     foreach(var station in chamber.stations)
                         if (!string.IsNullOrEmpty(station.sight)) Require(names.Contains(station.sight),room+" "+station.sight);
                     foreach (var station in chamber.stations)
+                    {
+                        if (!string.IsNullOrEmpty(station.swing)) Require(names.Contains(station.swing), room+" "+station.swing);
+                        if (!string.IsNullOrEmpty(station.tune)) Require(Array.TrueForAll(station.tune.ToCharArray(), n=>n>='0' && n<='2'), room+" bad tune");
+                    }
+                    foreach (var station in chamber.stations)
                         if (!string.IsNullOrEmpty(station.camp)) Require(names.Contains(station.camp),room+" "+station.camp);
                     if (chamber.early)
                     {

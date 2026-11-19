@@ -8,7 +8,7 @@ from pathlib import Path
 from playwright.async_api import async_playwright
 from pilgrim_route import walk_wards, TRAILS
 from works_route import complete_works, complete_coast
-from engine_route import complete_engine
+from engine_route import complete_engine, complete_supper
 
 url, navdir, outdir = sys.argv[1:4]
 out = Path(outdir)
@@ -121,21 +121,23 @@ async def run():
 
         ward_only=next((arg[7:] for arg in sys.argv if arg.startswith("--ward=")),None)
         engine_only = "--engine" in sys.argv
+        supper_only = "--supper" in sys.argv
         coast_only = "--coast" in sys.argv
         works_only = "--works" in sys.argv
         target_post = "--last-post" in sys.argv
         glasscut_only = "--glasscut" in sys.argv
+        supper_ending = "--supper-ending" in sys.argv
         road_letters = "--road-letters" in sys.argv
-        floodbook = "--flood-book" in sys.argv or road_letters
+        floodbook = "--flood-book" in sys.argv or road_letters or supper_ending
         nameplate = "--night-roll" in sys.argv or floodbook
         endings_only = "--endings" in sys.argv or nameplate
-        if target_post or glasscut_only or endings_only or works_only or coast_only or ward_only or engine_only:
+        if target_post or glasscut_only or endings_only or works_only or coast_only or ward_only or engine_only or supper_only:
             saved = {"number": 13, "leaves": 7}
             if ward_only:
                 saved={"number":2,"leaves":1,"passage":{"completed":1},"works":{"active":True,"chamber":9+list(TRAILS).index(ward_only)}}
             if works_only:
                 saved = {"number": 21, "leaves": 15}
-            if engine_only:
+            if engine_only or supper_only:
                 saved={"number":21,"leaves":15,"works":{"active":True,"chamber":14}}
             if coast_only:
                 saved = {
@@ -153,6 +155,7 @@ async def run():
                     ).read_text()
                 )
                 flags = ["named", "landed"] if floodbook else ["named"]
+                if supper_ending: flags.append("supperServed")
                 saved["works"] = {
                     "badges": sum(1 << plan["flags"].index(flag) for flag in flags)
                 }
@@ -305,6 +308,11 @@ async def run():
             assert not errors,errors
             await b.close()
             return
+        if supper_only:
+            await complete_supper(act,page,start,out)
+            assert not errors,errors
+            await b.close()
+            return
         if engine_only:
             await complete_engine(act,page,start,out)
             assert not errors,errors
@@ -407,6 +415,7 @@ async def run():
             assert final["dedication"]
             await act("A_Nameplate")
         await act("A_Roster")
+        assert ("four bowls up to the tower" in await page.locator("#words").inner_text()) == (supper_ending)
         if floodbook:
             assert "night tide" in await page.locator("#words").inner_text()
         await act("A_Talk")
@@ -422,11 +431,15 @@ async def run():
             assert final["dedication"]
             await act("A_Nameplate")
         await act("A_Ina")
+        assert ("calls for Tavi" in await page.locator("#words").inner_text()) == (supper_ending)
         if floodbook:
             assert "teach me to steer" in await page.locator("#words").inner_text()
         await act("A_Talk")
         await page.keyboard.press("j")
         assert (await page.evaluate("bellProbe()"))["book"]
+        journal = await page.locator("#leaves").inner_text()
+        for clue in ("child's drawing", "ribbon", "lock book", "casting receipt", "what the river sounds like"):
+            assert clue in journal, journal
         if endings_only:
             assert (
                 "The Linnet’s flood book" in await page.locator("#leaves").inner_text()

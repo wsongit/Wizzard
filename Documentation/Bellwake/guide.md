@@ -60,6 +60,14 @@ In the Drum House, the arrow on the spindle points to the gallery it serves. Ind
 
 When the four cargoes, three moulds and four signal flags are entered, return to the drum house and take the keeper’s ascent.
 
+## The Supper Call
+
+The mess stair on the east side of the Drum House leads to Iona’s kitchen. Listen to Nell’s dented lunch tin, Ara’s measuring cups and Wen’s embroidered tea cloth in their respective workshops. Each plays a three-note phrase and adds the pitches to your witness book. Play the phrases on the three hanging pans in the order Iona remembers. The shelf above the pans fills a bowl for every completed phrase. You can leave mid-song and pick it up when you return.
+
+Set out supper to bring the three night workers to the table. Look for their contribution in the market after either ending.
+
+![The four engine rooms, Iona’s kitchen and the returning mess crew](countertide.jpg)
+
 ## Controls
 
 | Action | Quest controllers | Unity desktop | Browser desktop |
@@ -75,7 +83,7 @@ Crouching makes the ground easier to reach with the palms. The journal pauses th
 
 ## Direct browser play
 
-Double-click `Play/Bellwake.html` in the downloaded project or extract the standalone play ZIP and open its HTML file. Geometry, textures, music and the JavaScript player are embedded. The browser edition contains all twenty-six campaign areas. The large meadow and Mossbell Village are accessible through the Unity edition.
+Double-click `Play/Bellwake.html` in the downloaded project or extract the standalone play ZIP and open its HTML file. Geometry, textures, music and the JavaScript player are embedded. The browser edition contains all twenty-seven campaign areas. The large meadow and Mossbell Village are accessible through the Unity edition.
 
 For Quest Browser, serve the entire `Play` directory over HTTPS and open `index.html` for on-demand chapter downloads and choose **Enter VR**. With a USB-connected developer-mode Quest, a local alternative uses Python and Android platform tools on the PC. From the repository root, run these in separate terminals.
 
@@ -91,7 +99,7 @@ Open `http://localhost:8090/index.html` in Quest Browser while USB forwarding is
 
 ## Editable art and sound
 
-The packed Blender sources in `Blender/Bellwake` contain the twenty-six campaign sets, the meadow trail sign, the runner’s arms, the two individually modeled hands, the meadow outcrop and the mountain gate. The campaign reuses characters and props from the supplied Wizzard Themed Library, with articulated head and arm pivots on speakers. The cottages use the existing Mossbell Blender artwork. The court geometry, interactive mechanisms, bell tower, escarpments, banners, floor paintings, skies and score were authored for this campaign.
+The packed Blender sources in `Blender/Bellwake` contain the twenty-seven campaign sets, the meadow trail sign, the runner’s arms, the two individually modeled hands, the meadow outcrop and the mountain gate. The campaign reuses characters and props from the supplied Wizzard Themed Library, with articulated head and arm pivots on speakers. The cottages use the existing Mossbell Blender artwork. The court geometry, interactive mechanisms, bell tower, escarpments, banners, floor paintings, skies and score were authored for this campaign.
 
 Ground and path share one continuous mesh. Lighting includes baked ground contact shadows. Buildings, clothing, brass and foliage use their own paintings and UV atlases. The Unity player loads one campaign room at a time and adds mesh colliders to the terrain, visible static set, rim and solid cores.
 
@@ -101,7 +109,7 @@ After editing the source, regenerate the FBX and GLB for that room from the proj
 blender -b --python-exit-code 1 --python Tools/bellwake/export.py -- RootChoir
 ```
 
-The procedural authoring scripts are in `Tools/bellwake`. Rebuilding from those scripts uses the original Wizzard Themed Library folder. Editing and exporting the packed Blender scenes works independently of that download. The PNG paintings are under `Assets/Resources/Bellwake/Textures`. The twenty-two original music loops and four bell cues are under `Assets/Resources/Bellwake/Audio`.
+The procedural authoring scripts are in `Tools/bellwake`. Rebuilding from those scripts uses the original Wizzard Themed Library folder. Editing and exporting the packed Blender scenes works independently of that download. The PNG paintings are under `Assets/Resources/Bellwake/Textures`. The original music loops and four bell cues are under `Assets/Resources/Bellwake/Audio`.
 
 ## Rebuild the portable edition
 

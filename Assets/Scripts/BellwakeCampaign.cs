@@ -41,6 +41,7 @@ namespace Wizzard
         GameObject set, meadow, sign;
         MossbellVillage village;
         AudioSource score, notes;
+        Coroutine rehearsal;
         readonly AudioClip[] chimes = new AudioClip[4];
         Material sky, curtain;
         Renderer curtainRenderer;
@@ -168,6 +169,7 @@ namespace Wizzard
         }
         IEnumerator ReleaseArea(string nextMusic=null)
         {
+            CancelRehearsal();
             guide = null;
             flight.Clear();
             display.ClearSurvey();
@@ -561,7 +563,8 @@ namespace Wizzard
                         journalPage++;
                     } while (journalPage < 5 && (story.letters & (1 << journalPage)) == 0);
                     if (journalPage == 5 && (!InWorks || story.works.Room.early)) journalPage++;
-                    if (journalPage > 6 || (journalPage == 6 && !HasFloodBook))
+                    if (journalPage == 6 && !HasFloodBook) journalPage++;
+                    if (journalPage > 7 || (journalPage == 7 && story.works.KitchenJournal().Length == 0))
                         journalPage = -1;
                     ShowBook();
                 }
@@ -689,6 +692,8 @@ namespace Wizzard
                                    SurveyPosition(player.head.position));
                 }
             }
+            else if (journalPage == 7)
+                display.Say("The supper call", story.works.KitchenJournal());
             else if (journalPage == 6)
                 display.Say(worksPlan.logTitle,worksPlan.logEntry);
             else if (journalPage==5 && InWorks)
@@ -750,10 +755,35 @@ namespace Wizzard
                 }
             }
         }
+        void CancelRehearsal()
+        {
+            if (rehearsal == null) return;
+            StopCoroutine(rehearsal);
+            rehearsal = null;
+        }
+        IEnumerator Rehearse(string phrase)
+        {
+            foreach (char pitch in phrase)
+            {
+                notes.PlayOneShot(chimes[pitch - '0']);
+                yield return new WaitForSecondsRealtime(.4f);
+            }
+            rehearsal = null;
+        }
+        void SoundStation(WorksStation station)
+        {
+            if (string.IsNullOrEmpty(station.tune)) notes.PlayOneShot(chimes[station.note]);
+            else rehearsal = StartCoroutine(Rehearse(station.tune));
+            if (string.IsNullOrEmpty(station.swing)) return;
+            if (struck != null) struck.rotation = strikeRest;
+            struck = nodes[station.swing];
+            strikeRest = struck.rotation;
+            strikeAt = Time.time;
+        }
         void AnimateSet()
         {
             float t = Time.time;
-            if(InWorks) { AnimateWorks(false); return; }
+            if (InWorks) AnimateWorks(false);
             if (InPassage && !string.IsNullOrEmpty(movingTrail))
             {
                 float progress=(t-trailTime)/.09f;
@@ -769,14 +799,17 @@ namespace Wizzard
             {
                 float age = t - strikeAt;
                 float angle =
-                    story.room == 2 ? 90 * Mathf.Clamp01(age * 2) : 18 * Mathf.Sin(age * 15) * Mathf.Exp(-age * 4);
+                    !InWorks && story.room == 2 ? 90 * Mathf.Clamp01(age * 2) : 18 * Mathf.Sin(age * 15) * Mathf.Exp(-age * 4);
                 struck.rotation =
-                    Quaternion.AngleAxis(angle, story.room == 2 ? Vector3.up : facing * Vector3.forward) *
+                    Quaternion.AngleAxis(angle, !InWorks && story.room == 2 ? Vector3.up : facing * Vector3.forward) *
                     strikeRest;
                 if (age > 1.4f)
+                {
+                    if (InWorks) struck.rotation = strikeRest;
                     struck = null;
+                }
             }
-            if (story.room == 4 && story.challenged && !story.Solved)
+            if (!InWorks && story.room == 4 && story.challenged && !story.Solved)
             {
                 var wave = nodes["HushWave"];
                 float phase = 1 - Mathf.Clamp01((pulseUntil - Time.unscaledTime) / 24);
@@ -836,6 +869,7 @@ namespace Wizzard
                     }
                     observation = null;
                 }
+                CancelRehearsal();
                 line=story.works.Use(id,out string destination);
                 if(!string.IsNullOrEmpty(destination))
                 {
@@ -847,7 +881,7 @@ namespace Wizzard
                     if(destination=="@final") { story.works.active=false;story.Gate(); }
                     StartCoroutine(EnterRoom());
                 }
-                else { notes.PlayOneShot(chimes[station.note]);Sync();Save();Say(title,line); }
+                else { SoundStation(station);Sync();Save();Say(title,line); }
                 return;
             }
             if (InPassage)
@@ -886,6 +920,7 @@ namespace Wizzard
             case "A_Ina":
             case "A_Roster":
                 line = story.Epilogue();
+                if (story.works.Remembered(worksPlan, "supperServed")) line += " " + worksPlan.supperEndings[story.ending-1];
                 if (HasFloodBook) line += " " + worksPlan.logEndings[story.ending-1];
                 if(story.works.Remembered(worksPlan,"named")) line+=" Below it hangs a new brass plate: Ina, fourth hand of the night shift.";
 

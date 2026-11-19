@@ -35,6 +35,7 @@ class WorksCheck
         if (m.channels[0].StartsWith(m.key)) return row.values[row.values.Length-1]==1;
         switch (m.key)
         {
+        case "potcall": return s("supperBeat")==9;
         case "distribution": return s("drumBearing")==2;
         case "towlines": return s("towJob")==4;
         case "moulds": return s("craneJob")==3;
@@ -201,16 +202,25 @@ class WorksCheck
             Require(dest == "DrumHouse" && w.Signal("named") == 1 && w.Signal("answered") == 1, "lost coast connection");
             Run(w,"Final Loom");
             Require(w.Room.key=="DrumHouse","unearned passage");
+            Run(w,"Kitchen Low High Low Middle Middle High High Low Middle Serve");
+            Require(w.Signal("supperServed")==0 && w.KitchenJournal().Length==0,"unearned supper");
+            Run(w,"Home");
             foreach(char c in order)
             {
                 int desired=c-'0';
                 while(w.Signal("drumBearing")!=desired) Run(w,"Turn");
                 string[] doors={"Dock","Crane","Loom"}, machines={"towlines","moulds","weaving"};
                 Run(w,doors[desired]);
+                Run(w,"MessNote");
+                var slip=plan.supperNotes[desired];
+                Require(w.Station("A_MessNote").tune.Length==3 && Reload(plan,w).KitchenJournal().Contains(slip.notes),"lost tune");
                 w=SolveGallery(plan,w,machines[desired]);
                 Run(w,"Home");
                 Require(w.Room.key=="DrumHouse","missing return");
             }
+            Run(w,"Kitchen Serve");
+            Require(Reload(plan,w).Signal("supperServed")==1,"missing kitchen visitors");
+            Run(w,"Home");
             w.Use("A_Final",out dest);
             Require(dest=="@final","keeper ascent");
         }
