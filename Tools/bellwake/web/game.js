@@ -3,6 +3,7 @@ import { PalmInstruments } from "./instruments.js";
 import { Underworks } from "./underworks.js";
 import { Passage } from "./passage.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { PilotFlight } from "./pilots.js";
 import { TrackedRunner } from "./vr.js";
 import { loadCollision } from "./collision.js";
 import { gunzipSync } from "three/examples/jsm/libs/fflate.module.js";
@@ -329,6 +330,23 @@ function dispose(old) {
   images.forEach((img) => img?.close?.());
   scene.remove(old);
 }
+let pilotReply = null, replyName = "";
+function clearPilotReply() {
+  if (!pilotReply) return;
+  pilotReply.pause(); pilotReply.removeAttribute("src"); pilotReply.load();
+  pilotReply=null; replyName="";
+}
+function answerPilot(key,position) {
+  if (key!==replyName) {
+    clearPilotReply();
+    replyName=key;
+    pilotReply=new Audio(assetURL("sounds",key+"Call","audio/ogg"));
+  }
+  pilotReply.currentTime=0;
+  pilotReply.volume=.64/(1+.025*position.distanceTo(vr.session?vr.head:camera.position));
+  pilotReply.muted=muted;
+  pilotReply.play().catch(()=>{});
+}
 let resolveFrame, retired;
 function loadingFrame() {
   return new Promise((resolve) => {
@@ -351,7 +369,7 @@ async function loadRoom() {
   const s = state(),
     k = s.room;
   if (group) {
-    if (__TEST__) retired = [group, tree, sky.material.map].map((value) => new WeakRef(value));
+    if (__TEST__) retired = [group, tree, sky.material.map, pilotReply].filter(Boolean).map((value) => new WeakRef(value));
     dispose(group);
     group = null;
     tree.clear();
@@ -362,6 +380,7 @@ async function loadRoom() {
     renderer.renderLists.dispose();
     if (musicTheme !== themeKey()) dropMusic();
   }
+  clearPilotReply();
   movingTrail = null;
   roadPage = 0;
   fixtures = [];
@@ -487,6 +506,11 @@ async function loadRoom() {
       pos: nodes[v.node].position.clone(),
       rot: nodes[v.node].rotation.clone(),
     }));
+    if (nodes.Roost0) {
+      const roosts=Array.from({length:9},(_,i)=>nodes["Roost"+i]);
+      for (const f of fixtures) if (f.v.kind==="perch")
+        f.flight=new PilotFlight(f.obj,nodes[f.v.node+"Left"],nodes[f.v.node+"Right"],roosts,f.v.amount,pos=>answerPilot(f.v.node,pos));
+    }
     animateWorks(1);
   }
   sync();
@@ -534,6 +558,7 @@ function animateWorks(mix, dt = 0) {
   for (const fixture of fixtures) {
     const { v, obj, pos, rot } = fixture;
     const n = works.signals[v.signal];
+    if (v.kind === "perch") { fixture.flight.update(n,!!works.signals[v.visibleSignal],mix===1,dt); continue; }
     if (v.kind === "show") {
       obj.visible = n === v.match && (!v.visibleSignal || !!works.signals[v.visibleSignal]) && (v.node !== "CrewAshore" || voyageFraction >= 1);
       continue;
@@ -573,6 +598,7 @@ function animateWorks(mix, dt = 0) {
 function wakeMachinery() {
   motionLeft = fixtures.length ? 1.65 : 0;
   for (const f of fixtures) {
+    if (f.v.kind === "perch") motionLeft=Math.max(motionLeft,f.v.amount+.15);
     if (f.v.kind === "voyage")
       motionLeft = Math.max(motionLeft, Math.abs(works.signals[f.v.signal]-(f.fraction||0))*f.v.amount+.1);
   }
@@ -804,7 +830,7 @@ async function interact(id, palm = -1) {
   }
   if (id === "A_Gate" && prev.room === 3 && graph.states[move[0]].room === 4) {
     works.progress.active = true;
-    works.progress.chamber = 0;
+    works.progress.chamber = works.signals.pilotNo===3 ? 0 : data.works.rooms.findIndex(r=>r.key==="GlassRookery");
     works.progress.camp = "";
     if (await room()) welcome();
     return;
@@ -839,7 +865,9 @@ async function interact(id, palm = -1) {
   const filing = works.signals.namedRunner ? 1 : works.signals.unnamedRunner ? 2 : 0;
   const swallowLine = (id === "A_Ina" || id === "A_Roster") && state().ending && filing
     ? " " + data.works.swallowEntries[filing-1] : "";
-  say(name, move[1] + programme + pilotLine + supperLine + parishLine + swallowLine + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
+  const portrait = id === "A_Talk" && state().ending && works.signals.pilotNo===3
+    ? " "+data.works.pilotEndings[state().ending-1] : "";
+  say(name, move[1] + portrait + programme + pilotLine + supperLine + parishLine + swallowLine + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
 }
 function bearingClear() {
   const origin = vr.session ? vr.head : camera.position;
@@ -933,11 +961,13 @@ function move(dt) {
 let uncoveredFind = null, forkRang = -Infinity;
 const forkOffset = new T.Vector3();
 function poseFork(time) {
-  const tool = nodes.HandFork;
+  const whistle=nodes.HandWhistle;
+  const tool = whistle || nodes.HandFork;
   if (!tool) return;
   const vrMode = !!vr.session;
-  tool.visible = !!works.signals.fenFork && started && !book && (!vrMode || (vr.ready && vr.hands[0].valid));
-  nodes.BenchFork.visible = !works.signals.fenFork;
+  const equipped=whistle ? works.signals.rookWarden : works.signals.fenFork;
+  tool.visible = !!equipped && started && !book && (!vrMode || (vr.ready && vr.hands[0].valid));
+  (whistle ? nodes.BenchWhistle : nodes.BenchFork).visible = !equipped;
   if (!tool.visible) return;
   const anchor = vrMode ? vr.palms[0] : camera;
   tool.quaternion.copy(anchor.quaternion);
@@ -983,6 +1013,13 @@ function soundFork() {
 function callGuide() {
   if (!started || book || busy) return;
   if (works.active && works.room.key === "DriftFen") { soundFork(); return; }
+  if (nodes.HandWhistle) {
+    if (!works.signals.rookWarden) { say("Pilot whistle","Orla keeps the whistle beside the south lodge."); return; }
+    forkRang=performance.now();
+    if (/^A_P[0-8]$/.test(focus)) interact(focus);
+    else say("Pilot whistle","Face the numbered brass plate on a nearby perch, then whistle.",5);
+    return;
+  }
   if (!guide) return;
   const origin = nodes.MapSW.position,
     east = nodes.MapSE.position,
@@ -1039,7 +1076,8 @@ function drawSurvey() {
   const u = (pos.x - origin.x) / (east.x - origin.x),
     v = (pos.z - origin.z) / (north.z - origin.z);
   const c = canvas.getContext("2d");
-  c.drawImage(surveyImage, 0, 0, 768, 544);
+  const pilotPage = nodes["Page"+works.signals.pilotNo];
+  c.drawImage(nodes.Roost0 && works.signals.rookWarden && pilotPage ? pilotPage.material.map.source.data : surveyImage,0,0,768,544);
   const x = 16 + 480 * u,
     y = 512 - 480 * v;
   c.fillStyle = "#c83422";
@@ -1067,6 +1105,11 @@ function toggleBook(open) {
     $("booktitle").textContent = locationName() + "   ·   " + playTime();
     $("objective").textContent = objective() + "   ·   " + state().seals + " of 3 vows";
     $("leaves").replaceChildren();
+    if (works.signals.pilotNo===3) {
+      const sketch=document.createElement("li");
+      sketch.textContent=data.works.pilotMail;
+      $("leaves").append(sketch);
+    }
     if (works.signals.parishSigned) {
       const page = document.createElement("li");
       page.textContent = data.works.parishLedger;
@@ -1123,6 +1166,7 @@ $("sound").onclick = () => {
   muted = !muted;
   effects.forEach((a) => (a.muted = muted));
   if (music) music.muted = muted;
+  if (pilotReply) pilotReply.muted=muted;
   $("sound").textContent = muted ? "Enable sound" : "Mute sound";
   save();
 };
@@ -1225,7 +1269,7 @@ function loop(time, frame) {
   }
   if (!group) return;
   if (vr.session) vr.update(frame, delta, book);
-  if (nodes.HandFork) poseFork(time);
+  if (nodes.HandFork || nodes.HandWhistle) poseFork(time);
   if (instruments.targets.length) {
     for (let i = 0; i < 2; i++) {
       const point = vr.ready && !book && vr.hands[i].valid ? vr.palms[i].position : null;
@@ -1361,6 +1405,8 @@ if (__TEST__)
       ? { target: nodes[observation.sight].position.toArray(), linedUp: bearingClear() }
       : null,
     guide: guide?.body.visible ? { cells: guide.cells, pos: guide.body.position.toArray() } : null,
+    pilotCall: replyName,
+    pilots: nodes.Roost0 ? fixtures.filter(f=>f.flight).map(f=>({visible:f.obj.visible, position:f.obj.position.toArray(),target:nodes["Roost"+works.signals.birdAt].position.toArray(),wing:f.flight.wings[0].rotation.z})) : null,
     vrMap: !!vr.mapMode,
     fixturePasses, motionLeft,
     handFork: nodes.HandFork?.visible ? nodes.HandFork.position.toArray() : null,

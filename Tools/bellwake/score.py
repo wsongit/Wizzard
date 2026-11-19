@@ -138,3 +138,21 @@ for idx, (name, beat, roots, line, instr) in enumerate(sets):
 for name, note in [("Leaf", 67), ("Ember", 62), ("Tide", 57), ("Toll", 39)]:
     if sys.argv[1:] and name not in sys.argv[1:]: continue
     save(name, voice(note, 2.6, "bronze"))
+
+# Field calls for the three pilot birds. Frequency envelopes follow the breath
+# through each individual syllable; the heron's throat has a noisy second formant.
+for i,phrases in enumerate((((0,.13,1020,1330),(.16,.12,1110,1400),(.31,.19,1280,990)),
+                            ((0,.36,252,173),(.47,.24,207,151)),
+                            ((0,.21,1570,2130),(.27,.30,1970,1360)))):
+    name=f"Pilot{i}Call"
+    if sys.argv[1:] and name not in sys.argv[1:]:continue
+    sound=np.zeros(round(rate*.92));rng=np.random.default_rng(814+i)
+    for start,duration,lo,hi in phrases:
+        t=np.arange(round(rate*duration))/rate;p=t/duration
+        frequency=lo+(hi-lo)*p+.06*lo*np.sin(2*np.pi*p)+lo*.022*np.sin(2*np.pi*32*t)
+        phase=2*np.pi*np.cumsum(frequency)/rate
+        breath=np.sin(np.pi*p)**.85
+        call=np.sin(phase)+(.46 if i==1 else .15)*np.sin(2*phase)+(.28 if i==1 else .06)*np.sin(3*phase)
+        if i==1:call=call*(.78+.22*np.sin(2*np.pi*45*t))+.11*sosfilt(butter(2,[390,2100],btype="bandpass",fs=rate,output="sos"),rng.normal(size=len(t)))
+        n=round(start*rate);sound[n:n+len(t)]+=.62*breath*call
+    save(name,sound)

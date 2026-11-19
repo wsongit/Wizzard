@@ -1,0 +1,34 @@
+{
+  "geometry": {
+    "asset": "GlassRookery",
+    "groundProbes": 19881,
+    "boundaryRays": 5700,
+    "interiorCrossings": 0,
+    "walkableCells": 18798,
+    "stations": 16,
+    "minApproaches": 62,
+    "triangles": 17313,
+    "visibleMaterialSlots": 46
+  },
+  "desktop": {
+    "pilots": 3,
+    "operations": [
+      11,
+      12,
+      14
+    ],
+    "wingAndLandingChecked": [
+      0,
+      1,
+      2
+    ],
+    "reload": true,
+    "activeSeconds": 200.75859999999935
+  },
+  "controller": "Quest 3 emulator, tracked left grip, grebe call, flight and landing and illustrated chart",
+  "epilogues": [
+    1,
+    2
+  ],
+  "native": "Unity 2022.3.20f1 runtime, editor and development assemblies compiled. Physical headset pending."
+}

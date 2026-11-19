@@ -30,6 +30,7 @@ namespace Wizzard
         Vector3 railAxis;
         readonly float[] drumAngles=new float[3];
         Quaternion[] fixtureAngles;
+        BellwakePilotFlight[] pilotFlights;
         BellwakePassage Route => story.passage;
         bool InPassage => Route != null && Route.active;
         bool HasFloodBook => !InWorks && (story.room == 4 || story.ending != 0) && story.works.Remembered(worksPlan,"landed");
@@ -196,7 +197,7 @@ namespace Wizzard
             motionLeft=0;
             observation=null;
             uncoveredFind=null;
-            handFork=null; forkRang=-10f;
+            handFork=null; pilotFlights=null; forkRang=-10f;
             roadPage=0;
             movingTrail = null;
             focus = lastHint = null;
@@ -303,7 +304,7 @@ namespace Wizzard
                 if(InWorks)
                 {
                     fixtures=story.works.Room.visuals;
-                    if (nodes.TryGetValue("HandFork",out handFork)) handFork.localScale *= .49f;
+                    if (nodes.TryGetValue("HandFork",out handFork) || nodes.TryGetValue("HandWhistle",out handFork)) handFork.localScale *= .49f;
                     if (nodes.TryGetValue("RailStart",out var railStart))
                         railAxis=(nodes["RailEnd"].position-railStart.position).normalized;
                     fixtureLocations=Array.ConvertAll(fixtures,v=>nodes[v.node].position);
@@ -313,6 +314,17 @@ namespace Wizzard
                         Vector3 axis=nodes["Bearing0"].position-drum.position;
                         for(int j=0;j<3;j++)
                             drumAngles[j]=Vector3.SignedAngle(axis,nodes["Bearing"+j].position-drum.position,Vector3.up);
+                    }
+                    if (nodes.ContainsKey("Roost0"))
+                    {
+                        var roosts=new Transform[9];
+                        for (int j=0;j<roosts.Length;j++) roosts[j]=nodes["Roost"+j];
+                        pilotFlights=new BellwakePilotFlight[fixtures.Length];
+                        for (int j=0;j<fixtures.Length;j++)
+                        {
+                            var v=fixtures[j];
+                            if (v.kind=="perch") pilotFlights[j]=new BellwakePilotFlight(nodes[v.node],nodes[v.node+"Left"],nodes[v.node+"Right"],roosts,nodes["MapNW"].position-nodes["MapSW"].position,v.amount, Resources.Load<AudioClip>(Path+"Audio/"+v.node+"Call"));
+                        }
                     }
                     AnimateWorks(true);
                 }
@@ -461,6 +473,7 @@ namespace Wizzard
             for(int i=0;i<fixtures.Length;i++)
             {
                 var v=fixtures[i];var t=nodes[v.node];int n=story.works.Signal(v.signal);
+                if(v.kind=="perch") { pilotFlights[i].Update(n,story.works.Signal(v.visibleSignal)!=0,snap,Time.deltaTime); continue; }
                 if(v.kind=="show") { Active(t,n==v.match && (string.IsNullOrEmpty(v.visibleSignal) || story.works.Signal(v.visibleSignal)!=0) && (v.node!="CrewAshore" || voyageFraction>=1)); continue; }
                 if (v.kind=="pointer")
                 {
@@ -498,7 +511,8 @@ namespace Wizzard
             {
                 motionLeft = fixtures.Length==0 ? 0 : 1.65f;
                 foreach(var v in fixtures)
-                    if (v.kind=="voyage")
+                    if (v.kind=="perch") motionLeft=Mathf.Max(motionLeft,v.amount+.15f);
+                    else if (v.kind=="voyage")
                         motionLeft=Mathf.Max(motionLeft,Mathf.Abs(story.works.Signal(v.signal)-voyageFraction)*v.amount+.1f);
                 AnimateWorks(false); SyncFinds(); return;
             }
@@ -617,7 +631,8 @@ namespace Wizzard
                     if (journalPage == 5 && (!InWorks || story.works.Room.early || story.works.Room.prologue || story.works.Room.middle)) journalPage++;
                     if (journalPage == 6 && !HasFloodBook) journalPage++;
                     if (journalPage == 7 && story.works.KitchenJournal().Length == 0) journalPage++;
-                    if (journalPage > 8 || (journalPage == 8 && !story.works.Remembered(worksPlan, "parishSigned")))
+                    if (journalPage == 8 && !story.works.Remembered(worksPlan, "parishSigned")) journalPage++;
+                    if (journalPage > 9 || (journalPage == 9 && story.works.Signal("pilotNo")!=3))
                         journalPage = -1;
                     ShowBook();
                 }
@@ -626,6 +641,13 @@ namespace Wizzard
             if (guide != null) { if (call) CallGuide(); FlyGuide(); }
             else if (call && InWorks && story.works.Room.key=="DriftFen") SoundFork();
             FindFocus();
+            if (call && InWorks && story.works.Room.key=="GlassRookery")
+            {
+                forkRang=Time.unscaledTime;
+                if (story.works.Signal("rookWarden")==0) Say("Pilot whistle","Orla keeps the whistle beside the south lodge.");
+                else if (focus!=null && focus.Length==4 && focus.StartsWith("A_P") && char.IsDigit(focus[3])) { Interact(focus); action=false; }
+                else Say("Pilot whistle","Face the numbered brass plate on a nearby perch, then whistle.",5);
+            }
             AnimateSet();
             float now = Time.unscaledTime;
             if (instruments.Count != 0)
@@ -708,8 +730,9 @@ namespace Wizzard
         void PoseFork()
         {
             bool vrMode = XRSettings.isDeviceActive;
-            bool equipped = story.works.Signal("fenFork") != 0;
-            Toggle("BenchFork", !equipped);
+            bool whistle=handFork.name=="HandWhistle";
+            bool equipped = story.works.Signal(whistle?"rookWarden":"fenFork") != 0;
+            Toggle(whistle?"BenchWhistle":"BenchFork", !equipped);
             bool visible = equipped && !journalOpen && (!vrMode || player.PalmTracked(0));
             Active(handFork,visible);
             if (!visible) return;
@@ -809,10 +832,14 @@ namespace Wizzard
                             Objective + "   •   Trigger/E to turn a page. A/X or J to close.");
                 if (InWorks && nodes.ContainsKey("MapSW"))
                 {
-                    display.Survey(paints[story.works.Room.key+"Survey"].mainTexture,
+                    string sheet = nodes.ContainsKey("Roost0") && story.works.Signal("rookWarden")!=0
+                        ? "Page"+story.works.Signal("pilotNo") : "Survey";
+                    display.Survey(paints[story.works.Room.key+sheet].mainTexture,
                                    SurveyPosition(player.head.position));
                 }
             }
+            else if (journalPage == 9)
+                display.Say("Ash’s reed tube",worksPlan.pilotMail);
             else if (journalPage == 8)
                 display.Say("Three houses of Sillwater", worksPlan.parishLedger);
             else if (journalPage == 7)
@@ -1130,6 +1157,7 @@ namespace Wizzard
                 line = story.Talk();
                 int credit = story.works.Signal("paperCredit");
                 if (story.ending!=0 && credit>0) line += " "+worksPlan.theatreCredits[credit-1];
+                if (story.ending!=0 && story.works.Signal("pilotNo")==3) line+=" "+worksPlan.pilotEndings[story.ending-1];
                 if (!was)
                     pulseUntil = Time.unscaledTime + 32;
                 break;
@@ -1165,7 +1193,7 @@ namespace Wizzard
                 if(story.room==3 && story.Solved)
                 {
                     story.works.active=true;
-                    story.works.chamber=0;story.works.camp="";
+                    story.works.chamber=story.works.Signal("pilotNo")==3 ? 0 : Array.FindIndex(worksPlan.rooms,r=>r.key=="GlassRookery");story.works.camp="";
                     StartCoroutine(EnterRoom());
                     return;
                 }

@@ -950,6 +950,9 @@ add_stairlock(room,post,step,v,machine,flags)
 from drift_fen import add as add_drift_fen
 add_drift_fen(rooms,room,post,step,flags)
 
+from rookery import build as build_rookery
+build_rookery(room,post,step,v,machine,flags)
+
 for descriptor in rooms:
     for station in descriptor["stations"]:
         station["note"] = {
@@ -969,6 +972,11 @@ if __name__ == "__main__":
                 theatreInvitation=INVITATION,
                 theatreCredits=theatre_credits,
                 theatreCadences=CADENCES,
+                pilotMail="Ash’s reed tube holds a charcoal drawing of Tavi. The short fringe and the little nick in her eyebrow are unmistakable. Ina drew it during the flood.",
+                pilotEndings=[
+                    "Orla’s drawing has a place under the market bell. Tavi brushes the charcoal fringe with one finger. ‘I cut it myself that summer. She remembered.’",
+                    "Tavi unrolls the drawing. Ina takes a burned twig from the stove and adds a second face beside the first. ‘There. Both of us.’",
+                ],
                 swallowEntries=[
                     "Fen has written Ina’s name in full beside the night boat. Her four deliveries are on the lock wall.",
                     "Fen’s book bears a tiny swallow. Ina touches the mark and smiles. The lock crew knows whose it is.",

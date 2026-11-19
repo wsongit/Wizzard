@@ -12,9 +12,11 @@ Tavi made a warning bell during the flood. Her sister Ina gave it a voice for a 
 | The Rimeway Post | Recover the lost post. Slide the mail sled through the cache and stop it at the landing. |
 | Three houses of Sillwater | Meet Ada at ebb. Consult the field map in your witness book, visit the survey stands at both tides and reconstruct the three addresses in the map office. |
 | Reedwater Lock | Ask Fen which channel saved the village. Each wheel changes the pair of sluices marked on its station. |
+| Drift Fen and Swallow Stair | Use Willa’s sounding fork to find four missing loads, then work Fen’s double lock to return them. |
 | Glasscut Gallery | Read Jass’s casting records. Move the bronze miner behind the gem cart and push it onto the white socket. |
 | The Cinder Lens | Trace the amber ray from the kiln. Turn the three mirrors and catch the light in the casting cup. |
-| The Lower Works | Sign the night roll below Cinder Lens. Explore the three guild wings in any order, listen to the craftspeople and take their work to the great resonator. |
+| The Glass Rookery | Meet Orla. Learn the weir and lantern signals, then whistle three different pilot birds along their flight paths. |
+| The Lower Works | Sign the night roll below the rookery. Explore the three guild wings in any order, listen to the craftspeople and take their work to the great resonator. |
 | Wrenfall Head | The resonator lift emerges on the Pilots’ Coast. Help Mirren bring the flood book through the reef. |
 | The Countertide Engine | At the drum house, route the headrace to the chain dock, mould loft and signal loft. Finish Elin’s last dispatches to open the ascent. |
 | The Still Belfry | Speak to the keeper to start the encounter. Reach and activate the called seal before the toll. After three misses, the keeper lets you try again. |
@@ -24,7 +26,7 @@ The market, Root Choir, Reedwater, Cinder Lens and belfry each hold a witness le
 
 The witness book shows active playtime. Loading, the open journal and unfocused play are excluded. The clock starts with this update for existing checkpoints. Players already past a new district retain their place in the story.
 
-A desktop run of the earlier, thirty-area campaign reached its first ending in 32 minutes 36 seconds of active play. The runner already knew the routes and puzzle solutions. The target is roughly 25–30 hours for a first-time main-story playthrough. That duration remains unverified. [Playthrough details](validation.md)
+The 31-place Swallow Stair route reached its first ending in 41 minutes 28 seconds of active play with known solutions. Drift Fen and the Glass Rookery extend that route. The design target is 25–30 hours for a first-time player. A human completion time has yet to be measured. [Playthrough details](validation.md)
 
 ## Tavi’s Paper Theatre
 
@@ -51,6 +53,14 @@ The river changes the route across the parish when you pull either tide bell. At
 Stand beside a brass telescope and press E or a trigger. Follow its barrel to the landmark named in the prompt. Look at the landmark itself and press again to record its bearing. You can begin on either shore or revisit the office between sightings.
 
 In the map office, the registrar has a folio for each lost house. Its red thread follows the ebb bearing and its blue thread follows the flood bearing. Turn the four carriage wheels to move the brass pin to their intersection. Stamp each address and have the title sealed. The signed ledger travels with you to Reedwater and into either ending. [In-game views of the parish and map office](sillwater.jpg)
+
+## The Glass Rookery
+
+Leave the Cinder Lens through the casting gate. Orla is waiting at the lodge with a carved whistle. Her flight book shows a different chart for each bird. A solid blue line means running water, and a broken ochre line means quiet water. Read the numbered stone at the next perch, stand within calling distance and press Q or squeeze the left grip. You can hear the bird answer before it lands.
+
+Pip, the little grebe, carries the first tube. Slate, a grey heron, follows a different watercourse. For Ash, the copper tern, match the destination’s shutter letter on the lantern console as well. Once a bird reaches its home perch, return to Orla’s sending desk. The last tube holds something Ina made for Tavi. It stays in your witness book through either ending.
+
+[Pip, Slate, Ash and the glasshouse as they appear in play](glass-rookery.jpg)
 
 ## Beneath the village
 

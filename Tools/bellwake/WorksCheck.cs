@@ -35,6 +35,7 @@ class WorksCheck
         if (m.channels[0].StartsWith(m.key)) return row.values[row.values.Length-1]==1;
         switch (m.key)
         {
+        case "pilots": return s("pilotNo")==3;
         case "stairlock": return s("voyageNo")==4;
         case "parishplot": return s("parishJob")==3;
         case "paperstage": return s("paperCredit")!=0;
@@ -159,6 +160,14 @@ class WorksCheck
         Run(visitor,"Guide Find0 Home");
         visitor.Use("A_Gate",out towpath);
         Require(towpath=="@reedwater" && !visitor.returnTicket && visitor.Signal("flourRecovered")==1 && visitor.Signal("voyageNo")==0,"lost early salvage");
+        var pilots=new BellwakeWorks {active=true,chamber=Array.FindIndex(plan.rooms,r=>r.key=="GlassRookery")};
+        pilots.Bind(plan);
+        Run(pilots,"P1 Launch Gate");
+        Require(pilots.Room.key=="GlassRookery" && pilots.Signal("birdAt")==0 && pilots.Signal("pilotNo")==0,"unearned pilots");
+        Run(pilots,"Keeper");
+        pilots=SolveGallery(plan,pilots,"pilots");
+        Run(pilots,"Gate");
+        Require(pilots.Room.key=="SumpHall","missing guild stair");
         foreach(string filing in new[]{"Name","Mark"})
         {
             var lockWatch=new BellwakeWorks {active=true,chamber=Array.FindIndex(plan.rooms,r=>r.key=="SwallowLock")};

@@ -8,6 +8,7 @@ from pathlib import Path
 from playwright.async_api import async_playwright
 from pilgrim_route import walk_wards, TRAILS
 from works_route import complete_works, complete_coast
+from pilot_route import lead_pilots, pilot_letters
 from theatre_route import perform
 from swallow_route import run_lock, fen_fare
 from parish_route import survey_parish, packet_trip
@@ -97,7 +98,7 @@ drive = """async ({points,id})=>{
    key("keydown","KeyQ");key("keyup","KeyQ");await frame();
    if(bellProbe().uncovered!==id)throw Error("Fork failed at "+id);
  }
- for(let i=0;i<60;i++){await frame();p=bellProbe();if(p.focus===id){key('keydown','KeyE');key('keyup','KeyE');return;}}
+ for(let i=0;i<60;i++){await frame();p=bellProbe();if(p.focus===id){const interact=p.district==="GlassRookery" && /^A_P[0-8]$/.test(id) && p.works.signals.rookWarden ? "KeyQ" : "KeyE";key("keydown",interact);key("keyup",interact);return;}}
  throw Error('Focus mismatch '+id+' '+JSON.stringify(p));
 }"""
 
@@ -132,6 +133,7 @@ async def run():
         supper_only = "--supper" in sys.argv
         coast_only = "--coast" in sys.argv
         works_only = "--works" in sys.argv
+        pilots_only = "--pilots" in sys.argv
         target_post = "--last-post" in sys.argv
         glasscut_only = "--glasscut" in sys.argv
         supper_ending = "--supper-ending" in sys.argv
@@ -141,7 +143,7 @@ async def run():
         endings_only = "--endings" in sys.argv or nameplate
         parish_only = "--parish" in sys.argv
         lock_only="--swallow" in sys.argv
-        if lock_only or parish_only or target_post or glasscut_only or endings_only or works_only or coast_only or ward_only or engine_only or supper_only:
+        if pilots_only or lock_only or parish_only or target_post or glasscut_only or endings_only or works_only or coast_only or ward_only or engine_only or supper_only:
             saved = {"number": 13, "leaves": 7}
             if lock_only:
                 saved={"number":13,"leaves":7}
@@ -149,7 +151,7 @@ async def run():
                 saved={"number":6,"leaves":3,"works":{"active":True,"chamber":20}}
             if ward_only:
                 saved={"number":2,"leaves":1,"passage":{"completed":1},"works":{"active":True,"chamber":9+list(TRAILS).index(ward_only)}}
-            if works_only:
+            if works_only or pilots_only:
                 saved = {"number": 21, "leaves": 15}
             if engine_only or supper_only:
                 saved={"number":21,"leaves":15,"works":{"active":True,"chamber":14}}
@@ -337,13 +339,23 @@ async def run():
             assert not errors, errors
             await b.close()
             return
-        if works_only:
+        if works_only or pilots_only:
             await act("A_Gate")
+            await lead_pilots(act,page,start,out,True)
+            if pilots_only:
+                assert not errors,errors
+                await b.close()
+                return
             await complete_works(act, page, start, out)
             await b.close()
             return
         if lock_only:
             await run_lock(act,page,start,out,True)
+            assert not errors,errors
+            await b.close()
+            return
+        if "--pilot-letters" in sys.argv:
+            await pilot_letters(act,page,start)
             assert not errors,errors
             await b.close()
             return
@@ -407,6 +419,7 @@ async def run():
             await act("A_Lens")
             await act("A_Letter")
             await act("A_Gate")
+            await lead_pilots(act,page,start,out)
             await complete_works(act, page, start, out)
             await profile()
             await act("A_Letter")
@@ -424,7 +437,7 @@ async def run():
         assert final["ending"] == 1 and final["leaves"] == 31
         if timed:
             durations = final["secondsByPlace"]
-            assert len(durations) == 32, durations
+            assert len(durations) == 33, durations
             (out / "known-route.json").write_text(
                 json.dumps(
                     {

@@ -2,7 +2,13 @@
 
 ## Previous full playthrough
 
-The Sillwater campaign reached its first ending in **32 minutes 36 seconds of active play**, or 33 minutes 9 seconds elapsed, across 30 required places. The fresh-save desktop runner walked with normal controls, staged Tavi’s four scenes, traced the six parish bearings and completed all eleven gallery dispatches. It collected the five witness leaves and tested both endings from the final checkpoint. The run reported zero application errors. Travel, the journal and unfocused time are excluded from the active clock. The runner knew the puzzles in advance. There is no measured first-time human or physical-headset completion time. [Timing by location](known-route.json)
+The 31-place Swallow Stair route reached its first ending in **41 minutes 28 seconds of active play**, or 42 minutes 16 seconds elapsed. The fresh-save runner knew the solutions, walked using normal controls, collected the five witness leaves and tested both endings from the last checkpoint. It reported zero application errors. This measurement predates Drift Fen and the Glass Rookery. First-time human and physical-headset completion times remain unmeasured. [Timing by location](known-route.json)
+
+## The Glass Rookery
+
+The desktop runner started at the Cinder Lens gate, guided each bird into flight and checked its wing motion, landing and answer call. The three routes took 11, 12 and 14 operations. Reloading during the heron’s flight restored its destination. The player read the glasshouse ledger, took the gate to the Lower Works and released the valley, collision data, sky and last bird voice. Both ending conversations and the journal acknowledged Ina’s final delivery. An emulated Quest controller sounded the whistle and opened the illustrated chart.
+
+Blender reimported the finished FBX and tested 19,881 ground positions and 5,700 perimeter rays. Every station had at least 62 walkable approaches. The scene contains 17,313 visible triangles and 46 material slots. The C# campaign check covered 3,120 machine positions and 16,839 transitions. [Rookery checks](glass-rookery.json) · [Four in-game views](glass-rookery.jpg)
 
 ## Drift Fen
 

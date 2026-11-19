@@ -245,7 +245,7 @@ async def packet_checkpoint(browser,fen=False):
         for x,z in ((0,23),(-7,23),(-7,21.2)):
             await page.evaluate("([x,z])=>walkSurvey(x,z)",[x,z])
         await trigger_station(page,"Home","!bellProbe().busy && bellProbe().district==='SwallowLock'")
-        for x,z in ((-16,10),(-18.5,10),(-18.5,-10.8),(14,-10.8),(14,-11.45)):
+        for x,z in ((-16,3),(-17,2),(-17,-8.5),(-7,-8.5),(-5,-10.5),(9,-10.5),(11,-12.5),(13.5,-11.8)):
             await page.evaluate("([x,z])=>walkSurvey(x,z)",[x,z])
     else:
         await page.evaluate("walkSurvey(6,12.35)")
@@ -256,6 +256,33 @@ async def packet_checkpoint(browser,fen=False):
     await page.evaluate("testDevice.activeSession.end()")
     await page.close()
     print("PASS Quest return fare, "+("Willa’s fork, lock towpath" if fen else "parish landing")+" and return to Tavi’s first morning",flush=True)
+
+
+async def pilot_checkpoint(browser):
+    plan=json.loads((here.parents[2]/"Assets/Resources/Bellwake/Underworks.json").read_text())
+    flag=plan["flags"].index("rookWarden")
+    words=[0]*((len(plan["flags"])-1)//30);words[flag//30-1]=1<<(flag%30)
+    save={"number":21,"works":{"active":True,"chamber":next(i for i,r in enumerate(plan["rooms"]) if r["key"]=="GlassRookery"),"camp":"RestP1","furtherBadges":words}}
+    page=await browser.new_page(viewport={"width":630,"height":380});errors=[]
+    page.on("pageerror",lambda e:errors.append(str(e)))
+    await page.add_init_script(script=harness)
+    await page.add_init_script("localStorage.setItem('wizzard.bellwake.desktop.v1',"+json.dumps(json.dumps(save))+")")
+    await page.goto(sys.argv[1]);await page.click("#vr",timeout=60000)
+    await page.wait_for_function("bellProbe().vr && bellProbe().district==='GlassRookery' && bellProbe().palms.every(Boolean)")
+    await tracked_navigation(page)
+    await page.evaluate("sightToward(bellProbe().markers.A_P1)")
+    await page.wait_for_function("bellProbe().focus==='A_P1'")
+    await page.evaluate("testDevice.controllers.left.updateButtonValue('squeeze',1)")
+    await page.wait_for_function("bellProbe().works.signals.birdAt===1 && bellProbe().pilotCall==='Pilot0'")
+    await page.evaluate("testDevice.controllers.left.updateButtonValue('squeeze',0)")
+    await page.wait_for_function("Math.abs(bellProbe().pilots[0].wing)>.06")
+    await page.wait_for_function("(()=>{const p=bellProbe().pilots[0];return Math.hypot(...p.position.map((v,i)=>v-p.target[i]))<.04})()")
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('a-button',1)")
+    await page.wait_for_function("bellProbe().vrMap")
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('a-button',0)")
+    assert not errors,errors
+    await page.evaluate("testDevice.activeSession.end()");await page.close()
+    print("PASS tracked whistle, grebe reply, wingbeats, landing and pilot chart in the headset",flush=True)
 
 
 async def fen_checkpoint(browser):
@@ -365,6 +392,10 @@ async def run():
                 "--enable-unsafe-swiftshader",
             ],
         )
+        if "--pilots" in sys.argv:
+            await pilot_checkpoint(b)
+            await b.close()
+            return
         if "--fen" in sys.argv:
             await fen_checkpoint(b)
             await b.close()
