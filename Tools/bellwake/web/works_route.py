@@ -65,10 +65,10 @@ async def complete_works(act, page, start, out, enter=None):
         await complete_coast(act, page, start, out)
     if enter is None or await enter("Engine"):
         state = await complete_engine(act, page, start, out)
-        assert state["district"] == "StillBelfry" and state["works"] is None
+        assert state["district"] == "MercySlip"
         report = json.loads(report_path.read_text())
-        if report["visits"][-1] != "StillBelfry":
-            report["visits"].append("StillBelfry")
+        if report["visits"][-1] != "MercySlip":
+            report["visits"].append("MercySlip")
         report["activeSeconds"] = state["secondsByPlace"]
         write_json(report_path, report)
 

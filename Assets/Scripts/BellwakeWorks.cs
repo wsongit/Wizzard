@@ -10,6 +10,7 @@ namespace Wizzard
         public string[] logEndings, supperEndings, pilotEndings, swallowEntries, parishEndings, theatreCredits, theatreCadences, dawnTunes, dawnVerses, dawnEnding;
         public SupperNote[] supperNotes;
         public RoadLeaf[] roadLeaves;
+        public ReliefAccount[] reliefAccounts;
         public string parishLedger;
         public string[] flags;
         public WorksMachine[] machines;
@@ -19,6 +20,18 @@ namespace Wizzard
     public sealed class SupperNote
     {
         public string signal, title, notes;
+    }
+    [Serializable]
+    public sealed class ReliefAccount
+    {
+        public string key, title, first, second;
+        public string[] firstReplies, secondReplies;
+
+        public string Entry(bool alternate, int ending)
+        {
+            string entry = alternate ? second : first;
+            return ending == 0 ? entry : entry + " " + (alternate ? secondReplies : firstReplies)[ending - 1];
+        }
     }
     [Serializable]
     public sealed class RoadLeaf

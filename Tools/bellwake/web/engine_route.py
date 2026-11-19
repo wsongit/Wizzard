@@ -70,7 +70,7 @@ async def complete_engine(act, page, start, out):
         )
         assert (await use("Home"))["district"] == "DrumHouse"
     state = await use("Final")
-    assert state["district"] == "StillBelfry" and state["works"] is None
+    assert state["district"] == "MercySlip" and state["works"]["active"]
     (out / "countertide.json").write_text(json.dumps(report, indent=2) + "\n")
     return state
 

@@ -29,7 +29,7 @@ def tree(objects):
 
 def ward_passages(key, objects, ground, reach, off, step):
     sys.path.insert(0,str(Path(__file__).resolve().parent))
-    from pilgrim import FIELDS, SIZE, edge, layout, world, neighbours
+    from pilgrim import ALL_FIELDS as FIELDS, SIZE, edge, layout, world, neighbours
     edges,_ = layout(next(i for i,f in enumerate(FIELDS) if f[0] == key))
     rim = tree([objects["Rim"]])
     room = works[key]

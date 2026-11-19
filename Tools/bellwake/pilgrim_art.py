@@ -5,7 +5,8 @@ import random
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from atelier import RES, init, finish, geometry, shaft, lathe, block, model, marker, collision
-from pilgrim import FIELDS, SIZE, CELL, ENTRY, layout, world, edge
+from relief import REACHES
+from pilgrim import ALL_FIELDS, FIELDS, SIZE, CELL, ENTRY, layout, world, edge
 from underworks import rooms
 from works_finish import plaques, mount
 from works_sets import ring
@@ -33,7 +34,7 @@ def beam(name, a, b, r, mat, group="Set", n=6):
     return shaft(name, a, b, r, r, mat, n, group)
 
 
-def texture(k, r, edges, sites):
+def texture(k, r, edges, sites, field):
     key = r["key"]
     n = 512
     y, x = np.mgrid[:n, :n]
@@ -120,11 +121,11 @@ def texture(k, r, edges, sites):
         x, y = xy(c)
         d.ellipse((x - 11, y - 11, x + 11, y + 11), fill="#263e42", outline="#f0dda1", width=2)
         d.text((x, y), str(j) if j else "S", font=number, anchor="mm", fill="white")
-    d.text((510, 43), "PILGRIMS’ CUT", font=small, fill="#645338")
+    d.text((510, 43), r["chapter"].upper(), font=small, fill="#645338")
     d.text((510, 70), r["title"].replace("The ", ""), font=title, fill="#302c26")
-    labels = ["Entrance shelter"] + [a[1] for a in FIELDS[k][6]] + ["North road wicket"]
+    labels = ["Entrance shelter"] + [a[1] for a in field[6]] + [next(s["label"] for s in r["stations"] if s["id"]=="A_Gate")]
     for j, label in enumerate(labels):
-        y = 130 + j * 37
+        y = 125 + j * min(37, 317 // (len(labels)-1))
         d.text((514, y), "S" if not j else str(j), font=number, fill="#88512e")
         d.text((543, y), label, font=small, fill="#322e25")
     d.text((515, 468), "N ↑     One square = 8 m", font=small, fill="#354442")
@@ -314,6 +315,9 @@ def craft(k, s, x, y, z):
                     "Amber",
                     7,
                 )
+    elif kind in ("rib", "float", "loom", "kite", "oven", "dive"):
+        from relief_art import exhibit
+        exhibit(kind, x, y, z)
     elif kind in ("root", "tree"):
         beam("Established rootstock", (x, y, z - 0.12), (x + 0.14, y, z + 2.8), 0.23, wood)
         for j in range(4):
@@ -620,26 +624,39 @@ def landmarks(k, r, sites):
             )
 
 
-def make(k, lib):
-    key = FIELDS[k][0]
+def make(index, lib):
+    field = ALL_FIELDS[index]
+    relief = index >= len(FIELDS)
+    k = REACHES[index-len(FIELDS)][3] if relief else index
+    key = field[0]
     r = next(r for r in rooms if r["key"] == key)
-    edges, sites = layout(k)
-    texture(k, r, edges, sites)
+    edges, sites = layout(index)
+    texture(k, r, edges, sites, field)
+    if relief:
+        from relief_art import print_dies
+        print_dies(index-len(FIELDS))
     init(lib, 183 + k)
     terrain(k, key)
     partitions(k, edges)
     landmarks(k, r, sites)
     facades(k, edges)
+    if relief:
+        from relief_art import landings
+        landings(index-len(FIELDS), sites, k)
     waywren()
     for j, s in enumerate(r["stations"]):
         x, y = s["x"], s["y"]
         z = elevation(k, x, y)
         if s["style"] == "person":
-            model(PEOPLE[k], FIELDS[k][4], x, y, z - 0.025, 1.72, 0, "Speaker")
+            model(PEOPLE[k], field[4], x, y, z - 0.025, 1.72, 0, "Speaker")
         elif s["style"] == "map":
             survey(key, x, y, z)
         else:
-            craft(k, s, x, y, z)
+            if s["style"] == "die":
+                from relief_art import seal_press
+                seal_press(x,y,z,index-len(FIELDS))
+            else:
+                craft(k, s, x, y, z)
             if s["style"] not in ("gate", "arch"):
                 block("Nameboard foot", (x, y - 0.29, z + 0.44), (0.14, 0.17, 0.98), "Wood")
             mount(s, k, r, j, lambda ki, xx, yy: elevation(ki, xx, yy))
@@ -647,7 +664,7 @@ def make(k, lib):
         if s.get("camp"):
             xx, yy = (0, -10) if s["id"] == "A_Talk" else (x, y - 2.25)
             marker(s["camp"], xx, yy, elevation(k, xx, yy) + 0.11)
-        if s["id"][2:] in [a[0] for a in FIELDS[k][6]]:
+        if s["id"][2:] in [a[0] for a in field[6]]:
             tag = "Proof" + s["id"][2:]
             pole = x + 1.02
             beam("Witness peg", (pole, y, z - 0.03), (pole, y, z + 2.1), 0.07, "Wood")
@@ -667,7 +684,7 @@ def make(k, lib):
         marker(name, x, y, 0)
     marker("Spawn", 0, -14, 0.08)
     marker("Look", 0, -4, 1.4)
-    finish(key)
+    finish(key, r["theme"])
 
 
 def waywren():

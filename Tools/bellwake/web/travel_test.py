@@ -20,7 +20,8 @@ async def main():
                 "--enable-unsafe-swiftshader",
             ],
         )
-        page = await browser.new_page(viewport={"width": 768, "height": 432})
+        viewport = {"width": 384, "height": 216} if "--compact" in sys.argv else {"width": 768, "height": 432}
+        page = await browser.new_page(viewport=viewport)
         page.on("pageerror", lambda err: errors.append(str(err)))
         page.on("request", lambda req: requests.append(req.url))
         devtools = await page.context.new_cdp_session(page)
@@ -57,7 +58,9 @@ async def main():
             Path(destination).write_text(json.dumps({"renderer":"Chromium SwiftShader","samples":samples},indent=2)+"\n")
             await browser.close()
             return
-        route = [27, 5, 17,18,19,20,21,35, 1, 6, 28, 29, 30, 28, 2, 31, 32, 31, 7, 3, 34, 33, 8, 9, 10, 11, 12, 13, 14, 15, 16, 22, 23, 22, 24, 22, 25, 22, 26, 4, 0]
+        route = [27, 5, 17,18,19,20,21,35, 1, 6, 28, 29, 30, 28, 2, 31, 32, 31, 7, 3, 34, 33, 8, 9, 10, 11, 12, 13, 14, 15, 16, 22, 23, 22, 24, 22, 25, 22, 26, 36, 37, 38, 39, 40, 41, 4, 0]
+        if "--mercy" in sys.argv:
+            route = [36,37,38,39,40,41,4,0]
         if "--wood" in sys.argv:
             route=[21,35,1,35,0]
         if "--keeper" in sys.argv:
@@ -124,7 +127,7 @@ async def main():
         assert not errors, errors
         Path(destination).write_text(
             json.dumps(
-                {"renderer": "Chromium SwiftShader", "laps": 3, "samples": samples},
+                {"renderer": "Chromium SwiftShader", "viewport": viewport, "laps": 3, "samples": samples},
                 indent=2,
             )
             + "\n"

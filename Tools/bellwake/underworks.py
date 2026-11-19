@@ -966,8 +966,10 @@ def turn_music_box(state, op):
     return (n+1 if op==DAWN_TUNES[bar][beat] else 1+3*bar,)
 machine("dawnwatch", ["dawnStep"], ("wind","0","1","2"), (0,), turn_music_box, lambda state:state)
 
+from relief import REACHES, REPLIES
 from choir_wood import build as build_wood
 build_wood(room, post, step, v, machine, flags)
+add_chapter(room, post, step, v, machine, relief=True, flags=flags)
 
 for descriptor in rooms:
     for station in descriptor["stations"]:
@@ -984,6 +986,9 @@ if __name__ == "__main__":
     (RES / "Underworks.json").write_text(
         json.dumps(
             dict(
+                reliefAccounts=[dict(key=r[0], title=r[1], first=r[7][-1][3], second=r[8][1],
+                                    firstReplies=letters[0], secondReplies=letters[1])
+                               for r, letters in zip(REACHES, REPLIES, strict=True)],
                 roadLeaves=ROAD_LEAVES,
                 theatreInvitation=INVITATION,
                 theatreCredits=theatre_credits,

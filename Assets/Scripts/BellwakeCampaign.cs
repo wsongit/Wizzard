@@ -748,8 +748,12 @@ namespace Wizzard
                     if (journalPage == 9 && story.works.Signal("pilotNo")!=3) journalPage++;
                     if (journalPage == 10 && story.works.Signal("glassProof")!=3) journalPage++;
                     if (journalPage == 11 && story.works.Signal("dawnStep")!=10) journalPage++;
-                    if (journalPage > 12 || (journalPage == 12 && !story.works.RestoredWood))
-                        journalPage = -1;
+                    if (journalPage == 12 && !story.works.RestoredWood) journalPage++;
+                    var accounts = worksPlan.reliefAccounts;
+                    while (journalPage >= 13 && journalPage < 13 + accounts.Length &&
+                           story.works.Signal(accounts[journalPage - 13].key + "Mark") == 0)
+                        journalPage++;
+                    if (journalPage >= 13 + accounts.Length) journalPage = -1;
                     ShowBook();
                 }
                 return;
@@ -995,6 +999,11 @@ namespace Wizzard
                             display.AddBearing(SurveyPosition(nodes[station.id].position),
                                 SurveyPosition(nodes[station.sight].position),station.call);
                 }
+            }
+            else if (journalPage >= 13)
+            {
+                var account = worksPlan.reliefAccounts[journalPage - 13];
+                display.Say(account.title, account.Entry(story.works.Signal(account.key + "SecondAccount") != 0, story.ending));
             }
             else if (journalPage == 12)
             {

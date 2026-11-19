@@ -6,7 +6,7 @@ Usage: python playtest.py URL AUDIT_DIRECTORY RESULT_DIRECTORY [--timed | --resu
 import asyncio, json, math, sys, os, heapq, time
 from pathlib import Path
 from playwright.async_api import async_playwright
-from pilgrim_route import walk_wards, TRAILS
+from pilgrim_route import walk_wards, mercy_run, TRAILS
 from works_route import complete_works, complete_coast
 from route_checkpoint import RouteCheckpoint
 from wood_route import restore_wood, wood_walk_trip
@@ -480,6 +480,7 @@ async def run():
             if await enter("Pilots"):
                 await lead_pilots(act,page,start,out)
             await complete_works(act, page, start, out, enter=enter)
+            await mercy_run(act, page, start, out, enter=enter)
             if await enter("Keeper"):
                 await profile()
                 await act("A_Letter")

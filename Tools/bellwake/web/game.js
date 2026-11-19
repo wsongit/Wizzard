@@ -1212,6 +1212,15 @@ function toggleBook(open) {
       addBookPrint("ContactSheet", data.works.pressEntry, "Three prints from the flood, mounted in Ossa’s contact book.");
     if (works.signals.rainMended && works.signals.rootMended && works.signals.wrenMended)
       addBookPrint("RowanLinen", data.works.woodEntry, "Linn’s letter to Ina beside six embroidered bearings and a red darn.");
+    for (const account of data.works.reliefAccounts) {
+      if (!works.signals[account.key+"Mark"]) continue;
+      const entry = document.createElement("li");
+      const alternate = works.signals[account.key+"SecondAccount"];
+      const text = alternate ? account.second : account.first;
+      const replies = alternate ? account.secondReplies : account.firstReplies;
+      entry.textContent = account.title + "   ·   " + text + (state().ending ? " " + replies[state().ending-1] : "");
+      $("leaves").append(entry);
+    }
     if (works.signals.dawnStep===10) {
       const song=document.createElement("li");
       song.textContent=data.works.dawnEntry;

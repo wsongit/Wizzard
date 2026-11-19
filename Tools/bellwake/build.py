@@ -11,7 +11,7 @@ from avatar import make_avatar
 from trails import roadside
 from passage_sets import scene as passage_set
 from passages import REGIONS
-from pilgrim import FIELDS
+from pilgrim import ALL_FIELDS as FIELDS
 from tide_engine import KEYS as engine_rooms
 from underworks import rooms as chambers
 from works_sets import make as make_works

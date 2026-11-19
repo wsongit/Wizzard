@@ -2,6 +2,7 @@
 
 from collections import deque
 import random
+from relief import REACHES, LANDINGS, configure_account, fields
 
 SIZE, CELL = 15, 8
 ENTRY = (7, 6)
@@ -267,6 +268,9 @@ FIELDS = [
 ]
 
 
+ALL_FIELDS = FIELDS + fields()
+
+
 def edge(a, b):
     return tuple(sorted((a, b)))
 
@@ -297,7 +301,7 @@ def distances(edges, start):
 
 
 def layout(index):
-    key, title, seed, theme, speaker, intro, actions, ending = FIELDS[index]
+    key, title, seed, theme, speaker, intro, actions, ending = ALL_FIELDS[index]
     rng = random.Random(seed)
     cells = [(x, y) for y in range(SIZE) for x in range(SIZE)]
     stack = [ENTRY]
@@ -323,10 +327,12 @@ def layout(index):
     walls = sorted({edge(a, b) for a in cells for b in neighbours(a)} - edges)
     rng.shuffle(walls)
     for a, b in walls:
-        if len(edges) >= SIZE * SIZE + 22:
+        if len(edges) >= SIZE * SIZE + (7 if index >= len(FIELDS) else 22):
             break
         if distances(edges, a)[b] > 14:
             edges.add((a, b))
+    if key in LANDINGS:
+        return edges, [ENTRY, *LANDINGS[key]]
     # Each work station sits on its own substantial branch; selected once for these authored seeds.
     distance = [distances(edges, ENTRY)]
     sites = [ENTRY]
@@ -343,17 +349,22 @@ def layout(index):
     return edges, sites
 
 
-def add_chapter(room, post, step, visual, machine):
-    for i, (key, title, seed, theme, speaker, intro, actions, ending) in enumerate(FIELDS):
+def add_chapter(room, post, step, visual, machine, relief=False, flags=None):
+    indices = range(len(FIELDS), len(ALL_FIELDS)) if relief else range(len(FIELDS))
+    for i in indices:
+        key, title, seed, theme, speaker, intro, actions, ending = ALL_FIELDS[i]
         edges, sites = layout(i)
-        r = room(key, title, intro, key)
-        r.update(chapter="The Pilgrims’ Cut", early=True, halfSpan=60)
+        r = room(key, title, intro, theme if relief else key)
+        r.update(chapter="The Mercy Run" if relief else "The Pilgrims’ Cut", early=True, halfSpan=60)
+        if relief:
+            r["homeRoom"] = 3
+        landscape = REACHES[i-len(FIELDS)][3] if relief else i
         import math
 
         def h(x, y):
             raw = (
                 0.72
-                + 0.5 * math.sin(x / 13 + i) * math.cos(y / 17)
+                + 0.5 * math.sin(x / 13 + landscape) * math.cos(y / 17)
                 + 1.5 * math.exp(-((x - 29) ** 2 + (y - 24) ** 2) / 450)
             )
             return round(raw * min(1, (x * x + (y + 14) ** 2) / 145), 3)
@@ -422,11 +433,14 @@ def add_chapter(room, post, step, visual, machine):
             visual(r, "Proof" + name, key + name, "show")
         r["goals"] = goals
         x, y = world(sites[-1])
-        destination = FIELDS[i + 1][0] if i + 1 < len(FIELDS) else "RowanHollow"
+        if relief:
+            destination = ALL_FIELDS[i + 1][0] if i + 1 < len(ALL_FIELDS) else "@final"
+        else:
+            destination = FIELDS[i + 1][0] if i + 1 < len(FIELDS) else "RowanHollow"
         post(
             r,
             "Gate",
-            "North road wicket",
+            "Passage onward" if relief else "North road wicket",
             x,
             y + 1,
             "gate",
@@ -474,7 +488,10 @@ def add_chapter(room, post, step, visual, machine):
             step("The far bell has no answer yet."),
         )
         if i:
-            post(r, "Back", "Previous ward", x - 2.5, y - 2, "back", step(to=FIELDS[i - 1][0]))
+            previous = "DrumHouse" if relief and i == len(FIELDS) else ALL_FIELDS[i - 1][0]
+            post(r, "Back", "Previous berth" if relief else "Previous ward", x - 2.5, y - 2, "back", step(to=previous))
+        if relief:
+            configure_account(i-len(FIELDS), r, post, step, visual, machine, flags)
         for st in r["stations"]:
             if st["id"] in ("A_Talk", "A_Gate"):
                 st["camp"] = "Rest" + st["id"][2:]

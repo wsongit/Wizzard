@@ -93,7 +93,7 @@ def add_engine(room, post, step, visual, machine):
         -6,
         "person",
         step(
-            "ELIN  /  Bring the night ferry alongside, seat the five mould collars and fly the home signal. The final lift answers only when every crew is clear."
+            "ELIN  /  Bring the night ferry alongside, seat the five mould collars and fly the home signal. The boat stair opens when every crew is clear. Bess will meet you at the Mercy Slip."
         ),
     )
     station(
@@ -136,11 +136,11 @@ def add_engine(room, post, step, visual, machine):
     station(
         r,
         "Final",
-        "Keeper’s ascent",
+        "Mercy boat stair",
         6,
         -8,
         "lift",
-        step(to="@final", when={"towJob": 4, "craneJob": 3, "loomFlag": 4}),
+        step(to="MercySlip", when={"towJob": 4, "craneJob": 3, "loomFlag": 4}),
         step("The lift waits for the night ferry, the assembled bell mould and the home signal."),
     )
     station(r, "Back", "Coastal stair", -10, -11, "lift", step(to="Wrenfall"))

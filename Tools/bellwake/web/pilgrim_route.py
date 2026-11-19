@@ -2,6 +2,7 @@
 
 import json
 from route_checkpoint import write_json
+from pathlib import Path
 
 TRAILS = {
     "QuinceFold": ["Knife", "Stock", "Scion", "Spring", "Mother"],
@@ -65,3 +66,47 @@ async def walk_wards(act, page, start, out, only=None, enter=None):
         write_json(path, report)
     if not only and state is not None:
         assert state["district"] == "RowanHollow"
+
+async def mercy_run(act, page, start, out, enter=None):
+    plan = json.loads((Path(__file__).resolve().parents[3] / "Assets/Resources/Bellwake/Underworks.json").read_text())
+    rolls = out / "mercy-run.json"
+    report = json.loads(rolls.read_text()) if enter and rolls.exists() else {}
+    accounts = plan["reliefAccounts"]
+    for i, account in enumerate(accounts):
+        name = account["key"]
+        if enter and not await enter(name):
+            continue
+        room = next(room for room in plan["rooms"] if room["key"] == name)
+        assert await page.evaluate("bellProbe().district") == name
+        await act("A_Talk")
+        await page.keyboard.press("j")
+        assert await page.locator("#survey").is_visible()
+        await page.screenshot(path=str(out / (name + "-survey.jpg")))
+        await page.keyboard.press("j")
+        stations = [s for s in room["stations"] if s.get("trail") and s["id"] not in ("A_Mark", "A_Gate")]
+        for j, station in enumerate(stations):
+            result = await act(station["id"])
+            assert result["works"]["signals"][name+station["id"][2:]] == 1
+            if j == 3:
+                await page.mouse.up()
+                await start()
+                assert (await page.evaluate("bellProbe().works")) == result["works"]
+        failed = await act("A_Mark")
+        assert failed["works"]["signals"][name+"Mark"] == 0
+        choice = "A_Other" if i % 2 else "A_Mark"
+        station = next(s for s in room["stations"] if s["id"] == choice)
+        needed = next(c["value"] for r in station["rules"] for c in r["when"] if c["signal"] == name+"Die")
+        for n in range(1,needed+1):
+            state = await act("A_Die")
+            assert state["works"]["signals"][name+"Die"] == n
+        state = await act(choice)
+        assert state["works"]["signals"][name+"Mark"] and state["works"]["signals"][name+"SecondAccount"] == i%2
+        await page.keyboard.press("j")
+        assert account["second" if i%2 else "first"] in await page.locator("#leaves").inner_text()
+        await page.keyboard.press("j")
+        await act("A_Bell")
+        await act("A_Fast")
+        state = await act("A_Gate")
+        assert state["district"] == (accounts[i+1]["key"] if i+1<len(accounts) else "StillBelfry")
+        report[name] = dict(account=choice, checkpoint=True, activeSeconds=state["secondsByPlace"][name])
+        write_json(rolls, report)

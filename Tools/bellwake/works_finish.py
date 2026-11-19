@@ -21,7 +21,7 @@ def plaques(k, r):
         "#302e46",
         "#432e39",
     ][k]
-    im = Image.new("RGB", (512, 512), ink)
+    im = Image.new("RGB", (512, 1024 if len(r["stations"]) > 16 else 512), ink)
     d = ImageDraw.Draw(im)
     path = "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
     for j, s in enumerate(r["stations"]):
@@ -54,8 +54,9 @@ def mount(s, k, r, j, height):
         w, h, front, base = 1.36, 0.31, y - 0.34, z + 0.58
     x0 = (j % 2) * 0.5 + 0.008
     x1 = x0 + 0.484
-    v1 = 1 - (j // 2) / 8 - 0.006
-    v0 = v1 - 0.114
+    rows = 16 if len(r["stations"]) > 16 else 8
+    v1 = 1 - (j // 2 + .048) / rows
+    v0 = v1 - .912 / rows
     geometry(
         "Enamel guild lettering",
         [

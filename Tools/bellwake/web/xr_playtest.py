@@ -701,6 +701,37 @@ async def crane_checkpoint(browser):
     print("PASS Quest tracked rack selection, five-metre collar transfer and rejected oversize collar",flush=True)
 
 
+async def relief_seal(browser):
+    plan = json.loads((here.parents[2] / "Assets/Resources/Bellwake/Underworks.json").read_text())
+    chambers = [room["key"] for room in plan["rooms"]]
+    machines = [m["key"] for m in plan["machines"]]
+    slip = plan["machines"][machines.index("MercySlip")]
+    values = [0] * len(machines)
+    values[machines.index("MercySlip")] = next(i for i, row in enumerate(slip["rows"])
+        if row["values"][-2:] == [1, 0])
+    save = {"number": 21, "leaves": 15, "works": {
+        "active": True, "chamber": chambers.index("MercySlip"), "camp": "RestMark", "machines": values}}
+    page = await browser.new_page(viewport={"width": 600, "height": 350})
+    errors = []
+    page.on("pageerror", lambda e: errors.append(str(e)))
+    await page.add_init_script(script=harness)
+    await page.add_init_script("localStorage.setItem('wizzard.bellwake.desktop.v1',"+json.dumps(json.dumps(save))+")")
+    await page.goto(sys.argv[1])
+    await page.click("#vr", timeout=60000)
+    await page.wait_for_function("bellProbe().vr && bellProbe().palms.every(Boolean)")
+    await tracked_navigation(page)
+    for n in range(1, 4):
+        await trigger_station(page, "Die", f"bellProbe().works.signals.MercySlipDie==={n}")
+    await trigger_station(page, "Other", "bellProbe().works.signals.MercySlipSecondAccount===1")
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('a-button',1)")
+    await page.wait_for_function("bellProbe().vrMap")
+    assert "You issue Dot" in await page.locator("#leaves").inner_text()
+    await page.evaluate("testDevice.activeSession.end()")
+    assert not errors, errors
+    await page.close()
+    print("PASS Quest seal press, alternate signature and passenger roll", flush=True)
+
+
 async def run():
     async with async_playwright() as pw:
         b = await pw.chromium.launch(
@@ -711,6 +742,10 @@ async def run():
                 "--enable-unsafe-swiftshader",
             ],
         )
+        if "--mercy-seal" in sys.argv:
+            await relief_seal(b)
+            await b.close()
+            return
         if "--headset-report" in sys.argv:
             await headset_report(b)
             await b.close()

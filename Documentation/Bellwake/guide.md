@@ -20,7 +20,8 @@ Tavi made a warning bell during the flood. Her sister Ina gave it a voice for a 
 | The Glass Rookery | Meet Orla. Learn the weir and lantern signals, then whistle three different pilot birds along their flight paths. |
 | The Lower Works | Sign the night roll below the rookery. Explore the three guild wings in any order, listen to the craftspeople and take their work to the great resonator. |
 | Wrenfall Head | The resonator lift emerges on the Pilots’ Coast. Help Mirren bring the flood book through the reef. |
-| The Countertide Engine | At the drum house, route the headrace to the chain dock, mould loft and signal loft. Finish Elin’s last dispatches to open the ascent. |
+| The Countertide Engine | At the drum house, route the headrace to the chain dock, mould loft and signal loft. Finish Elin’s last dispatches to open the Mercy boat stair. |
+| The Mercy Run | Take the boat stair from the Drum House. Follow Bess and the other witnesses across six night berths. Choose the evidence seal and sign one of two accounts at each landing. |
 | The Still Belfry | Speak to the keeper. Follow its raised wing to the side seal, or go behind it when it opens both wings. After three misses, speak to it to try again. |
 | The morning market | Choose who carries the watch. Both choices change the market and open a final conversation. |
 
@@ -184,3 +185,9 @@ For an immediate visit from Bellmarket, take the red Drift Fen fare beside the S
 You can recover the metal pieces in any order. At the school, read the names behind the missing bass reed. At the old bakehouse, look for Brindle’s tally. Pella’s clasp and the watchman’s key lead to the two remaining loads. Each discovery survives leaving the fen, closing the game or returning to the lock. The heavy cargo travels by crane.
 
 ![Penny School, Pella’s ward, the signal tower and Brindle’s bakery in the playable floodplain](drift-fen.jpg)
+
+## The Mercy Run
+
+Bess built a barge that carried thirty people the night the village flooded. The ledger lists twenty-nine fares. The surviving passengers take you from the Mercy Slip to Wickwater Fen, the Linen Courts, Kite Crag, Sounding Bay and the Supper Steps. Each landing has a different piece of physical evidence, from Dot’s mark on a timber to the crescent an oven brick left on Nan’s bread.
+
+Open the witness book with **J** or **A/X** to see the numbered chart. Call the brass waywren with **Q** or the left grip for the next stretch. The work yards save progress as you go. At the final desk, turn the press until the die matches what the witness showed you. The desk beside it lets you credit a second account. Signing either one seals the page. Ring the paired bells to reach the onward passage. Reopen the witness book after the ending to read the reply to each signature. [Six exhibits photographed in the game](mercy-run.jpg)

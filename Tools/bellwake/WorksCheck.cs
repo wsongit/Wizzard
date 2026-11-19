@@ -271,7 +271,7 @@ class WorksCheck
         var pilgrimage = new BellwakeWorks { active=true, chamber=Array.FindIndex(plan.rooms,r=>r.early) };
         pilgrimage.Bind(plan);
         Require(pilgrimage.GuideTrail(0).Count == 0, "unearned waywren");
-        foreach (var room in plan.rooms.Where(r=>r.early))
+        foreach (var room in plan.rooms.Where(r=>r.early && r.homeRoom==0))
         {
             Require(pilgrimage.Room == room, "cross-ward journey");
             string destination;
@@ -363,7 +363,27 @@ class WorksCheck
             Require(Reload(plan,w).Signal("supperServed")==1,"missing kitchen visitors");
             Run(w,"Home");
             w.Use("A_Final",out dest);
-            Require(dest=="@final","keeper ascent");
+            Require(dest=="MercySlip","relief berth");
+            foreach (var account in plan.reliefAccounts)
+            {
+                string key=account.key;
+                Require(w.Room.key==key,"missing berth "+key);
+                Run(w,"Other Mark Gate");
+                Require(w.Signal(key+"Mark")==0 && w.Room.key==key,"unearned account");
+                foreach (var station in w.Room.stations.Where(s=>s.trail!=null && s.id!="A_Gate" && s.id!="A_Mark"))
+                    w.Use(station.id,out dest);
+                Run(w,"Mark");
+                Require(w.Signal(key+"Mark")==0,"blank die accepted");
+                int correct=w.Station("A_Other").rules.SelectMany(r=>r.when).First(c=>c.signal==key+"Die").value;
+                for(int d=0;d<correct;d++) Run(w,"Die");
+                var alternate=Reload(plan,w);
+                Run(alternate,"Other Mark");
+                Require(Reload(plan,alternate).Signal(key+"SecondAccount")==1,"lost alternative account");
+                Run(w,"Mark Other");
+                Require(w.Signal(key+"Mark")==1 && w.Signal(key+"SecondAccount")==0,"account overwritten");
+                w.Use("A_Gate",out dest);
+            }
+            Require(dest=="@final","keeper ascent after the Mercy Run");
         }
         Console.WriteLine(positions + " machine positions, " + actions +
                           " transitions, six guild and Countertide gallery orders, machine checkpoints, optional register and finale passed.");
