@@ -34,8 +34,9 @@ async def main():
             const tick = t => {if(prev !== undefined) gaps.push(t-prev); prev=t; requestAnimationFrame(tick)};
             requestAnimationFrame(tick);
         }""")
-        if "--wards" in sys.argv or "--parish-frames" in sys.argv:
-            districts = (28,29,30) if "--parish-frames" in sys.argv else range(17,22)
+        frame_routes = {"--wards": range(17,22), "--parish-frames": (28,29,30), "--field-frames": (0,27,31,32,33)}
+        districts = next((rooms for flag, rooms in frame_routes.items() if flag in sys.argv), None)
+        if districts is not None:
             for index in districts:
                 await page.evaluate("i=>bellTravel(i)",index)
                 sample=await page.evaluate("""async() => {
@@ -77,13 +78,16 @@ async def main():
                     dispatchEvent(new KeyboardEvent("keyup",{code:"KeyW"}));
                     const s=bellProbe();
                     const sorted=gaps.slice().sort((a,b)=>a-b);
-                    return {room,loadMs:load,maxTravelFrameMs:Math.round(spike),
+                    return {room,district:s.district,loadMs:load,maxTravelFrameMs:Math.round(spike),
                        walkP95Ms:Math.round(sorted[Math.floor(sorted.length*.95)]),gpu:s.gpu,
                        sets:s.sets,trees:s.trees,music:s.music,musicTheme:s.musicTheme,musicGeneration:s.musicGeneration,effects:s.effects,
                        floor:s.feet[1], errors:document.getElementById('error').textContent};
                 }""",
                     room,
                 )
+                expected_score = {"GlassRookery":"GlassPilots","DriftFen":"AlderFerry","SwallowLock":"SwallowWater"}.get(sample["district"])
+                if expected_score:
+                    assert sample["musicTheme"] == expected_score, sample
                 assert sample["sets"] == sample["trees"] == sample["music"] == 1
                 assert sample["effects"] <= 4 and abs(sample["floor"]) < 3, sample
                 assert not sample.pop("errors"), sample

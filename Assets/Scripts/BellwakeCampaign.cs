@@ -237,10 +237,11 @@ namespace Wizzard
                 string key = InWorks ? story.works.Room.key : InPassage ? atlas.regions[story.room].key : BellwakeJourney.Rooms[story.room];
                 bool dawn = story.ending != 0 && !InWorks;
                 string theme = dawn ? "Morning" : InWorks ? story.works.Room.theme : key;
-                yield return ReleaseArea(theme);
+                string music = InWorks && !string.IsNullOrEmpty(story.works.Room.score) ? story.works.Room.score : theme;
+                yield return ReleaseArea(music);
                 var request = Resources.LoadAsync<GameObject>(Path + "Rooms/" + key);
                 var panorama = Resources.LoadAsync<Cubemap>(Path + "Skies/" + theme);
-                var song = score.clip == null ? Resources.LoadAsync<AudioClip>(Path + "Audio/" + theme) : null;
+                var song = score.clip == null ? Resources.LoadAsync<AudioClip>(Path + "Audio/" + music) : null;
                 Dictionary<string, ResourceRequest> pilotCalls = null;
                 if (InWorks)
                 {
@@ -596,6 +597,11 @@ namespace Wizzard
                         (Keyboard.current != null && Keyboard.current.jKey.wasPressedThisFrame);
             bool call = whistle.Read(XRUsage.gripButton, true) ||
                         (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame);
+            if (player.HeadObstructed && !journalOpen)
+            {
+                action = false;
+                call = false;
+            }
             if (outdoors)
             {
                 if (sign == null || !sign.activeInHierarchy ||
@@ -883,6 +889,7 @@ namespace Wizzard
         void FindFocus()
         {
             focus = null;
+            if (player.HeadObstructed) return;
             if (observation != null)
             {
                 if (Vector3.Distance(nodes[observation.id].position,player.head.position) <= 4.3f)
@@ -1021,7 +1028,7 @@ namespace Wizzard
         }
         string PalmStrike(int side, Vector3 palm)
         {
-            if (!player.PalmTracked(side)) { hadPalm[side] = false; return null; }
+            if (player.HeadObstructed || !player.PalmTracked(side)) { hadPalm[side] = false; return null; }
             Vector3 from = lastPalm[side], stroke = palm - from;
             float length2 = stroke.sqrMagnitude;
             bool continuous = hadPalm[side] && length2 > 1e-9f && length2 < 1;

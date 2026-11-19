@@ -152,6 +152,7 @@ export class TrackedRunner {
       turn = 0,
       contacts = 0;
     const had = this.hands[0].contact || this.hands[1].contact;
+    let lostPlantedHand = false;
     this.push.set(0, 0, 0);
     for (let i = 0; i < 2; i++) {
       let input;
@@ -161,6 +162,7 @@ export class TrackedRunner {
         pose = input?.gripSpace ? frame.getPose(input.gripSpace, ref) : null;
       this.palms[i].visible = this.arms[i].visible = !!pose;
       if (!pose) {
+        lostPlantedHand ||= h.contact;
         h.valid = h.contact = false;
         continue;
       }
@@ -212,8 +214,6 @@ export class TrackedRunner {
         }
       }
     }
-    if (!paused && squeeze && !this.squeezeHeld) this.callGuide();
-    this.squeezeHeld = squeeze;
     if (book && !this.bookHeld) this.book();
     this.bookHeld = book;
     if (!paused && Math.abs(turn) > 0.76 && !this.turnHeld) {
@@ -234,7 +234,7 @@ export class TrackedRunner {
         .clampLength(0, 0.29);
       this.velocity.set(0, 0, 0);
     } else {
-      if (had && this.hands.every((h) => h.valid)) this.velocity.copy(this.launch).clampLength(0, 7);
+      if (had && !lostPlantedHand) this.velocity.copy(this.launch).clampLength(0, 7);
       this.velocity.y = Math.max(-18, this.velocity.y - 11 * dt);
       this.motion.copy(this.velocity).multiplyScalar(dt);
     }
@@ -284,6 +284,8 @@ export class TrackedRunner {
       this.clearPose = true;
     }
     this.guard.visible = blocked;
+    if (!paused && !blocked && squeeze && !this.squeezeHeld) this.callGuide();
+    this.squeezeHeld = squeeze;
     if (blocked) {
       this.guard.position.copy(this.head).addScaledVector(this.direction, 0.16);
       this.guard.quaternion.copy(this.rotation);

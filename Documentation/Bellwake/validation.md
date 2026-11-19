@@ -12,6 +12,14 @@ Ina’s portrait is rendered in Blender from those same character meshes. A desk
 
 Wall visibility for selecting objects and sweeping the tracked head now exits on the first obstruction. The full differential suite compared 126,663 visibility tests with the reference collision system, including hits at the exact target distance. Another 104,448 ray, body and palm queries matched across all 34 districts. The native loader starts the panorama, score and room model requests together after releasing the previous district. A bird’s voice is queued only for a district containing its perch.
 
+## Tracked movement and streaming
+
+The Quest controller emulator planted a single palm and pushed 0.376 m with the other controller disconnected. Both hands independently carried momentum after release. Disconnecting the planted controller during the same stroke produced zero launch velocity. Reconnecting in clear space produced no contact. A separate check put the head below the market floor and pressed the trigger. The head guard blocked conversation. The capsule stopped a horizontal attempt to cross Tavi’s solid footing, and talking worked again from the clear side.
+
+Three complete laps made 117 transfers through all 34 districts. One set, one collision tree and one background music player remained active at every destination. The previous scene, panorama, collision data and any replaced music player were collectible at every stop. Returning to the same district produced identical GPU resource counts. Drift Fen, Swallow Stair and the Glass Rookery each played their own score. [Streaming and audio checks](glass-rookery.json)
+
+The optional Quest Browser timing report was exercised in an emulated 90 Hz session. The exported JSON included play intervals for Bellmarket, Drift Fen and the Glass Rookery, as well as both in-headset area loads. The emulator uses a cloud software renderer. Target frame time on a physical Quest is still unverified.
+
 ## The Glass Rookery
 
 The desktop runner started at the Cinder Lens gate, guided each bird into flight and checked its wing motion, landing and answer call. The three routes took 11, 12 and 14 operations. Reloading during the heron’s flight restored its destination. The player read the glasshouse ledger, took the gate to the Lower Works and released the valley, collision data, sky and last bird voice. Both ending conversations and the journal acknowledged Ina’s final delivery. An emulated Quest controller sounded the whistle and opened the illustrated chart.

@@ -3,6 +3,7 @@ import { PalmInstruments } from "./instruments.js";
 import { Underworks } from "./underworks.js";
 import { Passage } from "./passage.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { HeadsetFrameReport } from "./frame_report.js";
 import { PilotFlight } from "./pilots.js";
 import { TrackedRunner } from "./vr.js";
 import { loadCollision } from "./collision.js";
@@ -11,6 +12,7 @@ import { Capsule } from "three/examples/jsm/math/Capsule.js";
 
 const data = window.BELLWAKE,
   $ = (id) => document.getElementById(id);
+const frameReport = new URLSearchParams(location.search).has("timings") ? new HeadsetFrameReport() : null;
 const graph = data.story,
   store = "wizzard.bellwake.desktop.v1";
 let savedPassage, savedWorks, lastCheckpoint;
@@ -121,6 +123,7 @@ let music = null,
   musicTheme = "",
   musicGeneration = 0;
 const themeKey = () => (works.active ? works.room.theme : state().ending ? "Morning" : locationKey());
+const musicKey = () => (works.active && works.room.score) || themeKey();
 function assetURL(kind, name, mime) {
   return data.streamed ? data[kind][name] : "data:" + mime + ";base64," + data[kind][name];
 }
@@ -133,9 +136,9 @@ function dropMusic() {
   musicTheme = "";
 }
 function playMusic() {
-  if (music && musicTheme === themeKey()) return;
+  if (music && musicTheme === musicKey()) return;
   dropMusic();
-  musicTheme = themeKey();
+  musicTheme = musicKey();
   musicGeneration++;
   music = new Audio(assetURL("sounds", musicTheme, "audio/ogg"));
   music.loop = true;
@@ -359,18 +362,20 @@ async function room() {
     await loadRoom();
     return true;
   } catch (error) {
+    if (frameReport) frameReport.travel = null;
     fail(error);
     return false;
   }
 }
 async function loadRoom() {
+  frameReport?.beginTravel(vr.session, performance.now());
   cancelRehearsal();
   busy = true;
   $("veil").style.opacity = 1;
   const s = state(),
     k = s.room;
   if (group) {
-    if (__TEST__) retired = [group, tree, sky.material.map, pilotReply].filter(Boolean).map((value) => new WeakRef(value));
+    if (__TEST__) retired = [group, tree, sky.material.map, pilotReply, musicTheme !== musicKey() ? music : null].filter(Boolean).map((value) => new WeakRef(value));
     dispose(group);
     group = null;
     tree.clear();
@@ -379,7 +384,7 @@ async function loadRoom() {
     sky.material.map.dispose();
     sky.material.map = null;
     renderer.renderLists.dispose();
-    if (musicTheme !== themeKey()) dropMusic();
+    if (musicTheme !== musicKey()) dropMusic();
   }
   clearPilotReply();
   movingTrail = null;
@@ -532,6 +537,7 @@ async function loadRoom() {
   if (started) playMusic();
   save();
   busy = false;
+  frameReport?.endTravel(vr.session, key, performance.now());
   $("veil").style.opacity = 0;
 }
 let movingTrail = null,
@@ -663,6 +669,7 @@ function welcome() {
   else say(locationName(), objective(), 8);
 }
 async function interact(id, palm = -1) {
+  if (id !== "Toll" && vr.session && vr.guard.visible) return;
   if (!started || busy || book || !id) return;
   if (vr.session && nodes["Hit_" + id.slice(2)]) {
     if (!instruments.accepts(id, performance.now())) return;
@@ -889,6 +896,10 @@ function bearingClear() {
 }
 function pick() {
   focus = "";
+  if (vr.session && vr.guard.visible) {
+    $("prompt").hidden = true;
+    return;
+  }
   let best = Infinity;
   const origin = vr.session ? vr.head : camera.position;
   if (vr.session) forward.copy(vr.direction);
@@ -1010,7 +1021,7 @@ function soundFork() {
   say(title,(nearest<13?"A strong reply ":nearest<32?"A soft reply ":"A distant reply ")+relativeBearings[sector]+". Ring again after moving.",6);
 }
 function callGuide() {
-  if (!started || book || busy) return;
+  if (!started || book || busy || (vr.session && vr.guard.visible)) return;
   if (works.active && works.room.key === "DriftFen") { soundFork(); return; }
   if (nodes.HandWhistle) {
     if (!works.signals.rookWarden) { say("Pilot whistle","Orla keeps the whistle beside the south lodge."); return; }
@@ -1104,6 +1115,7 @@ function toggleBook(open) {
     $("leaves").replaceChildren();
   } else {
     document.exitPointerLock?.();
+    $("timings").hidden = !frameReport?.rooms.size;
     drawSurvey();
     $("booktitle").textContent = locationName() + "   ·   " + playTime();
     $("objective").textContent = objective() + "   ·   " + state().seals + " of 3 vows";
@@ -1171,6 +1183,15 @@ $("start").onclick = () => {
 };
 $("journal").onclick = () => toggleBook(true);
 $("close").onclick = () => toggleBook(false);
+$("timings").onclick = () => {
+  if (!frameReport) return;
+  const blob = new Blob([JSON.stringify(frameReport.summary(), null, 2)], {type:"application/json"});
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "Bellwake-headset-timings.json";
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+};
 $("sound").onclick = () => {
   muted = !muted;
   effects.forEach((a) => (a.muted = muted));
@@ -1252,6 +1273,7 @@ function adapt(interval) {
 }
 function loop(time, frame) {
   const interval = time - previous;
+  frameReport?.frame(vr.session, time, started && !busy && !book, locationKey(), renderer.info.memory);
   if (
     started &&
     !busy &&
@@ -1281,7 +1303,7 @@ function loop(time, frame) {
   if (nodes.HandFork || nodes.HandWhistle) poseFork(time);
   if (instruments.targets.length) {
     for (let i = 0; i < 2; i++) {
-      const point = vr.ready && !book && vr.hands[i].valid ? vr.palms[i].position : null;
+      const point = vr.ready && !vr.guard.visible && !book && vr.hands[i].valid ? vr.palms[i].position : null;
       const id = instruments.strike(i, point);
       if (id) interact(id, i);
     }
@@ -1447,6 +1469,8 @@ if (__TEST__)
     vrForward: vr.direction.toArray(),
     palms: vr.hands.map((h) => h.valid),
     planted: vr.hands.map((h) => h.contact),
+    releaseVelocity: vr.velocity.toArray(),
+    headObstructed: vr.guard.visible,
     ratio: renderer.getPixelRatio(),
     calls: renderer.info.render.calls,
     tris: renderer.info.render.triangles,

@@ -72,7 +72,7 @@ def add(rooms, room, post, step, flags):
         "The flood left four pieces of lost property across the old river valley. Willa keeps a sounding fork and a field sheet at the ferry.",
         "SwallowWater",
     )
-    r.update(halfSpan=56, middle=True, fog="#c3cbb1", chapter="Soundings in Drift Fen")
+    r.update(halfSpan=56, score="AlderFerry", middle=True, fog="#c3cbb1", chapter="Soundings in Drift Fen")
 
     def st(id, title, x, y, style, *rules):
         post(r, id, title, x, y, style, *rules)

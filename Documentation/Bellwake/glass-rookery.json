@@ -30,5 +30,33 @@
     1,
     2
   ],
-  "native": "Unity 2022.3.20f1 runtime, editor and development assemblies compiled. Physical headset pending."
+  "native": "Unity 2022.3.20f1 runtime, editor and development assemblies compiled. Physical headset pending.",
+  "fullCampaignStreaming": {
+    "districts": 34,
+    "transfers": 117,
+    "laps": 3,
+    "maxPreviousResourcesRetainedAfterCollection": 0,
+    "sameGpuCountsOnRepeat": true,
+    "maxLiveSets": 1,
+    "maxLiveCollisionTrees": 1,
+    "maxLiveBackgroundMusicPlayers": 1,
+    "includesRetiredMusicWhenScoreChanges": true,
+    "renderer": "Chromium SwiftShader on a shared cloud machine"
+  },
+  "districtScores": {
+    "AlderFerry": {
+      "duration": 36.48,
+      "bytes": 99291,
+      "peak": 0.3786,
+      "rms": 0.0887,
+      "loopEdgeDifference": 0.00099
+    },
+    "GlassPilots": {
+      "duration": 34.56,
+      "bytes": 116903,
+      "peak": 0.4736,
+      "rms": 0.1041,
+      "loopEdgeDifference": 0.00228
+    }
+  }
 }

@@ -25,6 +25,7 @@ namespace Wizzard
         const float headGuardRadius=.12f;
         Vector3 lastClearHead;
         bool hasClearHead, headBlocked;
+        public bool HeadObstructed => headBlocked;
         Renderer headGuardRenderer;
         Material headGuardMaterial;
         void Awake()
@@ -40,21 +41,25 @@ namespace Wizzard
             bool vr=XRSettings.isDeviceActive;
             if(vr) ReadHead(); else DesktopLook();
             if(MovementLocked) { UpdateHeadGuard(vr); return; }
-            targets[0]=HandTarget(XRNode.LeftHand,0,vr); targets[1]=HandTarget(XRNode.RightHand,1,vr);
-            if(!initialized) { for(int i=0;i<2;i++) previous[i]=targets[i]; initialized=true; }
+            for (int i = 0; i < 2; i++)
+            {
+                bool hadPose = tracked[i];
+                targets[i] = HandTarget(i == 0 ? XRNode.LeftHand : XRNode.RightHand, i, vr);
+                if (!initialized || !hadPose) previous[i] = targets[i];
+            }
+            initialized = true;
             Vector3 start=transform.position, push=Vector3.zero; int contacts=0;
             bool hadContact=touching[0]||touching[1];
+            bool lostPlantedHand = false;
             for(int i=0;i<2;i++)
             {
-                if(!tracked[i]) { touching[i]=false; previous[i]=targets[i]; continue; }
-                Vector3 delta=targets[i]-previous[i];
-                bool hit=false; Vector3 anchor=previous[i];
-                if(delta.sqrMagnitude>0.000001f && Physics.SphereCast(previous[i],handRadius,delta.normalized,
-                    out RaycastHit info,delta.magnitude+.015f,surfaces,QueryTriggerInteraction.Ignore))
-                { anchor=info.point+info.normal*(handRadius+.01f); hit=true; }
-                // A planted hand remains planted while near its contact surface.
-                if(!hit && touching[i] && Vector3.Distance(targets[i],previous[i])<.4f)
-                    hit=Physics.CheckSphere(previous[i],handRadius+.025f,surfaces,QueryTriggerInteraction.Ignore);
+                if (!tracked[i])
+                {
+                    lostPlantedHand |= touching[i];
+                    touching[i] = false;
+                    continue;
+                }
+                bool hit = FindPalmContact(previous[i], targets[i], touching[i], out Vector3 anchor);
                 touching[i]=hit;
                 if(hit) { push+=anchor-targets[i]; contacts++; previous[i]=anchor; }
                 else previous[i]=targets[i];
@@ -68,7 +73,7 @@ namespace Wizzard
             }
             else
             {
-                if(hadContact && (!vr || (tracked[0] && tracked[1])))
+                if(hadContact && !lostPlantedHand)
                     velocity=Vector3.ClampMagnitude(smoothedVelocity*launchMultiplier,maxSpeed);
                 if(motor.isGrounded && velocity.y<0) velocity.y=-1;
                 velocity+=Physics.gravity*dt;
@@ -103,6 +108,21 @@ namespace Wizzard
             if(vr) SnapTurn();
             if(head.position.y < -30) ResetPlayer();
             UpdateHeadGuard(vr);
+        }
+        bool FindPalmContact(Vector3 previousPalm, Vector3 target, bool planted, out Vector3 anchor)
+        {
+            anchor = previousPalm;
+            Vector3 delta = target - previousPalm;
+            if (delta.sqrMagnitude > .000001f && Physics.SphereCast(previousPalm, handRadius,
+                delta.normalized, out RaycastHit hit, delta.magnitude + .015f, surfaces, QueryTriggerInteraction.Ignore))
+            {
+                anchor = hit.point + hit.normal * (handRadius + .01f);
+                return true;
+            }
+            // Check where the controller is now. The old anchor stays next to
+            // the surface even after the player has lifted their hand away.
+            return planted && delta.sqrMagnitude < .16f &&
+                Physics.CheckSphere(target, handRadius + .025f, surfaces, QueryTriggerInteraction.Ignore);
         }
         void ReadHead()
         {

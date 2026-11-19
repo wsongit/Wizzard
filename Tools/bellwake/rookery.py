@@ -123,7 +123,7 @@ def build(room, post, step, visual, machine, flags):
         "A valley of glass-topped guideposts lies beyond the furnace. Three pilot birds have never flown their flood-night routes home.",
         "SwallowWater",
     )
-    r.update(halfSpan=36, chapter="The three missing pilots", fog="#b7c1b0")
+    r.update(halfSpan=36, score="GlassPilots", chapter="The three missing pilots", fog="#b7c1b0")
 
     def st(id, label, x, y, style, *rules):
         post(r, id, label, x, y, style, *rules)

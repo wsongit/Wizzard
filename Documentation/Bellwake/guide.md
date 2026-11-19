@@ -28,6 +28,10 @@ The witness book shows active playtime. Loading, the open journal and unfocused 
 
 The 32-place Drift Fen route reached its first ending in 36 minutes 36 seconds of active play with known solutions. The Glass Rookery extends that route. The design target is 25–30 hours for a first-time player. A human completion time has yet to be measured. [Playthrough details](validation.md)
 
+## Quest Browser frame timings
+
+For a device test, open the hosted game as `Play/index.html?timings` and enter VR. The game records up to 360 recent WebXR frame intervals for each district and headset refresh rate. It tracks room loading separately. After leaving immersive mode, open the witness book and select **Save headset timings**. The JSON downloads locally with the median, 95th percentile, worst interval, room load duration and renderer resource counts.
+
 ## Tavi’s Paper Theatre
 
 The sisters’ theatre stands in the courtyard behind the blue ticket door. Each scene takes its evidence from an object in the yard. The three reels place a person, a setting and a prop onstage. A correct performance lights another lamp on the marquee. The reels and lit lamps survive a checkpoint reload or a trip back to the market. On the final programme, credit Ina as a bellmender or a lock runner. Tavi recalls your choice in both endings.

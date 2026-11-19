@@ -156,3 +156,9 @@ for i,phrases in enumerate((((0,.13,1020,1330),(.16,.12,1110,1400),(.31,.19,1280
         if i==1:call=call*(.78+.22*np.sin(2*np.pi*45*t))+.11*sosfilt(butter(2,[390,2100],btype="bandpass",fs=rate,output="sos"),rng.normal(size=len(t)))
         n=round(start*rate);sound[n:n+len(t)]+=.62*breath*call
     save(name,sound)
+
+from field_music import field_score
+
+for name in ("GlassPilots", "AlderFerry"):
+    if not sys.argv[1:] or name in sys.argv[1:]:
+        save(name, field_score(name, rate, voice))

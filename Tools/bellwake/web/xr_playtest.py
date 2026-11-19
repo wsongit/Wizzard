@@ -285,6 +285,131 @@ async def pilot_checkpoint(browser):
     print("PASS tracked whistle, grebe reply, wingbeats, landing and pilot chart in the headset",flush=True)
 
 
+async def headset_report(browser):
+    page = await browser.new_page(viewport={"width": 630, "height": 380}, accept_downloads=True)
+    errors = []
+    page.on("pageerror",lambda err:errors.append(str(err)))
+    await page.add_init_script(script=harness)
+    url = sys.argv[1]
+    await page.goto(url + ("&" if "?" in url else "?") + "timings")
+    await page.click("#vr", timeout=60000)
+    await page.wait_for_function("bellProbe().vr && bellProbe().palms.every(Boolean)")
+    for next_room in (32,33,None):
+        await page.evaluate("""async()=>{for(let i=0;i<48;i++)await new Promise(r=>testDevice.activeSession.requestAnimationFrame(r))}""")
+        if next_room is not None:
+            await page.evaluate("r=>bellTravel(r)",next_room)
+    await page.evaluate("testDevice.activeSession.end()")
+    await page.wait_for_function("!bellProbe().vr")
+    await page.keyboard.press("j")
+    async with page.expect_download() as download:
+        await page.click("#timings:visible")
+    file = await download.value
+    assert file.suggested_filename == "Bellwake-headset-timings.json"
+    report = json.loads(Path(await file.path()).read_text())
+    rows = {r["room"]:r for r in report["rooms"]}
+    for place in ("Bellmarket","DriftFen","GlassRookery"):
+        row=rows[place]
+        assert 12 <= row["recentFrames"] <= 360 and row["recentMedianMs"]>0, row
+        assert row["recentP95Ms"]>=row["recentMedianMs"] and row["maxRendererTextures"]>0, row
+        if place!="Bellmarket":
+            assert row["loads"]==1 and row["meanLoadMs"]>0 and row["worstTransitionFrameMs"]>0,row
+    assert not errors,errors
+    print(json.dumps(report, indent=2),flush=True)
+    await page.close()
+
+
+async def obstructed_head(browser):
+    page = await browser.new_page(viewport={"width": 630, "height": 380})
+    errors = []
+    page.on("pageerror", lambda err: errors.append(str(err)))
+    await page.add_init_script(script=harness)
+    await page.goto(sys.argv[1])
+    await page.click("#vr", timeout=60000)
+    await page.wait_for_function("bellProbe().vr && bellProbe().palms.every(Boolean)")
+    await tracked_navigation(page)
+    await page.evaluate("walkSurvey(-2,10.4)")
+    await page.evaluate("sightToward(bellProbe().markers.A_Talk)")
+    await page.wait_for_function("bellProbe().focus==='A_Talk' && !bellProbe().headObstructed")
+    await page.evaluate("window.clearPose=[testDevice.position.x,testDevice.position.y,testDevice.position.z]")
+    for subject in ("floor", "footing"):
+        await page.evaluate("""what=>{
+            const p=testDevice.position, h=bellProbe().vrHead;
+            if(what==='floor')p.y-=h[1]+.35;
+            else p.set(p.x-2-h[0],p.y+1.15-h[1],p.z+7.55-h[2]);
+        }""",subject)
+        await page.wait_for_timeout(350)
+        measured = await page.evaluate("({guard:bellProbe().headObstructed,head:bellProbe().vrHead})")
+        print(subject, measured, flush=True)
+        if subject == "footing" and not measured["guard"]:
+            # The capsule sweep can prevent the tracking origin reaching the obstacle at all.
+            assert measured["head"][2] >= 8.52, measured
+            break
+        assert measured["guard"], measured
+        await page.evaluate("sightToward(bellProbe().markers.A_Talk)")
+        await page.wait_for_function("!bellProbe().focus")
+        await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',1)")
+        await page.wait_for_timeout(240)
+        await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',0)")
+        assert not await page.evaluate("bellProbe().works?.invited || JSON.parse(localStorage.getItem('wizzard.bellwake.desktop.v1'))?.works?.invited"), subject
+        await page.evaluate("testDevice.position.set(...clearPose)")
+        await page.wait_for_function("!bellProbe().headObstructed")
+    await page.evaluate("testDevice.position.set(...clearPose)")
+    await page.evaluate("walkSurvey(-2,10.4)")
+    await trigger_station(page,"Talk","document.querySelector('#words').textContent.includes('blue courtyard door')")
+    assert not errors,errors
+    await page.evaluate("testDevice.activeSession.end()")
+    await page.close()
+    print("PASS a submerged head cannot talk through the floor, a solid footing stops the head crossing and returning to the clear side restores the market conversation.", flush=True)
+
+
+async def single_palm_release(browser):
+    for side, drop in (("right", False), ("left", False), ("right", True)):
+        page = await browser.new_page(viewport={"width": 600, "height": 370})
+        errors = []
+        page.on("pageerror", lambda err: errors.append(str(err)))
+        await page.add_init_script(script=harness)
+        await page.goto(sys.argv[1])
+        await page.click("#vr", timeout=60000)
+        await page.wait_for_function("bellProbe().vr && bellProbe().palms.every(Boolean)")
+        result = await page.evaluate("""async ([side, drop])=>{
+            const i=side==="left"?0:1, hand=testDevice.controllers[side], sign=i?1:-1;
+            const next=()=>new Promise(r=>testDevice.activeSession.requestAnimationFrame(r));
+            testDevice.controllers[i?"left":"right"].connected=false;
+            testDevice.position.set(0,.85,0);
+            hand.position.set(.22*sign,.05,-.45);
+            for(let n=0;n<80 && !bellProbe().planted[i];n++)await next();
+            if(!bellProbe().planted[i])throw Error("Palm did not plant");
+            const start=bellProbe().vrHead;
+            for(let n=1;n<=8;n++){
+                hand.position.set(.22*sign,.025,-.45+n*.047);
+                await next();
+            }
+            const before=bellProbe();
+            if(drop)hand.connected=false;else hand.position.y+=.27;
+            for(let n=0;n<10 && bellProbe().planted[i];n++)await next();
+            const release=bellProbe();
+            for(let n=0;n<4;n++)await next();
+            const after=bellProbe();
+            hand.connected=true;
+            hand.position.set(.22*sign,1.1,-.32);
+            await next();await next();
+            return {side,drop,plantedBefore:before.planted[i],stillPlanted:release.planted[i],
+                push:before.vrHead[2]-start[2],releaseSpeed:release.releaseVelocity[2],
+                glide:after.vrHead[2]-before.vrHead[2],reconnected:bellProbe().palms[i],
+                phantomContact:bellProbe().planted[i]};
+        }""", [side, drop])
+        assert result["plantedBefore"] and not result["stillPlanted"], result
+        assert result["push"] < -.08 and result["reconnected"] and not result["phantomContact"], result
+        if drop:
+            assert abs(result["releaseSpeed"]) < .015 and abs(result["glide"]) < .04, result
+        else:
+            assert result["releaseSpeed"] < -.1 and result["glide"] < -.01, result
+        assert not errors, errors
+        print(result, flush=True)
+        await page.evaluate("testDevice.activeSession.end()")
+        await page.close()
+
+
 async def portrait_checkpoint(browser):
     plan = json.loads((here.parents[2] / "Assets/Resources/Bellwake/Underworks.json").read_text())
     idx, machine = next((i, m) for i, m in enumerate(plan["machines"]) if m["key"] == "pilots")
@@ -422,6 +547,18 @@ async def run():
                 "--enable-unsafe-swiftshader",
             ],
         )
+        if "--headset-report" in sys.argv:
+            await headset_report(b)
+            await b.close()
+            return
+        if "--head-guard" in sys.argv:
+            await obstructed_head(b)
+            await b.close()
+            return
+        if "--single-palm" in sys.argv:
+            await single_palm_release(b)
+            await b.close()
+            return
         if "--portrait" in sys.argv:
             await portrait_checkpoint(b)
             await b.close()

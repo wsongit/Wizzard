@@ -33,6 +33,17 @@ namespace Wizzard.Editor
                 var blocked=typeof(GorillaPlayer).GetField("headBlocked",BindingFlags.Instance|BindingFlags.NonPublic);
                 Require(apply!=null && guard!=null && blocked!=null,"Collision check hooks are missing.");
 
+                var palm = typeof(GorillaPlayer).GetMethod("FindPalmContact", BindingFlags.Instance | BindingFlags.NonPublic);
+                Require(palm != null, "Palm contact check is missing.");
+                var palmStart = new Vector3(4997, .55f, 4997);
+                object[] stroke = { palmStart, palmStart + Vector3.down * .53f, false, Vector3.zero };
+                Require((bool)palm.Invoke(player, stroke), "A downward palm stroke missed the floor.");
+                var planted = (Vector3)stroke[3];
+                Require((bool)palm.Invoke(player, new object[]{planted, planted + Vector3.right * .06f, true, Vector3.zero}),
+                        "A tangential floor stroke lost its anchor.");
+                Require(!(bool)palm.Invoke(player, new object[]{planted, planted + Vector3.up * .16f, true, Vector3.zero}),
+                        "Lifting the palm clear of the floor retained the old anchor.");
+
                 apply.Invoke(player,new object[]{new Vector3(2,1.65f,0)});
                 Physics.SyncTransforms();
                 Require(Mathf.Abs(head.transform.localPosition.x-2)<.001f,"Tracked local head position was altered.");

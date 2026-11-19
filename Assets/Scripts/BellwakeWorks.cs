@@ -40,7 +40,7 @@ namespace Wizzard
     [Serializable]
     public sealed class WorksRoom
     {
-        public string key, title, intro, theme, chapter, fog;
+        public string key, title, intro, theme, score, chapter, fog;
         public bool early, prologue, middle;
         public WorksRule[] goals;
         public float halfSpan;
