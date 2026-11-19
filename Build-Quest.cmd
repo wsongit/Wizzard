@@ -15,7 +15,8 @@ if /i "%~1"=="profile" (
 if not exist Builds mkdir Builds
 "%UNITY_EDITOR%" -batchmode -nographics -quit -projectPath "%CD%" -buildTarget Android -executeMethod Wizzard.Editor.VRProjectSetup.%BUILD_METHOD% -logFile "%CD%\Builds\Quest-build.log"
 if errorlevel 1 (
-  type "%CD%\Builds\Quest-build.log"
+  echo Unity build failed. Full log: "%CD%\Builds\Quest-build.log"
+  if exist "Builds\Quest-build.log" powershell -NoProfile -Command "Select-String -LiteralPath 'Builds/Quest-build.log' -Pattern 'error (CS|BC)[0-9]+|shader error|[A-Za-z]*Exception:|^Error:|^FAILURE:|^What went wrong|No valid Unity Editor license|Aborting batchmode' | Select-Object -First 5 | ForEach-Object { $_.Line }"
   exit /b 1
 )
 if not exist "%CD%\%APK_NAME%" exit /b 1

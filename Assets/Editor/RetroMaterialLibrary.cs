@@ -14,7 +14,13 @@ namespace Wizzard.Editor
                 // Preserve any material the user has already customized.
                 if(AssetDatabase.LoadAssetAtPath<Material>(path+".mat")!=null) continue;
                 var texture=AssetDatabase.LoadAssetAtPath<Texture2D>(path+".asset");
-                if(texture==null) { texture=RetroMaterials.Texture(kind); AssetDatabase.CreateAsset(texture,path+".asset"); }
+                if (texture == null)
+                {
+                    texture = RetroMaterials.Texture(kind);
+                    // Imported village artwork already has a persistent asset path.
+                    if (!AssetDatabase.Contains(texture))
+                        AssetDatabase.CreateAsset(texture, path + ".asset");
+                }
                 var material=new Material(RetroMaterials.Get(kind)); material.mainTexture=texture;
                 AssetDatabase.CreateAsset(material,path+".mat");
             }
