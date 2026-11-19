@@ -7,7 +7,7 @@ namespace Wizzard
     public sealed class WorksPlan
     {
         public string logTitle, logEntry, theatreInvitation;
-        public string[] logEndings, supperEndings, parishEndings, theatreCredits, theatreCadences;
+        public string[] logEndings, supperEndings, swallowEntries, parishEndings, theatreCredits, theatreCadences;
         public SupperNote[] supperNotes;
         public RoadLeaf[] roadLeaves;
         public string parishLedger;

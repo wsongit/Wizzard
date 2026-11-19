@@ -662,6 +662,7 @@ async function interact(id, palm = -1) {
     }
     if (result.to) {
       if (result.to === "@choir" || result.to === "@market" || result.to === "@reedwater") works.progress.active = false;
+      if (result.to === "@glasscut") { works.progress.active=false; passage.progress.active=true; }
       if (result.to === "@final") {
         works.progress.active = false;
         number = state().moves.A_Gate[0];
@@ -776,7 +777,11 @@ async function interact(id, palm = -1) {
     prev.room < data.regions.length &&
     prev.room === passage.progress.completed
   ) {
-    passage.progress.active = true;
+    if (prev.room===2 && !works.signals.namedRunner && !works.signals.unnamedRunner) {
+      works.progress.chamber=data.works.rooms.findIndex(r=>r.key==="SwallowLock");
+      works.progress.active=true;
+      works.progress.camp="";
+    } else passage.progress.active = true;
     if (await room()) welcome();
     return;
   }
@@ -814,7 +819,10 @@ async function interact(id, palm = -1) {
     ? " " + data.works.theatreCredits[works.signals.paperCredit - 1] : "";
   const parishLine = (id === "A_Ina" || id === "A_Roster") && state().ending && works.signals.parishSigned
     ? " " + data.works.parishEndings[state().ending - 1] : "";
-  say(name, move[1] + programme + pilotLine + supperLine + parishLine + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
+  const filing = works.signals.namedRunner ? 1 : works.signals.unnamedRunner ? 2 : 0;
+  const swallowLine = (id === "A_Ina" || id === "A_Roster") && state().ending && filing
+    ? " " + data.works.swallowEntries[filing-1] : "";
+  say(name, move[1] + programme + pilotLine + supperLine + parishLine + swallowLine + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
 }
 function bearingClear() {
   const origin = vr.session ? vr.head : camera.position;

@@ -104,6 +104,7 @@ sets.extend([
     ("SaltMud",.58,[55,58,60,53],[0,3,7,None,5,2,None,3,0,None,7,5],"reed"),
     ("SillRain",.67,[55,60,58,65],[7,None,3,5,None,0,3,7,None,5,2,None],"reed"),
     ("ParishInk",.45,[62,57,65,60],[0,7,5,2,None,0,3,None,7,0,None,2],"lute"),
+    ("SwallowWater",.40,[57,62,60,64],[0,None,7,3,None,5,2,None,0,7,5,None],"reed"),
     ("PaperLight",.48,[60,65,57,67],[0,4,7,None,2,5,4,0,None,7,5,2],"lute"),
     ("KettleLight",.67,[55,60,57,55],[0,7,0,None,4,4,7,None,7,0,4,None],"lute"),
 ])

@@ -27,6 +27,9 @@ for room in args[1:] or ROOMS + passage_keys + work_keys + ["Runner", "Trails"]:
     elif room in [field[0] for field in FIELDS]:
         from pilgrim_art import make as make_ward
         make_ward(next(i for i,f in enumerate(FIELDS) if f[0]==room), Path(args[0]))
+    elif room=="SwallowLock":
+        from swallow_art import make as make_stair
+        make_stair(Path(args[0]))
     elif room.startswith("Sillwater"):
         from sillwater_art import make as make_parish
         make_parish(room, Path(args[0]))

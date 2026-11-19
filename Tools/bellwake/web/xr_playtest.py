@@ -248,6 +248,28 @@ async def packet_checkpoint(browser):
     print("PASS Quest packet desk, northeast landing and return to Tavi’s first morning",flush=True)
 
 
+async def swallow_checkpoint(browser):
+    plan=json.loads((here.parents[2]/"Assets/Resources/Bellwake/Underworks.json").read_text())
+    index=plan["flags"].index("fenWatch")
+    page=await browser.new_page(viewport={"width":630,"height":380})
+    errors=[]
+    page.on("pageerror",lambda e:errors.append(str(e)))
+    await page.add_init_script(script=harness)
+    save={"number":13,"works":{"active":True,"chamber":next(i for i,r in enumerate(plan["rooms"]) if r["key"]=="SwallowLock"),"camp":"RestHead","furtherBadges":[1<<(index%30)]}}
+    await page.add_init_script("localStorage.setItem('wizzard.bellwake.desktop.v1',"+json.dumps(json.dumps(save))+")")
+    await page.goto(sys.argv[1])
+    await page.click("#vr",timeout=60000)
+    await page.wait_for_function("bellProbe().vr && bellProbe().district==='SwallowLock' && bellProbe().palms.every(Boolean)")
+    await tracked_navigation(page)
+    await trigger_station(page,"Head","bellProbe().works.signals.foreMark===1 && bellProbe().works.signals.westClear===0")
+    await page.evaluate("walkSurvey(0,3.56)")
+    await trigger_station(page,"Chain","bellProbe().works.signals.foreMark===0 && bellProbe().works.signals.aftMark===1")
+    await page.evaluate("testDevice.activeSession.end()")
+    assert not errors,errors
+    await page.close()
+    print("PASS headset trigger raised the fore pound, shut its gate, and transferred water to aft",flush=True)
+
+
 async def kitchen_checkpoint(browser):
     page = await browser.new_page(viewport={"width": 630, "height": 380})
     errors = []
@@ -306,6 +328,10 @@ async def run():
                 "--enable-unsafe-swiftshader",
             ],
         )
+        if "--swallow" in sys.argv:
+            await swallow_checkpoint(b)
+            await b.close()
+            return
         if "--packet" in sys.argv:
             await packet_checkpoint(b)
             await b.close()

@@ -37,6 +37,7 @@ for k, (name, top, low) in enumerate(
         ("SaltMud",(92,139,158),(241,204,149)),
         ("SillRain",(74,102,149),(179,197,198)),
         ("ParishInk",(102,126,154),(227,202,169)),
+        ("SwallowWater",(83,128,160),(231,202,157)),
     ]
 ):
     if sys.argv[1:] and name not in sys.argv[1:]: continue

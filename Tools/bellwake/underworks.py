@@ -944,6 +944,9 @@ theatre_credits=build_theatre(room,post,step,v,machine,flags)
 from sillwater import build as build_sillwater
 build_sillwater(room,post,step,v,machine,flags)
 
+from swallow_lock import add as add_stairlock
+add_stairlock(room,post,step,v,machine,flags)
+
 for descriptor in rooms:
     for station in descriptor["stations"]:
         station["note"] = {
@@ -963,6 +966,10 @@ if __name__ == "__main__":
                 theatreInvitation=INVITATION,
                 theatreCredits=theatre_credits,
                 theatreCadences=CADENCES,
+                swallowEntries=[
+                    "Fen has written Ina’s name in full beside the night boat. Her four deliveries are on the lock wall.",
+                    "Fen’s book bears a tiny swallow. Ina touches the mark and smiles. The lock crew knows whose it is.",
+                ],
                 parishLedger="Ada’s seal restores three addresses to the toll map: the Oar House, the school at Penny Reach, and the bell lock.",
                 parishEndings=[
                     "The new watch list gives every runner a meeting place. Against Ina’s name Ada has written Penny Reach school.",

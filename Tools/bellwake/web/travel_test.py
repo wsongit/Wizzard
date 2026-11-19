@@ -56,7 +56,9 @@ async def main():
             Path(destination).write_text(json.dumps({"renderer":"Chromium SwiftShader","samples":samples},indent=2)+"\n")
             await browser.close()
             return
-        route = [27, 5, 17,18,19,20,21, 1, 6, 28, 29, 30, 28, 2, 7, 3, 8, 9, 10, 11, 12, 13, 14, 15, 16, 22, 23, 22, 24, 22, 25, 22, 26, 4, 0]
+        route = [27, 5, 17,18,19,20,21, 1, 6, 28, 29, 30, 28, 2, 31, 7, 3, 8, 9, 10, 11, 12, 13, 14, 15, 16, 22, 23, 22, 24, 22, 25, 22, 26, 4, 0]
+        if "--swallow" in sys.argv:
+            route = [2,31,7,31,0]
         if "--parish" in sys.argv:
             route = [28,29,30,29,28,2,0]
         for lap in range(3):

@@ -974,6 +974,7 @@ namespace Wizzard
                         spawn=Arrival(); player.Teleport(spawn,facing); Save(); Say(title,line); return;
                     }
                     if(destination=="@choir" || destination=="@market" || destination=="@reedwater") story.works.active=false;
+                    if(destination=="@glasscut") { story.works.active=false; Route.active=true; }
                     if(destination=="@final") { story.works.active=false;story.Gate(); }
                     StartCoroutine(EnterRoom());
                 }
@@ -1018,6 +1019,8 @@ namespace Wizzard
                 line = story.Epilogue();
                 if (story.works.Remembered(worksPlan, "supperServed")) line += " " + worksPlan.supperEndings[story.ending-1];
                 if (story.works.Remembered(worksPlan, "parishSigned")) line += " " + worksPlan.parishEndings[story.ending-1];
+                if (story.works.Signal("namedRunner")!=0) line += " " + worksPlan.swallowEntries[0];
+                else if (story.works.Signal("unnamedRunner")!=0) line += " " + worksPlan.swallowEntries[1];
                 if (HasFloodBook) line += " " + worksPlan.logEndings[story.ending-1];
                 if(story.works.Remembered(worksPlan,"named")) line+=" Below it hangs a new brass plate: Ina, fourth hand of the night shift.";
 
@@ -1070,7 +1073,13 @@ namespace Wizzard
                 if (story.room < atlas.regions.Length && Route.completed == story.room &&
                     story.commissioned && (story.room==0 || story.Solved))
                 {
-                    Route.active=true;
+                    if (story.room==2 && !story.works.Remembered(worksPlan,"namedRunner") && !story.works.Remembered(worksPlan,"unnamedRunner"))
+                    {
+                        story.works.chamber=Array.FindIndex(worksPlan.rooms,r=>r.key=="SwallowLock");
+                        story.works.camp="";
+                        story.works.active=true;
+                    }
+                    else Route.active=true;
                     StartCoroutine(EnterRoom());
                     return;
                 }

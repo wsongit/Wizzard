@@ -35,6 +35,7 @@ class WorksCheck
         if (m.channels[0].StartsWith(m.key)) return row.values[row.values.Length-1]==1;
         switch (m.key)
         {
+        case "stairlock": return s("voyageNo")==4;
         case "parishplot": return s("parishJob")==3;
         case "paperstage": return s("paperCredit")!=0;
         case "potcall": return s("supperBeat")==9;
@@ -152,6 +153,22 @@ class WorksCheck
         Require(visitor.returnTicket && visitor.Room.key=="SillwaterEbb" && visitor.camp=="RestGate","missing return ticket");
         visitor.Use("A_Gate",out towpath);
         Require(towpath=="@reedwater" && !visitor.returnTicket && visitor.Signal("parishSigned")==0,"early packet return");
+        foreach(string filing in new[]{"Name","Mark"})
+        {
+            var lockWatch=new BellwakeWorks {active=true,chamber=Array.FindIndex(plan.rooms,r=>r.key=="SwallowLock")};
+            lockWatch.Bind(plan);
+            string next;
+            lockWatch.Use("A_Gate",out next);
+            Require(string.IsNullOrEmpty(next),"premature lock departure");
+            Run(lockWatch,"Fen West Hook Sign");
+            Require(lockWatch.Signal("voyageNo")==0 && lockWatch.Signal("aboard")==0,"unearned cargo");
+            lockWatch=SolveGallery(plan,lockWatch,"stairlock");
+            Run(lockWatch,filing=="Name"?"Name Mark":"Mark Name");
+            lockWatch=Reload(plan,lockWatch);
+            Require(lockWatch.Signal("namedRunner")+lockWatch.Signal("unnamedRunner")==1,"two entries for one watch");
+            lockWatch.Use("A_Gate",out next);
+            Require(next=="@glasscut","missing towpath to mine");
+        }
         foreach (string credit in new[] {"Maker","Runner"})
         {
             var court=new BellwakeWorks {active=true,chamber=Array.FindIndex(plan.rooms,r=>r.prologue)};

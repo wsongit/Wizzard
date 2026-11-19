@@ -142,3 +142,9 @@ python Tools/bellwake/web/package.py Play/Bellwake.html
 ```
 
 The browser uses Three.js under the MIT license, included in the HTML. Meta’s IWER is a development-only dependency for the emulated headset checks.
+
+## Swallow Stair
+
+After solving Reedwater’s three sluices, go through its arch and take the watch from Fen. Read the sailing chit for the prevailing tides, the designated crane and its loading mark. Open the headwater feed to raise the fore chamber. The bucket chain transfers one mark from fore to aft. The tail sluice drains the aft chamber. A gate lifts when the water on both sides matches. Haul the boat one reach east or west at a time, use the crane, then stamp the receipt at the opposite landing. All four jobs share the same water and boat. On the fourth crossing, the night-watch tin reveals Ina’s slip. File it by name or by her swallow mark before leaving for Glasscut.
+
+![The school organ aboard the Swallow, the two operating boards and the lock from the towpath](swallow-stair.jpg)
