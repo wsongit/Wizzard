@@ -2,7 +2,13 @@
 
 ## Full playthrough
 
-The last fresh-save run before Rowan Hollow reached the first ending in **35 minutes 16 seconds of active play** across 34 required districts. The runner used normal movement and known solutions, earned all 27 dispatch stamps and five witness leaves, developed all three photographs, guided the pilot birds and retried the keeper. It skipped the optional kitchen and the music-box coda. Its original report assertion still expected 33 places and stopped after the first ending. The saved timer and first-ending checkpoint contained all 34. The reporter now compares the actual district names against the campaign manifest. A second run loaded the earned pre-choice checkpoint in the final release candidate and played through both morning markets, including the five witness leaves and the public road book. First-time human and physical-headset times remain unmeasured. [Timing by location](known-route.json)
+The first ending took **1:00:28 of active play** across 41 main-story districts in the desktop browser. The runner sprinted, used known puzzle solutions, collected five witness leaves and signed all six passenger accounts. It carried its earned save across a restart and into the expanded edition at the Countertide Engine. The in-game clock excludes loading, time away and the open journal. Both endings passed from the earned choice at the tower. First-time human and physical Quest completion times remain unmeasured. [Time by district](known-route.json)
+
+## The Mercy Run
+
+The six berths took 0:28:44 of active play. The runner checked the evidence at each yard, reloaded mid-journey, rejected a blank seal, signed one account at each landing and used the restored bells to board the next passage. Both morning journals showed the appropriate replies in the offline edition. An emulated Quest 3 turned the press with the controller trigger, credited Dot’s fare slip and opened the passenger roll.
+
+The six Blender exports passed 337,014 ground probes, 57,240 boundary rays and 50,400 interior passage checks. All 102 stations had reachable approaches. Across 141 transfers covering all 42 districts, only the current world, collision tree and music player remained after each arrival. GPU resource counts matched on repeat visits. The lifecycle run used Chromium’s software renderer. Physical Quest frame pacing still needs a headset measurement. [Release checks](mercy-run.json)
 
 ## Rowan Hollow
 
@@ -226,7 +232,7 @@ The expanded eight-district travel check made 24 transitions in a single browser
 
 ## Rowan Hollow and campaign checkpoint recovery
 
-The fresh-save browser run played from Bellmarket through Rowan Hollow, the three guilds and the launch at Wrenfall. A cloud restart interrupted the run there. Separate keyboard playtests crossed the reef, completed all three Countertide workshops, reached Still Belfry and played both endings. The Wrenfall test measured 27.66 metres of vessel travel. The Countertide test checked 157 station inputs and restored each machine after a page reload. The last completed full-route timing, from before Rowan Hollow was added, was 35 minutes 16 seconds of active play with known solutions.
+The fresh-save browser run played from Bellmarket through Rowan Hollow, the three guilds and the launch at Wrenfall. A cloud restart interrupted the run there. Separate keyboard playtests crossed the reef, completed all three Countertide workshops, reached Still Belfry and played both endings. The Wrenfall test measured 27.66 metres of vessel travel. The Countertide test checked 157 station inputs and restored each machine after a page reload. At the time of that recovery test, the pre-forest timing was 35 minutes 16 seconds.
 
 The timed runner now saves the earned browser state and elapsed time on disk at chapter entries. In a recovery test, a fresh character finished the paper play and Saltwake, then the test process was stopped at Quince Fold. A new browser restored the first witness leaf and completed the knife and stock stations in the orchard. To repeat the run, serve the instrumented build and use the navigation grids from the Blender audit. Keep the result directory on persistent storage. Use the same build, navigation grids and result directory when resuming.
 

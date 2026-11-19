@@ -29,7 +29,7 @@ The market, Root Choir, Reedwater, Cinder Lens and belfry each hold a witness le
 
 The witness book shows active playtime. Loading, the open journal and unfocused play are excluded. The clock starts with this update for existing checkpoints. Players already past a new district retain their place in the story.
 
-Before Rowan Hollow, the 34-place main campaign reached its first ending in 35 minutes 16 seconds of active play with known solutions. The optional music-box verses and harbour kitchen are additional. The design target is 25–30 hours for a first-time player. A human completion time has yet to be measured. [Playthrough details](validation.md)
+The main story reached its first ending in **1:00:28 of active play** on the tested desktop route, sprinting with known solutions. The harbour kitchen and the morning music-box verses are optional. Your first visit and Quest movement can take a different amount of time. [Playthrough details](validation.md)
 
 ## Quest Browser frame timings
 

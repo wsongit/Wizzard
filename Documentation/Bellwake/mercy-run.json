@@ -1,0 +1,219 @@
+{
+  "contentRevision": "3cfba1af380db2db2321f0954be1497aef2d7210",
+  "firstEndingActiveSeconds": 3628.2,
+  "activeSecondsInMercyRun": 1724.3,
+  "accounts": {
+    "MercySlip": {
+      "account": "A_Mark",
+      "checkpoint": true,
+      "activeSeconds": 303.1379000000083
+    },
+    "Wickwater": {
+      "account": "A_Other",
+      "checkpoint": true,
+      "activeSeconds": 287.2051999999938
+    },
+    "LinenCourt": {
+      "account": "A_Mark",
+      "checkpoint": true,
+      "activeSeconds": 275.1222000000063
+    },
+    "KiteCrag": {
+      "account": "A_Other",
+      "checkpoint": true,
+      "activeSeconds": 300.8212000000068
+    },
+    "SoundingBay": {
+      "account": "A_Mark",
+      "checkpoint": true,
+      "activeSeconds": 282.0888000000004
+    },
+    "SupperSteps": {
+      "account": "A_Other",
+      "checkpoint": true,
+      "activeSeconds": 275.92240000001294
+    }
+  },
+  "geometry": [
+    {
+      "asset": "MercySlip",
+      "groundProbes": 56169,
+      "boundaryRays": 9540,
+      "interiorCrossings": 8400,
+      "walkableCells": 40133,
+      "stations": 17,
+      "minApproaches": 30,
+      "triangles": 30225,
+      "visibleMaterialSlots": 42
+    },
+    {
+      "asset": "Wickwater",
+      "groundProbes": 56169,
+      "boundaryRays": 9540,
+      "interiorCrossings": 8400,
+      "walkableCells": 39679,
+      "stations": 17,
+      "minApproaches": 17,
+      "triangles": 39419,
+      "visibleMaterialSlots": 48
+    },
+    {
+      "asset": "LinenCourt",
+      "groundProbes": 56169,
+      "boundaryRays": 9540,
+      "interiorCrossings": 8400,
+      "walkableCells": 46104,
+      "stations": 17,
+      "minApproaches": 35,
+      "triangles": 42598,
+      "visibleMaterialSlots": 46
+    },
+    {
+      "asset": "KiteCrag",
+      "groundProbes": 56169,
+      "boundaryRays": 9540,
+      "interiorCrossings": 8400,
+      "walkableCells": 39031,
+      "stations": 17,
+      "minApproaches": 17,
+      "triangles": 37787,
+      "visibleMaterialSlots": 43
+    },
+    {
+      "asset": "SoundingBay",
+      "groundProbes": 56169,
+      "boundaryRays": 9540,
+      "interiorCrossings": 8400,
+      "walkableCells": 39816,
+      "stations": 17,
+      "minApproaches": 17,
+      "triangles": 29703,
+      "visibleMaterialSlots": 42
+    },
+    {
+      "asset": "SupperSteps",
+      "groundProbes": 56169,
+      "boundaryRays": 9540,
+      "interiorCrossings": 8400,
+      "walkableCells": 45751,
+      "stations": 17,
+      "minApproaches": 17,
+      "triangles": 29567,
+      "visibleMaterialSlots": 43
+    }
+  ],
+  "collision": [
+    {
+      "room": "MercySlip",
+      "queries": 3072,
+      "visibilityQueries": 3969,
+      "hits": {
+        "capsule": 300,
+        "sphere": 256,
+        "ray": 555
+      },
+      "packedBytes": 1224208,
+      "referenceHeap": 15890520,
+      "packedHeap": 5040,
+      "referenceLoadMs": 18.279890999999964,
+      "packedLoadMs": 2.9379169999999704
+    },
+    {
+      "room": "Wickwater",
+      "queries": 3072,
+      "visibilityQueries": 3876,
+      "hits": {
+        "capsule": 328,
+        "sphere": 254,
+        "ray": 524
+      },
+      "packedBytes": 1574776,
+      "referenceHeap": 19111144,
+      "packedHeap": 1760,
+      "referenceLoadMs": 90.54244500000004,
+      "packedLoadMs": 0.3901250000000118
+    },
+    {
+      "room": "LinenCourt",
+      "queries": 3072,
+      "visibilityQueries": 3921,
+      "hits": {
+        "capsule": 297,
+        "sphere": 251,
+        "ray": 539
+      },
+      "packedBytes": 1675252,
+      "referenceHeap": 20013536,
+      "packedHeap": 4152,
+      "referenceLoadMs": 53.04215199999999,
+      "packedLoadMs": 0.5342020000000502
+    },
+    {
+      "room": "KiteCrag",
+      "queries": 3072,
+      "visibilityQueries": 3909,
+      "hits": {
+        "capsule": 336,
+        "sphere": 282,
+        "ray": 535
+      },
+      "packedBytes": 1513000,
+      "referenceHeap": 18532136,
+      "packedHeap": 1928,
+      "referenceLoadMs": 55.53266299999996,
+      "packedLoadMs": 1.2131899999999405
+    },
+    {
+      "room": "SoundingBay",
+      "queries": 3072,
+      "visibilityQueries": 3852,
+      "hits": {
+        "capsule": 296,
+        "sphere": 249,
+        "ray": 516
+      },
+      "packedBytes": 1205416,
+      "referenceHeap": 15628488,
+      "packedHeap": 2328,
+      "referenceLoadMs": 15.216214000000036,
+      "packedLoadMs": 1.831997999999885
+    },
+    {
+      "room": "SupperSteps",
+      "queries": 3072,
+      "visibilityQueries": 3924,
+      "hits": {
+        "capsule": 314,
+        "sphere": 256,
+        "ray": 540
+      },
+      "packedBytes": 1201672,
+      "referenceHeap": 15633336,
+      "packedHeap": 1080,
+      "referenceLoadMs": 61.13619500000004,
+      "packedLoadMs": 3.08147299999996
+    }
+  ],
+  "streaming": {
+    "districts": 42,
+    "laps": 3,
+    "transfers": 141,
+    "oldWorldsRetained": 0,
+    "oneActiveWorldCollisionTreeAndMusicPlayer": true,
+    "stableRendererResourceCountsOnReturn": true,
+    "interruptedDownloadRecovered": true,
+    "renderer": "Chromium SwiftShader",
+    "viewport": {
+      "width": 384,
+      "height": 216
+    }
+  },
+  "native": {
+    "machinePositions": 3342,
+    "machineTransitions": 18310,
+    "signedAccountsTestedBothWays": 6,
+    "androidAndEditorCompilation": "Unity 2022.3.20f1 assemblies"
+  },
+  "webXR": "Emulated Quest 3 turned the seal press, signed the alternate account and read the journal.",
+  "singleFile": "The release HTML ran from loopback with other requests blocked. Both morning endings showed the six expected replies. All 165 streamed assets were checked against their content hashes."
+}
