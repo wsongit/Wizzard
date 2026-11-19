@@ -88,6 +88,12 @@ def main(key):
             assert hit and normal.z > 0.84, (key, x, y, "ground hole or slope")
             z = hit.z
             surfaces[i, j] = z
+            if key in ("Saltwake","RimePost","Glasscut"):
+                # Thin posts may fall between vertical probes. Reserve clearance for the swept body.
+                for h in (.23,.50,.8,1.1,1.39,1.62):
+                    near=solid.find_nearest(Vector((x,y,z+h)),.46)
+                    if near[0] is not None:
+                        blocked.add((i,j));break
             for dx, dy in [(0, 0), (0.28, 0), (-0.28, 0), (0, 0.28), (0, -0.28)]:
                 # Test above foot height, including the head clearance on the actual mesh.
                 if solid.ray_cast((x + dx, y + dy, z + 1.72), (0, 0, -1), 1.60)[0] is not None:

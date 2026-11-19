@@ -10,7 +10,10 @@ namespace Wizzard.Editor
         [MenuItem("Wizzard/Validate Bellwake rooms")]
         public static void Validate()
         {
-            foreach (string room in BellwakeJourney.Rooms)
+            var atlas=JsonUtility.FromJson<PassageAtlas>(Resources.Load<TextAsset>("Bellwake/Passages").text);
+            var rooms=new List<string>(BellwakeJourney.Rooms);
+            foreach(var region in atlas.regions) rooms.Add(region.key);
+            foreach (string room in rooms)
             {
                 string prefix = "Bellwake/";
                 var scene = Resources.Load<GameObject>(prefix + "Rooms/" + room);
@@ -29,9 +32,16 @@ namespace Wizzard.Editor
                                 room + " paint on " + t.name);
                 }
                 foreach (var marker in new[] { "Terrain", "Set", "C_Solids", "Spawn", "Look", "A_Talk", "A_Gate",
-                                               "A_Letter", "GateLight" })
+                                               "GateLight" })
                     Require(names.Contains(marker), room + " marker " + marker);
-                if (room != "Bellmarket")
+                if(Array.IndexOf(BellwakeJourney.Rooms,room)<0)
+                {
+                    foreach(var id in new[]{"Chart","Pawn","Cargo","NW","NE","SW","A_Key0","A_Key1","A_Key2","A_Key3","A_Stamp","A_Hint","A_Reset","A_Log0","A_Log1","A_Log2"})
+                        Require(names.Contains(id),room+" marker "+id);
+                    Require(Resources.Load<TextAsset>(prefix+"Charts/"+room)!=null,room+" charts");
+                }
+                else Require(names.Contains("A_Letter"),room+" letter");
+                if (Array.IndexOf(BellwakeJourney.Rooms,room)>0)
                     for (int i = 0; i < 3; i++)
                         Require(names.Contains("A_Key" + i) && names.Contains("Rotor" + i),
                                 room + " station " + i);
@@ -44,7 +54,7 @@ namespace Wizzard.Editor
                 Require(Resources.Load<GameObject>("Bellwake/Rooms/" + file) != null, file);
             Require(Shader.Find("Wizzard/BellwakePaint") != null && Shader.Find("Wizzard/BellwakeSky") != null,
                     "Bellwake shaders");
-            Debug.Log("Bellwake import checks passed for all five rooms.");
+            Debug.Log("Bellwake import checks passed for all campaign districts.");
         }
         static void Require(bool yes, string what)
         {

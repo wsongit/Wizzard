@@ -30,9 +30,22 @@ def route(grid, start, goal):
             break
         if d > cost[v]:
             continue
-        for dx, dz in [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)]:
+        for dx, dz in [
+            (1, 0),
+            (-1, 0),
+            (0, 1),
+            (0, -1),
+            (1, 1),
+            (-1, 1),
+            (1, -1),
+            (-1, -1),
+        ]:
             w = (v[0] + dx, v[1] + dz)
-            if w not in cells or (v[0] + dx, v[1]) not in cells or (v[0], v[1] + dz) not in cells:
+            if (
+                w not in cells
+                or (v[0] + dx, v[1]) not in cells
+                or (v[0], v[1] + dz) not in cells
+            ):
                 continue
             val = d + math.hypot(dx, dz)
             if val < cost.get(w, 1e10):
@@ -55,7 +68,10 @@ def route(grid, start, goal):
             if u[0] * w[1] == u[1] * w[0] and u[0] * w[0] + u[1] * w[1] > 0:
                 simple.pop()
         simple.append(v)
-    return [[grid["offset"] + i * grid["step"], -(grid["offset"] + j * grid["step"])] for i, j in simple]
+    return [
+        [grid["offset"] + i * grid["step"], -(grid["offset"] + j * grid["step"])]
+        for i, j in simple
+    ]
 
 
 drive = """async ({points,id})=>{
@@ -89,7 +105,9 @@ async def run():
         )
         page = await b.new_page(viewport={"width": 768, "height": 432})
         page.on("pageerror", lambda e: errors.append(str(e)))
-        page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
+        page.on(
+            "console", lambda m: errors.append(m.text) if m.type == "error" else None
+        )
 
         async def start():
             await page.goto(url)
@@ -98,21 +116,51 @@ async def run():
             await page.mouse.move(380, 200)
             await page.mouse.down()
 
+        target_post = "--last-post" in sys.argv
+        glasscut_only = "--glasscut" in sys.argv
+        endings_only = "--endings" in sys.argv
+        if target_post or glasscut_only or endings_only:
+            saved = {"number": 13, "leaves": 7}
+            if endings_only: saved={"number":31,"leaves":31}
+            if target_post:
+                saved["passage"] = {
+                    "completed": 2,
+                    "active": True,
+                    "sheet": 6,
+                    "position": 0,
+                    "logs": 3,
+                }
+            await page.add_init_script(
+                "if(!sessionStorage.fixture){localStorage.setItem('wizzard.bellwake.desktop.v1',"
+                + json.dumps(json.dumps(saved))
+                + ");sessionStorage.fixture='1'}"
+            )
         await start()
 
         async def act(id):
             p = await page.evaluate("bellProbe()")
             k = p["room"]
-            g = json.loads((Path(navdir) / (rooms[k] + ".json")).read_text())
+            g = json.loads((Path(navdir) / (p["district"] + ".json")).read_text())
+            if p["passage"] and id.startswith("A_Key"):
+                # Read the sloped chart from the pilot's position in front of the four keys.
+                g["goals"][id] = [
+                    c
+                    for c in g["goals"][id]
+                    if abs(g["offset"] + c[0] * g["step"]) <= 0.5
+                    and -6.5 <= g["offset"] + c[1] * g["step"] <= -5.5
+                ]
             path = route(
                 g,
-                [(p["feet"][0] - g["offset"]) / g["step"], (-p["feet"][2] - g["offset"]) / g["step"]],
+                [
+                    (p["feet"][0] - g["offset"]) / g["step"],
+                    (-p["feet"][2] - g["offset"]) / g["step"],
+                ],
                 id,
             )
             await page.evaluate(drive, {"points": path, "id": id})
             await page.wait_for_function("!bellProbe().busy", timeout=30000)
             after = await page.evaluate("bellProbe()")
-            print(rooms[k], id, "=>", after["number"], flush=True)
+            print(p["district"], id, "=>", after["number"], flush=True)
             return after
 
         async def profile():
@@ -126,51 +174,125 @@ async def run():
             print("frames", stats, flush=True)
             await page.screenshot(path=str(out / (rooms[stats["room"]] + ".jpg")))
 
-        await profile()
-        await act("A_Talk")
-        await act("A_Letter")
-        await act("A_Gate")
-        await profile()
-        await act("A_Talk")
-        await act("A_Key0")
-        await act("A_Key2")
-        await page.mouse.up()
-        await start()  # saved partial melody survives reload
-        await act("A_Key1")
-        await act("A_Key0")
-        await act("A_Letter")
-        await act("A_Gate")
-        await profile()
-        await act("A_Talk")
-        await act("A_Key1")
-        await act("A_Key0")
-        await act("A_Key2")
-        await act("A_Letter")
-        await act("A_Gate")
-        await profile()
-        await act("A_Talk")
-        await act("A_Key2")
-        await act("A_Key0")
-        await act("A_Key1")
-        await act("A_Lens")
-        await act("A_Letter")
-        await act("A_Gate")
-        await profile()
-        await act("A_Letter")
-        await act("A_Talk")
-        for i in range(3):
-            await act("A_Key1")  # three misses must allow a clean retry
-        await act("A_Talk")
-        await act("A_Key0")
-        await act("A_Key2")
-        await act("A_Key1")
-        save = await page.evaluate("localStorage.getItem('wizzard.bellwake.desktop.v1')")
+        async def passage(key):
+            current = await page.evaluate("bellProbe()")
+            assert current["district"] == key, current
+            await act("A_Talk")
+            await act("A_Gate")
+            assert (await page.evaluate("bellProbe()"))["district"] == key
+            solutions = []
+            for sheet in range(9):
+                if sheet % 3 == 0:
+                    await act("A_Log" + str(sheet // 3))
+                if sheet == 0:
+                    await act("A_Hint")
+                    await act(
+                        "A_Key"
+                        + str((await page.evaluate("bellProbe()"))["passage"]["hint"])
+                    )
+                    await act("A_Reset")
+                moves = 0
+                while True:
+                    info = (await page.evaluate("bellProbe()"))["passage"]
+                    if info["win"]:
+                        break
+                    assert (
+                        info["sheet"] == sheet and 0 <= info["hint"] < 4 and moves < 75
+                    ), info
+                    await act("A_Key" + str(info["hint"]))
+                    moves += 1
+                    if sheet == 0 and moves == 2:
+                        checkpoint = (await page.evaluate("bellProbe()"))["passage"]
+                        await page.screenshot(path=str(out / (key + "-chart.jpg")))
+                        await page.mouse.up()
+                        await start()
+                        assert (await page.evaluate("bellProbe()"))[
+                            "passage"
+                        ] == checkpoint
+                solutions.append(moves)
+                await act("A_Stamp")
+            assert (await page.evaluate("bellProbe()"))["passage"]["logs"] == 7
+            await act("A_Gate")
+            assert (await page.evaluate("bellProbe()"))["passage"] is None
+            (out / (key + ".json")).write_text(
+                json.dumps(
+                    {
+                        "shortestMovesPlayed": solutions,
+                        "witnessPosts": 3,
+                        "midChartReload": True,
+                    },
+                    indent=2,
+                )
+            )
+
+        if target_post:
+            await act("A_Log2")
+            step = (await page.evaluate("bellProbe()"))["passage"]["hint"]
+            after = await act("A_Key" + str(step))
+            assert after["passage"]["position"] != 0 and after["passage"]["logs"] == 7
+            assert not errors, errors
+            print(
+                "PASS Glasscut resonance cradle to chart, first route input accepted",
+                flush=True,
+            )
+            await b.close()
+            return
+        if not endings_only:
+            if glasscut_only:
+                await act("A_Gate")
+            else:
+                await profile()
+                await act("A_Talk")
+                await act("A_Letter")
+                await act("A_Gate")
+                await passage("Saltwake")
+                await profile()
+                await act("A_Talk")
+                await act("A_Key0")
+                await act("A_Key2")
+                await page.mouse.up()
+                await start()  # saved partial melody survives reload
+                await act("A_Key1")
+                await act("A_Key0")
+                await act("A_Letter")
+                await act("A_Gate")
+                await passage("RimePost")
+                await profile()
+                await act("A_Talk")
+                await act("A_Key1")
+                await act("A_Key0")
+                await act("A_Key2")
+                await act("A_Letter")
+                await act("A_Gate")
+            await passage("Glasscut")
+            await profile()
+            await act("A_Talk")
+            await act("A_Key2")
+            await act("A_Key0")
+            await act("A_Key1")
+            await act("A_Lens")
+            await act("A_Letter")
+            await act("A_Gate")
+            await profile()
+            await act("A_Letter")
+            await act("A_Talk")
+            for i in range(3):
+                await act("A_Key1")  # three misses must allow a clean retry
+            await act("A_Talk")
+            await act("A_Key0")
+            await act("A_Key2")
+            await act("A_Key1")
+        save = await page.evaluate(
+            "localStorage.getItem('wizzard.bellwake.desktop.v1')"
+        )
         final = await act("A_End0")
         assert final["ending"] == 1 and final["leaves"] == 31
         await act("A_Roster")
         await act("A_Talk")
         await page.mouse.up()
-        await page.evaluate("s=>localStorage.setItem('wizzard.bellwake.desktop.v1',s)", save)
+        await page.evaluate(
+            "s=>localStorage.setItem('wizzard.bellwake.desktop.v1',s)", save
+        )
         await start()
         final = await act("A_End1")
         assert final["ending"] == 2 and final["leaves"] == 31
@@ -197,4 +319,5 @@ async def run():
         await b.close()
 
 
-asyncio.run(run())
+if __name__ == "__main__":
+    asyncio.run(run())

@@ -24,17 +24,42 @@ def asset(path):
     return base64.b64encode(path.read_bytes()).decode("ascii")
 
 
-subprocess.run(["node", str(folder / "bake_collision.mjs"), *[str(assets / (key + ".glb")) for key in story["rooms"]]], check=True)
+regions = json.loads((root / "Assets/Resources/Bellwake/Passages.json").read_text())[
+    "regions"
+]
+rooms = story["rooms"] + [region["key"] for region in regions]
+subprocess.run(
+    [
+        "node",
+        str(folder / "bake_collision.mjs"),
+        *[str(assets / (key + ".glb")) for key in rooms],
+    ],
+    check=True,
+)
 
 data = dict(
-    collision={key: asset(assets / (key + ".bvh")) for key in story["rooms"]},
-    story=story, streamed=streamed,
-    skies={p.stem: asset(p) for p in (root / "Assets/Resources/Bellwake/Skies").glob("*.jpg")},
+    collision={key: asset(assets / (key + ".bvh")) for key in rooms},
+    story=story,
+    streamed=streamed,
+    regions=regions,
+    charts={
+        r["key"]: asset(
+            root / "Assets/Resources/Bellwake/Charts" / (r["key"] + ".json")
+        )
+        for r in regions
+    },
+    skies={
+        p.stem: asset(p)
+        for p in (root / "Assets/Resources/Bellwake/Skies").glob("*.jpg")
+    },
     models={
         key: asset(assets / (key + ".glb"))
-        for key in story["rooms"] + ["LeftPalm", "RightPalm", "RunnerArm"]
+        for key in rooms + ["LeftPalm", "RightPalm", "RunnerArm"]
     },
-    sounds={p.stem: asset(p) for p in (root / "Assets/Resources/Bellwake/Audio").glob("*.ogg")},
+    sounds={
+        p.stem: asset(p)
+        for p in (root / "Assets/Resources/Bellwake/Audio").glob("*.ogg")
+    },
 )
 test = "--test" in sys.argv
 js = subprocess.check_output(
@@ -52,10 +77,15 @@ js = subprocess.check_output(
 html = (
     (folder / "game.html")
     .read_text()
-    .replace("/* DATA */", "window.BELLWAKE=" + json.dumps(data, separators=(",", ":")) + ";")
+    .replace(
+        "/* DATA */", "window.BELLWAKE=" + json.dumps(data, separators=(",", ":")) + ";"
+    )
     .replace("/* GAME */", js.replace("</script", "<\\/script"))
 )
 html = "\n".join(line.rstrip() for line in html.split("\n"))
 out.write_text(
-    html + "\n<!-- Three.js license\n" + (folder / "node_modules/three/LICENSE").read_text() + "\n-->"
+    html
+    + "\n<!-- Three.js license\n"
+    + (folder / "node_modules/three/LICENSE").read_text()
+    + "\n-->"
 )

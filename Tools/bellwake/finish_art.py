@@ -218,7 +218,7 @@ def district(k):
             shaft("Mullion", base, pts[3], 0.062, 0.062, "Brass", 6)
 
 
-def bake_ground(key):
+def bake_ground(key, height=None):
     # Ground-only bake from the actual placed meshes. This preserves contacts
     # on mobile without shadow maps, transparent decals or overlapping floors.
     import numpy as np
@@ -241,7 +241,9 @@ def bake_ground(key):
     bvh = BVHTree.FromPolygons(vertices, faces, all_triangles=True)
     from sets import ground, ROOMS
 
-    k = ROOMS.index(key)
+    if height is None:
+        k = ROOMS.index(key)
+        height = lambda x,y: ground(k,x,y)
     n = 180
     shade = np.zeros((n, n), np.float32)
     rays = [
@@ -253,7 +255,7 @@ def bake_ground(key):
         for i in range(n):
             x = (i + 0.5) * 40 / n - 20
             y = 20 - (j + 0.5) * 40 / n
-            start = Vector((x, y, ground(k, x, y) + 0.035))
+            start = Vector((x, y, height(x, y) + 0.035))
             for direct, limit, w in rays:
                 hit, _, _, dist = bvh.ray_cast(start, direct, limit)
                 if hit is not None:

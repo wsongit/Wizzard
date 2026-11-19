@@ -20,6 +20,11 @@ namespace Wizzard
         readonly Dictionary<string, Quaternion> rest = new Dictionary<string, Quaternion>();
         readonly XrPress use = new XrPress(), journal = new XrPress();
         BellwakeJourney story;
+        PassageAtlas atlas;
+        BellwakePassage Route => story.passage;
+        bool InPassage => Route != null && Route.active;
+        string RoomTitle => InPassage ? Route.region.title : BellwakeJourney.Titles[story.room];
+        string Objective => InPassage ? Route.Objective() : story.Objective();
         BellwakeDisplay display;
         GorillaPlayer player;
         GameObject set, meadow, sign;
@@ -62,6 +67,8 @@ namespace Wizzard
             cam = rig.head.GetComponent<Camera>();
             display = new BellwakeDisplay(rig.head);
             story = Restore();
+            atlas = JsonUtility.FromJson<PassageAtlas>(Resources.Load<TextAsset>(Path + "Passages").text);
+            PrepareRoute();
             if (Debug.isDebugBuild)
             {
                 profiler = gameObject.AddComponent<BellwakeFrameSample>();
@@ -88,6 +95,16 @@ namespace Wizzard
             curtainRenderer.sharedMaterial = curtain;
             curtainRenderer.enabled = false;
             StartCoroutine(EnterRoom());
+        }
+        void PrepareRoute()
+        {
+            if (Route == null) story.passage = new BellwakePassage();
+            int slots=BellwakeJourney.Rooms.Length+atlas.regions.Length+1;
+            if (story.secondsByPlace==null || story.secondsByPlace.Length<slots)
+                Array.Resize(ref story.secondsByPlace, slots);
+            Route.completed = Mathf.Clamp(Mathf.Max(Route.completed,story.room),0,atlas.regions.Length);
+            if (Route.completed != story.room || story.ending != 0 || story.room >= atlas.regions.Length)
+                Route.active=false;
         }
         static BellwakeJourney Restore()
         {
@@ -134,8 +151,10 @@ namespace Wizzard
         }
         IEnumerator ReleaseArea()
         {
+            movingTrail = null;
             focus = lastHint = null;
             struck = null;
+            if (Route != null) { Route.book = null; Route.region = null; }
             nodes.Clear();
             points.Clear();
             rest.Clear();
@@ -164,7 +183,14 @@ namespace Wizzard
             {
                 yield return Fade(0, 1);
                 yield return ReleaseArea();
-                string key = BellwakeJourney.Rooms[story.room];
+                PrepareRoute();
+                string key = InPassage ? atlas.regions[story.room].key : BellwakeJourney.Rooms[story.room];
+                if (InPassage)
+                {
+                    var charts=Resources.LoadAsync<TextAsset>(Path+"Charts/"+key);
+                    yield return charts;
+                    Route.Bind(atlas.regions[story.room],JsonUtility.FromJson<PassageBook>(((TextAsset)charts.asset).text));
+                }
                 var request = Resources.LoadAsync<GameObject>(Path + "Rooms/" + key);
                 yield return request;
                 if (request.asset == null)
@@ -221,12 +247,13 @@ namespace Wizzard
                 score.Play();
                 pulseUntil = Time.unscaledTime + 32;
                 Save();
-                Say(dawn ? "BELLWAKE  /  EPILOGUE" : "BELLWAKE  /  " + BellwakeJourney.Titles[story.room],
+                Say(dawn ? "BELLWAKE  /  EPILOGUE" : "BELLWAKE  /  " + RoomTitle,
                     dawn ? (story.ending == 1 ? "The long watch is over. For the first time, the whole market " +
                                                 "takes its turn at " +
                                                     "the bell."
                                               : "At dawn the river sings with a human voice. Tavi has set two " +
                                                 "places for breakfast.")
+                    : InPassage ? Objective
                     : story.room == 0 && !story.commissioned
                         ? "The morning bell failed to ring. Find Tavi on the path. Look at her and press E or a " +
                               "controller trigger."
@@ -283,6 +310,7 @@ namespace Wizzard
         }
         string Label(string id)
         {
+            if (InPassage) return Route.Label(id);
             switch (id)
             {
             case "A_Talk":
@@ -317,8 +345,28 @@ namespace Wizzard
             if (nodes.TryGetValue(id, out var t))
                 Active(t, active);
         }
+        Vector3 trailStart;
+        float trailTime;
+        string movingTrail;
+        Vector3 ChartPoint(int tile)
+        {
+            Vector3 nw=nodes["NW"].position;
+            return nw + (nodes["NE"].position-nw)*(tile%7/6f) + (nodes["SW"].position-nw)*(tile/7/6f);
+        }
         void Sync()
         {
+            if (InPassage)
+            {
+                int page=Route.Page;
+                var paint=paints[Route.region.key+"Chart"];
+                paint.mainTextureScale=new Vector2(1f/3,1f/3);
+                paint.mainTextureOffset=new Vector2(page%3/3f,(2-page/3)/3f);
+                nodes["Pawn"].position=ChartPoint(Route.Piece.p);
+                Toggle("Cargo",Route.Piece.c>=0);
+                if (Route.Piece.c>=0) nodes["Cargo"].position=ChartPoint(Route.Piece.c);
+                Toggle("GateLight",Route.Done);
+                return;
+            }
             bool gate = story.room == 0 ? story.commissioned : story.Solved && story.room < 4;
             Toggle("GateLight", gate);
             Toggle("Ina", story.ending == 2);
@@ -354,6 +402,12 @@ namespace Wizzard
         {
             if (player == null || loading || checkingTravel || player.MovementLocked)
                 return;
+            if (Application.isFocused && !journalOpen && story.ending==0 && Time.unscaledDeltaTime<1)
+            {
+                int slot=outdoors ? story.secondsByPlace.Length-1 :
+                    InPassage ? BellwakeJourney.Rooms.Length+story.room : story.room;
+                story.secondsByPlace[slot]+=Time.unscaledDeltaTime;
+            }
             bool action = use.Read(XRUsage.triggerButton) ||
                           (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame);
             bool book = journal.Read(XRUsage.primaryButton) ||
@@ -456,8 +510,8 @@ namespace Wizzard
         void ShowBook()
         {
             if (journalPage < 0)
-                display.Say("Witness book   /   " + story.LeafCount + " of 5 leaves",
-                            story.Objective() + "   •   Trigger/E to turn a page. A/X or J to close.");
+                display.Say("Witness book   /   " + story.LeafCount + " of 5 leaves   /   " + story.PlayTime(),
+                            Objective + "   •   Trigger/E to turn a page. A/X or J to close.");
             else
                 display.Say(BellwakeJourney.Titles[journalPage], BellwakeJourney.Leaf(journalPage));
         }
@@ -486,7 +540,7 @@ namespace Wizzard
                 if (Physics.Raycast(player.head.position, delta.normalized, Mathf.Max(0, distance - .45f),
                                     player.surfaces, QueryTriggerInteraction.Ignore))
                     continue;
-                float weight = hand ? 0 : distance + 4 * (1 - dot);
+                float weight = hand && !InPassage ? 0 : InPassage ? distance*.025f + 20*(1-dot) : distance + 4*(1-dot);
                 if (weight < nearest)
                 {
                     nearest = weight;
@@ -497,6 +551,17 @@ namespace Wizzard
         void AnimateSet()
         {
             float t = Time.time;
+            if (InPassage && !string.IsNullOrEmpty(movingTrail))
+            {
+                float progress=(t-trailTime)/.09f;
+                int leg=Mathf.FloorToInt(progress);
+                if(leg<movingTrail.Length)
+                {
+                    Vector3 from=leg==0 ? trailStart : ChartPoint(movingTrail[leg-1]-65);
+                    nodes["Pawn"].position=Vector3.Lerp(from,ChartPoint(movingTrail[leg]-65),progress-leg);
+                }
+                else { nodes["Pawn"].position=ChartPoint(Route.Piece.p); movingTrail=null; }
+            }
             if (struck != null)
             {
                 float age = t - strikeAt;
@@ -543,6 +608,23 @@ namespace Wizzard
         void Interact(string id)
         {
             string line;
+            if (InPassage)
+            {
+                if (id=="A_Gate" && Route.Done && story.Gate())
+                {
+                    Route.Leave();
+                    StartCoroutine(EnterRoom());
+                    return;
+                }
+                trailStart=nodes["Pawn"].position;
+                line=Route.Use(id);
+                movingTrail=Route.travel;
+                trailTime=Time.time;
+                if(id=="A_Talk") gestureUntil=Time.time+3;
+                if(id.StartsWith("A_Key") || id=="A_Stamp") notes.PlayOneShot(chimes[Route.Piece.win?0:1]);
+                Sync();Save();Say(Label(id),line);
+                return;
+            }
             switch (id)
             {
             case "A_Ina":
@@ -574,6 +656,13 @@ namespace Wizzard
                     restartUntil = Time.unscaledTime + 4;
                     line = "Use the arch again within four seconds to replace your completed journey.";
                     break;
+                }
+                if (story.room < atlas.regions.Length && Route.completed == story.room &&
+                    story.commissioned && (story.room==0 || story.Solved))
+                {
+                    Route.active=true;
+                    StartCoroutine(EnterRoom());
+                    return;
                 }
                 if (story.Gate())
                 {
@@ -682,13 +771,22 @@ namespace Wizzard
                             !Physics.Raycast(spawn + Vector3.up, Vector3.down, 3, player.surfaces))
                             throw new InvalidOperationException("Round-trip room or floor missing at " + r);
                     }
+                    for (int r=0;r<atlas.regions.Length;r++)
+                    {
+                        story=new BellwakeJourney {room=r,seals=r,commissioned=true,
+                            passage=new BellwakePassage {active=true,completed=r}};
+                        yield return EnterRoom();
+                        if (!InPassage || set.name!=atlas.regions[r].key || Route.book==null ||
+                            !Physics.Raycast(spawn+Vector3.up,Vector3.down,3,player.surfaces))
+                            throw new InvalidOperationException("Passage missing on round trip: "+r);
+                    }
                     yield return EnterMeadow();
                     if (set != null || nodes.Count != 0 || score.clip != null || sky.GetTexture("_Panorama") != null)
                         throw new InvalidOperationException("A chapter still owns resources in the meadow.");
                     yield return village.CheckCrossing(true);
                     yield return village.CheckCrossing(false);
                 }
-                Debug.Log("Bellwake passed 15 chapter loads and three meadow/village round trips.");
+                Debug.Log("Bellwake passed 24 chapter loads and three meadow/village round trips.");
             }
             finally
             {
@@ -698,6 +796,14 @@ namespace Wizzard
             }
         }
 #endif
+        void OnApplicationPause(bool paused)
+        {
+            if (paused && story != null && !loading) Save();
+        }
+        void OnApplicationQuit()
+        {
+            if (story != null && !loading) Save();
+        }
         void OnDestroy()
         {
             if (set != null)

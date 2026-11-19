@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 from scipy.signal import butter, sosfilt
 from scipy.io import wavfile
-import subprocess, tempfile
+import subprocess, tempfile, sys
 
 dst = Path(__file__).resolve().parents[2] / "Assets/Resources/Bellwake/Audio"
 rate = 22050
@@ -81,8 +81,12 @@ sets = [
         "bronze",
     ),
     ("Morning", 0.55, [62, 67, 69, 62], [4, 7, 9, 12, None, 11, 7, 9, None, 4, 2, 0], "reed"),
+    ("Saltwake", .53,[59,62,64,57],[7,None,5,3,7,10,None,9,5,None,3,2],"lute"),
+    ("RimePost", .72,[65,60,62,58],[12,None,None,7,8,None,5,3,None,5,None,0],"bronze"),
+    ("Glasscut", .48,[54,57,52,59],[0,7,None,12,3,10,None,5,7,2,None,3],"reed"),
 ]
 for idx, (name, beat, roots, line, instr) in enumerate(sets):
+    if sys.argv[1:] and name not in sys.argv[1:]: continue
     n = round(48 * beat * rate)
     audio = np.zeros(n)
 
@@ -107,4 +111,5 @@ for idx, (name, beat, roots, line, instr) in enumerate(sets):
     audio += air * 0.023 * (0.65 + 0.35 * np.cos(np.arange(n) * 2 * np.pi / n))
     save(name, audio)
 for name, note in [("Leaf", 67), ("Ember", 62), ("Tide", 57), ("Toll", 39)]:
+    if sys.argv[1:] and name not in sys.argv[1:]: continue
     save(name, voice(note, 2.6, "bronze"))

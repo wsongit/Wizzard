@@ -6,6 +6,15 @@ namespace Wizzard
     [Serializable]
     public sealed class BellwakeJourney
     {
+        public BellwakePassage passage;
+        public float[] secondsByPlace;
+        public string PlayTime()
+        {
+            double seconds=0;
+            if (secondsByPlace!=null) foreach (float t in secondsByPlace) seconds+=t;
+            var time=TimeSpan.FromSeconds(seconds);
+            return ((int)time.TotalHours)+"h "+time.Minutes+"m";
+        }
         public int version = 1;
         public int room, seals, melody, water, lenses = 4, wounds, strikes, letters, ending;
         public bool commissioned, challenged;

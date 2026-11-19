@@ -1,5 +1,6 @@
 """Paint five 2:1 equirectangular N64-style skies. Cloud noise is sampled once, offline."""
 
+import sys
 import numpy as np
 from scipy.ndimage import map_coordinates, gaussian_filter
 from PIL import Image
@@ -15,8 +16,12 @@ for k, (name, top, low) in enumerate(
         ("CinderLens", (102, 73, 98), (214, 154, 110)),
         ("StillBelfry", (34, 41, 76), (154, 145, 180)),
         ("Morning", (106, 158, 196), (255, 208, 162)),
+        ("Saltwake", (57,117,153), (211,205,157)),
+        ("RimePost", (66,94,148), (199,218,218)),
+        ("Glasscut", (53,58,97), (175,158,171)),
     ]
 ):
+    if sys.argv[1:] and name not in sys.argv[1:]: continue
     rng = np.random.default_rng(522 + k)
     w, h = 768, 384
     v, u = np.mgrid[:h, :w]

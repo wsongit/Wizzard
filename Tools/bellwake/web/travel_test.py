@@ -29,8 +29,9 @@ async def main():
             const tick = t => {if(prev !== undefined) gaps.push(t-prev); prev=t; requestAnimationFrame(tick)};
             requestAnimationFrame(tick);
         }""")
+        route = [5,1,6,2,7,3,4,0]
         for lap in range(3):
-            for room in [1, 2, 3, 4, 0]:
+            for room in route:
                 sample = await page.evaluate("""async room => {
                     const frames = async n => {while(n--) await new Promise(requestAnimationFrame)};
                     const start = performance.now(); gaps.length = 0;
@@ -55,7 +56,7 @@ async def main():
                 sample["retiredAlive"] = await page.evaluate("bellProbe().retiredAlive")
                 assert sample["retiredAlive"] == 0, sample
                 if lap:
-                    assert samples[-5]["gpu"] == sample["gpu"], (samples[-5], sample)
+                    assert samples[-len(route)]["gpu"] == sample["gpu"], (samples[-len(route)], sample)
                 samples.append(sample)
                 print(sample, flush=True)
         if initial:

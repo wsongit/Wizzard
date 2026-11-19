@@ -20,6 +20,16 @@
     "visibleMaterialSlots": 31
   },
   {
+    "asset": "Glasscut",
+    "groundProbes": 5929,
+    "boundaryRays": 3140,
+    "walkableCells": 4928,
+    "stations": 12,
+    "minApproaches": 56,
+    "triangles": 7876,
+    "visibleMaterialSlots": 21
+  },
+  {
     "asset": "LeftPalm",
     "triangles": 1088
   },
@@ -46,6 +56,16 @@
     "triangles": 1088
   },
   {
+    "asset": "RimePost",
+    "groundProbes": 5929,
+    "boundaryRays": 3140,
+    "walkableCells": 5124,
+    "stations": 12,
+    "minApproaches": 56,
+    "triangles": 8419,
+    "visibleMaterialSlots": 25
+  },
+  {
     "asset": "RootChoir",
     "groundProbes": 5929,
     "boundaryRays": 3140,
@@ -58,6 +78,16 @@
   {
     "asset": "RunnerArm",
     "triangles": 192
+  },
+  {
+    "asset": "Saltwake",
+    "groundProbes": 5929,
+    "boundaryRays": 3140,
+    "walkableCells": 5183,
+    "stations": 12,
+    "minApproaches": 56,
+    "triangles": 7193,
+    "visibleMaterialSlots": 26
   },
   {
     "asset": "StillBelfry",

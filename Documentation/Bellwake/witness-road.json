@@ -1,0 +1,58 @@
+{
+  "playthroughMethod": "Keyboard and mouse, using the route hints. Districts tested in sections with checkpoints.",
+  "districts": {
+    "Saltwake": {
+      "shortestMovesPlayed": [
+        9,
+        10,
+        9,
+        12,
+        12,
+        18,
+        14,
+        16,
+        22
+      ],
+      "witnessPosts": 3,
+      "midChartReload": true
+    },
+    "RimePost": {
+      "shortestMovesPlayed": [
+        3,
+        5,
+        6,
+        7,
+        11,
+        9,
+        10,
+        13,
+        11
+      ],
+      "witnessPosts": 3,
+      "midChartReload": true
+    },
+    "Glasscut": {
+      "shortestMovesPlayed": [
+        5,
+        7,
+        13,
+        10,
+        15,
+        16,
+        17,
+        18,
+        22
+      ],
+      "witnessPosts": 3,
+      "midChartReload": true
+    }
+  },
+  "nativeRulePositions": 10414,
+  "testedActionsPerPosition": 4,
+  "priorVersionSaveResumedAt": "Reedwater Lock",
+  "finalPostReturn": "passed",
+  "endings": [
+    1,
+    2
+  ]
+}

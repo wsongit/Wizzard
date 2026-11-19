@@ -65,7 +65,7 @@ async def run():
         await p.wait_for_function("!bellProbe().palms[0]")
         await p.evaluate("testDevice.controllers.left.connected=true")
         await p.wait_for_function("bellProbe().palms[0]")
-        for room in [1,0,1,0]:
+        for room in [5,1,6,2,7,0]:
             await p.evaluate("room => bellTravel(room)", room)
             await p.wait_for_function("bellProbe().vr && bellProbe().sets === 1 && bellProbe().palms.every(Boolean)")
         await p.evaluate("testDevice.activeSession.end()")

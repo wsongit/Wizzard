@@ -1,8 +1,8 @@
 # Wizzard · Bellwake
 
-An original, N64-inspired adventure for standalone Meta Quest and desktop. Tavi the bellmender needs your help finding the voice her sister gave to the village bell. Follow the story through five Blender-built districts, solve the three dungeon puzzles, face the keeper and choose how the village greets the morning.
+An original, N64-inspired adventure for standalone Meta Quest and desktop. Tavi the bellmender needs your help finding the voice her sister gave to the village bell. Follow Ina’s trail through eight Blender-built districts. Pilot the boats of Saltwake Sound, carry the lost mail across Rimeway, and haul singing glass through the mine before you face the keeper and decide the future of the bell.
 
-![Bellwake in play](Documentation/Bellwake/worlds.jpg)
+![Saltwake Sound, Rimeway Post and Glasscut Gallery in play](Documentation/Bellwake/witness-road.jpg)
 
 **Play immediately** by opening `Play/Bellwake.html` in Chrome or Edge. Use WASD to move, drag to look, E to interact and J to open your witness book. When hosting for Quest Browser, use `Play/index.html` and its adjacent `assets` folder to download districts as you enter them. Both editions support immersive WebXR on secure origins.
 

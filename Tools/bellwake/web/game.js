@@ -1,4 +1,5 @@
 import * as T from "three";
+import { Passage } from "./passage.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { TrackedRunner } from "./vr.js";
 import { loadCollision } from "./collision.js";
@@ -8,6 +9,8 @@ const data = window.BELLWAKE,
   $ = (id) => document.getElementById(id);
 const graph = data.story,
   store = "wizzard.bellwake.desktop.v1";
+let savedPassage, lastCheckpoint;
+let secondsByPlace = {};
 let number = 0,
   leaves = 0,
   muted = false,
@@ -16,19 +19,40 @@ let number = 0,
   initialAngle = 0,
   gestureEnd = 0;
 try {
-  const value = JSON.parse(localStorage.getItem(store));
+  lastCheckpoint=localStorage.getItem(store);
+  const value = JSON.parse(lastCheckpoint);
   if (value && Number.isInteger(value.number) && graph.states[value.number]) {
     number = value.number;
     leaves = value.leaves & 31;
     muted = !!value.muted;
+    savedPassage = value.passage;
+    for (const [key, t] of Object.entries(value.secondsByPlace || {}))
+      if (Number.isFinite(t) && t >= 0) secondsByPlace[key] = t;
   }
 } catch {}
 const state = () => graph.states[number];
-function save() {
+let passage = new Passage(data.regions, savedPassage, state().room, state().ending);
+const locationKey = () => (passage.active ? passage.region.key : graph.rooms[state().room]);
+const locationName = () => (passage.active ? passage.region.title : graph.titles[state().room]);
+const objective = () => (passage.active ? passage.objective() : state().objective);
+function save(timerOnly = false) {
   try {
-    localStorage.setItem(store, JSON.stringify({ number, leaves, muted }));
+    if (timerOnly && localStorage.getItem(store)!==lastCheckpoint) return;
+    const checkpoint=JSON.stringify({number,leaves,muted,passage:passage.progress,secondsByPlace});
+    localStorage.setItem(store,checkpoint);
+    lastCheckpoint=checkpoint;
   } catch {}
 }
+function playTime() {
+  const minutes = Math.floor(Object.values(secondsByPlace).reduce((s, t) => s + t, 0) / 60);
+  return Math.floor(minutes / 60) + "h " + (minutes % 60) + "m";
+}
+window.addEventListener("pagehide", () => {
+  if (started && !busy) save(true);
+});
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && started && !busy) save(true);
+});
 function fail(error) {
   $("error").textContent = String(error);
   if (busy) {
@@ -76,7 +100,7 @@ function dropMusic() {
 }
 function playMusic() {
   dropMusic();
-  music = new Audio(assetURL("sounds", state().ending ? "Morning" : graph.rooms[state().room], "audio/ogg"));
+  music = new Audio(assetURL("sounds", state().ending ? "Morning" : locationKey(), "audio/ogg"));
   music.loop = true;
   music.volume = 0.35;
   music.muted = muted;
@@ -173,6 +197,7 @@ function say(title, line, seconds = 8) {
   speechEnd = performance.now() + seconds * 1000;
 }
 function label(id) {
+  if (passage.active) return passage.label(id);
   if (id.startsWith("A_Key")) return state().keys[+id.slice(-1)];
   return {
     A_Talk: state().room === 4 && state().solved ? "Ina" : graph.speakers[state().room],
@@ -201,13 +226,18 @@ function dispose(old) {
   geos.forEach((x) => x.dispose());
   materials.forEach((x) => x.dispose());
   const images = new Set();
-  textures.forEach((x) => { images.add(x.source.data); x.dispose(); });
+  textures.forEach((x) => {
+    images.add(x.source.data);
+    x.dispose();
+  });
   images.forEach((img) => img?.close?.());
   scene.remove(old);
 }
 let resolveFrame, retired;
 function loadingFrame() {
-  return new Promise((resolve) => { resolveFrame = resolve; });
+  return new Promise((resolve) => {
+    resolveFrame = resolve;
+  });
 }
 async function room() {
   try {
@@ -235,17 +265,28 @@ async function loadRoom() {
     renderer.renderLists.dispose();
     dropMusic();
   }
+  movingTrail = null;
+  passage.book = null;
   nodes = {};
   markers = [];
   focus = "";
   // Submit an opaque frame in the headset as well as the desktop canvas.
   await loadingFrame();
-  const key = graph.rooms[k], theme = s.ending ? "Morning" : key;
-  const [model, collision, panorama] = await Promise.all([
+  const key = locationKey(),
+    theme = s.ending ? "Morning" : key;
+  const [model, collision, panorama, booklet] = await Promise.all([
     loadModel(key),
-    data.streamed ? new T.FileLoader().setResponseType("arraybuffer").loadAsync(data.collision[key]) : bytes(data.collision[key]),
+    data.streamed
+      ? new T.FileLoader().setResponseType("arraybuffer").loadAsync(data.collision[key])
+      : bytes(data.collision[key]),
     new T.TextureLoader().loadAsync(assetURL("skies", theme, "image/jpeg")),
+    passage.active
+      ? data.streamed
+        ? new T.FileLoader().setResponseType("json").loadAsync(data.charts[key])
+        : JSON.parse(new TextDecoder().decode(bytes(data.charts[key])))
+      : null,
   ]);
+  if (booklet) passage.bind(booklet);
   group = model;
   tree = loadCollision(collision);
   const palette = new Map();
@@ -275,18 +316,23 @@ async function loadRoom() {
 
   nodes.C_Solids.visible = false;
   scene.add(group);
-  const color = s.ending ? "#efd3a7" : horizons[k];
+  const color = s.ending ? "#efd3a7" : passage.active ? ["#d3cd9d", "#c7dada", "#af9eab"][k] : horizons[k];
   scene.fog = new T.Fog(color, 19, 65);
   panorama.colorSpace = T.SRGBColorSpace;
   sky.material.map = panorama;
   sky.material.needsUpdate = true;
   // Spread texture uploads over loading frames before returning control to the player.
   const maps = new Set([panorama]);
-  palette.forEach((material) => { if (material.map) maps.add(material.map); });
+  palette.forEach((material) => {
+    if (material.map) maps.add(material.map);
+  });
   let slice = performance.now();
   for (const map of maps) {
     renderer.initTexture(map);
-    if (performance.now() - slice >= 3) { await loadingFrame(); slice = performance.now(); }
+    if (performance.now() - slice >= 3) {
+      await loadingFrame();
+      slice = performance.now();
+    }
   }
   await renderer.compileAsync(scene, camera);
   ring = null;
@@ -295,18 +341,43 @@ async function loadRoom() {
   timer = 32;
   focus = "";
   $("prompt").hidden = true;
-  $("chapter").textContent = s.ending
-    ? "Epilogue"
-    : k
-      ? "Chapter " + ["", "I", "II", "III", "IV"][k]
-      : "The Long Meadow";
-  $("location").textContent = graph.titles[k];
+  $("speech").hidden = true;
+  $("chapter").textContent = passage.active
+    ? "The witness road"
+    : s.ending
+      ? "Epilogue"
+      : k
+        ? "Chapter " + ["", "I", "II", "III", "IV"][k]
+        : "The Long Meadow";
+  $("location").textContent = locationName();
   if (started) playMusic();
   save();
   busy = false;
   $("veil").style.opacity = 0;
 }
+let movingTrail = null,
+  trailTime = 0;
+const trailStart = new T.Vector3(),
+  fromTile = new T.Vector3(),
+  toTile = new T.Vector3();
+function chartPoint(out, tile) {
+  out.copy(nodes.NW.position);
+  out.addScaledVector(step.subVectors(nodes.NE.position, nodes.NW.position), (tile % 7) / 6);
+  return out.addScaledVector(step.subVectors(nodes.SW.position, nodes.NW.position), Math.floor(tile / 7) / 6);
+}
 function sync() {
+  if (passage.active) {
+    const page = passage.page,
+      pos = passage.piece;
+    const map = nodes.Chart.material.map;
+    map.repeat.set(1 / 3, 1 / 3);
+    map.offset.set((page % 3) / 3, Math.floor(page / 3) / 3);
+    chartPoint(nodes.Pawn.position, pos.p);
+    nodes.Cargo.visible = pos.c >= 0;
+    if (nodes.Cargo.visible) chartPoint(nodes.Cargo.position, pos.c);
+    nodes.GateLight.visible = passage.done;
+    return;
+  }
   const s = state();
   nodes.GateLight.visible = s.room === 0 ? s.commissioned : s.solved && s.room !== 4;
   for (const [name, on] of [
@@ -340,10 +411,28 @@ function welcome() {
         : "At dawn the river sings with a human voice. Tavi has set two places for breakfast.",
       12,
     );
-  else say(graph.titles[s.room], s.objective, 6);
+  else say(locationName(), objective(), 8);
 }
 async function interact(id) {
   if (!started || busy || book || !id) return;
+  if (passage.active) {
+    if (id === "A_Gate" && passage.done) {
+      number = state().moves.A_Gate[0];
+      passage.leave();
+      if (await room()) welcome();
+      return;
+    }
+    trailStart.copy(nodes.Pawn.position);
+    const line = passage.use(id);
+    movingTrail = passage.travel;
+    trailTime = performance.now();
+    if (id === "A_Talk") gestureEnd = performance.now() + 3000;
+    if (id.startsWith("A_Key") || id === "A_Stamp") tone(passage.piece.win ? 0 : 1);
+    sync();
+    save();
+    say(label(id), line, 10);
+    return;
+  }
   if (id === "A_Meadow") {
     say(
       "Long Meadow trail",
@@ -361,6 +450,8 @@ async function interact(id) {
     }
     number = 0;
     leaves = 0;
+    secondsByPlace = {};
+    passage = new Passage(data.regions, null, 0, 0);
     if (await room()) welcome();
     return;
   }
@@ -372,6 +463,16 @@ async function interact(id) {
     ring = nodes["Rotor" + id.slice(-1)];
     ringTime = performance.now();
     initialAngle = ring.rotation.y;
+  }
+  if (
+    id === "A_Gate" &&
+    graph.states[move[0]].room !== prev.room &&
+    prev.room < data.regions.length &&
+    prev.room === passage.progress.completed
+  ) {
+    passage.progress.active = true;
+    if (await room()) welcome();
+    return;
   }
   number = move[0];
   if (id === "A_Letter") leaves |= 1 << prev.room;
@@ -407,7 +508,7 @@ function pick() {
     // Check the nearest wall rather than ray-testing every decorative triangle.
     const hit = tree.rayIntersect(ray.ray);
     if (hit && hit.distance < ray.far) continue;
-    const weight = distance + 4 * (1 - dot);
+    const weight = passage.active ? distance * 0.025 + 20 * (1 - dot) : distance + 4 * (1 - dot);
     if (weight < best) {
       best = weight;
       focus = o.name;
@@ -455,8 +556,8 @@ function toggleBook(open) {
   $("hud").hidden = open;
   if (open) {
     document.exitPointerLock?.();
-    $("booktitle").textContent = graph.titles[state().room];
-    $("objective").textContent = state().objective + "   ·   " + state().seals + " of 3 vows";
+    $("booktitle").textContent = locationName() + "   ·   " + playTime();
+    $("objective").textContent = objective() + "   ·   " + state().seals + " of 3 vows";
     $("leaves").replaceChildren();
     for (let i = 0; i < 5; i++)
       if (leaves & (1 << i)) {
@@ -560,12 +661,29 @@ function adapt(interval) {
   fast = 0;
 }
 function loop(time, frame) {
+  const interval = time - previous;
+  if (
+    started &&
+    !busy &&
+    !book &&
+    !state().ending &&
+    interval > 0 &&
+    interval < 1000 &&
+    (vr.session ? vr.session.visibilityState === "visible" : !document.hidden && document.hasFocus())
+  ) {
+    const key = locationKey();
+    secondsByPlace[key] = (secondsByPlace[key] || 0) + interval / 1000;
+  }
   if (previous && !busy && !book && !vr.session) adapt(time - previous);
   const delta = Math.min(0.066, Math.max(0, (time - previous) / 1000));
   previous = time;
   if (busy) {
     renderer.clear();
-    if (resolveFrame) { const ready = resolveFrame; resolveFrame = null; ready(); }
+    if (resolveFrame) {
+      const ready = resolveFrame;
+      resolveFrame = null;
+      ready();
+    }
     return;
   }
   if (!group) return;
@@ -600,6 +718,17 @@ function loop(time, frame) {
     if (fight && nodes.HushWave) nodes.HushWave.scale.setScalar(1 + 12 * (1 - Math.min(1, timer / 24)));
     if (nodes.GreatBell) nodes.GreatBell.rotation.z = Math.sin(time * 0.0018) * (fight ? 0.12 : 0.017);
   }
+  if (passage.active && movingTrail) {
+    const t = Math.max(0, (time - trailTime) / 90),
+      leg = Math.floor(t);
+    if (leg < movingTrail.length) {
+      const a = leg === 0 ? trailStart : chartPoint(fromTile, movingTrail.charCodeAt(leg - 1) - 65);
+      nodes.Pawn.position.lerpVectors(a, chartPoint(toTile, movingTrail.charCodeAt(leg) - 65), t - leg);
+    } else {
+      chartPoint(nodes.Pawn.position, passage.piece.p);
+      movingTrail = null;
+    }
+  }
   if (ring) {
     let age = (time - ringTime) / 1000;
     if (state().room === 2) ring.rotation.y = initialAngle + Math.PI * 0.5 * Math.min(1, age * 2);
@@ -620,7 +749,7 @@ function loop(time, frame) {
   if (nodes.Familiar) nodes.Familiar.rotation.y = Math.sin(time * 0.00085) * 0.14;
   if (vr.session) {
     const text = book
-      ? state().objective + "   •   " + state().seals + " of three vows. Press A/X to close."
+      ? objective() + "   •   " + state().seals + " of three vows. Press A/X to close."
       : !$("speech").hidden
         ? $("words").textContent
         : focus
@@ -645,9 +774,17 @@ if (__TEST__)
     number,
     gpu: { ...renderer.info.memory, programs: renderer.info.programs.length },
     retiredAlive: retired?.filter((ref) => ref.deref()).length || 0,
-    trees: tree ? 1 : 0, music: music ? 1 : 0, effects: effects.size,
+    trees: tree ? 1 : 0,
+    music: music ? 1 : 0,
+    effects: effects.size,
     sets: group && scene.children.includes(group) ? 1 : 0,
+    secondsByPlace: { ...secondsByPlace },
     room: state().room,
+    district: locationKey(),
+    passage:
+      passage.active && passage.book
+        ? { ...passage.progress, hint: passage.piece.hint, win: passage.piece.win }
+        : null,
     focus,
     busy,
     started,
@@ -668,19 +805,23 @@ if (__TEST__)
     timer,
     book,
   });
-if (__TEST__) window.bellTravel = async (index) => {
-  if (busy) throw Error("Travel already in progress");
-  const target = graph.states.findIndex((s) => s.room === index);
-  if (target < 0) throw Error("Unknown chapter");
-  number = target;
-  await room();
-};
+if (__TEST__)
+  window.bellTravel = async (index) => {
+    if (busy) throw Error("Travel already in progress");
+    const district = index >= graph.rooms.length ? index - graph.rooms.length : -1;
+    const base = district < 0 ? index : district;
+    const target = graph.states.findIndex((s) => s.room === base && (district < 0 || s.commissioned));
+    if (target < 0) throw Error("Unknown chapter");
+    number = target;
+    passage = new Passage(data.regions, null, base, 0);
+    passage.progress.active = district >= 0;
+    await room();
+  };
 renderer.setAnimationLoop(loop);
 room()
   .then((loaded) => {
     if (!loaded) return;
     $("start").disabled = false;
     $("start").textContent = number ? "Continue journey" : "Begin journey";
-
   })
   .catch(fail);

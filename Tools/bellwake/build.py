@@ -9,11 +9,17 @@ from sets import make, ROOMS
 args = sys.argv[sys.argv.index("--") + 1 :]
 from avatar import make_avatar
 from trails import roadside
+from passage_sets import scene as passage_set
+from passages import REGIONS
 
-for room in args[1:] or ROOMS + ["Runner", "Trails"]:
+passage_keys = [region["key"] for region in REGIONS]
+
+for room in args[1:] or ROOMS + passage_keys + ["Runner", "Trails"]:
     if room == "Runner":
         make_avatar(Path(args[0]))
     elif room == "Trails":
         roadside(Path(args[0]))
+    elif room in passage_keys:
+        passage_set(passage_keys.index(room), Path(args[0]))
     else:
         make(room, Path(args[0]))
