@@ -156,6 +156,11 @@ namespace Wizzard
             var label = Text(point, Vector3.up * .55f, TextAnchor.LowerCenter, new Color(1, .89f, .63f));
             label.transform.position = point.position + Vector3.up * .48f;
             label.text = value;
+            // World scale is independent of FBX axis and unit conversion.
+            var p = point.lossyScale;
+            label.transform.localScale = new Vector3(2 / Mathf.Max(.001f, Mathf.Abs(p.x)), 2 / Mathf.Max(.001f, Mathf.Abs(p.y)),
+                                       2 / Mathf.Max(.001f, Mathf.Abs(p.z)));
+            label.gameObject.SetActive(false);
             return label;
         }
         public void Face(TextMesh label)
@@ -163,10 +168,6 @@ namespace Wizzard
             var t = label.transform;
             var d = t.position - head.position;
             t.rotation = Quaternion.LookRotation(d.sqrMagnitude > .001f ? d : head.forward, Vector3.up);
-            // World scale is independent of FBX axis and unit conversion.
-            var p = t.parent.lossyScale;
-            t.localScale = new Vector3(2 / Mathf.Max(.001f, Mathf.Abs(p.x)), 2 / Mathf.Max(.001f, Mathf.Abs(p.y)),
-                                       2 / Mathf.Max(.001f, Mathf.Abs(p.z)));
         }
         public void Hide()
         {

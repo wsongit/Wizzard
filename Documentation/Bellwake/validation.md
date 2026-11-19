@@ -14,6 +14,10 @@ Twelve woodland cells now switch between two meshes made in Blender. At eight fi
 
 After the last repair, Linn’s signed linen can be read in the journal outside the forest. The Quest controller emulator turned to the illustration in the Root Choir and checked that closing the book released its display.
 
+A separate campaign pass made **123 transfers across all 36 districts**. Each transfer finished with one active world, one collision tree and one score. All three laps returned to the same renderer resource counts, and the test recovered from a failed model request by loading the last checkpoint.
+
+Unity now imports each room’s four collision meshes onto the model and enables collision baking when building the Quest player. The source-model check found 144 matching surfaces across the 36 districts. The importer, player and build tools compiled against the Unity 2022.3.20f1 assemblies. Native build and load timings still require an activated editor and a headset.
+
 ## The Still Belfry
 
 The keeper’s mask turns toward each side seal. Two raised wings indicate the seal behind the keeper. The desktop input test read all three gestures, operated the music box and played back three verses on the physical seals. A wrong note returned to the start of its own verse. Reloading kept the earlier verse, and both endings remembered the completed song. Blender reimported the final model and checked 5,929 terrain samples, 3,140 perimeter rays and all nine stations. The finished room has 11,452 visible triangles. The emulator rang all three required seals with alternating palms, opened the crank with a trigger and played the first verse by hand. The packed collision reference matched on 3,072 body, palm and ray queries and 2,766 visibility checks. Fifteen additional transfers repeatedly loaded and released the final room. [In-game views](the-quiet.jpg) · [Measurements](the-quiet.json)

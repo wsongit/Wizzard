@@ -10,6 +10,10 @@ namespace Wizzard
 {
     public sealed class BellwakeCampaign : MonoBehaviour
     {
+        public static bool IsCollisionSurface(string part)
+        {
+            return part=="Terrain" || part=="Rim" || part=="Set" || part=="C_Solids";
+        }
         const string SaveKey = "Wizzard.Bellwake.v1";
         const string Path = "Bellwake/";
         static readonly string[] Tones = { "Leaf", "Ember", "Tide" };
@@ -38,8 +42,13 @@ namespace Wizzard
             public Bounds bounds;
         }
         readonly List<GroveCell> grove = new List<GroveCell>();
+        Vector3 lastGroveEye;
+        bool haveGroveEye;
         void SetGroveDetail(Vector3 eye)
         {
+            if (haveGroveEye && (eye-lastGroveEye).sqrMagnitude < .25f) return;
+            lastGroveEye=eye;
+            haveGroveEye=true;
             foreach (var cell in grove)
             {
                 bool near = cell.bounds.SqrDistance(eye) < (cell.near.enabled ? 15*15 : 11*11);
@@ -231,6 +240,7 @@ namespace Wizzard
             StopObserving();
             forestVoices.Clear();
             grove.Clear();
+            haveGroveEye=false;
             beechStrikes = null;
             uncoveredFind=null;
             handFork=null; pilotFlights=null; forkRang=-10f;
@@ -326,11 +336,15 @@ namespace Wizzard
                         r.enabled = false;
                     else
                         Paint(r);
-                    if (t.name == "Terrain" || t.name == "Rim" || t.name == "Set" || t.name == "C_Solids")
+                    if (IsCollisionSurface(t.name))
                     {
                         t.gameObject.layer = MeadowWorld.GroundLayer;
-                        t.gameObject.AddComponent<MeshCollider>().sharedMesh =
-                            t.GetComponent<MeshFilter>().sharedMesh;
+                        // Previously imported rooms can still enter play before an editor reimport.
+                        if (!t.TryGetComponent<MeshCollider>(out var surface))
+                        {
+                            surface = t.gameObject.AddComponent<MeshCollider>();
+                            surface.sharedMesh = t.GetComponent<MeshFilter>().sharedMesh;
+                        }
                     }
                 }
                 foreach (var pair in nodes)
@@ -1047,25 +1061,28 @@ namespace Wizzard
             }
             float nearest = float.MaxValue;
             bool leftTracked = player.PalmTracked(0), rightTracked = player.PalmTracked(1);
+            Vector3 eye=player.head.position, heading=player.head.forward;
+            Vector3 left=player.leftHand.position, right=player.rightHand.position;
             foreach (var pair in points)
             {
                 Transform t = nodes[pair.Key];
                 if (!t.gameObject.activeSelf)
                     continue;
-                Vector3 delta = t.position - player.head.position;
-                float distance = delta.magnitude;
-                bool close = distance < 9;
-                pair.Value.gameObject.SetActive(close);
+                Vector3 position=t.position, delta=position-eye;
+                float squared=delta.sqrMagnitude;
+                bool close = squared < 81;
+                if (pair.Value.gameObject.activeSelf != close) pair.Value.gameObject.SetActive(close);
                 if (!close)
                     continue;
+                float distance=Mathf.Sqrt(squared);
                 display.Face(pair.Value);
                 bool hand =
-                    (leftTracked && (player.leftHand.position - t.position).sqrMagnitude < .8f) ||
-                    (rightTracked && (player.rightHand.position - t.position).sqrMagnitude < .8f);
-                float dot = Vector3.Dot(player.head.forward, delta / Mathf.Max(.01f, distance));
+                    (leftTracked && (left - position).sqrMagnitude < .8f) ||
+                    (rightTracked && (right - position).sqrMagnitude < .8f);
+                float dot = Vector3.Dot(heading, delta / Mathf.Max(.01f, distance));
                 if (!hand && (distance > 4.1f || dot < .64f))
                     continue;
-                if (Physics.Raycast(player.head.position, delta.normalized, Mathf.Max(0, distance - .45f),
+                if (Physics.Raycast(eye, delta.normalized, Mathf.Max(0, distance - .45f),
                                     player.surfaces, QueryTriggerInteraction.Ignore))
                     continue;
                 bool readBySight = InPassage || story.ending != 0;

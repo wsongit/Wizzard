@@ -27,6 +27,12 @@ namespace Wizzard.Editor
                     var mesh = t.GetComponent<MeshFilter>();
                     if (mesh == null)
                         continue;
+                    if (BellwakeCampaign.IsCollisionSurface(t.name))
+                    {
+                        var surfaces=t.GetComponents<MeshCollider>();
+                        Require(surfaces.Length==1 && surfaces[0].sharedMesh==mesh.sharedMesh &&
+                                t.gameObject.layer==MeadowWorld.GroundLayer,room+" collision mesh "+t.name);
+                    }
                     Require(mesh.sharedMesh != null && mesh.sharedMesh.isReadable, room + " mesh " + t.name);
                     Require(mesh.sharedMesh.uv.Length == mesh.sharedMesh.vertexCount, room + " UVs " + t.name);
                     foreach (var m in t.GetComponent<MeshRenderer>().sharedMaterials)
@@ -54,6 +60,8 @@ namespace Wizzard.Editor
                         if (!string.IsNullOrEmpty(station.sight)) Require(names.Contains(station.sight),room+" "+station.sight);
                     foreach (var station in chamber.stations)
                     {
+                        if (!string.IsNullOrEmpty(station.call))
+                            Require(Resources.Load<AudioClip>(prefix+"Audio/"+station.call)!=null,room+" listening call "+station.call);
                         if (!string.IsNullOrEmpty(station.swing)) Require(names.Contains(station.swing), room+" "+station.swing);
                         if (!string.IsNullOrEmpty(station.tune)) Require(Array.TrueForAll(station.tune.ToCharArray(), n=>n>='0' && n<='2'), room+" bad tune");
                     }
@@ -73,6 +81,7 @@ namespace Wizzard.Editor
                     foreach(var visual in chamber.visuals)
                     {
                         Require(names.Contains(visual.node),room+" "+visual.node);
+                        if (!string.IsNullOrEmpty(visual.mount)) Require(names.Contains(visual.mount),room+" "+visual.mount);
                         if (!string.IsNullOrEmpty(visual.visibleSignal)) Require(Array.IndexOf(works.flags,visual.visibleSignal)>=0,room+" missing visibility flag");
                         if (visual.kind=="slide") Require(names.Contains("RailStart") && names.Contains("RailEnd"),room+" slide guides");
                         if (visual.kind=="pointer")
@@ -100,7 +109,7 @@ namespace Wizzard.Editor
             foreach (var file in new[] { "LeftPalm", "RightPalm", "RunnerArm", "TrailSign", "MeadowOutcrop",
                                          "MossbellApproach" })
                 Require(Resources.Load<GameObject>("Bellwake/Rooms/" + file) != null, file);
-            foreach (string print in new[]{"ContactSheet","Tavi"})
+            foreach (string print in new[]{"ContactSheet","Tavi","RowanLinen"})
                 Require(Resources.Load<Texture2D>("Bellwake/Letters/"+print)!=null,"Missing book illustration "+print);
             Require(Shader.Find("Wizzard/BellwakePaint") != null && Shader.Find("Wizzard/BellwakeSky") != null,
                     "Bellwake shaders");

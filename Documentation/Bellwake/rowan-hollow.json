@@ -37,7 +37,8 @@
     "unityAssemblies": "2022.3.20f1",
     "machineStates": 3258,
     "transitions": 17746,
-    "restorationOrders": 6
+    "restorationOrders": 6,
+    "collisionSurfacesInSourceModels": 144
   },
   "questControllerEmulation": [
     "Spatial call from the Rain West horn",
@@ -182,5 +183,16 @@
       "before": 21,
       "after": 24.5
     }
+  },
+  "campaignStreaming": {
+    "laps": 3,
+    "transfers": 123,
+    "distinctDistricts": 36,
+    "activeWorldsAfterEveryTransfer": 1,
+    "activeCollisionTreesAfterEveryTransfer": 1,
+    "musicPlayersAfterEveryTransfer": 1,
+    "previousWorldsRetained": 0,
+    "stableGPUResourceCountsOnRevisit": true,
+    "failedRequestRecoveredAtSavedCheckpoint": true
   }
 }

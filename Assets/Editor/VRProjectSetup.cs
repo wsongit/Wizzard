@@ -64,6 +64,7 @@ namespace Wizzard.Editor
             PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android,"com.wizzard.longmeadow");
             PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android,false);
             PlayerSettings.SetGraphicsAPIs(BuildTarget.Android,new[]{UnityEngine.Rendering.GraphicsDeviceType.OpenGLES3});
+            PlayerSettings.bakeCollisionMeshes=true;
             PlayerSettings.colorSpace=ColorSpace.Linear;
             var playerSettings=new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/ProjectSettings.asset")[0]);
             var input=playerSettings.FindProperty("activeInputHandler");
