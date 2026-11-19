@@ -5,6 +5,7 @@ export class Underworks {
     this.progress = {
       active: !!saved.active && eligible,
       invited: !!saved.invited,
+      returnTicket: !!saved.returnTicket,
       camp: typeof saved.camp === "string" ? saved.camp : "",
       chamber: Number.isInteger(saved.chamber) && plan.rooms[saved.chamber] ? saved.chamber : 0,
       badges: (saved.badges | 0) & ((1 << Math.min(30,plan.flags.length)) - 1),
@@ -72,6 +73,10 @@ export class Underworks {
   }
   objective() {
     const s = this.signals;
+    if (this.progress.returnTicket && this.room.middle && !s.parishWarrant)
+      return "Welcome to Sillwater. Open your field sheet and find Ada near the south bell. The northeast towpath takes your return ticket whenever you want to leave.";
+    if (this.progress.returnTicket && this.room.middle && s.parishSigned)
+      return "Your signed title is in the witness book. Use your return ticket at the northeast towpath on either shore.";
     const goal = this.nextGoal();
     if (goal) return this.format(goal.line);
     if (this.room.key === "Wrenfall") {
@@ -105,7 +110,18 @@ export class Underworks {
   format(line) {
     return line.replace(/\{(\w+)\}/g, (_, key) => this.signals[key]);
   }
+  takePacket() {
+    this.progress.active = true;
+    this.progress.returnTicket = true;
+    this.progress.chamber = this.plan.rooms.findIndex(r => r.middle);
+    this.progress.camp = "RestGate";
+  }
   use(id) {
+    if (this.progress.returnTicket && this.room.middle && id === "A_Gate") {
+      this.progress.returnTicket = false;
+      this.progress.camp = "";
+      return {to:"@reedwater",line:""};
+    }
     const station = this.station(id);
     const r = station?.rules.find((rule) => rule.when.every((c) => this.signals[c.signal] === c.value));
     if (!r) return { line: this.objective(), to: "" };

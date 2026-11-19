@@ -42,7 +42,7 @@ let works = new Underworks(
   data.works,
   savedWorks,
   savedRoom?.prologue ? state().room === 0 :
-    savedRoom?.middle ? state().room === 2 && !state().ending : savedRoom?.early ? state().room === 1 && !state().ending : state().room === 3 && state().solved,
+    savedRoom?.middle ? state().room === 2 || (state().room === 0 && savedWorks?.returnTicket) : savedRoom?.early ? state().room === 1 && !state().ending : state().room === 3 && state().solved,
 );
 const roomRadius = () => (works.active && works.room.halfSpan) || 20;
 const locationKey = () =>
@@ -286,7 +286,7 @@ function say(title, line, seconds = 8) {
   speechEnd = performance.now() + seconds * 1000;
 }
 function label(id) {
-  if (works.active) return works.station(id).label;
+  if (works.active) return works.progress.returnTicket && works.room.middle && id==="A_Gate" ? "Use your return ticket" : works.station(id).label;
   if (passage.active) return passage.label(id);
   if (id.startsWith("A_Key")) return state().keys[+id.slice(-1)];
   return {
@@ -302,6 +302,7 @@ function label(id) {
     A_Lens: "Casting cup",
     A_Meadow: "Long Meadow trail",
     A_Playhouse: "Paper theatre door",
+    A_Packet: "Sillwater packet counter",
   }[id];
 }
 function dispose(old) {
@@ -695,7 +696,7 @@ async function interact(id, palm = -1) {
     if (id === "A_Gate" && passage.done) {
       number = state().moves.A_Gate[0];
       passage.leave();
-      if (state().room === 1 || state().room === 2) {
+      if (state().room === 1 || (state().room === 2 && !works.signals.parishSigned)) {
         works.progress.chamber = state().room===1 ? openingWard : data.works.rooms.findIndex(r=>r.middle);
         works.progress.camp = "";
         works.progress.active = true;
@@ -742,6 +743,11 @@ async function interact(id, palm = -1) {
     gestureEnd = performance.now() + 3000;
     save();
     say("Tavi",data.works.theatreInvitation,16);
+    return;
+  }
+  if (id === "A_Packet") {
+    works.takePacket();
+    if (await room()) welcome();
     return;
   }
   if (id === "A_Playhouse") {

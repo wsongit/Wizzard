@@ -9,7 +9,7 @@ from playwright.async_api import async_playwright
 from pilgrim_route import walk_wards, TRAILS
 from works_route import complete_works, complete_coast
 from theatre_route import perform
-from parish_route import survey_parish
+from parish_route import survey_parish, packet_trip
 from engine_route import complete_engine, complete_supper
 
 url, navdir, outdir = sys.argv[1:4]
@@ -331,6 +331,11 @@ async def run():
         if works_only:
             await act("A_Gate")
             await complete_works(act, page, start, out)
+            await b.close()
+            return
+        if "--packet" in sys.argv:
+            await packet_trip(act,page,start,out)
+            assert not errors,errors
             await b.close()
             return
         if parish_only:

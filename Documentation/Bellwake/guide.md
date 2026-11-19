@@ -44,6 +44,8 @@ On the final morning, an illuminated book is fastened to the west pier of the ma
 
 ## Three houses of Sillwater
 
+The Sillwater packet counter is to your right when you arrive in Bellmarket. Ring its handbell to visit the parish at any point in the market story, including either ending. Reedwater Lock also sells return tickets. The northeast towpath takes you back to the district you came from. If you seal Ada’s map on an early visit, the Rimeway Post takes you straight to Reedwater later. [The ticket counter in Bellmarket](packet-counter.jpg)
+
 The river changes the route across the parish when you pull either tide bell. At ebb, take the oyster causeway. At flood, use the ferry bridge. The east crossing stays open. Your field sheet shows the instruments and your position at the current tide. Two copies of the survey also hang beside the landings.
 
 Stand beside a brass telescope and press E or a trigger. Follow its barrel to the landmark named in the prompt. Look at the landmark itself and press again to record its bearing. You can begin on either shore or revisit the office between sightings.

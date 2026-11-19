@@ -38,6 +38,7 @@ namespace Wizzard.Editor
                 foreach (var name in names)
                     if (name.StartsWith("Hit_"))
                         Require(names.Contains("Edge_" + name.Substring(4)) && names.Contains("A_" + name.Substring(4)), room+" "+name);
+                if (room=="Bellmarket" || room=="Reedwater") Require(names.Contains("A_Packet"),room+" packet counter");
                 if (room=="Bellmarket")
                     Require(names.Contains("A_RoadBook") && names.Contains("RoadBook"), "market road letters");
                 var chamber=Array.Find(works.rooms,r=>r.key==room);

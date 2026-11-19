@@ -130,7 +130,7 @@ namespace Wizzard
             int savedChamber=story.works.chamber;
             var chamber = savedChamber >= 0 && savedChamber < worksPlan.rooms.Length ? worksPlan.rooms[savedChamber] : null;
             bool eligible = chamber != null && (chamber.prologue ? story.room == 0 :
-                chamber.middle ? story.room==2 && story.ending==0 : chamber.early ? story.room == 1 && story.ending == 0 : story.room == 3 && story.Solved);
+                chamber.middle ? story.room==2 || (story.room==0 && story.works.returnTicket) : chamber.early ? story.room == 1 && story.ending == 0 : story.room == 3 && story.Solved);
             if (!eligible) story.works.active = false;
             story.works.Bind(worksPlan);
             int slots=BellwakeJourney.Rooms.Length+atlas.regions.Length+1+worksPlan.rooms.Length;
@@ -402,7 +402,7 @@ namespace Wizzard
         }
         string Label(string id)
         {
-            if (InWorks) return story.works.Station(id).label;
+            if (InWorks) return story.works.returnTicket && story.works.Room.middle && id=="A_Gate" ? "Use your return ticket" : story.works.Station(id).label;
             if (InPassage) return Route.Label(id);
             switch (id)
             {
@@ -418,6 +418,7 @@ namespace Wizzard
                 return "Witness leaf";
             case "A_Gate":
                 return story.ending != 0 ? "Begin again" : "Way arch";
+            case "A_Packet": return "Sillwater packet counter";
             case "A_Playhouse": return "Paper theatre door";
             case "A_Meadow":
                 return "Long Meadow";
@@ -984,7 +985,7 @@ namespace Wizzard
                 if (id=="A_Gate" && Route.Done && story.Gate())
                 {
                     Route.Leave();
-                    if(story.room==1 || story.room==2)
+                    if(story.room==1 || (story.room==2 && story.works.Signal("parishSigned")==0))
                     {
                         story.works.chamber=Array.FindIndex(worksPlan.rooms,r=>story.room==1?r.early:r.middle);
                         story.works.camp="";
@@ -1021,6 +1022,10 @@ namespace Wizzard
                 if(story.works.Remembered(worksPlan,"named")) line+=" Below it hangs a new brass plate: Ina, fourth hand of the night shift.";
 
                 break;
+            case "A_Packet":
+                story.works.TakePacket();
+                StartCoroutine(EnterRoom());
+                return;
             case "A_Playhouse":
                 if (!story.commissioned && !story.works.invited) { line="Two names on a faded playbill. Tavi keeps the tickets at her stall."; break; }
                 story.works.active = true;

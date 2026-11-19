@@ -24,7 +24,7 @@ class WorksCheck
     }
     static BellwakeWorks Reload(WorksPlan plan, BellwakeWorks w)
     {
-        var resume = new BellwakeWorks { active = w.active, chamber = w.chamber, camp = w.camp, badges = w.badges, invited=w.invited,furtherBadges=(int[])w.furtherBadges.Clone(),
+        var resume = new BellwakeWorks { active = w.active, chamber = w.chamber, camp = w.camp, badges = w.badges, invited=w.invited,returnTicket=w.returnTicket,furtherBadges=(int[])w.furtherBadges.Clone(),
                                          machines = (int[])w.machines.Clone() };
         resume.Bind(plan);
         return resume;
@@ -145,6 +145,13 @@ class WorksCheck
         string towpath;
         parish.Use("A_Gate",out towpath);
         Require(towpath=="@reedwater" && parish.Signal("parishSigned")==1,"signed towpath");
+        var visitor=new BellwakeWorks();
+        visitor.Bind(plan);
+        visitor.TakePacket();
+        visitor=Reload(plan,visitor);
+        Require(visitor.returnTicket && visitor.Room.key=="SillwaterEbb" && visitor.camp=="RestGate","missing return ticket");
+        visitor.Use("A_Gate",out towpath);
+        Require(towpath=="@reedwater" && !visitor.returnTicket && visitor.Signal("parishSigned")==0,"early packet return");
         foreach (string credit in new[] {"Maker","Runner"})
         {
             var court=new BellwakeWorks {active=true,chamber=Array.FindIndex(plan.rooms,r=>r.prologue)};

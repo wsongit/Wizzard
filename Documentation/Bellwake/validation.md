@@ -8,6 +8,8 @@ Blender reimported all three shipped FBXs. The checks sampled 118,267 ground pos
 
 The 31-place streaming test made 105 transfers. Three additional laps made 21 transfers between the finished shores, office, lock and market. The previous world, collision tree and panorama were collectible on every transfer. Returning to the same area produced the same GPU resource counts. The meadow streaming model crossed 3,327 positions and peaked at 21 of 64 chunks loaded. Unity now queues the current area’s texture requests during the fade. Physical Quest frame times and native APK execution still need a licensed device build. [Parish geometry and playtest measurements](sillwater.json)
 
+The return ticket was tested from a fresh market, an older Reedwater checkpoint and both endings. The test reloaded at flood, used the towpath before signing, and confirmed the original story checkpoint and ending on return. A completed early survey carried its title past Rimeway. An emulated Quest controller used the market counter and took the packet back. Across the market, lock and three parish areas, 15,360 capsule, sphere and ray queries matched the reference collision implementation.
+
 ## Tavi’s Paper Theatre
 
 The browser route followed Tavi’s invitation, left and re-entered the courtyard, reconstructed four scenes from physical keepsakes, restored a mid-play checkpoint and played the four projector melodies. It printed both possible credits and checked the corresponding line from Tavi after both endings. Legacy morning-market checkpoints could enter and leave without losing their endings. An emulated Quest 3 used tracked controllers to talk to Tavi, enter the blue door, inspect the casting pattern and turn the figure reel.

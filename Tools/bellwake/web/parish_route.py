@@ -119,3 +119,76 @@ async def survey_parish(act, page, start, out, extended=False):
         )
         + "\n"
     )
+
+
+async def packet_trip(act, page, start, out):
+    async def use(name):
+        return await act("A_" + name)
+
+    for stage, leaves in ((0, 0), (6, 3), (33, 31), (34, 31)):
+        save = {"number": stage, "leaves": leaves}
+        if stage == 34:
+            save["works"] = {"furtherBadges": [255]}
+        await page.mouse.up()
+        await page.evaluate(
+            "s=>localStorage.setItem('wizzard.bellwake.desktop.v1',s)", json.dumps(save)
+        )
+        await start()
+        before = await page.evaluate("bellProbe()")
+        entered = await use("Packet")
+        assert (
+            entered["district"] == "SillwaterEbb" and entered["works"]["returnTicket"]
+        )
+        assert entered["works"]["camp"] == "RestGate"
+        await page.mouse.up()
+        await start()
+        assert (await page.evaluate("bellProbe()"))["works"] == entered["works"]
+        if stage == 33:
+            await use("Ada")
+            await use("North")
+            await page.mouse.up()
+            await start()
+            assert (await page.evaluate("bellProbe()"))["district"] == "SillwaterFlood"
+        after = await use("Gate")
+        assert (
+            after["district"] == before["district"]
+            and after["number"] == stage
+            and after["leaves"] == leaves
+        )
+        if stage == 34:
+            await use("Ina")
+            assert "my peg" in (await page.locator("#words").inner_text()).lower()
+    for signed, destination in ((False, "SillwaterEbb"), (True, "Reedwater")):
+        crossed = {
+            "number": 5,
+            "leaves": 3,
+            "passage": {
+                "active": True,
+                "completed": 1,
+                "sheet": 9,
+                "position": 0,
+                "logs": 7,
+            },
+            "works": {"furtherBadges": [255 if signed else 0]},
+        }
+        await page.mouse.up()
+        await page.evaluate(
+            "s=>localStorage.setItem('wizzard.bellwake.desktop.v1',s)",
+            json.dumps(crossed),
+        )
+        await start()
+        assert (await page.evaluate("bellProbe()"))["district"] == "RimePost"
+        assert (await use("Gate"))["district"] == destination
+    (out / "packet.json").write_text(
+        json.dumps(
+            {
+                "legacyReedwater": True,
+                "bothEpilogues": True,
+                "reloadAtFlood": True,
+                "freshMarketExcursion": True,
+                "previouslySignedPassage": True,
+            },
+            indent=2,
+        )
+        + "\n"
+    )

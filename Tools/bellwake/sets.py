@@ -579,6 +579,9 @@ def make(key, lib):
         from theatre_art import ticket_poster
         ticket_poster()
         road_leaf_paint()
+    if k in (0,2):
+        from ferry_counter import destination_board, counter
+        destination_board()
     init(lib, 4971 + k)
     floor(k)
     ridge(k)
@@ -591,6 +594,9 @@ def make(key, lib):
         ticket_door(-9,-10.9,ground(0,-9,-10.9))
         night_roll()
         public_road_book()
+    if k in (0,2):
+        x,y=(6,-10) if k==0 else (-6,-10)
+        counter(x,y,ground(k,x,y))
     marker("Spawn", 0, -14, 0.08)
     marker("Look", 0, -4, 1.4)
     district(k)

@@ -78,7 +78,7 @@ namespace Wizzard
     [Serializable]
     public sealed class BellwakeWorks
     {
-        public bool active, invited;
+        public bool active, invited, returnTicket;
         // The first 30 flags retain their original save positions in badges.
         const int FlagsPerWord = 30;
         public int chamber, badges;
@@ -179,6 +179,10 @@ namespace Wizzard
         }
         public string Objective()
         {
+            if (returnTicket && Room.middle && Signal("parishWarrant")==0)
+                return "Welcome to Sillwater. Open your field sheet and find Ada near the south bell. The northeast towpath takes your return ticket whenever you want to leave.";
+            if (returnTicket && Room.middle && Signal("parishSigned")!=0)
+                return "Your signed title is in the witness book. Use your return ticket at the northeast towpath on either shore.";
             var goal = NextGoal();
             if (goal != null) return Format(goal.line);
             if (Room.key == "Wrenfall")
@@ -210,9 +214,23 @@ namespace Wizzard
         {
             return Array.Find(Room.stations, s => s.id == id);
         }
+        public void TakePacket()
+        {
+            active = true;
+            returnTicket = true;
+            chamber = Array.FindIndex(plan.rooms, r => r.middle);
+            camp = "RestGate";
+        }
         public string Use(string id, out string destination)
         {
             destination = "";
+            if (returnTicket && Room.middle && id == "A_Gate")
+            {
+                returnTicket = false;
+                camp = "";
+                destination = "@reedwater";
+                return "";
+            }
             var station = Station(id);
             if (station == null)
                 return Objective();
