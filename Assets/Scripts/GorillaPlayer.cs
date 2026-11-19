@@ -12,6 +12,7 @@ namespace Wizzard
         public Transform head, leftHand, rightHand, body;
         public float armLength=.95f, handRadius=.10f, launchMultiplier=1.15f, maxSpeed=8f;
         public bool MovementLocked { get; set; }
+        public bool ConversationActive { get; set; }
         public LayerMask surfaces=1<<MeadowWorld.GroundLayer;
         CharacterController motor;
         readonly Transform[] arms=new Transform[2];
@@ -40,7 +41,14 @@ namespace Wizzard
             float dt=Mathf.Min(Time.deltaTime,.033f); if(dt<=0) return;
             bool vr=XRSettings.isDeviceActive;
             if(vr) ReadHead(); else DesktopLook();
-            if(MovementLocked) { UpdateHeadGuard(vr); return; }
+            if (MovementLocked)
+            {
+                velocity = smoothedVelocity = Vector3.zero;
+                initialized = false;
+                touching[0] = touching[1] = false;
+                UpdateHeadGuard(vr);
+                return;
+            }
             for (int i = 0; i < 2; i++)
             {
                 bool hadPose = tracked[i];
@@ -157,7 +165,7 @@ namespace Wizzard
             motor.center=new Vector3(oldOffset.x,motor.height*.5f,oldOffset.z);
             if(motor.enabled && request.sqrMagnitude>0)
             {
-                motor.Move(request);
+                if (!ConversationActive) motor.Move(request);
                 // Rebase origin and centre together. In free space these cancel exactly;
                 // at a wall only the allowed displacement reaches the head and body.
                 transform.position-=request;

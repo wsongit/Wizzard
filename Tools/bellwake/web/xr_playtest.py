@@ -220,7 +220,32 @@ async def theatre_checkpoint(browser):
             await walkSurvey(x,z+1.8)}""",key)
         await trigger_station(page,key,arrived)
     await visit("Talk","document.getElementById('words').textContent.includes('blue courtyard door')")
-    await visit("Playhouse","!bellProbe().busy && bellProbe().district==='PaperCourt'")
+    before=await page.evaluate("bellProbe().vrHead")
+    assert await page.evaluate("bellProbe().dialogue")
+    await page.evaluate("testDevice.position.x+=.7")
+    await page.wait_for_timeout(400)
+    after=await page.evaluate("bellProbe().vrHead")
+    assert abs(before[0]-after[0])<.03,(before,after)
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',1)")
+    await page.wait_for_function("!bellProbe().dialogue")
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',0)")
+    await page.wait_for_timeout(300)
+    await visit("Playhouse","!bellProbe().busy && bellProbe().district==='Highroad'")
+    await page.evaluate("""async()=>{
+        for(let i=0;i<200;i++){
+            const p=bellProbe();
+            if(p.busy || !p.road) break;
+            const [x,,z]=p.road.target,[hx,,hz]=p.vrHead;
+            const dx=x-hx,dz=z-hz,k=Math.min(1,.25/Math.hypot(dx,dz));
+            const pos=testDevice.position;
+            pos.set(pos.x+k*dx,1.64,pos.z+k*dz);
+            testDevice.controllers.left.position.set(pos.x-.2,1.3,pos.z-.2);
+            testDevice.controllers.right.position.set(pos.x+.2,1.3,pos.z-.2);
+            await new Promise(r=>setTimeout(r,80));
+        }
+    }""")
+    await page.wait_for_function("!bellProbe().busy && bellProbe().district==='PaperCourt'")
+
     await visit("Pattern","bellProbe().works.signals.paperPattern===1")
     await visit("Figure","bellProbe().works.signals.paperActor===2")
     assert (await page.evaluate("bellProbe().playhouse.figures"))==[2]

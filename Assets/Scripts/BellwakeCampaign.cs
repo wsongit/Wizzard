@@ -209,6 +209,28 @@ namespace Wizzard
             PlayerPrefs.Save();
             savedCheckpoint = checkpoint;
         }
+        bool speaking;
+        void Speak(string title, string words)
+        {
+            speaking = true;
+            player.ConversationActive = true;
+            player.MovementLocked = true;
+            curtain.renderQueue = 3800;
+            curtain.color = new Color(0, 0, 0, .52f);
+            curtainRenderer.enabled = true;
+            Say(title + "   ·   E / trigger to continue", words, float.PositiveInfinity);
+        }
+        void EndDialogue()
+        {
+            speaking = false;
+            player.ConversationActive = false;
+            player.MovementLocked = false;
+            curtainRenderer.enabled = false;
+            curtain.renderQueue = 4950;
+            messageUntil = 0;
+            lastHint = null;
+            display.Hide();
+        }
         void Say(string title, string words, float seconds = 11f)
         {
             lastHint = null;
@@ -267,6 +289,158 @@ namespace Wizzard
             yield return null;
             yield return Resources.UnloadUnusedAssets();
         }
+        string DistrictTitle(string key, out string theme)
+        {
+            var work=Array.Find(worksPlan.rooms, r=>r.key==key);
+            if(work!=null) { theme=work.theme; return work.title; }
+            theme=key;
+            var region=Array.Find(atlas.regions,r=>r.key==key);
+            if(region!=null) return region.title;
+            int index=Array.IndexOf(BellwakeJourney.Rooms,key);
+            if(index>=0) return BellwakeJourney.Titles[index];
+            theme="Bellmarket";
+            return "Long Meadow";
+        }
+        IEnumerator LoadRoadSet(string key, string theme, bool visit)
+        {
+            yield return ReleaseArea("Bellmarket");
+            var song=score.clip==null ? Resources.LoadAsync<AudioClip>(Path+"Audio/Bellmarket") : null;
+            var request=Resources.LoadAsync<GameObject>(Path+"Rooms/"+key);
+            var panorama=Resources.LoadAsync<Cubemap>(Path+"Skies/"+theme);
+            yield return request;
+            var model=(GameObject)request.asset;
+            yield return LoadPaints(model);
+            set=Instantiate(model);
+            set.name=key;
+            foreach (var part in set.GetComponentsInChildren<Transform>(true))
+            {
+                nodes[part.name]=part;
+                var renderer=part.GetComponent<MeshRenderer>();
+                if(renderer==null) continue;
+                bool solid=IsCollisionSurface(part.name);
+                if(part.name=="C_Solids" || (visit && !solid && !part.name.StartsWith("Speaker") &&
+                    !part.name.StartsWith("GroveNear"))) renderer.enabled=false;
+                else Paint(renderer);
+                if(!solid) continue;
+                part.gameObject.layer=MeadowWorld.GroundLayer;
+                if(!part.TryGetComponent<MeshCollider>(out var collider))
+                    part.gameObject.AddComponent<MeshCollider>().sharedMesh=part.GetComponent<MeshFilter>().sharedMesh;
+            }
+            yield return panorama;
+            ApplyLook((Cubemap)panorama.asset);
+            if(song!=null)
+            {
+                yield return song;
+                score.clip=(AudioClip)song.asset;
+                score.Play();
+            }
+            if(!visit)
+            {
+                RenderSettings.fogStartDistance=75;
+                RenderSettings.fogEndDistance=170;
+            }
+        }
+        bool RoadUse()
+        {
+            return use.Read(XRUsage.triggerButton) ||
+                (Keyboard.current!=null && Keyboard.current.eKey.wasPressedThisFrame);
+        }
+        IEnumerator WalkHighroad(string destination)
+        {
+            var title=DistrictTitle(destination,out _);
+            while (true)
+            {
+                if (!string.IsNullOrEmpty(story.roadVisit))
+                {
+                    string name=DistrictTitle(story.roadVisit,out string theme);
+                    yield return LoadRoadSet(story.roadVisit,theme,true);
+                    var entrance=nodes["Spawn"].position;
+                    player.Teleport(entrance,Quaternion.LookRotation(nodes["Look"].position-entrance));
+                    Physics.SyncTransforms();
+                    yield return Fade(1,0);
+                    player.MovementLocked=false;
+                    float nextHint=0;
+                    while(true)
+                    {
+                        var distance=Vector3.ProjectOnPlane(entrance-player.transform.position,Vector3.up).magnitude;
+                        bool useDoor=RoadUse();
+                        if(distance<2.6f && useDoor) break;
+                        if(Time.unscaledTime>=nextHint)
+                        {
+                            display.Say(name,distance<2.6f ? "E / trigger · Return to the highroad" :
+                                "Highroad entrance · "+Mathf.CeilToInt(distance)+" m");
+                            nextHint=Time.unscaledTime+.5f;
+                        }
+                        yield return null;
+                    }
+                    player.MovementLocked=true;
+                    yield return Fade(0,1);
+                    story.roadVisit="";
+                    Save();
+                }
+                yield return LoadRoadSet("Highroad","Bellmarket",false);
+                var target=nodes["Road"+destination];
+                var origin=nodes["Road"+story.lastDistrict].position;
+                var here=story.onRoad ? new Vector3(story.roadX,story.roadY,story.roadZ) : origin;
+                var direction=target.position-here; direction.y=0;
+                player.Teleport(here,direction.sqrMagnitude>.001f ? Quaternion.LookRotation(direction) : Quaternion.identity);
+                Physics.SyncTransforms();
+                var label=display.Label(target,title);
+                label.transform.position=target.position+Vector3.up*4.2f;
+                label.gameObject.SetActive(true);
+                story.onRoad=true;
+                story.roadX=here.x; story.roadY=here.y; story.roadZ=here.z;
+                Save();
+                yield return Fade(1,0);
+                player.MovementLocked=false;
+                float nextUpdate=0, nextCheckpoint=0;
+                while(true)
+                {
+                    var position=player.transform.position;
+                    var offset=target.position-position;
+                    float height=Mathf.Abs(offset.y);
+                    offset.y=0;
+                    if(offset.sqrMagnitude<1.35f*1.35f && height<2f) break;
+                    bool action=RoadUse();
+                    string nearest=null;
+                    foreach (var pair in nodes)
+                    {
+                        if(!pair.Key.StartsWith("Road") || pair.Key=="RoadLongMeadow" || pair.Value==target) continue;
+                        var delta=pair.Value.position-position;
+                        if(Mathf.Abs(delta.y)<2 && delta.x*delta.x+delta.z*delta.z<2.6f*2.6f)
+                        { nearest=pair.Key.Substring(4); break; }
+                    }
+                    if(nearest!=null && action)
+                    {
+                        var gate=nodes["Road"+nearest].position+Vector3.forward*2.4f;
+                        story.roadX=gate.x; story.roadY=gate.y; story.roadZ=gate.z;
+                        story.roadVisit=nearest;
+                        Save();
+                        break;
+                    }
+                    display.Face(label);
+                    if(Time.unscaledTime>=nextUpdate)
+                    {
+                        nextUpdate=Time.unscaledTime+.75f;
+                        if (Time.unscaledTime>=nextCheckpoint)
+                        {
+                            nextCheckpoint=Time.unscaledTime+3f;
+                            story.roadX=position.x; story.roadY=position.y; story.roadZ=position.z;
+                            Save();
+                        }
+                        float angle=Vector3.SignedAngle(player.head.forward,offset,Vector3.up);
+                        string heading=Mathf.Abs(angle)>135?"behind you":angle>30?"to your right":angle< -30?"to your left":"ahead";
+                        display.Say("Bellwake Highroad",nearest==null ? title+"   ·   "+Mathf.CeilToInt(offset.magnitude)+" m "+heading :
+                            "E / trigger · Enter "+DistrictTitle(nearest,out _));
+                    }
+                    yield return null;
+                }
+                player.MovementLocked=true;
+                yield return Fade(0,1);
+                display.Hide();
+                if (string.IsNullOrEmpty(story.roadVisit)) break;
+            }
+        }
         IEnumerator EnterRoom()
         {
             loading = true;
@@ -281,6 +455,18 @@ namespace Wizzard
                 yield return Fade(0, 1);
                 PrepareRoute();
                 string key = InWorks ? story.works.Room.key : InPassage ? atlas.regions[story.room].key : BellwakeJourney.Rooms[story.room];
+                if(story.meadowJourney && !checkingTravel)
+                {
+                    if(story.lastDistrict!="LongMeadow") yield return WalkHighroad("LongMeadow");
+                    story.lastDistrict="LongMeadow"; story.onRoad=false;
+                    Save();
+                    yield return EnterMeadow();
+                    yield break;
+                }
+                if (!checkingTravel && !string.IsNullOrEmpty(story.lastDistrict) && story.lastDistrict!=key)
+                    yield return WalkHighroad(key);
+                story.lastDistrict=key;
+                story.onRoad=false;
                 bool dawn = story.ending != 0 && !InWorks;
                 string theme = dawn ? "Morning" : InWorks ? story.works.Room.theme : key;
                 string music = InWorks && !string.IsNullOrEmpty(story.works.Room.score) ? story.works.Room.score : theme;
@@ -673,7 +859,7 @@ namespace Wizzard
         }
         void Update()
         {
-            if (player == null || loading || checkingTravel || player.MovementLocked)
+            if (player == null || loading || checkingTravel || (player.MovementLocked && !speaking))
                 return;
             if (Application.isFocused && !journalOpen && story.ending==0 && Time.unscaledDeltaTime<1)
             {
@@ -688,6 +874,14 @@ namespace Wizzard
                         (Keyboard.current != null && Keyboard.current.jKey.wasPressedThisFrame);
             bool call = whistle.Read(XRUsage.gripButton, true) ||
                         (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame);
+            if (speaking)
+            {
+                pulseUntil += Time.unscaledDeltaTime;
+                if (action || book || (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame))
+                    EndDialogue();
+                if (!book) return;
+                action = false;
+            }
             if (player.HeadObstructed && !journalOpen)
             {
                 action = false;
@@ -711,7 +905,10 @@ namespace Wizzard
                     lastHint = "trail";
                 }
                 if (action)
+                {
+                    story.meadowJourney=false;
                     StartCoroutine(EnterRoom());
+                }
                 return;
             }
             if (set == null)
@@ -1139,14 +1336,14 @@ namespace Wizzard
                 FlashKeeperNote(pitch);
                 notes.PlayOneShot(chimes[pitch]);
             }
-            if (n==10) Say("Ina","You know it. Knock that way when you come for breakfast.");
+            if (n==10) Speak("Ina","You know it. Knock that way when you come for breakfast.");
             else
             {
                 int bar=(n-1)/3;
                 if (wind || bar>(before-1)/3)
                 {
                     rehearsal=StartCoroutine(Rehearse(worksPlan.dawnTunes[bar]));
-                    Say("Ina",worksPlan.dawnVerses[bar]+" Play it back on the three seals.",12);
+                    Speak("Ina",worksPlan.dawnVerses[bar]+" Play it back on the three seals.");
                 }
                 else Say("Music box",n<=before?"The cylinder slips to the start of this verse. Wind the crank to hear it again.":"The next tooth clicks into place.");
             }
@@ -1332,16 +1529,17 @@ namespace Wizzard
                 line=story.works.Use(id,out string destination);
                 if(!string.IsNullOrEmpty(destination))
                 {
-                    if(destination.StartsWith("#"))
-                    {
-                        spawn=Arrival(); player.Teleport(spawn,facing); Save(); Say(title,line); return;
-                    }
                     if(destination=="@choir" || destination=="@market" || destination=="@reedwater") story.works.active=false;
                     if(destination=="@glasscut") { story.works.active=false; Route.active=true; }
                     if(destination=="@final") { story.works.active=false;story.Gate(); }
                     StartCoroutine(EnterRoom());
                 }
-                else { SoundStation(station,scene);Sync();Save();Say(title,line); }
+                else
+                {
+                    SoundStation(station,scene); Sync(); Save();
+                    if (station.style=="person") Speak(title,line);
+                    else Say(title,line);
+                }
                 return;
             }
             if (InPassage)
@@ -1364,7 +1562,8 @@ namespace Wizzard
                 trailTime=Time.time;
                 if(id=="A_Talk") gestureUntil=Time.time+3;
                 if(id.StartsWith("A_Key") || id=="A_Stamp") notes.PlayOneShot(chimes[Route.Piece.win?0:1]);
-                Sync();Save();Say(Label(id),line);
+                Sync(); Save();
+                if (id=="A_Talk") Speak(Label(id),line); else Say(Label(id),line);
                 return;
             }
             if (id=="A_MorningSong" || (story.room==4 && story.Solved && story.works.Signal("dawnStep")>0 && id.StartsWith("A_Key")))
@@ -1410,7 +1609,8 @@ namespace Wizzard
                 StartCoroutine(EnterRoom());
                 return;
             case "A_Meadow":
-                StartCoroutine(EnterMeadow());
+                story.meadowJourney=true;
+                StartCoroutine(EnterRoom());
                 return;
             case "A_Talk":
                 gestureUntil = Time.time + 3;
@@ -1506,7 +1706,7 @@ namespace Wizzard
             }
             Sync();
             Save();
-            Say(Label(id), line);
+            if (id=="A_Talk" || id=="A_Ina") Speak(Label(id),line); else Say(Label(id),line);
         }
         IEnumerator EnterMeadow()
         {

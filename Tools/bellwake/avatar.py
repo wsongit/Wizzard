@@ -6,7 +6,7 @@ from atelier import *
 def ellipsoid(name, centre, radii, mat):
     cx, cy, cz = centre
     rx, ry, rz = radii
-    n = 10
+    n = 8
     pts = [(cx, cy, cz - rz)]
     for j in range(1, 6):
         a = -math.pi / 2 + j * math.pi / 6
@@ -26,7 +26,7 @@ def ellipsoid(name, centre, radii, mat):
             a = 1 + j * n + i
             b = 1 + j * n + (i + 1) % n
             faces.append((a, b, b + n, a + n))
-    faces.extend((41 + i, 41 + (i + 1) % n, len(pts) - 1) for i in range(n))
+    faces.extend((1 + 4*n + i, 1 + 4*n + (i + 1) % n, len(pts) - 1) for i in range(n))
     return geometry(name, pts, faces, mat)
 
 
@@ -36,6 +36,12 @@ def make_avatar(lib):
         side = -1 if left else 1
         ellipsoid("Broad palm", (0, 0, 0.009), (0.084, 0.073, 0.050), "Skin")
         ellipsoid("Furred back", (0, -0.022, 0.038), (0.078, 0.066, 0.031), "Fur")
+        # Three overlapping, closed wedges break up the soft outline of the wrist.
+        for i in range(3):
+            x=side*(i-1)*.031
+            geometry("Pointed wrist fur", [(x-.022,-.028,.050),(x+.022,-.030,.050),
+                (x,-.034,.072),(x+side*.008,-.094+.008*(i%2),.054)],
+                [(0,2,1),(0,1,3),(1,2,3),(2,0,3)],"Fur")
         for j in range(4):
             x = side * (0.055 - j * 0.036)
             y = 0.051 - j * 0.002

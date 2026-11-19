@@ -222,6 +222,8 @@ def model(id, name, x, y, z, height, heading=0, group="Set"):
 
 
 def finish(key, sky_key=None):
+    from mesh_finish import finish_geometry
+    finish_geometry(batches, origins)
     folder = ROOT / "Blender/Bellwake"
     folder.mkdir(exist_ok=True)
     scene = bpy.context.scene

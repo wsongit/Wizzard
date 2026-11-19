@@ -1,6 +1,10 @@
 # Bellwake release checks
 
-## Full playthrough
+## Highroad edition
+
+The exported map passed 17,496 ground and overhead-clearance samples on 72 links. The headset emulator spoke with Tavi, checked that a tracked step held the player in place, dismissed the conversation and walked to Paper Court. A desktop check reloaded during a visit and halfway along the road, then reached the quest destination with one active world and collision tree. [Highroad controls and reference notes](highroad.md)
+
+## Full playthrough before the highroad update
 
 The first ending took **1:00:28 of active play** across 41 main-story districts in the desktop browser. The runner sprinted, used known puzzle solutions, collected five witness leaves and signed all six passenger accounts. It carried its earned save across a restart and into the expanded edition at the Countertide Engine. The in-game clock excludes loading, time away and the open journal. Both endings passed from the earned choice at the tower. First-time human and physical Quest completion times remain unmeasured. [Time by district](known-route.json)
 

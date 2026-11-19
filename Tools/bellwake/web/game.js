@@ -17,7 +17,13 @@ const data = window.BELLWAKE,
 const frameReport = new URLSearchParams(location.search).has("timings") ? new HeadsetFrameReport() : null;
 const graph = data.story,
   store = "wizzard.bellwake.desktop.v1";
-let savedPassage, savedWorks, lastCheckpoint;
+let savedPassage, savedWorks, lastCheckpoint, lastDistrict, roadPosition;
+let walking=false, outing=false, visiting=null, nearDoor="", visitExit, roadGoal, roadDoors=[], nextRoadSave=0;
+const places=new Map([
+  ...graph.rooms.map((key,i)=>[key,{title:graph.titles[i],theme:key}]),
+  ...data.regions.map(r=>[r.key,{title:r.title,theme:r.key}]),
+  ...data.works.rooms.map(r=>[r.key,r])
+]);
 let secondsByPlace = {};
 let number = 0,
   leaves = 0,
@@ -35,6 +41,10 @@ try {
     muted = !!value.muted;
     savedPassage = value.passage;
     savedWorks = value.works;
+    lastDistrict=places.has(value.lastDistrict) ? value.lastDistrict : null;
+    outing=!!value.outing;
+    visiting=places.has(value.visiting) ? value.visiting : null;
+    if (Array.isArray(value.roadPosition) && value.roadPosition.length===3 && value.roadPosition.every(Number.isFinite)) roadPosition=value.roadPosition;
     for (const [key, t] of Object.entries(value.secondsByPlace || {}))
       if (Number.isFinite(t) && t >= 0) secondsByPlace[key] = t;
   }
@@ -49,7 +59,7 @@ let works = new Underworks(
   savedRoom?.homeRoom ? (state().room===savedRoom.homeRoom && !state().ending) || (savedRoom.key==="RowanHollow" && state().room===0 && savedWorks?.returnTicket) : savedRoom?.prologue ? state().room === 0 :
     savedRoom?.middle ? state().room === 2 || (state().room === 0 && savedWorks?.returnTicket) : savedRoom?.early ? state().room === 1 && !state().ending : state().room === 3 && state().solved,
 );
-const roomRadius = () => (works.active && works.room.halfSpan) || 20;
+const roomRadius = () => visiting ? (places.get(visiting).halfSpan || 20) : walking ? 84 : (works.active && works.room.halfSpan) || 20;
 const locationKey = () =>
   works.active ? works.room.key : passage.active ? passage.region.key : graph.rooms[state().room];
 const hasFloodBook = () =>
@@ -71,6 +81,7 @@ function save(timerOnly = false) {
       passage: passage.progress,
       works: works.progress,
       secondsByPlace,
+      lastDistrict, roadPosition, outing, visiting,
     });
     localStorage.setItem(store, checkpoint);
     lastCheckpoint = checkpoint;
@@ -125,7 +136,7 @@ let music = null,
   musicTheme = "",
   musicGeneration = 0;
 const themeKey = () => (works.active ? works.room.theme : state().ending ? "Morning" : locationKey());
-const musicKey = () => (works.active && works.room.score) || themeKey();
+const musicKey = () => (walking || visiting) ? "Bellmarket" : (works.active && works.room.score) || themeKey();
 function assetURL(kind, name, mime) {
   return data.streamed ? data[kind][name] : "data:" + mime + ";base64," + data[kind][name];
 }
@@ -242,6 +253,7 @@ function bytes(encoded) {
   return array.buffer;
 }
 function arrival() {
+  if (walking || visiting) return nodes.Spawn.position;
   const camp = works.active && works.progress.camp;
   return (camp && camp.startsWith("Rest") && nodes[camp]?.position) || nodes.Spawn?.position;
 }
@@ -252,7 +264,7 @@ function resetFeet() {
   capsule.end.copy(p).y += 1.4;
   vy = 0;
   onFloor = false;
-  yaw = 0;
+  yaw = walking && roadGoal ? Math.atan2(p.x-roadGoal.x,p.z-roadGoal.z) : 0;
   pitch = 0;
   updateCamera();
 }
@@ -270,7 +282,7 @@ const vr = new TrackedRunner(
   () => toggleBook(!book),
   () => {
     toggleBook(false);
-    if (!busy && nodes.Spawn) resetFeet();
+    if (!busy && !dialogueShade.visible && nodes.Spawn) resetFeet();
   },
   callGuide,
 );
@@ -294,6 +306,24 @@ function updateCamera() {
   if (vr.session) return;
   camera.position.copy(capsule.end).y += 0.22;
   camera.rotation.set(pitch, yaw, 0, "YXZ");
+}
+const dialogueShade = new T.Mesh(new T.PlaneGeometry(4,4),
+  new T.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.52,depthTest:false,depthWrite:false}));
+dialogueShade.position.z=-.25;
+dialogueShade.renderOrder=80;
+dialogueShade.visible=false;
+camera.add(dialogueShade);
+function endDialogue() {
+  dialogueShade.visible=false;
+  $("speech").hidden=true;
+  speechEnd=0;
+  keys.clear();
+}
+function speak(title,line) {
+  keys.clear();
+  vy=0;
+  dialogueShade.visible=true;
+  say(title+"   ·   E / trigger to continue",line,Infinity);
 }
 function say(title, line, seconds = 8) {
   $("act").textContent = title;
@@ -374,6 +404,9 @@ function loadingFrame() {
 }
 async function room() {
   try {
+    walking=!visiting && (outing || Boolean(lastDistrict && lastDistrict!==locationKey()));
+    nearDoor=""; roadDoors=[];
+    $("journal").hidden=walking || Boolean(visiting);
     await loadRoom();
     return true;
   } catch (error) {
@@ -424,13 +457,13 @@ async function loadRoom() {
   focus = "";
   // Submit an opaque frame in the headset as well as the desktop canvas.
   await loadingFrame();
-  const key = locationKey(),
-    theme = themeKey();
+  const key = visiting || (walking ? "Highroad" : locationKey()),
+    theme = visiting ? places.get(visiting).theme : walking ? "Bellmarket" : themeKey();
   const [model, collision, panorama, booklet] = await Promise.all([
     loadModel(key),
     loadPackedAsset(data.collision[key]),
     new T.TextureLoader().loadAsync(assetURL("skies", theme, "image/jpeg")),
-    passage.active
+    passage.active && !walking && !visiting
       ? data.streamed
         ? new T.FileLoader().setResponseType("json").loadAsync(data.charts[key])
         : JSON.parse(new TextDecoder().decode(bytes(data.charts[key])))
@@ -470,7 +503,7 @@ async function loadRoom() {
   grove.update(nodes.Spawn.position);
   nodes.C_Solids.visible = false;
   scene.add(group);
-  if (works.active && works.room.early) {
+  if (!walking && !visiting && works.active && works.room.early) {
     const body = new T.Group();
     group.add(body);
     for (const key of ["GuideBird", "GuideLeft", "GuideRight"]) body.attach(nodes[key]);
@@ -519,6 +552,51 @@ async function loadRoom() {
   }
   await renderer.compileAsync(scene, camera);
   ring = null;
+  if (visiting) {
+    // During a visit only permanent scenery and residents are present. The active quest
+    // keeps its own actors, moving puzzle parts and state until its destination is entered.
+    for(const child of group.children)
+      if(!child.name.startsWith("Grove") && (child.isMesh || child.children.some(part=>part.isMesh)))
+        child.visible=/^(Terrain|Rim|Set|Speaker(?:Head|Arm)?|GroveNear.*)$/.test(child.name);
+    visitExit=nodes.Spawn.position;
+    resetFeet();
+    $("chapter").textContent="Exploring the watershed";
+    $("location").textContent=places.get(visiting).title;
+    $("clock").hidden=true; $("speech").hidden=true;
+    if (started) playMusic();
+    busy=false;
+    save();
+    frameReport?.endTravel(vr.session,key,performance.now());
+    $("veil").style.opacity=0;
+    return;
+  }
+  if (walking) {
+    roadDoors=Array.from(places.keys(),k=>[k,nodes["Road"+k].position]);
+    const origin=nodes["Road"+lastDistrict].position;
+    roadGoal=nodes["Road"+locationKey()].position;
+    nodes.Spawn.position.copy(origin);
+    if (roadPosition) nodes.Spawn.position.fromArray(roadPosition);
+    else if (outing) nodes.Spawn.position.z+=3;
+    const beacon=new T.Mesh(new T.OctahedronGeometry(.64),new T.MeshBasicMaterial({color:0xffcf64}));
+    beacon.position.copy(roadGoal).y+=4.25;
+    group.add(beacon);
+    resetFeet();
+    yaw=Math.atan2(capsule.start.x-roadGoal.x,capsule.start.z-roadGoal.z);
+    updateCamera();
+    $("chapter").textContent="The watershed";
+    $("location").textContent="Bellwake Highroad";
+    $("prompt").hidden=true;
+    $("clock").hidden=true;
+    $("speech").hidden=true;
+    if (started) playMusic();
+    busy=false;
+    save();
+    frameReport?.endTravel(vr.session,key,performance.now());
+    $("veil").style.opacity=0;
+    return;
+  }
+  lastDistrict=key;
+  roadPosition=null;
   resetFeet();
   if (works.active) {
     for (const v of works.room.visuals) if (v.mount) nodes[v.mount].attach(nodes[v.node]);
@@ -681,6 +759,7 @@ function sync() {
   for (let i = 0; i < 4; i++) if (nodes["Ray" + i]) nodes["Ray" + i].visible = i < s.beam;
 }
 function welcome() {
+  if (walking || visiting) return;
   const s = state();
   if (s.ending && !works.active)
     say(
@@ -693,6 +772,23 @@ function welcome() {
   else say(locationName(), objective(), 8);
 }
 async function interact(id, palm = -1) {
+  if (walking || visiting) {
+    if (!started || busy || (vr.session && (!vr.ready || vr.guard.visible)) || !nearDoor) return;
+    if (visiting) visiting=null;
+    else if (nearDoor===locationKey()) {
+      lastDistrict=locationKey(); outing=false; roadPosition=null;
+    } else {
+      visiting=nearDoor;
+      const gate=nodes["Road"+nearDoor].position;
+      roadPosition=[gate.x,gate.y,gate.z+2.4];
+    }
+    if(await room()) welcome();
+    return;
+  }
+  if (dialogueShade.visible) {
+    if (palm < 0 && id !== "Toll") endDialogue();
+    return;
+  }
   if (id !== "Toll" && vr.session && vr.guard.visible) return;
   if (!started || busy || book || !id) return;
   if (vr.session && nodes["Hit_" + id.slice(2)]) {
@@ -734,12 +830,6 @@ async function interact(id, palm = -1) {
     const scene = works.room.prologue && id==="A_Light" ? works.signals.paperAct : -1;
     const name = label(id),
       result = works.use(id);
-    if (result.to?.startsWith("#")) {
-      resetFeet();
-      save();
-      say(name, result.line);
-      return;
-    }
     if (result.to) {
       if (result.to === "@choir" || result.to === "@market" || result.to === "@reedwater") works.progress.active = false;
       if (result.to === "@glasscut") { works.progress.active=false; passage.progress.active=true; }
@@ -752,7 +842,8 @@ async function interact(id, palm = -1) {
       soundStation(station, scene);
       sync();
       save();
-      say(name, result.line, 10);
+      if (station.style === "person") speak(name,result.line);
+      else say(name, result.line, 10);
     }
     return;
   }
@@ -793,14 +884,13 @@ async function interact(id, palm = -1) {
     if (id.startsWith("A_Key") || id === "A_Stamp") tone(passage.piece.win ? 0 : 1);
     sync();
     save();
-    say(label(id), line, 10);
+    if (id === "A_Talk") speak(label(id),line);
+    else say(label(id), line, 10);
     return;
   }
   if (id === "A_Meadow") {
-    say(
-      "Long Meadow trail",
-      "Beyond this sign lie the rolling meadow and Mossbell Village. Explore them in the Unity edition.",
-    );
+    outing=true; roadPosition=null;
+    await room();
     return;
   }
   const prev = state(),
@@ -811,12 +901,12 @@ async function interact(id, palm = -1) {
     const before=works.signals.dawnStep, wind=id==="A_MorningSong";
     const n=works.playMorningSong(wind?"wind":id.slice(-1));
     if (!wind) tone(+id.slice(-1));
-    if (n === 10) say("Ina","You know it. Knock that way when you come for breakfast.");
+    if (n === 10) speak("Ina","You know it. Knock that way when you come for breakfast.");
     else {
       const bar=Math.floor((n-1)/3);
       if (wind || bar>Math.floor((before-1)/3)) {
         soundStation({tune:data.works.dawnTunes[bar]},-1);
-        say("Ina", data.works.dawnVerses[bar]+" Play it back on the three seals.",12);
+        speak("Ina", data.works.dawnVerses[bar]+" Play it back on the three seals.");
       } else say("Music box",n<=before?"The cylinder slips to the start of this verse. Wind the crank to hear it again.":"The next tooth clicks into place.");
     }
     save();
@@ -840,7 +930,7 @@ async function interact(id, palm = -1) {
     works.progress.invited = true;
     gestureEnd = performance.now() + 3000;
     save();
-    say("Tavi",data.works.theatreInvitation,16);
+    speak("Tavi",data.works.theatreInvitation);
     return;
   }
   if (id === "A_Packet" || id === "A_FenPass" || id === "A_WoodWalk") {
@@ -923,7 +1013,9 @@ async function interact(id, palm = -1) {
   const portrait = id === "A_Talk" && state().ending && works.signals.pilotNo===3
     ? " "+data.works.pilotEndings[state().ending-1] : "";
   const dawnSong = id==="A_Talk" && state().ending && works.signals.dawnStep===10 ? " "+data.works.dawnEnding[state().ending-1] : "";
-  say(name, move[1] + dawnSong + portrait + programme + pilotLine + supperLine + parishLine + swallowLine + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
+  const line = move[1] + dawnSong + portrait + programme + pilotLine + supperLine + parishLine + swallowLine + dedication;
+  if (id === "A_Talk" || id === "A_Ina") speak(name,line);
+  else say(name,line,id === "A_Letter" ? 12 : 6);
 }
 function listeningAngle() {
   return callAngle(vr.session ? vr.head : camera.position,
@@ -1081,6 +1173,8 @@ function soundFork() {
   say(title,(nearest<13?"A strong reply ":nearest<32?"A soft reply ":"A distant reply ")+relativeBearings[sector]+". Ring again after moving.",6);
 }
 function callGuide() {
+  if (walking || visiting) return;
+  if (dialogueShade.visible) return;
   if (!started || book || busy || (vr.session && vr.guard.visible)) return;
   if (works.active && works.room.key === "DriftFen") { soundFork(); return; }
   if (nodes.HandWhistle) {
@@ -1189,7 +1283,8 @@ function addBookPrint(key, caption, alt) {
   illustratedPages[leaves.children.length] = print;
 }
 function toggleBook(open) {
-  if (!started || busy) return;
+  if (dialogueShade.visible) endDialogue();
+  if (!started || busy || walking || visiting) return;
   book = open;
   if (book) { forestCall.stop(); observation = null; }
   keys.clear();
@@ -1305,6 +1400,7 @@ addEventListener("keydown", (e) => {
     toggleBook(!book);
     return;
   }
+  if (dialogueShade.visible) { if (e.code==="KeyE" || e.code==="Escape") endDialogue(); return; }
   if (book || busy) return;
   keys.add(e.code);
   if (e.code === "KeyQ") callGuide();
@@ -1369,7 +1465,7 @@ function adapt(interval) {
 }
 function loop(time, frame) {
   const interval = time - previous;
-  frameReport?.frame(vr.session, time, started && !busy && !book, locationKey(), renderer.info.memory);
+  frameReport?.frame(vr.session, time, started && !busy && !book, visiting || (walking ? "Highroad" : locationKey()), renderer.info.memory);
   if (
     started &&
     !busy &&
@@ -1379,7 +1475,7 @@ function loop(time, frame) {
     interval < 1000 &&
     (vr.session ? vr.session.visibilityState === "visible" : !document.hidden && document.hasFocus())
   ) {
-    const key = locationKey();
+    const key = visiting || (walking ? "Highroad" : locationKey());
     secondsByPlace[key] = (secondsByPlace[key] || 0) + interval / 1000;
   }
   if (previous && !busy && !book && !vr.session) adapt(time - previous);
@@ -1395,12 +1491,53 @@ function loop(time, frame) {
     return;
   }
   if (!group) return;
-  if (vr.session) vr.update(frame, delta, book);
+  if (vr.session) vr.update(frame, delta, book || dialogueShade.visible, dialogueShade.visible);
+  if (walking || visiting) {
+    if (visiting && grove.cells.length) grove.update(vr.session ? vr.head : camera.position);
+    if (started) {
+      if (!vr.session) {
+        const sub=Math.max(1,Math.ceil(delta/.016));
+        for (let i=0;i<sub;i++) move(delta/sub);
+      }
+      const feet=vr.session ? vr.body.start : capsule.start;
+      if (visiting) {
+        const distance=Math.hypot(visitExit.x-feet.x,visitExit.z-feet.z);
+        nearDoor=distance<=2.6 ? visiting : "";
+        const hint=nearDoor ? "E / trigger · Return to the highroad" : "Highroad entrance · "+Math.ceil(distance)+" m";
+        $("prompt").textContent=hint; $("prompt").hidden=false;
+        if(vr.session) vr.caption(places.get(visiting).title,hint);
+      } else {
+        nearDoor=roadDoors.find(([,p])=>Math.hypot(p.x-feet.x,p.z-feet.z)<2.6 && Math.abs(p.y-feet.y)<2)?.[0] || "";
+        const dx=roadGoal.x-feet.x, dz=roadGoal.z-feet.z, distance=Math.hypot(dx,dz);
+        let compass=["N","NE","E","SE","S","SW","W","NW"][(8+Math.round(Math.atan2(dx,-dz)/(Math.PI/4)))%8];
+        const hint=nearDoor ? "E / trigger · Enter "+places.get(nearDoor).title : locationName()+"   ·   "+Math.ceil(distance)+" m "+compass+"   ·   Gold marker";
+        $("prompt").textContent=hint;
+        $("prompt").hidden=false;
+        if (vr.session) vr.caption("Bellwake Highroad",hint);
+        if ((!vr.session || (vr.ready && !vr.pending)) && !busy) {
+          if (!outing && distance<1.35 && Math.abs(feet.y-roadGoal.y)<2) {
+            lastDistrict=locationKey();
+            roadPosition=null;
+            room().then(ok=>{if(ok) welcome();});
+            return;
+          }
+          if(time>=nextRoadSave) {
+            roadPosition=[feet.x,feet.y-.14,feet.z];
+            save(true);
+            nextRoadSave=time+2000;
+          }
+        }
+      }
+    }
+    sky.position.copy(vr.session ? vr.head : camera.position);
+    renderer.render(scene,camera);
+    return;
+  }
   if (grove.cells.length) grove.update(vr.session ? vr.head : camera.position);
   if (nodes.HandFork || nodes.HandWhistle) poseFork(time);
   if (instruments.targets.length) {
     for (let i = 0; i < 2; i++) {
-      const point = vr.ready && !vr.guard.visible && !book && vr.hands[i].valid ? vr.palms[i].position : null;
+      const point = vr.ready && !vr.guard.visible && !dialogueShade.visible && !book && vr.hands[i].valid ? vr.palms[i].position : null;
       const id = instruments.strike(i, point);
       if (id) interact(id, i);
     }
@@ -1408,6 +1545,8 @@ function loop(time, frame) {
   if (!started) {
     camera.position.set(11 + Math.sin(time * 0.00012) * 1.3, 5.6, 15.8);
     camera.lookAt(-3.5, 2, -3);
+  } else if (dialogueShade.visible) {
+    if (!vr.session) updateCamera();
   } else if (!book) {
     if (!vr.session) {
       const sub = Math.ceil(delta / 0.016);
@@ -1545,7 +1684,10 @@ if (__TEST__)
     sets: group && scene.children.includes(group) ? 1 : 0,
     secondsByPlace: { ...secondsByPlace },
     room: state().room,
-    district: locationKey(),
+    district: visiting || (walking ? "Highroad" : locationKey()),
+    visiting, nearDoor,
+    road:walking ? {to:locationKey(), from:lastDistrict, target:roadGoal?.toArray()} : null,
+    dialogue: dialogueShade.visible,
     roadBook: !!nodes.RoadBook?.visible,
     dedication: !!nodes.NightRoll?.visible,
     works: works.active ? { ...works.progress, signals: { ...works.signals } } : null,
@@ -1616,6 +1758,7 @@ if (__TEST__)
 if (__TEST__)
   window.bellTravel = async (index) => {
     if (busy) throw Error("Travel already in progress");
+    lastDistrict=null; roadPosition=null; visiting=null; outing=false;
     const expansion = index - graph.rooms.length;
     const chamber = expansion - data.regions.length;
     const early = data.works.rooms[chamber]?.early, prologue = data.works.rooms[chamber]?.prologue, middle=data.works.rooms[chamber]?.middle;

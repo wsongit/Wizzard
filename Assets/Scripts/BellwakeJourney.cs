@@ -9,6 +9,10 @@ namespace Wizzard
         public BellwakePassage passage;
         public BellwakeWorks works;
         public float[] secondsByPlace;
+        public string lastDistrict;
+        public bool onRoad, meadowJourney;
+        public string roadVisit;
+        public float roadX, roadY, roadZ;
         public string PlayTime()
         {
             double seconds=0;

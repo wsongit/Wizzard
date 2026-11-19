@@ -290,10 +290,11 @@ class WorksCheck
                         Require(Math.Abs(track[i]%15-track[i-1]%15)+Math.Abs(track[i]/15-track[i-1]/15)==1, "guide jumped junction");
                 }
             }
+            string lastShelter = pilgrimage.camp;
             pilgrimage.Use("A_Bell",out destination);
-            Require(destination=="#RestTalk" && pilgrimage.camp=="RestTalk", "return line");
+            Require(string.IsNullOrEmpty(destination) && pilgrimage.camp==lastShelter, "return line");
             pilgrimage.Use("A_Fast",out destination);
-            Require(destination=="#RestGate" && pilgrimage.camp=="RestGate", "mile line");
+            Require(string.IsNullOrEmpty(destination) && pilgrimage.camp==lastShelter, "mile line");
             pilgrimage.Use("A_Gate",out destination);
             Require(!string.IsNullOrEmpty(destination) && pilgrimage.camp=="", "gate checkpoint");
             if(room.key=="RainCourt") Require(destination=="RowanHollow","missing forest connection");

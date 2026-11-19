@@ -42,14 +42,14 @@ export class TrackedRunner {
     this.ink.colorSpace = T.SRGBColorSpace;
     this.card = new T.Mesh(
       new T.PlaneGeometry(1.42, 0.38),
-      new T.MeshBasicMaterial({ map: this.ink, depthTest: false, depthWrite: false }),
+      new T.MeshBasicMaterial({ map: this.ink, transparent: true, depthTest: false, depthWrite: false }),
     );
     scene.add(this.card);
     this.card.renderOrder = 90;
     this.card.visible = false;
     this.guard = new T.Mesh(
       new T.PlaneGeometry(1.8, 1.8),
-      new T.MeshBasicMaterial({ color: 0, depthTest: false, depthWrite: false }),
+      new T.MeshBasicMaterial({ color: 0, transparent: true, depthTest: false, depthWrite: false }),
     );
     this.guard.renderOrder = 100;
     this.guard.visible = false;
@@ -121,7 +121,7 @@ export class TrackedRunner {
       if (hit) this.body.translate(hit.normal.multiplyScalar(hit.depth));
     }
   }
-  update(frame, dt, paused) {
+  update(frame, dt, paused, inDialogue) {
     if (!this.ready || !frame) return;
     const ref = this.renderer.xr.getReferenceSpace(),
       viewer = frame.getViewerPose(ref),
@@ -142,7 +142,7 @@ export class TrackedRunner {
     this.body.end.y = this.body.start.y + Math.max(0.12, pos.y - 0.38);
     this.delta.set(this.head.x - this.body.start.x, 0, this.head.z - this.body.start.z);
     this.start.copy(this.body.start);
-    this.sweep(tree, this.delta);
+    if (!inDialogue) this.sweep(tree, this.delta);
     this.work.copy(this.body.start).sub(this.start).sub(this.delta);
     this.rig.position.add(this.work);
     this.head.add(this.work);
@@ -227,7 +227,11 @@ export class TrackedRunner {
       return;
     }
     if (Math.abs(turn) < 0.3) this.turnHeld = false;
-    if (contacts) {
+    if (paused) {
+      this.launch.set(0,0,0);
+      this.velocity.set(0,0,0);
+      this.motion.set(0,0,0);
+    } else if (contacts) {
       if (!had) this.launch.set(0, 0, 0);
       this.motion
         .copy(this.push)
@@ -239,7 +243,6 @@ export class TrackedRunner {
       this.velocity.y = Math.max(-18, this.velocity.y - 11 * dt);
       this.motion.copy(this.velocity).multiplyScalar(dt);
     }
-    if (paused) this.motion.set(0, 0, 0);
     this.start.copy(this.body.start);
     this.sweep(tree, this.motion);
     this.delta.copy(this.body.start).sub(this.start);

@@ -2,7 +2,7 @@
 blender -b -t 2 --python-exit-code 1 --python Tools/bellwake/audit.py -- /tmp/bell-audit
 """
 
-import bpy, math, json, sys
+import bpy, bmesh, math, json, sys
 from pathlib import Path
 from collections import deque
 from mathutils import Vector
@@ -70,11 +70,23 @@ def ward_passages(key, objects, ground, reach, off, step):
 
 
 def main(key):
+    if key == "Highroad":
+        import runpy
+        runpy.run_path(str(Path(__file__).with_name("check_highroad.py")))
+        return dict(asset=key, entrances=43, roadClearanceProbes=17496)
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.fbx(filepath=str(RES / "Rooms" / (key + ".fbx")))
     objects = {o.name: o for o in bpy.context.scene.objects}
     mesh = [o for o in objects.values() if o.type == "MESH"]
     for o in mesh:
+        if o.name in ("Speaker","SpeakerHead","SpeakerArm","Ina") or key in ("RunnerArm","RightPalm","LeftPalm"):
+            bm=bmesh.new()
+            bm.from_mesh(o.data)
+            # Weld physical positions for this check only, so a painted UV seam is legal.
+            bmesh.ops.remove_doubles(bm,verts=list(bm.verts),dist=.000005)
+            openings=sum(edge.is_boundary for edge in bm.edges)
+            bm.free()
+            assert openings==0,(key,o.name,"open character edges",openings)
         assert o.data.uv_layers.active, (key, o.name, "missing UV")
         uv = o.data.uv_layers.active.data
         ranges = {}

@@ -224,8 +224,36 @@ async def run():
         if checkpoint:
             checkpoint.started = time.monotonic()
 
+        async def finish_crossing(after):
+            if after["road"]:
+                # Stay on the road centrelines, turning at a junction before the final approach.
+                await page.evaluate("""async()=>{
+                  const key=(type,code)=>dispatchEvent(new KeyboardEvent(type,{code}));
+                  const p=bellProbe(), t=p.road.target;
+                  key('keydown','ShiftLeft'); key('keydown','KeyW');
+                  try {
+                    for (const [x,z] of [[t[0],p.feet[2]],[t[0],t[2]]]) {
+                      for (let i=0;;i++) {
+                        const s=bellProbe();
+                        if(s.busy || !s.road || Math.hypot(s.feet[0]-x,s.feet[2]-z)<.35) break;
+                        if(i>3000) throw Error('Highroad blocked at '+s.feet);
+                        const yaw=Math.atan2(s.feet[0]-x,s.feet[2]-z);
+                        const diff=Math.atan2(Math.sin(yaw-s.yaw),Math.cos(yaw-s.yaw));
+                        dispatchEvent(new PointerEvent('pointermove',{movementX:Math.round(-diff/.0035)}));
+                        await new Promise(requestAnimationFrame);
+                      }
+                    }
+                  } finally {key('keyup','KeyW');key('keyup','ShiftLeft');}
+                }""")
+                await page.wait_for_function("!bellProbe().busy && !bellProbe().road",timeout=30000)
+                after=await page.evaluate("bellProbe()")
+            return after
+
         async def act(id):
+            if await page.evaluate("bellProbe().dialogue"):
+                await page.keyboard.press("e")
             p = await page.evaluate("bellProbe()")
+            p = await finish_crossing(p)
             k = p["room"]
             g = json.loads((Path(navdir) / (p["district"] + ".json")).read_text())
             if p["passage"] and id.startswith("A_Key"):
@@ -236,6 +264,10 @@ async def run():
                     if abs(g["offset"] + c[0] * g["step"]) <= 0.5
                     and -6.5 <= g["offset"] + c[1] * g["step"] <= -5.5
                 ]
+            if p["district"]=="Bellmarket" and id=="A_Playhouse":
+                # Read the blue door from its front step, clear of the awning post.
+                g["goals"][id]=[c for c in g["goals"][id]
+                    if abs(g["offset"]+c[0]*g["step"]+9)<.65 and -14<=g["offset"]+c[1]*g["step"]<=-13]
             if p["district"] == "Bellmarket" and id == "A_Talk":
                 # Tavi speaks from beneath the awning. Approach her from its open frontage.
                 g["goals"][id] = [
@@ -266,6 +298,7 @@ async def run():
             await page.evaluate(drive, {"points": path, "id": id})
             await page.wait_for_function("!bellProbe().busy", timeout=30000)
             after = await page.evaluate("bellProbe()")
+            after=await finish_crossing(after)
             print(p["district"], id, "=>", after["number"], flush=True)
             return after
 

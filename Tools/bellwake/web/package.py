@@ -40,7 +40,7 @@ regions = json.loads((root / "Assets/Resources/Bellwake/Passages.json").read_tex
 ]
 works = json.loads((root / "Assets/Resources/Bellwake/Underworks.json").read_text())
 rooms = (
-    story["rooms"]
+    ["Highroad"] + story["rooms"]
     + [region["key"] for region in regions]
     + [r["key"] for r in works["rooms"]]
 )

@@ -19,7 +19,11 @@ work_keys = [r["key"] for r in chambers]
 
 passage_keys = [region["key"] for region in REGIONS]
 
-for room in args[1:] or ROOMS + passage_keys + work_keys + ["Runner", "Trails"]:
+for room in args[1:] or ROOMS + passage_keys + work_keys + ["Runner", "Trails", "Highroad"]:
+    if room == "Highroad":
+        from highroad import make as make_road
+        make_road(Path(args[0]))
+        continue
     if room == "Runner":
         make_avatar(Path(args[0]))
     elif room == "Trails":

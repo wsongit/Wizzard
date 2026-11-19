@@ -398,7 +398,7 @@ def add_chapter(room, post, step, visual, machine, relief=False, flags=None):
             y + 1,
             "map",
             step(
-                "Red marks the shelter where you stand. Follow the engraved lanes to the named work yards. Blue rings show the paired road bells. Ring one after restoring this ward to return to the entrance."
+                "Red marks the shelter where you stand. Follow the engraved lanes to the named work yards. Blue rings show the paired road bells. After restoring the ward, ring either bell to hear its partner along the footpath."
             ),
         )
         goals = [dict(step(ending, {finish: 1}), lead="A_Gate")]
@@ -464,7 +464,7 @@ def add_chapter(room, post, step, visual, machine, relief=False, flags=None):
                 raise ValueError((x, y))
 
             st["trail"] = "".join(direction(x, y) for y in range(SIZE) for x in range(SIZE))
-        # A restored line lets workers travel between the entrance and the far mile without reloading the ward.
+        # The two bells answer one another across the restored ward.
         bx, by = world(sites[-2])
         post(
             r,
@@ -473,7 +473,7 @@ def add_chapter(room, post, step, visual, machine, relief=False, flags=None):
             bx + 2.1,
             by - 1.5,
             "bell",
-            step("The road bell draws you back to the entrance shelter.", {finish: 1}, to="#RestTalk"),
+            step("A low note comes back from the entrance shelter. Follow the lane toward its bell.", {finish: 1}),
             step("This line opens when the ward is restored."),
         )
         x, y = world(ENTRY)
@@ -484,7 +484,7 @@ def add_chapter(room, post, step, visual, machine, relief=False, flags=None):
             x + 2.4,
             y - 2,
             "bell",
-            step("The road bell carries you to the far mile.", {finish: 1}, to="#RestGate"),
+            step("The bell at the far mile answers. Follow the lane toward its sound.", {finish: 1}),
             step("The far bell has no answer yet."),
         )
         if i:

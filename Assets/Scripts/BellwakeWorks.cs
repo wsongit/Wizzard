@@ -65,7 +65,7 @@ namespace Wizzard
     [Serializable]
     public sealed class WorksStation
     {
-        public string id, label, sight, search, evidence, direction, camp, trail, tune, swing, prime, call;
+        public string id, label, style, sight, search, evidence, direction, camp, trail, tune, swing, prime, call;
         public int note;
         public WorksRule[] rules;
     }
