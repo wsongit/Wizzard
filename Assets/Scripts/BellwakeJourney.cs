@@ -12,6 +12,7 @@ namespace Wizzard
         public string lastDistrict;
         public bool onRoad, meadowJourney;
         public string roadVisit;
+        public int fieldSurvey;
         public float roadX, roadY, roadZ;
         public string PlayTime()
         {

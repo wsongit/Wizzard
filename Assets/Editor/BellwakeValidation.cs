@@ -106,6 +106,7 @@ namespace Wizzard.Editor
                 var clip = Resources.Load<AudioClip>(prefix + "Audio/" + theme);
                 Require(clip != null && clip.length > 12, room + " music");
             }
+            ValidateField(rooms);
             foreach (var file in new[] { "LeftPalm", "RightPalm", "RunnerArm", "TrailSign", "MeadowOutcrop",
                                          "MossbellApproach" })
                 Require(Resources.Load<GameObject>("Bellwake/Rooms/" + file) != null, file);
@@ -114,6 +115,45 @@ namespace Wizzard.Editor
             Require(Shader.Find("Wizzard/BellwakePaint") != null && Shader.Find("Wizzard/BellwakeSky") != null,
                     "Bellwake shaders");
             Debug.Log("Bellwake import checks passed for all campaign districts.");
+        }
+        static void ValidateField(List<string> rooms)
+        {
+            var field = Resources.Load<GameObject>("Bellwake/Rooms/Highroad");
+            Require(field != null, "Missing Bellwake Highroad");
+            var markers = new HashSet<string>();
+            foreach (var node in field.GetComponentsInChildren<Transform>(true))
+                markers.Add(node.name);
+            foreach (string room in rooms)
+                Require(markers.Contains("Road" + room), "Missing field gate to " + room);
+            Require(markers.Contains("RoadLongMeadow"), "Missing meadow connection");
+            foreach (string part in new[] { "Terrain", "Rim", "C_Solids", "Set" })
+                CheckFieldSurface(field, part, true);
+            for (int row = 0; row < 6; row++)
+            for (int col = 0; col < 7; col++)
+            {
+                string index = row + "_" + col;
+                Require(markers.Contains("FieldAnchor_" + index), "Missing field anchor " + index);
+                string name = "FieldCell_" + index;
+                var cell = Resources.Load<GameObject>("Bellwake/Field/" + name);
+                Require(cell != null, "Missing field cell " + name);
+                CheckFieldSurface(cell, name, true);
+                CheckFieldSurface(cell, "FieldLeaves_" + index, false);
+            }
+        }
+        static void CheckFieldSurface(GameObject asset, string name, bool solid)
+        {
+            var filter = Array.Find(asset.GetComponentsInChildren<MeshFilter>(true), f => f.name == name);
+            Require(filter != null && filter.sharedMesh != null && filter.sharedMesh.isReadable, name + " mesh");
+            var colliders = filter.GetComponents<Collider>();
+            if (solid)
+                Require(colliders.Length == 1 && colliders[0] is MeshCollider surface &&
+                        surface.sharedMesh == filter.sharedMesh && filter.gameObject.layer == MeadowWorld.GroundLayer,
+                        name + " hand contact");
+            else
+                Require(colliders.Length == 0, name + " foliage catches player");
+            foreach (var material in filter.GetComponent<MeshRenderer>().sharedMaterials)
+                Require(material != null && Resources.Load<Texture2D>("Bellwake/Textures/" + material.name) != null,
+                        name + " paint");
         }
         static void Require(bool yes, string what)
         {

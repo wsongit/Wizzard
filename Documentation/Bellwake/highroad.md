@@ -1,6 +1,6 @@
 # Walking the Bellwake watershed
 
-From Bellmarket, the wooden trail sign opens the highroad in the Quest WebXR edition. In Unity the sign starts the walk to Long Meadow. The 42 story locations have named gates on a shared 160 × 144 metre landscape. Six rows of milestones run from the coast to the belfry. Look for coastal lanterns, lock hoists, market shelters, standing stones, kilns and spires to tell the rows apart.
+From Bellmarket the wooden trail sign starts the walk to Long Meadow. The native Unity highroad has 42 district gates across a 1,440 × 1,200 metre survey. The browser prototype uses the earlier 160 × 144 metre field. [Native field and Blender views](native-field.md) Six rows of milestones run from the coast to the belfry. Look for coastal lanterns, lock hoists, market shelters, standing stones, kilns and spires to tell the rows apart.
 
 When a quest sends you onward, walk to the named gate. You can enter another district from the road with E or a controller trigger, look around, and return through its entrance. Quest progress resumes at the destination. The game streams one detailed area at a time. Quitting on the road restores your latest road checkpoint.
 

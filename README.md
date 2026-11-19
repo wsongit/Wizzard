@@ -4,11 +4,11 @@ An original, N64-inspired adventure for standalone Meta Quest and desktop. Tavi 
 
 ![Tavi in the opening market and the drawing Ina made for her](Documentation/Bellwake/tavi-and-ina.jpg)
 
-**Quest APK.** Running `git pull wizzard main` downloads `Wizzard-Bellwake-Quest.apk` into the project root. With your Quest connected, run `adb install -r Wizzard-Bellwake-Quest.apk` from that folder. The signed WebXR edition opens in Meta Quest Browser and serves the game assets from the headset. [Download the APK](https://github.com/wsongit/Wizzard/raw/refs/heads/main/Wizzard-Bellwake-Quest.apk)
+**Standalone Quest game.** Open this folder in Unity 2022.3.20f1 with Android Build Support and select **Wizzard → Build Quest APK**. The native Unity player starts in Bellmarket, runs the campaign in C#, and uses tracked palms against the floor and walls to move. A successful build writes `Wizzard-Bellwake-Quest.apk` to this folder. You can also run `Build-Quest.cmd` from Windows with the editor closed. The earlier browser launcher is archived as `Play/Wizzard-Bellwake-WebXR.apk`.
 
-Each district has an entrance on the Bellwake Highroad. Walk to the gold marker to continue the story, or enter another named gate to explore. Conversations hold your position until you press E or a trigger. [Highroad controls and art notes](Documentation/Bellwake/highroad.md)
+Each district has an entrance on the Bellwake Highroad. Walk to the gold marker to continue the story, or enter another named gate to explore. Conversations hold your position until you press E or a trigger. [Native highroad, Blender views and art notes](Documentation/Bellwake/native-field.md)
 
-**Play immediately** by opening `Play/Bellwake.html` in Chrome or Edge. Use WASD to move, drag to look, E to interact and J to open your witness book. To visit Rowan Hollow immediately, use the **Rowan Hollow** sign with the carved bird just to the right of the market entrance. Its north wicket brings you back to the same morning. To try Drift Fen immediately, take the red **Drift Fen** return fare to the right of the market entrance. The neighboring green counter serves Sillwater. The northeast towpath brings you back to Tavi. When hosting for Quest Browser, use `Play/index.html` and its adjacent `assets` folder to download districts as you enter them. Both editions support immersive WebXR on secure origins.
+**Optional browser prototype.** Play by opening `Play/Bellwake.html` in Chrome or Edge. Use WASD to move, drag to look, E to interact and J to open your witness book. To visit Rowan Hollow immediately, use the **Rowan Hollow** sign with the carved bird just to the right of the market entrance. Its north wicket brings you back to the same morning. To try Drift Fen immediately, take the red **Drift Fen** return fare to the right of the market entrance. The neighboring green counter serves Sillwater. The northeast towpath brings you back to Tavi. When hosting for Quest Browser, use `Play/index.html` and its adjacent `assets` folder to download districts as you enter them. Both editions support immersive WebXR on secure origins.
 
 **Open in Unity** with Unity 2022.3.20f1 and choose **Wizzard → Play Bellwake**. The market sign leads to the original two-kilometre Long Meadow and its Mossbell Village gate.
 
@@ -27,11 +27,11 @@ Each district has an entrance on the Bellwake Highroad. Walk to the gold marker 
 5. In **File → Build Settings**, switch to **Android**. The setup uses ARM64,
    IL2CPP, OpenGL ES 3, linear color, single-pass stereo, Meta Quest Support,
    and Touch controller interaction profiles. Run OpenXR Project Validation for Android.
-6. Run **Wizzard → Build Quest APK** to create `Builds/LongMeadow-Quest.apk`.
+6. Run **Wizzard → Build Quest APK** to create `Wizzard-Bellwake-Quest.apk`.
    Enable developer mode on your Quest and connect it by USB. Authorize USB
-   debugging, then install with `adb install -r Builds/LongMeadow-Quest.apk`.
+   debugging, then install with `adb install -r Wizzard-Bellwake-Quest.apk`.
    Launch **Wizzard Bellwake** from the headset's Unknown Sources library.
-   This creates a development/sideload build; store submission is not configured.
+   This creates an ARM64 sideload build.
 7. Optional: for PC Play mode through Quest Link, switch to the PC build target,
    enable Meta's PC OpenXR runtime, connect Link, and press Play.
 

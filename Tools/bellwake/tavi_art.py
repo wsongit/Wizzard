@@ -62,10 +62,11 @@ def paint_atlas():
             [(94, 62), (99, 58), (105, 57), (111, 58), (116, 63), (111, 65), (104, 67), (99, 65)],
             (235, 216, 179),
         )
+        poly([(92,63),(98,56),(105,54),(112,56),(118,62),(113,67),(104,69),(97,67)], (241,223,190))
         cx = 149 if flip else 106
-        d.ellipse((cx - 4, 58, cx + 3, 66), fill=(74, 87, 71))
-        d.ellipse((cx - 2, 59, cx + 2, 65), fill=(54, 41, 35))
-        d.point((cx - 1, 59), fill=(250, 226, 176))
+        d.ellipse((cx - 5, 56, cx + 4, 68), fill=(56, 102, 91))
+        d.ellipse((cx - 2, 57, cx + 2, 66), fill=(54, 41, 35))
+        d.rectangle((cx - 2, 57, cx, 59), fill=(252, 233, 201))
         stroke([(93, 60), (96, 62), (100, 58), (105, 57), (111, 58), (116, 62)], (71, 42, 36), 2)
         stroke([(99, 66), (104, 67), (110, 66)], (168, 106, 85))
         poly(
@@ -85,8 +86,14 @@ def paint_atlas():
             grain += 4 * np.cos(np.arange(64)[None, :] * 0.29 + np.arange(32)[:, None] * 0.12)
         tile = np.clip(np.array(color) + grain[..., None], 0, 255).astype("uint8")
         im.paste(Image.fromarray(tile), (cx * 64, 128 + cy * 32))
-    im.save(path, optimize=True)
-    if ATLAS not in mats:
+    im.resize((128,128),Image.Resampling.LANCZOS).save(path, optimize=True)
+    if ATLAS in mats:
+        # init() may already have packed the preceding version of this atlas.
+        image=next(n.image for n in mats[ATLAS].node_tree.nodes if n.type=="TEX_IMAGE")
+        if image.packed_file: image.unpack(method="REMOVE")
+        image.reload()
+        image.pack()
+    else:
         mat = bpy.data.materials.new(ATLAS)
         mat.use_nodes = True
         node = mat.node_tree.nodes.new("ShaderNodeTexImage")
@@ -380,7 +387,11 @@ def make_tavi(x, y, z, height=1.84, heading=0):
         True,
     )
     for sign in (-1, 1):
-        oval("Tavi ear", (sign * 0.154, 0.006, 1.544), (0.035, 0.04, 0.057), "skin")
+        # A projecting outer rim remains recognizable in profile at speaking distance.
+        ear=[(sign*x, y, z) for x,y,z in [(.141,-.018,1.574),(.184,-.012,1.574),
+             (.238,.028,1.626),(.188,.025,1.524),(.154,.005,1.499),(.174,-.028,1.553),(.166,.037,1.56)]]
+        ear_faces=[(5,j,(j+1)%5) for j in range(5)]+[(6,(j+1)%5,j) for j in range(5)]
+        mesh("Tavi tapered ear",ear,ear_faces if sign>0 else [tuple(reversed(f)) for f in ear_faces],"skin")
         oval("Copper drop earring", (sign * 0.174, -0.003, 1.489), (0.014, 0.012, 0.023), "brass")
     # A modeled bridge and low tip catch the sidelight without obscuring the painted eyes.
     mesh(
@@ -398,7 +409,7 @@ def make_tavi(x, y, z, height=1.84, heading=0):
         "skin",
     )
     # The hairline is lower around the ears and nape. Break up the fringe with separate locks.
-    n = 26
+    n = 16
     pts = []
     fs = []
     for j in range(5):
@@ -418,15 +429,15 @@ def make_tavi(x, y, z, height=1.84, heading=0):
     mesh("Tavi cropped auburn bob", pts, fs, "hair")
     for j, (a, tip) in enumerate(
         (
-            (-1.47, 1.48),
+            (-1.47, 1.445),
             (-1.10, 1.58),
-            (-0.86, 1.635),
+            (-0.86, 1.598),
             (-0.54, 1.644),
             (-0.22, 1.66),
-            (0.12, 1.646),
+            (0.12, 1.625),
             (0.47, 1.67),
             (0.83, 1.685),
-            (1.22, 1.53),
+            (1.22, 1.50),
         )
     ):
 

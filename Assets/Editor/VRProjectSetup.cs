@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.IO;
+using System.IO.Compression;
 using UnityEditor;
 using UnityEditor.XR.Management;
 using UnityEditor.XR.Management.Metadata;
@@ -40,6 +42,7 @@ namespace Wizzard.Editor
                 settings.InitManagerOnStart=true;
                 if(!XRPackageMetadataStore.AssignLoader(settings.Manager,"UnityEngine.XR.OpenXR.OpenXRLoader",group))
                     throw new Exception("OpenXR loader could not be assigned for "+group);
+                UnityEditor.XR.OpenXR.Features.FeatureHelpers.RefreshFeatures(group);
                 var openXR=OpenXRSettings.GetSettingsForBuildTargetGroup(group);
                 if(openXR!=null)
                 {
@@ -53,8 +56,16 @@ namespace Wizzard.Editor
                              type=="HTCViveControllerProfile" || type=="MicrosoftMotionControllerProfile")))
                             feature.enabled=true;
                     }
+                    if (group == BuildTargetGroup.Android)
+                    {
+                        var features = openXR.GetFeatures<UnityEngine.XR.OpenXR.Features.OpenXRFeature>();
+                        foreach (string required in new[] { "MetaQuestFeature", "OculusTouchControllerProfile" })
+                            if (!features.Any(f => f != null && f.enabled && f.GetType().Name == required))
+                                throw new InvalidOperationException("Missing Android OpenXR feature " + required);
+                    }
                     EditorUtility.SetDirty(openXR);
                 }
+                else throw new InvalidOperationException("Missing OpenXR settings for " + group);
                 EditorUtility.SetDirty(settings); EditorUtility.SetDirty(settings.Manager);
             }
             PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android,ScriptingImplementation.IL2CPP);
@@ -89,15 +100,29 @@ namespace Wizzard.Editor
         [MenuItem("Wizzard/Build Quest APK")]
         public static void BuildQuest()
         {
+            if(!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.Android,BuildTarget.Android))
+                throw new Exception("Install Android Build Support for this Unity Editor.");
             if(EditorUserBuildSettings.activeBuildTarget!=BuildTarget.Android)
                 throw new Exception("Switch to Android in File > Build Settings first. Android Build Support, SDK, NDK and OpenJDK are required.");
             ValidateProject();
-            System.IO.Directory.CreateDirectory("Builds");
+            Directory.CreateDirectory("Builds");
+            const string path = "Builds/Wizzard-Bellwake-Quest.apk";
             var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions {
                 scenes=new[]{"Assets/Scenes/Meadow.unity"}, target=BuildTarget.Android,
-                locationPathName="Builds/LongMeadow-Quest.apk", options=BuildOptions.Development });
+                locationPathName=path, options=BuildOptions.None });
             if(report.summary.result!=UnityEditor.Build.Reporting.BuildResult.Succeeded)
                 throw new Exception("Quest APK build failed: "+report.summary.result);
+            using(var input=File.OpenRead(path))
+            using(var package=new ZipArchive(input,ZipArchiveMode.Read))
+            {
+                foreach(string entry in new[]{"lib/arm64-v8a/libunity.so","lib/arm64-v8a/libil2cpp.so",
+                                              "assets/bin/Data/boot.config","lib/arm64-v8a/libUnityOpenXR.so",
+                                              "lib/arm64-v8a/libopenxr_loader.so"})
+                    if(package.GetEntry(entry)==null) throw new InvalidDataException("Native player missing "+entry);
+                if(package.GetEntry("assets/index.html")!=null) throw new InvalidDataException("Unexpected web launcher");
+            }
+            File.Copy(path,"Wizzard-Bellwake-Quest.apk",true);
+            Debug.Log("Native Unity Quest build: "+Path.GetFullPath("Wizzard-Bellwake-Quest.apk"));
         }
         [MenuItem("Wizzard/Validate project")]
         public static void ValidateProject()

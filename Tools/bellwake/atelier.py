@@ -33,6 +33,8 @@ def init(library, seed):
         shader = material.node_tree.nodes.get("Principled BSDF")
         shader.inputs["Roughness"].default_value = 0.95
         material.node_tree.links.new(node.outputs["Color"], shader.inputs["Base Color"])
+        if path.stem == "RoadSorrel":
+            material.node_tree.links.new(node.outputs["Alpha"], shader.inputs["Alpha"])
         mats[path.stem] = material
 
 
@@ -239,7 +241,14 @@ def finish(key, sky_key=None):
     cam = bpy.data.objects.new("Review camera", bpy.data.cameras.new("Review lens"))
     bpy.context.collection.objects.link(cam)
     skyfile = RES / "Skies" / ((sky_key or key) + ".jpg")
-    if skyfile.exists():
+    if key == "Highroad":
+        from watershed import chart, height
+        x, y = chart(-28, -61)
+        cam.location = (x+15, y-33, height(x+15,y-33)+1.75)
+        aim = Vector((x, y, height(x,y)+6.5))
+        cam.data.lens = 25
+        cam.data.clip_end = 1900
+    elif skyfile.exists():
         cam.location = (7, -16, 4.3)
         aim = Vector((-1, 3, 2.2))
         cam.data.lens = 25
@@ -314,6 +323,19 @@ def export(key):
         pivot = origins.get(group, (0, 0, 0))
         active.data.transform(Matrix.Translation(-Vector(pivot)))
         active.location = pivot
+    if key == "Highroad":
+        destination = RES / "Field"
+        destination.mkdir(exist_ok=True)
+        for obj in [o for o in bpy.context.scene.objects if o.name.startswith("FieldCell_")]:
+            bpy.ops.object.select_all(action="DESELECT")
+            obj.select_set(True)
+            leaves = bpy.data.objects[obj.name.replace("FieldCell_", "FieldLeaves_")]
+            leaves.select_set(True)
+            bpy.ops.export_scene.fbx(filepath=str(destination / (obj.name + ".fbx")),
+                                     use_selection=True, object_types={"MESH"},
+                                     bake_anim=False, axis_forward="-Z", axis_up="Y", path_mode="STRIP")
+            bpy.data.objects.remove(obj, do_unlink=True)
+            bpy.data.objects.remove(leaves, do_unlink=True)
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.export_scene.fbx(
         filepath=str(RES / "Rooms" / (key + ".fbx")),

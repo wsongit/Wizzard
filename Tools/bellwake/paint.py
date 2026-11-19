@@ -8,9 +8,10 @@ from scipy.ndimage import gaussian_filter
 
 root = Path(__file__).resolve().parents[2]
 dst = root / "Assets/Resources/Bellwake/Textures"
+from material_swatches import repaint
 lib = Path(sys.argv[1])
 for name in ["Village", "Forest", "Swamp", "Lava", "Foundry", "Haunted", "Ruins", "Sky"]:
-    shutil.copyfile(lib / "Textures" / (name + "_atlas.png"), dst / (name + "Atlas.png"))
+    repaint(lib / "Textures" / (name + "_atlas.png"), dst / (name + "Atlas.png"))
 for name in [
     "Mountain",
     "Grass",

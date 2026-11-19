@@ -12,7 +12,7 @@ namespace Wizzard
     {
         public static bool IsCollisionSurface(string part)
         {
-            return part=="Terrain" || part=="Rim" || part=="Set" || part=="C_Solids";
+            return part.StartsWith("FieldCell_",StringComparison.Ordinal) || part=="Terrain" || part=="Rim" || part=="Set" || part=="C_Solids";
         }
         const string SaveKey = "Wizzard.Bellwake.v1";
         const string Path = "Bellwake/";
@@ -336,14 +336,20 @@ namespace Wizzard
             }
             if(!visit)
             {
-                RenderSettings.fogStartDistance=75;
-                RenderSettings.fogEndDistance=170;
+                RenderSettings.fogStartDistance=125;
+                RenderSettings.fogEndDistance=370;
             }
         }
         bool RoadUse()
         {
             return use.Read(XRUsage.triggerButton) ||
                 (Keyboard.current!=null && Keyboard.current.eKey.wasPressedThisFrame);
+        }
+        static bool AboveField(MeshCollider terrain, Vector3 feet)
+        {
+            var bounds = terrain.bounds;
+            var ray = new Ray(new Vector3(feet.x, bounds.max.y + 1, feet.z), Vector3.down);
+            return terrain.Raycast(ray, out var hit, bounds.size.y + 2) && feet.y >= hit.point.y-.2f;
         }
         IEnumerator WalkHighroad(string destination)
         {
@@ -354,6 +360,7 @@ namespace Wizzard
                 {
                     string name=DistrictTitle(story.roadVisit,out string theme);
                     yield return LoadRoadSet(story.roadVisit,theme,true);
+                    if (profiler != null) profiler.Begin(name);
                     var entrance=nodes["Spawn"].position;
                     player.Teleport(entrance,Quaternion.LookRotation(nodes["Look"].position-entrance));
                     Physics.SyncTransforms();
@@ -375,16 +382,24 @@ namespace Wizzard
                     }
                     player.MovementLocked=true;
                     yield return Fade(0,1);
+                    if (profiler != null) profiler.StartTravel();
                     story.roadVisit="";
                     Save();
                 }
                 yield return LoadRoadSet("Highroad","Bellmarket",false);
                 var target=nodes["Road"+destination];
                 var origin=nodes["Road"+story.lastDistrict].position;
-                var here=story.onRoad ? new Vector3(story.roadX,story.roadY,story.roadZ) : origin;
+                var here=story.onRoad && story.fieldSurvey==1 ? new Vector3(story.roadX,story.roadY,story.roadZ) : origin;
+                var terrain = nodes["Terrain"].GetComponent<MeshCollider>();
+                if (!AboveField(terrain, here)) here = origin;
+                story.fieldSurvey=1;
+                var cells=set.AddComponent<BellwakeField>();
+                yield return cells.Open(here, player.head, LoadPaints, Paint);
                 var direction=target.position-here; direction.y=0;
                 player.Teleport(here,direction.sqrMagnitude>.001f ? Quaternion.LookRotation(direction) : Quaternion.identity);
                 Physics.SyncTransforms();
+                cells.Follow();
+                if (profiler != null) profiler.Begin("Bellwake Highroad");
                 var label=display.Label(target,title);
                 label.transform.position=target.position+Vector3.up*4.2f;
                 label.gameObject.SetActive(true);
@@ -396,7 +411,8 @@ namespace Wizzard
                 float nextUpdate=0, nextCheckpoint=0;
                 while(true)
                 {
-                    var position=player.transform.position;
+                    var position=player.head.position;
+                    position.y=player.transform.position.y;
                     var offset=target.position-position;
                     float height=Mathf.Abs(offset.y);
                     offset.y=0;
@@ -425,8 +441,14 @@ namespace Wizzard
                         if (Time.unscaledTime>=nextCheckpoint)
                         {
                             nextCheckpoint=Time.unscaledTime+3f;
-                            story.roadX=position.x; story.roadY=position.y; story.roadZ=position.z;
-                            Save();
+                            if (AboveField(terrain, position) &&
+                                Physics.Raycast(position + Vector3.up * .32f, Vector3.down, out var foot,
+                                                .72f, 1 << MeadowWorld.GroundLayer, QueryTriggerInteraction.Ignore) &&
+                                foot.normal.y > .55f)
+                            {
+                                story.roadX=position.x; story.roadY=foot.point.y+.08f; story.roadZ=position.z;
+                                Save();
+                            }
                         }
                         float angle=Vector3.SignedAngle(player.head.forward,offset,Vector3.up);
                         string heading=Mathf.Abs(angle)>135?"behind you":angle>30?"to your right":angle< -30?"to your left":"ahead";
@@ -438,6 +460,7 @@ namespace Wizzard
                 player.MovementLocked=true;
                 yield return Fade(0,1);
                 display.Hide();
+                if (profiler != null) profiler.StartTravel();
                 if (string.IsNullOrEmpty(story.roadVisit)) break;
             }
         }
@@ -672,6 +695,7 @@ namespace Wizzard
                 var texture = entry.Value.asset as Texture2D;
                 if (texture == null) throw new InvalidOperationException("Unmapped Bellwake paint " + entry.Key);
                 var paint = new Material(shader) { name = entry.Key, mainTexture = texture };
+                if (entry.Key == "RoadSorrel") paint.EnableKeyword("BELLWAKE_CUTOUT");
                 if (entry.Key == "SeaGlass" || entry.Key == "Amber") paint.SetFloat("_Glow", .88f);
                 paints.Add(entry.Key, paint);
             }

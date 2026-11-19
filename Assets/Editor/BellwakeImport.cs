@@ -5,12 +5,12 @@ namespace Wizzard.Editor
 {
     public sealed class BellwakeImport : AssetPostprocessor
     {
-        public override uint GetVersion() => 1;
+        public override uint GetVersion() => 2;
         void OnPostprocessModel(GameObject model)
         {
-            if (!assetPath.StartsWith("Assets/Resources/Bellwake/Rooms/")) return;
+            if (!IsBellwakeModel()) return;
             var meshes = model.GetComponentsInChildren<MeshFilter>(true);
-            if (!System.Array.Exists(meshes, mesh => mesh.name=="Terrain")) return;
+            if (!assetPath.Contains("/Field/") && !System.Array.Exists(meshes, mesh => mesh.name=="Terrain")) return;
             foreach (var mesh in meshes)
             {
                 if (!BellwakeCampaign.IsCollisionSurface(mesh.name)) continue;
@@ -20,9 +20,14 @@ namespace Wizzard.Editor
                 mesh.gameObject.layer=MeadowWorld.GroundLayer;
             }
         }
+        bool IsBellwakeModel()
+        {
+            return assetPath.StartsWith("Assets/Resources/Bellwake/Rooms/") ||
+                assetPath.StartsWith("Assets/Resources/Bellwake/Field/");
+        }
         void OnPreprocessModel()
         {
-            if (!assetPath.StartsWith("Assets/Resources/Bellwake/Rooms/"))
+            if (!IsBellwakeModel())
                 return;
             var model = (ModelImporter)assetImporter;
             model.importAnimation = false;
@@ -60,6 +65,12 @@ namespace Wizzard.Editor
             var tile = (TextureImporter)assetImporter;
             if (assetPath.EndsWith("Survey.png") || assetPath.EndsWith("Signs.png"))
                 tile.npotScale = TextureImporterNPOTScale.None;
+            if (assetPath.EndsWith("/RoadSorrel.png"))
+            {
+                tile.alphaIsTransparency = true;
+                tile.mipMapsPreserveCoverage = true;
+                tile.alphaTestReferenceValue = .45f;
+            }
             tile.mipmapEnabled = true;
             tile.wrapMode = TextureWrapMode.Repeat;
             tile.filterMode = FilterMode.Bilinear;

@@ -260,9 +260,10 @@ def paint(region, boards):
 if __name__ == "__main__":
     import sys
 
+    from material_swatches import repaint
     rng = random.Random(123091)
     for r, reg in enumerate(REGIONS):
-        shutil.copyfile(
+        repaint(
             Path(sys.argv[1])
             / "Textures"
             / (["Coast", "Ice", "Crystal"][r] + "_atlas.png"),

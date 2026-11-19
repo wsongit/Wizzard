@@ -72,8 +72,8 @@ def ward_passages(key, objects, ground, reach, off, step):
 def main(key):
     if key == "Highroad":
         import runpy
-        runpy.run_path(str(Path(__file__).with_name("check_highroad.py")))
-        return dict(asset=key, entrances=43, roadClearanceProbes=17496)
+        result=runpy.run_path(str(Path(__file__).with_name("check_highroad.py")))["result"]
+        return dict(asset=key, **result)
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.fbx(filepath=str(RES / "Rooms" / (key + ".fbx")))
     objects = {o.name: o for o in bpy.context.scene.objects}

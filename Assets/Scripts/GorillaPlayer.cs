@@ -24,6 +24,8 @@ namespace Wizzard
         Vector3 velocity, smoothedVelocity;
         float yaw, pitch; bool turnReady=true, initialized;
         const float headGuardRadius=.12f;
+        Vector3 recoveryFeet;
+        Quaternion recoveryFacing=Quaternion.identity;
         Vector3 lastClearHead;
         bool hasClearHead, headBlocked;
         public bool HeadObstructed => headBlocked;
@@ -77,7 +79,10 @@ namespace Wizzard
                 velocity=Vector3.zero;
                 if(!hadContact) smoothedVelocity=Vector3.zero;
                 motor.Move(Vector3.ClampMagnitude(push/contacts,.3f));
-                smoothedVelocity=Vector3.Lerp(smoothedVelocity,(transform.position-start)/dt,.4f);
+                // An 85 ms launch history gives a stroke the same weight at 72, 90 and 120 Hz.
+                float sampleSeconds=Mathf.Max(Time.deltaTime,.001f);
+                float weight=1f-Mathf.Exp(-sampleSeconds/.085f);
+                smoothedVelocity=Vector3.Lerp(smoothedVelocity,(transform.position-start)/sampleSeconds,weight);
             }
             else
             {
@@ -234,7 +239,8 @@ namespace Wizzard
                 bool pressed=i==0?Mouse.current.leftButton.isPressed:Mouse.current.rightButton.isPressed;
                 if(pressed) local.y=.08f;
             }
-            Vector3 shoulder=head.position+transform.TransformDirection(new Vector3(i==0?-.18f:.18f,-.25f,0));
+            Quaternion facing=Quaternion.Euler(0,head.eulerAngles.y,0);
+            Vector3 shoulder=head.position+facing*new Vector3(i==0?-.18f:.18f,-.25f,0);
             return shoulder+Vector3.ClampMagnitude(transform.TransformPoint(local)-shoulder,armLength);
         }
         void DesktopLook()
@@ -260,11 +266,12 @@ namespace Wizzard
         }
         public void ResetPlayer()
         {
-            Teleport(new Vector3(0,MeadowWorld.Height(0,0)+.2f,0),Quaternion.identity);
+            Teleport(recoveryFeet,recoveryFacing);
         }
         public event System.Action<Vector3> Teleporting;
         public void Teleport(Vector3 position,Quaternion rotation)
         {
+            recoveryFeet=position; recoveryFacing=rotation;
             Teleporting?.Invoke(position);
             motor.enabled=false;
             transform.rotation=rotation; yaw=rotation.eulerAngles.y;

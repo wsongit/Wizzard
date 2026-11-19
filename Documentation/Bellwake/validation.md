@@ -1,6 +1,10 @@
 # Bellwake release checks
 
-## Highroad edition
+## Native Unity field
+
+The new field passed 37,761 road clearance samples on 72 connections. The C# rules and Blender room checks passed. The native Android export stopped before import because this machine needs Unity license activation. Quest frame timing and native playthrough time are pending. [Field measurements, controls and art](native-field.md)
+
+## Earlier browser highroad
 
 The exported map passed 17,496 ground and overhead-clearance samples on 72 links. The headset emulator spoke with Tavi, checked that a tracked step held the player in place, dismissed the conversation and walked to Paper Court. A desktop check reloaded during a visit and halfway along the road, then reached the quest destination with one active world and collision tree. [Highroad controls and reference notes](highroad.md)
 
