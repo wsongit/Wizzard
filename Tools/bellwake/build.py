@@ -12,6 +12,7 @@ from trails import roadside
 from passage_sets import scene as passage_set
 from passages import REGIONS
 from pilgrim import FIELDS
+from tide_engine import KEYS as engine_rooms
 from underworks import rooms as chambers
 from works_sets import make as make_works
 work_keys = [r["key"] for r in chambers]
@@ -26,6 +27,9 @@ for room in args[1:] or ROOMS + passage_keys + work_keys + ["Runner", "Trails"]:
     elif room in [field[0] for field in FIELDS]:
         from pilgrim_art import make as make_ward
         make_ward(next(i for i,f in enumerate(FIELDS) if f[0]==room), Path(args[0]))
+    elif room in engine_rooms:
+        from engine_art import make as make_engine
+        make_engine(engine_rooms.index(room),Path(args[0]))
     elif room == "Wrenfall":
         from wrenfall import make as make_headland
         make_headland(Path(args[0]))

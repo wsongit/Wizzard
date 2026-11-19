@@ -1,6 +1,6 @@
 # Wizzard · Bellwake
 
-An original, N64-inspired adventure for standalone Meta Quest and desktop. Tavi the bellmender needs your help finding the voice her sister gave to the village bell. Follow Ina’s trail through twenty-two Blender-built places. Pilot the boats of Saltwake Sound and reopen the five wards of the Pilgrims’ Cut. Carry the lost mail across Rimeway and haul singing glass through the mine. Beneath the village, reconstruct the night of the flood through the work of three guilds. At Wrenfall Head, sight the pilots’ marks and guide the cutter Linnet through the reef. Take her flood book to the keeper and decide the future of the bell.
+An original, N64-inspired adventure for standalone Meta Quest and desktop. Tavi the bellmender needs your help finding the voice her sister gave to the village bell. Follow Ina’s trail through twenty-six Blender-built places. Pilot the boats of Saltwake Sound and reopen the five wards of the Pilgrims’ Cut. Carry the lost mail across Rimeway and haul singing glass through the mine. Beneath the village, reconstruct the night of the flood through the work of three guilds. At Wrenfall Head, sight the pilots’ marks and guide the cutter Linnet through the reef. Carry her flood book through the Countertide Engine, where the dock, mould loft and signal weavers still owe the crew their last dispatch. Take the completed book to the keeper and decide the future of the bell.
 
 ![Five ward landmarks and an in-game survey from the Pilgrims’ Cut](Documentation/Bellwake/pilgrims-cut.jpg)
 

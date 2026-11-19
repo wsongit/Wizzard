@@ -46,6 +46,8 @@ async def complete_works(act, page, start, out):
     state = await use("Final")
     district(state, "Wrenfall")
     state = await complete_coast(act, page, start, out)
+    from engine_route import complete_engine
+    state = await complete_engine(act,page,start,out)
     district(state, "StillBelfry")
     assert state["works"] is None
     (out / "underworks.json").write_text(
@@ -103,7 +105,7 @@ async def complete_coast(act, page, start, out):
     assert state["works"]["signals"]["landed"] == 1
     coast = state["works"]
     state = await use("Book")
-    assert state["district"] == "StillBelfry"
+    assert state["district"] == "DrumHouse"
     (out / "coast.json").write_text(
         json.dumps(
             dict(

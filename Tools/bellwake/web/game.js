@@ -382,13 +382,15 @@ async function loadRoom() {
     body.visible = false;
   }
   const color =
-    key === "Wrenfall"
-      ? "#b7d2c2"
-      : s.ending
-        ? "#efd3a7"
-        : passage.active
-          ? ["#d3cd9d", "#c7dada", "#af9eab"][k]
-          : horizons[k];
+    works.active && works.room.fog
+      ? works.room.fog
+      : key === "Wrenfall"
+        ? "#b7d2c2"
+        : s.ending
+          ? "#efd3a7"
+          : passage.active
+            ? ["#d3cd9d", "#c7dada", "#af9eab"][k]
+            : horizons[k];
   const radius = roomRadius();
   scene.fog = new T.Fog(color, radius * 0.95, radius * 3.25);
   camera.far = Math.max(115, radius * 4);
@@ -414,6 +416,14 @@ async function loadRoom() {
   ring = null;
   resetFeet();
   if (works.active) {
+    if (nodes.Drum) {
+      for (let j = 0; j < 3; j++) {
+        const aim = nodes["Bearing" + j].position,
+          center = nodes.Drum.position;
+        drumAngles[j] = Math.atan2(aim.x - center.x, aim.z - center.z);
+      }
+    }
+    if (nodes.RailStart) railAxis.subVectors(nodes.RailEnd.position, nodes.RailStart.position).normalize();
     fixtures = works.room.visuals.map((v) => ({
       v,
       obj: nodes[v.node],
@@ -455,6 +465,9 @@ function chartPoint(out, tile) {
     Math.floor(tile / 7) / 6,
   );
 }
+const railAxis = new T.Vector3(),
+  railPoint = new T.Vector3(),
+  drumAngles = [0, 0, 0];
 let fixtures = [],
   observation = null,
   voyageFraction = 0;
@@ -464,6 +477,18 @@ function animateWorks(mix, dt = 0) {
     const n = works.signals[v.signal];
     if (v.kind === "show") {
       obj.visible = n === v.match && (v.node !== "CrewAshore" || voyageFraction >= 1);
+      continue;
+    }
+    if (v.kind === "pointer") {
+      const turn = rot.y + drumAngles[n] - drumAngles[0] - obj.rotation.y;
+      obj.rotation.y += Math.atan2(Math.sin(turn), Math.cos(turn)) * mix;
+      continue;
+    }
+    if (v.kind === "slide") {
+      if (v.visibleSignal) obj.visible = !!works.signals[v.visibleSignal];
+      railPoint.copy(pos).addScaledVector(railAxis, n * v.amount);
+      if (v.stack) railPoint.y += works.signals[v.stack] * v.rise;
+      obj.position.lerp(railPoint, mix);
       continue;
     }
     if (v.kind === "voyage") {
@@ -745,7 +770,8 @@ function pick() {
     // Check the nearest wall rather than ray-testing every decorative triangle.
     const hit = tree.rayIntersect(ray.ray, ray.far);
     if (hit && hit.distance < ray.far) continue;
-    const weight = passage.active || state().ending ? distance * 0.025 + 20 * (1 - dot) : distance + 4 * (1 - dot);
+    const weight =
+      passage.active || state().ending ? distance * 0.025 + 20 * (1 - dot) : distance + 4 * (1 - dot);
     if (weight < best) {
       best = weight;
       focus = o.name;
@@ -1131,6 +1157,14 @@ if (__TEST__)
       : null,
     guide: guide?.body.visible ? { cells: guide.cells, pos: guide.body.position.toArray() } : null,
     vrMap: !!vr.mapMode,
+    machinery: Object.fromEntries(
+      fixtures
+        .filter((f) => f.v.kind === "slide" || f.v.node === "Drum" || f.v.node === "Heddle0")
+        .map((f) => [
+          f.v.node,
+          { position: f.obj.position.toArray(), visible: f.obj.visible, turn: f.obj.rotation.y },
+        ]),
+    ),
     vessel: nodes.Linnet?.position.toArray(),
     crew: nodes.CrewAshore?.visible,
     focus,

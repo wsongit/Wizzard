@@ -63,7 +63,7 @@ export class Underworks {
   objective() {
     const s = this.signals;
     const goal = this.nextGoal();
-    if (goal) return goal.line;
+    if (goal) return this.format(goal.line);
     if (this.room.key === "Wrenfall") {
       if (s.landed) return "The Linnet is at the north landing. Collect Elin’s flood book.";
       if (!s.charter) return this.room.intro;
@@ -92,6 +92,9 @@ export class Underworks {
       "/1."
     );
   }
+  format(line) {
+    return line.replace(/\{(\w+)\}/g, (_, key) => this.signals[key]);
+  }
   use(id) {
     const station = this.station(id);
     const r = station?.rules.find((rule) => rule.when.every((c) => this.signals[c.signal] === c.value));
@@ -111,6 +114,6 @@ export class Underworks {
       if (!r.to.startsWith("@") && !r.to.startsWith("#"))
         p.chamber = this.plan.rooms.findIndex((room) => room.key === r.to);
     }
-    return { to: r.to, line: r.line.replace(/\{(\w+)\}/g, (_, k) => this.signals[k]) };
+    return { to: r.to, line: this.format(r.line) };
   }
 }

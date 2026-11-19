@@ -14,6 +14,7 @@ Tavi made a warning bell during the flood. Her sister Ina gave it a voice for a 
 | The Cinder Lens | Trace the amber ray from the kiln. Turn the three mirrors and catch the light in the casting cup. |
 | The Lower Works | Sign the night roll below Cinder Lens. Explore the three guild wings in any order, listen to the craftspeople and take their work to the great resonator. |
 | Wrenfall Head | The resonator lift emerges on the Pilots’ Coast. Help Mirren bring the flood book through the reef. |
+| The Countertide Engine | At the drum house, route the headrace to the chain dock, mould loft and signal loft. Finish Elin’s last dispatches to open the ascent. |
 | The Still Belfry | Speak to the keeper to start the encounter. Reach and activate the called seal before the toll. After three misses, the keeper lets you try again. |
 | The morning market | Choose who carries the watch. Both choices change the market and open a final conversation. |
 
@@ -45,9 +46,19 @@ At the intake, the narrow and wide tanks measure three and five. Use the gauges 
 
 Mirren waits outside the chart shelter. The large survey beside her shows where the paths meet. The western chapel records the water level the cutter needs. At Split Stone, use the sighting rail, face the bell on the distant stack and press E or a trigger to record the bearing. The northern lookout has a glass trained on a second mark. You can walk a few steps around each instrument for a clearer view. The journal records each observation.
 
-At the eastern mast, pull the halyards in the order the pilots recorded. The flags above you show how many signals the cutter has acknowledged. Haul the harbour capstan, watch the Linnet round the reef, then meet her skipper at the landing to continue to the belfry. Her signed flood book stays in your journal. At the morning market, the harbour crew has a different part in each ending.
+At the eastern mast, pull the halyards in the order the pilots recorded. The flags above you show how many signals the cutter has acknowledged. Haul the harbour capstan, watch the Linnet round the reef, then meet her skipper at the landing to reach the Countertide Engine. Her signed flood book stays in your journal. At the morning market, the harbour crew has a different part in each ending.
 
 [Four views from the headland](wrenfall.jpg)
+
+## The Countertide Engine
+
+In the Drum House, the arrow on the spindle points to the gallery it serves. Index the headrace at the centre, then approach the illuminated arch. The three workshops can be completed in any order. Each control saves its mechanism and a nearby checkpoint.
+
+- At **Chainwater Dock**, each capstan advances two ferries around three berths. Read the dispatch card in cedar, rush, wick order. When all three hulls match the order, sound the gong.
+- In **the Mould Loft**, touch a rack to hook its top collar and another rack to lower it. A narrow collar can sit on a wider one. Pull the testing chain when the complete assembly is on the rack pictured on the card.
+- In **the Signal Loft**, read each sampler from the top. The filled squares identify raised warps. Set the treadles and beat the shuttle. Each treadle stays where you left it for the next row. The journal also names the required threads.
+
+When the four cargoes, three moulds and four signal flags are entered, return to the drum house and take the keeper’s ascent.
 
 ## Controls
 
@@ -64,7 +75,7 @@ Crouching makes the ground easier to reach with the palms. The journal pauses th
 
 ## Direct browser play
 
-Double-click `Play/Bellwake.html` in the downloaded project or extract the standalone play ZIP and open its HTML file. Geometry, textures, music and the JavaScript player are embedded. The browser edition contains all twenty-two campaign areas. The large meadow and Mossbell Village are accessible through the Unity edition.
+Double-click `Play/Bellwake.html` in the downloaded project or extract the standalone play ZIP and open its HTML file. Geometry, textures, music and the JavaScript player are embedded. The browser edition contains all twenty-six campaign areas. The large meadow and Mossbell Village are accessible through the Unity edition.
 
 For Quest Browser, serve the entire `Play` directory over HTTPS and open `index.html` for on-demand chapter downloads and choose **Enter VR**. With a USB-connected developer-mode Quest, a local alternative uses Python and Android platform tools on the PC. From the repository root, run these in separate terminals.
 
@@ -80,7 +91,7 @@ Open `http://localhost:8090/index.html` in Quest Browser while USB forwarding is
 
 ## Editable art and sound
 
-The packed Blender sources in `Blender/Bellwake` contain the twenty-two campaign sets, the meadow trail sign, the runner’s arms, the two individually modeled hands, the meadow outcrop and the mountain gate. The campaign reuses characters and props from the supplied Wizzard Themed Library, with articulated head and arm pivots on speakers. The cottages use the existing Mossbell Blender artwork. The court geometry, interactive mechanisms, bell tower, escarpments, banners, floor paintings, skies and score were authored for this campaign.
+The packed Blender sources in `Blender/Bellwake` contain the twenty-six campaign sets, the meadow trail sign, the runner’s arms, the two individually modeled hands, the meadow outcrop and the mountain gate. The campaign reuses characters and props from the supplied Wizzard Themed Library, with articulated head and arm pivots on speakers. The cottages use the existing Mossbell Blender artwork. The court geometry, interactive mechanisms, bell tower, escarpments, banners, floor paintings, skies and score were authored for this campaign.
 
 Ground and path share one continuous mesh. Lighting includes baked ground contact shadows. Buildings, clothing, brass and foliage use their own paintings and UV atlases. The Unity player loads one campaign room at a time and adds mesh colliders to the terrain, visible static set, rim and solid cores.
 
@@ -90,7 +101,7 @@ After editing the source, regenerate the FBX and GLB for that room from the proj
 blender -b --python-exit-code 1 --python Tools/bellwake/export.py -- RootChoir
 ```
 
-The procedural authoring scripts are in `Tools/bellwake`. Rebuilding from those scripts uses the original Wizzard Themed Library folder. Editing and exporting the packed Blender scenes works independently of that download. The PNG paintings are under `Assets/Resources/Bellwake/Textures`. The nineteen original music loops and four bell cues are under `Assets/Resources/Bellwake/Audio`.
+The procedural authoring scripts are in `Tools/bellwake`. Rebuilding from those scripts uses the original Wizzard Themed Library folder. Editing and exporting the packed Blender scenes works independently of that download. The PNG paintings are under `Assets/Resources/Bellwake/Textures`. The twenty-two original music loops and four bell cues are under `Assets/Resources/Bellwake/Audio`.
 
 ## Rebuild the portable edition
 

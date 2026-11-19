@@ -43,17 +43,20 @@ namespace Wizzard.Editor
                     foreach(var station in chamber.stations) Require(names.Contains(station.id),room+" "+station.id);
                     foreach(var station in chamber.stations)
                         if (!string.IsNullOrEmpty(station.sight)) Require(names.Contains(station.sight),room+" "+station.sight);
+                    foreach (var station in chamber.stations)
+                        if (!string.IsNullOrEmpty(station.camp)) Require(names.Contains(station.camp),room+" "+station.camp);
                     if (chamber.early)
                     {
                         foreach (string part in new[] {"MapSW","MapSE","MapNW","GuideBird","GuideLeft","GuideRight"})
                             Require(names.Contains(part),room+" "+part);
-                        foreach (var station in chamber.stations)
-                            if (!string.IsNullOrEmpty(station.camp)) Require(names.Contains(station.camp),room+" "+station.camp);
                         Require(chamber.ground.Length==225, room+" guide heights");
                     }
                     foreach(var visual in chamber.visuals)
                     {
                         Require(names.Contains(visual.node),room+" "+visual.node);
+                        if (visual.kind=="slide") Require(names.Contains("RailStart") && names.Contains("RailEnd"),room+" slide guides");
+                        if (visual.kind=="pointer")
+                            foreach (var bearing in new[]{"Bearing0","Bearing1","Bearing2"}) Require(names.Contains(bearing),room+" selector index");
                         if (visual.kind=="voyage") Require(names.Contains(visual.node+"Turn") && names.Contains(visual.node+"Berth"),room+" vessel route");
                     }
                 }

@@ -905,7 +905,7 @@ post(
     step(
         "SKIPPER ELIN  /  Seven of us. Seven signatures. Take our book to the bell and tell them a promise needs a crew.",
         {"landed": 1},
-        to="@final",
+        to="DrumHouse",
     ),
     step("The berth is empty. Signal the cutter from the eastern mast."),
 )
@@ -933,6 +933,8 @@ for station in r["stations"]:
 from pilgrim import add_chapter, ROAD_LEAVES
 
 add_chapter(room,post,step,v,machine)
+from tide_engine import add_engine
+add_engine(room,post,step,v,machine)
 
 for descriptor in rooms:
     for station in descriptor["stations"]:

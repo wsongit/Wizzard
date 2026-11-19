@@ -8,6 +8,7 @@ from pathlib import Path
 from playwright.async_api import async_playwright
 from pilgrim_route import walk_wards, TRAILS
 from works_route import complete_works, complete_coast
+from engine_route import complete_engine
 
 url, navdir, outdir = sys.argv[1:4]
 out = Path(outdir)
@@ -119,6 +120,7 @@ async def run():
             await page.mouse.down()
 
         ward_only=next((arg[7:] for arg in sys.argv if arg.startswith("--ward=")),None)
+        engine_only = "--engine" in sys.argv
         coast_only = "--coast" in sys.argv
         works_only = "--works" in sys.argv
         target_post = "--last-post" in sys.argv
@@ -127,12 +129,14 @@ async def run():
         floodbook = "--flood-book" in sys.argv or road_letters
         nameplate = "--night-roll" in sys.argv or floodbook
         endings_only = "--endings" in sys.argv or nameplate
-        if target_post or glasscut_only or endings_only or works_only or coast_only or ward_only:
+        if target_post or glasscut_only or endings_only or works_only or coast_only or ward_only or engine_only:
             saved = {"number": 13, "leaves": 7}
             if ward_only:
                 saved={"number":2,"leaves":1,"passage":{"completed":1},"works":{"active":True,"chamber":9+list(TRAILS).index(ward_only)}}
             if works_only:
                 saved = {"number": 21, "leaves": 15}
+            if engine_only:
+                saved={"number":21,"leaves":15,"works":{"active":True,"chamber":14}}
             if coast_only:
                 saved = {
                     "number": 21,
@@ -301,6 +305,11 @@ async def run():
             assert not errors,errors
             await b.close()
             return
+        if engine_only:
+            await complete_engine(act,page,start,out)
+            assert not errors,errors
+            await b.close()
+            return
         if coast_only:
             await complete_coast(act, page, start, out)
             assert not errors, errors
@@ -365,7 +374,7 @@ async def run():
         assert final["ending"] == 1 and final["leaves"] == 31
         if timed:
             durations = final["secondsByPlace"]
-            assert len(durations) == 22, durations
+            assert len(durations) == 26, durations
             (out / "known-route.json").write_text(
                 json.dumps(
                     {

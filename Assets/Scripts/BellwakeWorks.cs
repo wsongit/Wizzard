@@ -33,7 +33,7 @@ namespace Wizzard
     [Serializable]
     public sealed class WorksRoom
     {
-        public string key, title, intro, theme, chapter;
+        public string key, title, intro, theme, chapter, fog;
         public bool early;
         public WorksRule[] goals;
         public float halfSpan;
@@ -63,8 +63,8 @@ namespace Wizzard
     [Serializable]
     public sealed class WorksVisual
     {
-        public string node, signal, kind;
-        public float amount;
+        public string node, signal, kind, stack, visibleSignal;
+        public float amount, rise;
         public int match;
     }
 
@@ -155,7 +155,7 @@ namespace Wizzard
         public string Objective()
         {
             var goal = NextGoal();
-            if (goal != null) return goal.line;
+            if (goal != null) return Format(goal.line);
             if (Room.key == "Wrenfall")
             {
                 if (Signal("landed") != 0) return "The Linnet is at the north landing. Collect Elin’s flood book.";
@@ -173,6 +173,13 @@ namespace Wizzard
                 return "All three witnesses are present. Take the northeastern resonator lift.";
             return "Find the trades' witnesses. River reed " + Signal("reed") + "/1, bronze yoke " +
                    Signal("yoke") + "/1, nightglass " + Signal("glass") + "/1.";
+        }
+        string Format(string line)
+        {
+            if (line.Contains("{"))
+                foreach (var value in signals)
+                    line=line.Replace("{"+value.Key+"}",value.Value.ToString());
+            return line;
         }
         public WorksStation Station(string id)
         {
@@ -209,11 +216,7 @@ namespace Wizzard
                         if (!destination.StartsWith("@")) chamber = Array.FindIndex(plan.rooms,r=>r.key==rule.to);
                     }
                 }
-                string line = rule.line;
-                if (line.Contains("{"))
-                    foreach (var value in signals)
-                        line = line.Replace("{" + value.Key + "}", value.Value.ToString());
-                return line;
+                return Format(rule.line);
             }
             return Objective();
         }

@@ -27,6 +27,8 @@ namespace Wizzard
         bool InWorks => story.works!=null && story.works.active;
         WorksVisual[] fixtures=Array.Empty<WorksVisual>();
         Vector3[] fixtureLocations;
+        Vector3 railAxis;
+        readonly float[] drumAngles=new float[3];
         Quaternion[] fixtureAngles;
         BellwakePassage Route => story.passage;
         bool InPassage => Route != null && Route.active;
@@ -268,8 +270,16 @@ namespace Wizzard
                 if(InWorks)
                 {
                     fixtures=story.works.Room.visuals;
+                    if (nodes.TryGetValue("RailStart",out var railStart))
+                        railAxis=(nodes["RailEnd"].position-railStart.position).normalized;
                     fixtureLocations=Array.ConvertAll(fixtures,v=>nodes[v.node].position);
                     fixtureAngles=Array.ConvertAll(fixtures,v=>nodes[v.node].rotation);
+                    if (nodes.TryGetValue("Drum",out var drum))
+                    {
+                        Vector3 axis=nodes["Bearing0"].position-drum.position;
+                        for(int j=0;j<3;j++)
+                            drumAngles[j]=Vector3.SignedAngle(axis,nodes["Bearing"+j].position-drum.position,Vector3.up);
+                    }
                     AnimateWorks(true);
                 }
                 Sync();
@@ -342,6 +352,7 @@ namespace Wizzard
             ColorUtility.TryParseHtmlString("#" + Horizon[r], out Color horizon);
             if (story.ending != 0)
                 horizon = new Color(.94f, .79f, .61f);
+            if (InWorks && !string.IsNullOrEmpty(story.works.Room.fog)) ColorUtility.TryParseHtmlString(story.works.Room.fog,out horizon);
             if (InWorks && story.works.Room.key == "Wrenfall") ColorUtility.TryParseHtmlString("#b7d2c2", out horizon);
             sky.SetTexture("_Panorama", panorama);
             RenderSettings.skybox = sky;
@@ -406,6 +417,19 @@ namespace Wizzard
             {
                 var v=fixtures[i];var t=nodes[v.node];int n=story.works.Signal(v.signal);
                 if(v.kind=="show") { Active(t,n==v.match && (v.node!="CrewAshore" || voyageFraction>=1)); continue; }
+                if (v.kind=="pointer")
+                {
+                    t.rotation=Quaternion.Slerp(t.rotation,Quaternion.AngleAxis(drumAngles[n],Vector3.up)*fixtureAngles[i],mix);
+                    continue;
+                }
+                if (v.kind=="slide")
+                {
+                    if (!string.IsNullOrEmpty(v.visibleSignal)) Active(t,story.works.Signal(v.visibleSignal)!=0);
+                    float height=string.IsNullOrEmpty(v.stack) ? 0 : v.rise*story.works.Signal(v.stack);
+                    var target=fixtureLocations[i]+railAxis*(v.amount*n)+Vector3.up*height;
+                    t.position=Vector3.Lerp(t.position,target,mix);
+                    continue;
+                }
                 if (v.kind == "voyage")
                 {
                     voyageFraction = snap ? n : Mathf.MoveTowards(voyageFraction,n,Time.deltaTime/v.amount);

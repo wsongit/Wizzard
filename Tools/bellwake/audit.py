@@ -122,6 +122,8 @@ def main(key):
         assert all(v["node"] in objects for v in works[key]["visuals"]),key
         assert all(s["sight"] in objects for s in works[key]["stations"] if s.get("sight")),key
         for visual in works[key]["visuals"]:
+            if visual["kind"]=="slide":assert {"RailStart","RailEnd"}.issubset(objects),key
+            if visual["kind"]=="pointer":assert {"Bearing0","Bearing1","Bearing2"}.issubset(objects),key
             if visual["kind"]=="voyage":
                 assert all(visual["node"]+suffix in objects for suffix in ["Turn","Berth"]),key
     elif key != "Bellmarket":
@@ -161,6 +163,12 @@ def main(key):
             if cell in surfaces and cell not in reach and cell not in blocked:
                 reach.add(cell)
                 q.append(cell)
+    if key in works:
+        for station in works[key]["stations"]:
+            name=station.get("camp")
+            if name:
+                point=objects[name].matrix_world.translation
+                assert (round((point.x-off)/step),round((point.y-off)/step)) in reach,(key,name,"unsafe checkpoint")
     perimeter = tree([objects["C_Solids"]])
     rays = 0
     for axis in [0, 1]:

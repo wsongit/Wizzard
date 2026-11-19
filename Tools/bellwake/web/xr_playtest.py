@@ -19,7 +19,7 @@ harness = subprocess.check_output(
 from playwright.async_api import async_playwright
 
 
-async def coast_crossing(page):
+async def tracked_navigation(page):
     # Tracked head and grip poses traverse the open coast. All actions use the controller trigger.
     await page.evaluate("""() => {
       window.walkSurvey = async (x,z) => {
@@ -32,7 +32,7 @@ async def coast_crossing(page):
           testDevice.controllers.left.position.set(p.x-.23,1.30,p.z-.24);
           await new Promise(r=>setTimeout(r,70));
         }
-        throw Error("Headland tracked crossing stalled at "+bellProbe().vrHead);
+        throw Error("Tracked crossing stalled at "+bellProbe().vrHead);
       };
       window.sightToward = ([x,y,z]) => {
         const [hx,hy,hz]=bellProbe().vrHead,dx=x-hx,dy=y-hy,dz=z-hz;
@@ -42,6 +42,8 @@ async def coast_crossing(page):
       };
     }""")
 
+async def coast_crossing(page):
+    await tracked_navigation(page)
     async def trigger(until):
         await page.evaluate(
             "testDevice.controllers.right.updateButtonValue('trigger',1)"
@@ -110,6 +112,39 @@ async def orchard_checkpoint(browser):
     print("PASS Quest controller survey, tool acquisition and articulated waywren flight",flush=True)
 
 
+async def crane_checkpoint(browser):
+    page=await browser.new_page(viewport={"width":630,"height":380})
+    errors=[]
+    page.on("pageerror",lambda e:errors.append(str(e)))
+    await page.add_init_script(script=harness)
+    save={"number":21,"leaves":15,"works":{"active":True,"chamber":16,"camp":"RestWest"}}
+    await page.add_init_script("localStorage.setItem('wizzard.bellwake.desktop.v1',"+json.dumps(json.dumps(save))+")")
+    await page.goto(sys.argv[1])
+    await page.click("#vr",timeout=60000)
+    await page.wait_for_function("bellProbe().vr && bellProbe().district==='MouldLoft' && bellProbe().palms.every(Boolean)")
+    await tracked_navigation(page)
+    async def rack(name,check):
+        await page.evaluate("key=>sightToward(bellProbe().markers['A_'+key])",name)
+        await page.wait_for_function("key=>bellProbe().focus==='A_'+key",arg=name)
+        await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',1)")
+        await page.wait_for_function(check)
+        await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',0)")
+        await page.wait_for_timeout(300)
+    await rack("West","bellProbe().works.signals.hook===0")
+    await page.evaluate("walkSurvey(0,3.3)")
+    await rack("Centre","bellProbe().works.signals.tower0===1")
+    await page.wait_for_function("Math.abs(bellProbe().machinery.Collar0.position[0]-5)<.05")
+    await page.evaluate("walkSurvey(-5,3.3)")
+    await rack("West","bellProbe().works.signals.hook===0")
+    await page.evaluate("walkSurvey(0,3.3)")
+    await rack("Centre","bellProbe().works.signals.hook===0 && bellProbe().works.signals.tower1===0")
+    assert (await page.evaluate("bellProbe().works.signals.tower0"))==1
+    await page.evaluate("testDevice.activeSession.end()")
+    assert not errors,errors
+    await page.close()
+    print("PASS Quest tracked rack selection, five-metre collar transfer and rejected oversize collar",flush=True)
+
+
 async def run():
     async with async_playwright() as pw:
         b = await pw.chromium.launch(
@@ -120,6 +155,10 @@ async def run():
                 "--enable-unsafe-swiftshader",
             ],
         )
+        await crane_checkpoint(b)
+        if "--engine" in sys.argv:
+            await b.close()
+            return
         await orchard_checkpoint(b)
         if "--orchard" in sys.argv:
             await b.close()
@@ -187,7 +226,7 @@ async def run():
         await p.wait_for_function("!bellProbe().palms[0]")
         await p.evaluate("testDevice.controllers.left.connected=true")
         await p.wait_for_function("bellProbe().palms[0]")
-        for room in [5, 17, 18, 19, 20, 21, 1, 6, 2, 7, 8, 9, 11, 14, 15, 16, 0]:
+        for room in [5, 17, 18, 19, 20, 21, 1, 6, 2, 7, 8, 9, 11, 14, 15, 16, 22, 23, 24, 25, 0]:
             await p.evaluate("room => bellTravel(room)", room)
             await p.wait_for_function(
                 "bellProbe().vr && bellProbe().sets === 1 && bellProbe().palms.every(Boolean)"

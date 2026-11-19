@@ -35,6 +35,10 @@ class WorksCheck
         if (m.channels[0].StartsWith(m.key)) return row.values[row.values.Length-1]==1;
         switch (m.key)
         {
+        case "distribution": return s("drumBearing")==2;
+        case "towlines": return s("towJob")==4;
+        case "moulds": return s("craneJob")==3;
+        case "weaving": return s("loomFlag")==4;
         case "water":
             return s("deep") == 4;
         case "record":
@@ -52,6 +56,42 @@ class WorksCheck
         default:
             return s("phrase") == 5;
         }
+    }
+    static BellwakeWorks SolveGallery(WorksPlan plan, BellwakeWorks w, string key)
+    {
+        int index=Array.FindIndex(plan.machines,candidate=>candidate.key==key);
+        var m=plan.machines[index];
+        var queue=new Queue<int>();
+        var routes=new Dictionary<int,List<int>>();
+        int current=w.machines[index];
+        queue.Enqueue(current);
+        routes[current]=new List<int>();
+        while(queue.Count>0)
+        {
+            current=queue.Dequeue();
+            if(Target(m,m.rows[current])) break;
+            for(int a=0;a<m.controls.Length;a++)
+            {
+                int next=m.rows[current].moves[a];
+                if(routes.ContainsKey(next))continue;
+                routes[next]=new List<int>(routes[current]) { a };
+                queue.Enqueue(next);
+            }
+        }
+        Require(Target(m,m.rows[current]),"disconnected gallery");
+        int actions=0;
+        foreach(int input in routes[current])
+        {
+            string op=m.controls[input], station=char.ToUpper(op[0])+op.Substring(1), dest;
+            var s=w.Station("A_"+station);
+            Require(s!=null, "missing "+station);
+            int expected=m.rows[w.machines[index]].moves[input];
+            w.Use(s.id,out dest);
+            Require(w.machines[index]==expected,"incorrect physical command "+s.id);
+            if (++actions%7==0) {w=Reload(plan,w);Require(w.camp==s.camp,"lost machine shelter");}
+        }
+        Require(Target(m,m.rows[w.machines[index]]),"unfinished dock work");
+        return w;
     }
     static void Main(string[] args)
     {
@@ -158,9 +198,23 @@ class WorksCheck
             Require(w.Signal("signalBar") == 1, "coast checkpoint");
             Run(w,"Bell Star Launch");
             w.Use("A_Book",out dest);
-            Require(dest == "@final" && w.Signal("named") == 1 && w.Signal("answered") == 1, "lost resolution");
+            Require(dest == "DrumHouse" && w.Signal("named") == 1 && w.Signal("answered") == 1, "lost coast connection");
+            Run(w,"Final Loom");
+            Require(w.Room.key=="DrumHouse","unearned passage");
+            foreach(char c in order)
+            {
+                int desired=c-'0';
+                while(w.Signal("drumBearing")!=desired) Run(w,"Turn");
+                string[] doors={"Dock","Crane","Loom"}, machines={"towlines","moulds","weaving"};
+                Run(w,doors[desired]);
+                w=SolveGallery(plan,w,machines[desired]);
+                Run(w,"Home");
+                Require(w.Room.key=="DrumHouse","missing return");
+            }
+            w.Use("A_Final",out dest);
+            Require(dest=="@final","keeper ascent");
         }
         Console.WriteLine(positions + " machine positions, " + actions +
-                          " transitions, six wing orders, optional register and finale passed.");
+                          " transitions, six guild and Countertide gallery orders, machine checkpoints, optional register and finale passed.");
     }
 }
