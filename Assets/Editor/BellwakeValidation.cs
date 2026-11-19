@@ -14,6 +14,9 @@ namespace Wizzard.Editor
             var rooms=new List<string>(BellwakeJourney.Rooms);
             foreach(var region in atlas.regions) rooms.Add(region.key);
             var works=JsonUtility.FromJson<WorksPlan>(Resources.Load<TextAsset>("Bellwake/Underworks").text);
+            // BellwakeWorks.Refresh publishes both saved flags and current machine outputs.
+            var signals = new HashSet<string>(works.flags, StringComparer.Ordinal);
+            foreach (var machine in works.machines) signals.UnionWith(machine.channels);
             foreach(var chamber in works.rooms) rooms.Add(chamber.key);
             foreach (string room in rooms)
             {
@@ -82,7 +85,11 @@ namespace Wizzard.Editor
                     {
                         Require(names.Contains(visual.node),room+" "+visual.node);
                         if (!string.IsNullOrEmpty(visual.mount)) Require(names.Contains(visual.mount),room+" "+visual.mount);
-                        if (!string.IsNullOrEmpty(visual.visibleSignal)) Require(Array.IndexOf(works.flags,visual.visibleSignal)>=0,room+" missing visibility flag");
+                        Require(signals.Contains(visual.signal), room+" "+visual.node+" unknown signal "+visual.signal);
+                        if (!string.IsNullOrEmpty(visual.visibleSignal) || visual.kind=="perch")
+                            Require(signals.Contains(visual.visibleSignal), room+" "+visual.node+" unknown visibility signal "+visual.visibleSignal);
+                        if (!string.IsNullOrEmpty(visual.stack))
+                            Require(signals.Contains(visual.stack), room+" "+visual.node+" unknown stack signal "+visual.stack);
                         if (visual.kind=="slide") Require(names.Contains("RailStart") && names.Contains("RailEnd"),room+" slide guides");
                         if (visual.kind=="pointer")
                             foreach (var bearing in new[]{"Bearing0","Bearing1","Bearing2"}) Require(names.Contains(bearing),room+" selector index");
