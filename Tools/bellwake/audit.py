@@ -117,6 +117,13 @@ def main(key):
     spawn = objects["Spawn"].matrix_world.translation
     assert (spawn - Vector((0, -14, 0.08))).length < 0.02, (key, spawn)
     markers = {n: o.matrix_world.translation for n, o in objects.items() if n.startswith("A_")}
+    target_names = {n[4:] for n in objects if n.startswith("Hit_")}
+    expected = {"Key0","Key1","Key2"} if key in ("RootChoir","StillBelfry") else {"Low","Middle","High"} if key=="KettleYard" else set()
+    assert target_names == expected, (key, target_names)
+    for name in target_names:
+        centre = objects["Hit_"+name].matrix_world.translation
+        edge = objects["Edge_"+name].matrix_world.translation
+        assert .18 <= (centre-edge).length <= .38 and (centre-markers["A_"+name]).length<1, (key,name)
     if key in works:
         assert set(markers)=={s["id"] for s in works[key]["stations"]},key
         assert all(v["node"] in objects for v in works[key]["visuals"]),key

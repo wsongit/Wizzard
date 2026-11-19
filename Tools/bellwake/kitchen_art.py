@@ -13,6 +13,7 @@ from atelier import (
     shaft,
     lathe,
     marker,
+    palm_target,
     collision,
     model,
     origins,
@@ -305,6 +306,7 @@ def kitchen_pans():
         group = "Pan" + name
         cy = 5.70
         cz = 1.51
+        palm_target(name, x, cy - .10, cz, r * .51)
         pts = []
         n = 24
         for radius, depth in (

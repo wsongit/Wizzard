@@ -19,6 +19,7 @@ namespace Wizzard
         readonly Vector3[] targets=new Vector3[2];
         readonly bool[] touching=new bool[2];
         readonly bool[] tracked=new bool[2];
+        public bool PalmTracked(int side) => XRSettings.isDeviceActive && tracked[side];
         Vector3 velocity, smoothedVelocity;
         float yaw, pitch; bool turnReady=true, initialized;
         const float headGuardRadius=.12f;

@@ -120,6 +120,57 @@ async def trigger_station(page, name, check):
     await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',0)")
     await page.wait_for_timeout(300)
 
+async def palm_instruments(browser):
+    for district, save, order in (
+        ("KettleYard", {"number": 21, "works": {"active": True, "chamber": 18, "camp": "RestLow"}},
+         ["Low", "High", "Low", "Middle", "Middle", "High", "High", "Low", "Middle"]),
+        ("RootChoir", {"number": 2}, ["Key2", "Key1", "Key0"]),
+        ("StillBelfry", {"number": 23}, ["Key0", "Key2", "Key1"]),
+    ):
+        if "--belfry-palms" in sys.argv and district!="StillBelfry": continue
+        page = await browser.new_page(viewport={"width": 630, "height": 380})
+        errors = []
+        page.on("pageerror", lambda err: errors.append(str(err)))
+        await page.add_init_script(script=harness)
+        await page.add_init_script("localStorage.setItem('wizzard.bellwake.desktop.v1',"+json.dumps(json.dumps(save))+")")
+        await page.goto(sys.argv[1])
+        await page.click("#vr", timeout=60000)
+        await page.wait_for_function("k=>bellProbe().vr && bellProbe().district===k", arg=district)
+        await tracked_navigation(page)
+        await page.evaluate("""() => {
+            window.tapBell = async (name, side) => {
+                const s=bellProbe(), target=s.instruments['A_'+name], [x,y,z]=target.centre;
+                const frame=()=>new Promise(resolve=>setTimeout(resolve,95));
+                // Pull both hands behind the approach plane when walking across an instrument.
+                await walkSurvey(x,z+1.03);
+                const grip=testDevice.controllers[side];
+                const pose=(depth)=>{
+                    const head=bellProbe().vrHead, p=testDevice.position;
+                    grip.position.set(p.x+x-head[0],p.y+y-head[1],p.z+z+depth-head[2]);
+                };
+                for(const d of [.65,.54,.43,.32,.21,.10,.02]){pose(d);await frame()}
+                await new Promise(resolve=>setTimeout(resolve,370));
+                return {hand:bellProbe().handPositions[side==='left'?0:1], target:[x,y,z]};
+            };
+        }""")
+        for j, name in enumerate(order):
+            before=await page.evaluate("bellProbe().recentTones.length")
+            contact=await page.evaluate("([name,side])=>tapBell(name,side)", [name, "left" if j%2 else "right"])
+            state=await page.evaluate("bellProbe()")
+            assert len(state["recentTones"])==before+1,(district,name,contact,state["recentTones"])
+            if district=="KettleYard":
+                assert state["works"]["signals"]["supperBeat"]==j+1, state["works"]
+            print(district, name, "palm stroke", j+1, flush=True)
+        if district=="RootChoir":
+            assert state["number"]!=2 and state["recentTones"][-3:]==[2,1,0]
+        if district=="StillBelfry":
+            assert state["number"]==31, state["number"]
+        await page.evaluate("testDevice.activeSession.end()")
+        assert not errors,errors
+        await page.close()
+    print("PASS two-handed physical music, close repeated notes and held-hand rejection",flush=True)
+
+
 async def kitchen_checkpoint(browser):
     page = await browser.new_page(viewport={"width": 630, "height": 380})
     errors = []
@@ -178,6 +229,10 @@ async def run():
                 "--enable-unsafe-swiftshader",
             ],
         )
+        if "--palms" in sys.argv or "--belfry-palms" in sys.argv:
+            await palm_instruments(b)
+            await b.close()
+            return
         if "--kitchen" in sys.argv:
             await kitchen_checkpoint(b)
             await b.close()

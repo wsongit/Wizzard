@@ -402,6 +402,8 @@ def machinery(k):
             origins[groupLight] = (x, y, z + 2.72)
             seal(x, y, z + 2.72, groupLight, "Amber")
         if k in (1, 4):
+            palm_target("Key" + str(i), x, y - (0.46 if k == 1 else 0.10),
+                        z + (1.60 if k == 1 else 1.72), 0.26)
             # Three silhouettes communicate each note even without color.
             iconX, iconY, iconZ = x, y - 0.43, z + (2.75 if k == 1 else 1.73)
             strokes = [

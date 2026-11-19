@@ -22,7 +22,7 @@ The market, Root Choir, Reedwater, Cinder Lens and belfry each hold a witness le
 
 The witness book shows active playtime. Loading, the open journal and unfocused play are excluded. The clock starts with this update for existing checkpoints. Players already past a new district retain their place in the story.
 
-A fresh desktop run through all twenty-two areas reached its first ending in 25 minutes 55 seconds of active play. The test already knew the routes and puzzle solutions, and shared the cloud renderer with other checks. First-time human and headset completion times remain unmeasured. [Playthrough details](validation.md)
+A fresh desktop run through the twenty-six required areas reached its first ending in 29 minutes 14 seconds of active play. The test already knew the routes and puzzle solutions, and shared the cloud renderer with other checks. First-time human and headset completion times remain unmeasured. [Playthrough details](validation.md)
 
 ## The Pilgrims’ Cut
 
@@ -74,7 +74,7 @@ Set out supper to bring the three night workers to the table. Look for their con
 | --- | --- | --- | --- |
 | Move and jump | Plant a palm on a surface, push and release | WASD and Space | WASD and Space, Shift to run |
 | Look or turn | Head tracking and right-stick snap turn | Middle click to capture the mouse, Escape to release | Drag or use the arrow keys, double click to capture the mouse |
-| Speak, ring or turn | Face a nearby station and press a trigger | E | E |
+| Speak, ring or turn | Face a nearby station and press a trigger. The Root Choir bells, belfry seals and kitchen pans also sound when struck with either tracked palm. Withdraw your hand between notes. | E | E |
 | Open or close the witness book | A or X | J | J |
 | Call Mara’s waywren in the five wards | Left grip | Q | Q |
 | Read a collected leaf | With the book open, a trigger turns the page | E with the book open | Collected leaves appear in the book |

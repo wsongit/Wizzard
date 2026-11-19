@@ -42,6 +42,18 @@ namespace Wizzard
         MossbellVillage village;
         AudioSource score, notes;
         Coroutine rehearsal;
+        sealed class SoundingSurface
+        {
+            public string station;
+            public Vector3 centre;
+            public float radius;
+            public readonly bool[] armed = new bool[2];
+        }
+        readonly List<SoundingSurface> instruments = new List<SoundingSurface>();
+        readonly Vector3[] lastPalm = new Vector3[2];
+        readonly bool[] hadPalm = new bool[2];
+        string lastSounded;
+        float lastStrokeAt;
         readonly AudioClip[] chimes = new AudioClip[4];
         Material sky, curtain;
         Renderer curtainRenderer;
@@ -170,6 +182,9 @@ namespace Wizzard
         IEnumerator ReleaseArea(string nextMusic=null)
         {
             CancelRehearsal();
+            instruments.Clear();
+            hadPalm[0] = hadPalm[1] = false;
+            lastSounded = null;
             guide = null;
             flight.Clear();
             display.ClearSurvey();
@@ -255,6 +270,14 @@ namespace Wizzard
                         t.gameObject.AddComponent<MeshCollider>().sharedMesh =
                             t.GetComponent<MeshFilter>().sharedMesh;
                     }
+                }
+                foreach (var pair in nodes)
+                {
+                    if (!pair.Key.StartsWith("Hit_")) continue;
+                    var stationName = pair.Key.Substring(4);
+                    var centre = pair.Value.position;
+                    instruments.Add(new SoundingSurface { station = "A_" + stationName, centre = centre,
+                        radius = Vector3.Distance(centre, nodes["Edge_" + stationName].position) });
                 }
                 foreach (var pair in nodes)
                     if (pair.Key.StartsWith("A_"))
@@ -543,6 +566,7 @@ namespace Wizzard
             if (book)
             {
                 journalOpen = !journalOpen;
+                hadPalm[0] = hadPalm[1] = false;
                 if (!journalOpen) display.ClearSurvey();
                 observation = null;
                 lastHint = null;
@@ -574,6 +598,13 @@ namespace Wizzard
             FindFocus();
             AnimateSet();
             float now = Time.unscaledTime;
+            if (instruments.Count != 0)
+            {
+                string left = PalmStrike(0, player.leftHand.position);
+                string right = PalmStrike(1, player.rightHand.position);
+                if (left != null) { Interact(left, 0); return; }
+                if (right != null) { Interact(right, 1); return; }
+            }
             if (action && focus != null)
             {
                 Interact(focus);
@@ -602,7 +633,8 @@ namespace Wizzard
                             (3 - story.wounds) + " breaths left. " +
                                 (focus != null ? "Trigger or E   /   " + Label(focus) : "Find the glowing seal."));
                     else if (focus != null)
-                        display.Say(Label(focus), "Trigger or E to interact   •   A/X or J for your journal");
+                        display.Say(Label(focus), nodes.ContainsKey("Hit_" + focus.Substring(2)) && XRSettings.isDeviceActive
+                            ? "Strike with either palm or press a trigger." : "Trigger or E to interact   •   A/X or J for your journal");
                     else
                         display.Hide();
                     lastHint = id;
@@ -841,8 +873,47 @@ namespace Wizzard
                                          facing * Vector3.forward) *
                     rest["GreatBell"];
         }
-        void Interact(string id)
+        string PalmStrike(int side, Vector3 palm)
         {
+            if (!player.PalmTracked(side)) { hadPalm[side] = false; return null; }
+            Vector3 from = lastPalm[side], stroke = palm - from;
+            float length2 = stroke.sqrMagnitude;
+            bool continuous = hadPalm[side] && length2 > 1e-9f && length2 < 1;
+            string hit = null;
+            foreach (var surface in instruments)
+            {
+                if (!hadPalm[side] || length2 >= 1) surface.armed[side] = false;
+                if (continuous && surface.armed[side])
+                {
+                    float t = Mathf.Clamp01(Vector3.Dot(surface.centre - from, stroke) / length2);
+                    if ((from + stroke * t - surface.centre).sqrMagnitude <= surface.radius * surface.radius)
+                    {
+                        hit = surface.station;
+                        surface.armed[side] = false;
+                    }
+                }
+                float release = surface.radius + .14f;
+                if ((palm - surface.centre).sqrMagnitude > release * release) surface.armed[side] = true;
+            }
+            lastPalm[side] = palm;
+            hadPalm[side] = true;
+            return hit;
+        }
+        void Interact(string id, int palm = -1)
+        {
+            if (instruments.Count != 0 && XRSettings.isDeviceActive && nodes.ContainsKey("Hit_" + id.Substring(2)))
+            {
+                float now = Time.unscaledTime;
+                if (lastSounded == id && now - lastStrokeAt < .17f) return;
+                lastSounded = id;
+                lastStrokeAt = now;
+                if (palm >= 0)
+                {
+                    var controller = InputDevices.GetDeviceAtXRNode(palm == 0 ? XRNode.LeftHand : XRNode.RightHand);
+                    if (controller.TryGetHapticCapabilities(out var caps) && caps.supportsImpulse)
+                        controller.SendHapticImpulse(0, .28f, .035f);
+                }
+            }
             string line;
             if(InWorks)
             {

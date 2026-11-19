@@ -109,6 +109,11 @@ def lathe(name, x, y, base, profile, mat, n=12, group="Set"):
     return geometry(name, pts, faces, mat, group)
 
 
+def palm_target(station, x, y, z, radius):
+    marker("Hit_" + station, x, y, z)
+    marker("Edge_" + station, x + radius, y, z)
+
+
 def marker(name, x, y, z):
     obj = bpy.data.objects.new(name, None)
     bpy.context.collection.objects.link(obj)

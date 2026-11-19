@@ -1,4 +1,5 @@
 import * as T from "three";
+import { PalmInstruments } from "./instruments.js";
 import { Underworks } from "./underworks.js";
 import { Passage } from "./passage.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
@@ -110,6 +111,7 @@ const loader = new GLTFLoader(),
   step = new T.Vector3();
 const capsule = new Capsule(new T.Vector3(), new T.Vector3(), 0.26);
 const effects = new Map();
+const instruments = new PalmInstruments();
 let music = null,
   musicTheme = "",
   musicGeneration = 0;
@@ -355,6 +357,7 @@ async function loadRoom() {
   guide = null;
   passage.book = null;
   nodes = {};
+  instruments.bind(nodes);
   markers = [];
   focus = "";
   // Submit an opaque frame in the headset as well as the desktop canvas.
@@ -397,6 +400,7 @@ async function loadRoom() {
       o.material = palette.get(old);
     }
   });
+  instruments.bind(nodes);
   palette.forEach((_, old) => old.dispose());
   group.updateMatrixWorld(true);
 
@@ -604,8 +608,16 @@ function welcome() {
     );
   else say(locationName(), objective(), 8);
 }
-async function interact(id) {
+async function interact(id, palm = -1) {
   if (!started || busy || book || !id) return;
+  if (vr.session && nodes["Hit_" + id.slice(2)]) {
+    if (!instruments.accepts(id, performance.now())) return;
+    if (palm >= 0) {
+      for (const input of vr.session.inputSources)
+        if (input.handedness === (palm ? "right" : "left"))
+          input.gamepad?.hapticActuators?.[0]?.pulse(.28, 35)?.catch(() => {});
+    }
+  }
   if (works.active) {
     const station = works.station(id);
     cancelRehearsal();
@@ -1092,6 +1104,13 @@ function loop(time, frame) {
   }
   if (!group) return;
   if (vr.session) vr.update(frame, delta, book);
+  if (instruments.targets.length) {
+    for (let i = 0; i < 2; i++) {
+      const point = vr.ready && !book && vr.hands[i].valid ? vr.palms[i].position : null;
+      const id = instruments.strike(i, point);
+      if (id) interact(id, i);
+    }
+  }
   if (!started) {
     camera.position.set(11 + Math.sin(time * 0.00012) * 1.3, 5.6, 15.8);
     camera.lookAt(-3.5, 2, -3);
@@ -1163,7 +1182,7 @@ function loop(time, frame) {
       : !$("speech").hidden
         ? $("words").textContent
         : focus
-          ? "Press a trigger to interact."
+          ? nodes["Hit_" + focus.slice(2)] ? "Strike with either palm or press a trigger." : "Press a trigger to interact."
           : !$("clock").hidden
             ? $("clock").textContent
             : "";
@@ -1185,6 +1204,8 @@ if (__TEST__)
     number,
     gpu: { ...renderer.info.memory, programs: renderer.info.programs.length },
     recentTones: recentTones.slice(),
+    instruments: Object.fromEntries(instruments.targets.map(t => [t.id, {centre:t.centre.toArray(),radius:t.radius}])),
+    handPositions: vr.palms?.map(p => p.position.toArray()),
     meal: nodes.ServedTable ? { served: nodes.ServedTable.visible, crew: nodes.MessCrew.visible, lamp: nodes.KitchenLamp.visible } : null,
     retiredAlive: retired?.filter((ref) => ref.deref()).length || 0,
     trees: tree ? 1 : 0,

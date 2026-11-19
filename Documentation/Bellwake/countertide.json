@@ -197,10 +197,10 @@
   },
   "package": {
     "assets": 110,
-    "modelAndCollisionBytesBefore": 63967072,
-    "modelAndCollisionBytesPacked": 25943181,
-    "offlineBytes": 40521532,
-    "streamedAssetsBytes": 29712995
+    "modelAndCollisionBytesBefore": 63968692,
+    "modelAndCollisionBytesPacked": 25943467,
+    "offlineBytes": 40523351,
+    "streamedAssetsBytes": 29713281
   },
   "network": {
     "downloadMegabitsPerSecond": 8,
@@ -292,5 +292,24 @@
     "retiredObjects": 0,
     "allSingleWorld": true
   },
-  "renderer": "Chromium SwiftShader"
+  "renderer": "Chromium SwiftShader",
+  "compressedStreaming": {
+    "transfers": 90,
+    "districts": 27,
+    "laps": 3,
+    "zeroRetiredObjects": true,
+    "singleWorldCollisionAndScore": true,
+    "medianLoadMs": 530.0,
+    "p95LoadMs": 1182,
+    "worstTransitionFrameMs": 733,
+    "afterFailedRequest": "Reloaded last market checkpoint"
+  },
+  "palmStrikes": {
+    "kitchenSequence": 9,
+    "rootChoirSequence": 3,
+    "keeperSequence": 3,
+    "bothHands": true,
+    "heldHandRepeats": 0,
+    "checkedOn": "Emulated Quest 3 using tracked grip poses in WebXR"
+  }
 }
