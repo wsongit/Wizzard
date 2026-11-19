@@ -214,8 +214,17 @@ def main(key):
         assert len(choices) > 3, (key, name, "unreachable station")
         goals[name] = sorted(choices)
     interior = ward_passages(key,objects,ground,reach,off,step) if works.get(key,{}).get("early") else 0
-    tri = sum(len(o.data.loop_triangles) for o in mesh if o.name != "C_Solids")
-    slots = sum(len(o.data.materials) for o in mesh if o.name != "C_Solids")
+    # Exactly one member of each near/far pair is active. Audit the larger member
+    # and verify the lower-detail set covers the same part of the wood.
+    visible = [o for o in mesh if o.name != "C_Solids" and not o.name.startswith("GroveFar")]
+    for o in mesh:
+        if not o.name.startswith("GroveFar"):
+            continue
+        near=objects[o.name.replace("Far","Near")]
+        assert len(o.data.loop_triangles)<len(near.data.loop_triangles),o.name
+        assert len(o.data.materials)<=len(near.data.materials),o.name
+    tri = sum(len(o.data.loop_triangles) for o in visible)
+    slots = sum(len(o.data.materials) for o in visible)
     assert tri < 50000 and slots < 64, (key, tri, slots)
     (out / (key + ".json")).write_text(
         json.dumps(dict(reach=sorted(reach), goals=goals, offset=off, step=step))

@@ -21,6 +21,8 @@ from works_sets import line, ring
 from sillwater_art import terrain, house
 from engine_art import panel
 from sets import arch
+import forest_lod
+from atelier import batches
 from choir_wood import KEY, EARS, SITES, ROOT_TUNE
 from underworks import rooms
 
@@ -975,10 +977,21 @@ def linn(x, y, z):
 def make(lib):
     r = next(r for r in rooms if r["key"] == KEY)
     ground_art()
+    from rowan_letter import make as embroider_linen
+
+    embroider_linen()
+    forest_lod.atlas()
     init(lib, 6887)
     terrain(KEY, SPAN, grade, 2)
     for i, (x, y, h, k) in enumerate(TREES):
+        core, leaves = len(batches["Set"]), len(batches["Canopies"])
         rowan(x, y, h, k, 1500 + i)
+        parts = [(o, True) for o in batches["Set"][core:]] + [
+            (o, False) for o in batches["Canopies"][leaves:]
+        ]
+        del batches["Set"][core:], batches["Canopies"][leaves:]
+        forest_lod.collect(parts, x, y)
+    forest_lod.distant()
     # Broad ridges enclose the forest beyond the continuous collision boundary.
     rng = random.Random(484)
     p = []

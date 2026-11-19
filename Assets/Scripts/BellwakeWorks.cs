@@ -6,7 +6,7 @@ namespace Wizzard
     [Serializable]
     public sealed class WorksPlan
     {
-        public string logTitle, logEntry, theatreInvitation, pilotMail, pressEntry, dawnEntry;
+        public string logTitle, logEntry, theatreInvitation, pilotMail, pressEntry, dawnEntry, woodEntry;
         public string[] logEndings, supperEndings, pilotEndings, swallowEntries, parishEndings, theatreCredits, theatreCadences, dawnTunes, dawnVerses, dawnEnding;
         public SupperNote[] supperNotes;
         public RoadLeaf[] roadLeaves;
@@ -91,6 +91,7 @@ namespace Wizzard
         [NonSerialized]
         Dictionary<string, int> signals;
         public WorksRoom Room => plan.rooms[chamber];
+        public bool RestoredWood => Signal("rainMended")!=0 && Signal("rootMended")!=0 && Signal("wrenMended")!=0;
         public void Bind(WorksPlan layout)
         {
             plan = layout;

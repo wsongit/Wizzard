@@ -1,3 +1,4 @@
+import {Grove} from "./grove.js";
 import {ForestCall,callAngle} from "./forest_call.js";
 import * as T from "three";
 import { PalmInstruments } from "./instruments.js";
@@ -345,6 +346,7 @@ function dispose(old) {
   scene.remove(old);
 }
 const forestCall=new ForestCall();
+const grove=new Grove();
 let pilotReply = null, replyName = "";
 function clearPilotReply() {
   if (!pilotReply) return;
@@ -399,6 +401,7 @@ async function loadRoom() {
   }
   clearPilotReply();
   forestCall.release();
+  grove.cells=[];
   for (const [key, audio] of effects) {
     if (!key.startsWith("Beech")) continue;
     audio.pause(); audio.removeAttribute("src"); audio.load(); effects.delete(key);
@@ -461,6 +464,8 @@ async function loadRoom() {
   palette.forEach((_, old) => old.dispose());
   group.updateMatrixWorld(true);
 
+  grove.bind(nodes);
+  grove.update(nodes.Spawn.position);
   nodes.C_Solids.visible = false;
   scene.add(group);
   if (works.active && works.room.early) {
@@ -923,7 +928,7 @@ function listeningAngle() {
 }
 function listeningHint() {
   const angle=listeningAngle();
-  if (Math.abs(angle)<14*Math.PI/180) return "The call is straight ahead. Record this bearing.";
+  if (Math.abs(angle)<14*Math.PI/180) return "Straight ahead. Use the trigger or E to mark this bearing.";
   return angle>0 ? "The call is to your right." : "The call is to your left.";
 }
 function bearingClear() {
@@ -1202,6 +1207,8 @@ function toggleBook(open) {
       addBookPrint("Tavi", data.works.pilotMail, "Ina’s charcoal portrait of Tavi, with a note from the night of the flood.");
     if (works.signals.glassProof===3)
       addBookPrint("ContactSheet", data.works.pressEntry, "Three prints from the flood, mounted in Ossa’s contact book.");
+    if (works.signals.rainMended && works.signals.rootMended && works.signals.wrenMended)
+      addBookPrint("RowanLinen", data.works.woodEntry, "Linn’s letter to Ina beside six embroidered bearings and a red darn.");
     if (works.signals.dawnStep===10) {
       const song=document.createElement("li");
       song.textContent=data.works.dawnEntry;
@@ -1377,6 +1384,7 @@ function loop(time, frame) {
   }
   if (!group) return;
   if (vr.session) vr.update(frame, delta, book);
+  if (grove.cells.length) grove.update(vr.session ? vr.head : camera.position);
   if (nodes.HandFork || nodes.HandWhistle) poseFork(time);
   if (instruments.targets.length) {
     for (let i = 0; i < 2; i++) {
@@ -1472,6 +1480,7 @@ function loop(time, frame) {
   if (vr.session) {
     const text = book
       ? journalText[journalPage]
+      : observation?.call ? listeningHint()
       : !$("speech").hidden
         ? $("words").textContent
         : focus
@@ -1481,6 +1490,7 @@ function loop(time, frame) {
             : "";
     const title = book
       ? "Witness book   ·   " + (journalPage + 1) + "/" + journalText.length
+      : observation?.call ? observation.label
       : !$("speech").hidden
         ? $("act").textContent
         : focus
@@ -1531,6 +1541,7 @@ if (__TEST__)
       passage.active && passage.book
         ? { ...passage.progress, hint: passage.piece.hint, win: passage.piece.win }
         : null,
+    grove: grove.cells.map(c=>[c.near.visible,c.far.visible]),
     forestAudio: forestCall.audio ? {playing:!forestCall.audio.paused,position:forestCall.pan.positionX.value} : null,
     sight: observation
       ? { target: nodes[observation.sight].position.toArray(), linedUp: bearingClear() }

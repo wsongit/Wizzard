@@ -230,6 +230,38 @@ async def theatre_checkpoint(browser):
     print("PASS market invitation, blue door, casting pattern and woodcut figure reel with tracked controllers",flush=True)
 
 
+async def school_letter(browser):
+    plan=json.loads((here.parents[2]/"Assets/Resources/Bellwake/Underworks.json").read_text())
+    machines=[0]*len(plan["machines"])
+    for i,machine in enumerate(plan["machines"]):
+        for voice in ("rainMended","rootMended","wrenMended"):
+            if voice in machine["channels"]:
+                signal=machine["channels"].index(voice)
+                machines[i]=next(j for j,row in enumerate(machine["rows"]) if row["values"][signal]==1)
+    save={"number":2,"leaves":1,"works":{"machines":machines}}
+    page=await browser.new_page(viewport={"width":630,"height":380})
+    errors=[]
+    page.on("pageerror",lambda e:errors.append(str(e)))
+    await page.add_init_script(script=harness)
+    await page.add_init_script("localStorage.setItem('wizzard.bellwake.desktop.v1',"+json.dumps(json.dumps(save))+")")
+    await page.goto(sys.argv[1])
+    await page.click("#vr",timeout=60000)
+    await page.wait_for_function("bellProbe().vr && bellProbe().district==='RootChoir'")
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('a-button',1)")
+    await page.wait_for_function("bellProbe().book")
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('a-button',0)")
+    await page.wait_for_timeout(200)
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',1)")
+    await page.wait_for_function("bellProbe().vrMap && bellProbe().journalCaption.includes('school linen')")
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',0)")
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('a-button',1)")
+    await page.wait_for_function("!bellProbe().book && !bellProbe().sheetAllocated")
+    await page.evaluate("testDevice.activeSession.end()")
+    assert not errors,errors
+    await page.close()
+    print("PASS Linn’s illustrated letter opened in the choir and released on book close",flush=True)
+
+
 async def listening_checkpoint(browser):
     page=await browser.new_page(viewport={"width":630,"height":380})
     errors=[]
@@ -669,6 +701,10 @@ async def run():
             return
         if "--single-palm" in sys.argv:
             await single_palm_release(b)
+            await b.close()
+            return
+        if "--wood-letter" in sys.argv:
+            await school_letter(b)
             await b.close()
             return
         if "--wood-palms" in sys.argv:

@@ -54,7 +54,7 @@ On the final morning, an illuminated book is fastened to the west pier of the ma
 
 Take the linen field book from Linn outside the sawyer’s hut. Each pair of horns listens to one instrument. Stand close to a horn and press E or a trigger to listen. Turn in place. When the call is straight ahead, press again to draw the bearing. Opening the book shows the lines you have marked so far. The three walks can be taken in any order.
 
-At the spring, follow the carved marks on the high and low watercourses. At the beech, read the notched stave and strike the three hollow drums. On Quest you can tap them with either palm. At the loft, move the bronze poise until the beam lies level, then sound the reed. Once all three instruments sing, speak to Linn again or follow the north path into the choir. [Four views from the game](rowan-hollow.jpg)
+At the spring, follow the carved marks on the high and low watercourses. At the beech, read the notched stave and strike the three hollow drums. On Quest you can tap them with either palm. At the loft, move the bronze poise until the beam lies level, then sound the reed. Once all three instruments sing, the reverse of the linen reveals Linn’s letter to Ina. You can unfold it in the witness book anywhere. Speak to Linn again or follow the north path into the choir. [Four views from the game](rowan-hollow.jpg)
 
 ## Three houses of Sillwater
 

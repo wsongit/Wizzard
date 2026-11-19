@@ -251,14 +251,14 @@ class WorksCheck
             foreach (char part in order)
             {
                 wood.Use("A_Gate",out door);
-                Require(string.IsNullOrEmpty(door),"unfinished forest wicket");
+                Require(string.IsNullOrEmpty(door) && !wood.RestoredWood,"unfinished forest wicket");
                 if(part=='0') Run(wood,"RainWest RainEast Ridge Ridge Sill Spill");
                 if(part=='1') Run(wood,"RootEast RootWest Short Long Short Middle Long Short");
                 if(part=='2') Run(wood,"WrenWest WrenEast Slide Breath Slide Slide Breath Slide Slide Slide Breath");
                 wood=Reload(plan,wood);
             }
             wood.Use("A_Gate",out door);
-            Require(door=="@choir","forest restoration failed in order "+order);
+            Require(door=="@choir" && wood.RestoredWood,"forest restoration failed in order "+order);
         }
         var pilgrimage = new BellwakeWorks { active=true, chamber=Array.FindIndex(plan.rooms,r=>r.early) };
         pilgrimage.Bind(plan);

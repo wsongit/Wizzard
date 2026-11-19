@@ -29,6 +29,12 @@ def asset(path):
     return base64.b64encode(payload).decode("ascii")
 
 
+def render_model(key):
+    name = key + ".glb"
+    stripped = assets / "render" / name
+    return asset(stripped if stripped.is_file() else assets / name)
+
+
 regions = json.loads((root / "Assets/Resources/Bellwake/Passages.json").read_text())[
     "regions"
 ]
@@ -65,7 +71,7 @@ data = dict(
         for p in (root / "Assets/Resources/Bellwake/Skies").glob("*.jpg")
     },
     models={
-        key: asset(assets / (key + ".glb"))
+        key: render_model(key)
         for key in rooms + ["LeftPalm", "RightPalm", "RunnerArm"]
     },
     sounds={

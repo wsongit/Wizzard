@@ -32,6 +32,22 @@ namespace Wizzard
         WorksStation observation;
         readonly Dictionary<string, AudioSource> forestVoices = new Dictionary<string, AudioSource>();
         AudioSource forestVoice;
+        struct GroveCell
+        {
+            public Renderer near, far;
+            public Bounds bounds;
+        }
+        readonly List<GroveCell> grove = new List<GroveCell>();
+        void SetGroveDetail(Vector3 eye)
+        {
+            foreach (var cell in grove)
+            {
+                bool near = cell.bounds.SqrDistance(eye) < (cell.near.enabled ? 15*15 : 11*11);
+                if (cell.near.enabled == near && cell.far.enabled != near) continue;
+                cell.near.enabled = near;
+                cell.far.enabled = !near;
+            }
+        }
         AudioClip[] beechStrikes;
         static readonly string[] BeechNotes = {"BeechHigh","BeechMiddle","BeechLow"};
         void StopObserving()
@@ -214,6 +230,7 @@ namespace Wizzard
             motionLeft=0;
             StopObserving();
             forestVoices.Clear();
+            grove.Clear();
             beechStrikes = null;
             uncoveredFind=null;
             handFork=null; pilotFlights=null; forkRang=-10f;
@@ -318,6 +335,13 @@ namespace Wizzard
                 }
                 foreach (var pair in nodes)
                 {
+                    if (!pair.Key.StartsWith("GroveNear")) continue;
+                    var near = pair.Value.GetComponent<Renderer>();
+                    var far = nodes[pair.Key.Replace("Near","Far")].GetComponent<Renderer>();
+                    grove.Add(new GroveCell {near=near,far=far,bounds=near.bounds});
+                }
+                foreach (var pair in nodes)
+                {
                     if (!pair.Key.StartsWith("Hit_")) continue;
                     var stationName = pair.Key.Substring(4);
                     var centre = pair.Value.position;
@@ -332,6 +356,7 @@ namespace Wizzard
                 dir.y = 0;
                 facing = Quaternion.LookRotation(dir);
                 spawn = Arrival();
+                SetGroveDetail(spawn);
                 if (InWorks && story.works.Room.early) PrepareGuide();
                 yield return panorama;
                 ApplyLook((Cubemap)panorama.asset);
@@ -689,6 +714,7 @@ namespace Wizzard
                     ShowBook();
                 }
             }
+            if (grove.Count>0) SetGroveDetail(player.head.position);
             if (handFork!=null) PoseFork();
             if (journalOpen)
             {
@@ -705,7 +731,8 @@ namespace Wizzard
                     if (journalPage == 8 && !story.works.Remembered(worksPlan, "parishSigned")) journalPage++;
                     if (journalPage == 9 && story.works.Signal("pilotNo")!=3) journalPage++;
                     if (journalPage == 10 && story.works.Signal("glassProof")!=3) journalPage++;
-                    if (journalPage > 11 || (journalPage == 11 && story.works.Signal("dawnStep")!=10))
+                    if (journalPage == 11 && story.works.Signal("dawnStep")!=10) journalPage++;
+                    if (journalPage > 12 || (journalPage == 12 && !story.works.RestoredWood))
                         journalPage = -1;
                     ShowBook();
                 }
@@ -744,7 +771,16 @@ namespace Wizzard
                 Save();
                 Say("The hollow toll", line, 5);
             }
-            if (now >= messageUntil)
+            if (observation != null && !string.IsNullOrEmpty(observation.call))
+            {
+                string hint=ListeningHint();
+                if (lastHint!=hint)
+                {
+                    display.Say(observation.label,hint);
+                    lastHint=hint;
+                }
+            }
+            else if (now >= messageUntil)
             {
                 bool fighting = story.room == 4 && story.challenged && !story.Solved;
                 string id = focus ?? (fighting ? "toll" : "idle");
@@ -944,6 +980,11 @@ namespace Wizzard
                                 SurveyPosition(nodes[station.sight].position),station.call);
                 }
             }
+            else if (journalPage == 12)
+            {
+                display.Say("Linn’s school linen",worksPlan.woodEntry);
+                OpenBookPrint("RowanLinen");
+            }
             else if (journalPage == 11)
                 display.Say("Ina’s kitchen song",worksPlan.dawnEntry);
             else if (journalPage == 10)
@@ -972,6 +1013,12 @@ namespace Wizzard
             Vector3 source = nodes[observation.sight].position - player.head.position;
             return Vector3.SignedAngle(Vector3.ProjectOnPlane(player.head.forward, Vector3.up),
                 Vector3.ProjectOnPlane(source, Vector3.up), Vector3.up);
+        }
+        string ListeningHint()
+        {
+            float angle = ListeningAngle();
+            if (Mathf.Abs(angle)<14) return "The call is straight ahead. Use the trigger or E to record it.";
+            return angle>0 ? "Turn right toward the call." : "Turn left toward the call.";
         }
         bool BearingClear()
         {
@@ -1247,7 +1294,7 @@ namespace Wizzard
                     if (!BearingClear())
                     {
                         Say(title,string.IsNullOrEmpty(station.call) ? "The mark is outside the sight. "+station.direction :
-                            ListeningAngle()>0 ? "The call is to your right." : "The call is to your left.");
+                            ListeningHint());
                         return;
                     }
                     StopObserving();

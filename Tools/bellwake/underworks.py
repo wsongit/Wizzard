@@ -995,6 +995,7 @@ if __name__ == "__main__":
                             "Tide, Leaf, Ember. One knock from the landing meant I made it home."],
                 dawnEnding=["At first light Tavi winds the music box. Three knocks answer from every house on the hill.",
                             "At breakfast Ina drums three notes on the kitchen door. Tavi knows them before she turns."],
+                woodEntry="Linn’s school linen. Ina put her thumb through the survey as a child. Linn darned it in red. The three instruments sing again, and her kitchen door is on the latch.",
                 pressEntry="Ossa’s contact sheet. Pella crossed with the cradle. The water rose beyond the school ladder. Ina held the gate with her left hand.",
                 pilotMail="Ash’s reed tube holds a charcoal drawing of Tavi. The short fringe and the little nick in her eyebrow are unmistakable. Ina drew it during the flood.",
                 pilotEndings=[

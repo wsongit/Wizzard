@@ -270,7 +270,7 @@ def finish(key, sky_key=None):
     for group, objs in batches.items():
         hidden = (
             group in ("C_Solids", "HushWave", "Roster", "Ina", "NightRoll", "RoadBook", "GateLight")
-            or group.startswith(("Choice", "Call", "Flow", "Stray"))
+            or group.startswith(("Choice", "Call", "Flow", "Stray", "GroveFar"))
             or group in ("Ray1", "Ray2", "Ray3")
         )
         for o in objs:
@@ -325,10 +325,14 @@ def export(key):
     )
     review = ROOT / "Tools/bellwake/.web-assets"
     review.mkdir(exist_ok=True)
-    bpy.ops.export_scene.gltf(
-        filepath=str(review / (key + ".glb")),
-        export_format="GLB",
-        export_animations=False,
-        export_cameras=False,
-        export_lights=False,
-    )
+    gltf = dict(export_format="GLB", export_animations=False, export_cameras=False, export_lights=False)
+    bpy.ops.export_scene.gltf(filepath=str(review / (key + ".glb")), **gltf)
+    render_file = review / "render" / (key + ".glb")
+    if any(group.startswith("GroveNear") for group in batches):
+        # The browser uses the packed collision tree. Ship the grove only once as visible geometry.
+        render_file.parent.mkdir(exist_ok=True)
+        bpy.data.objects.remove(bpy.data.objects["C_Solids"], do_unlink=True)
+        bpy.context.collection.objects.link(bpy.data.objects.new("C_Solids", None))
+        bpy.ops.export_scene.gltf(filepath=str(render_file), **gltf)
+    else:
+        render_file.unlink(missing_ok=True)

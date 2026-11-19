@@ -8,7 +8,7 @@
     "stations": 18,
     "minApproaches": 64,
     "triangles": 38534,
-    "visibleMaterialSlots": 50
+    "visibleMaterialSlots": 60
   },
   "collision": {
     "room": "RowanHollow",
@@ -28,9 +28,10 @@
   "chapterPlaytest": {
     "bearings": 6,
     "voices": 3,
+    "differentGroveViews": 12,
     "savedAndResumed": true,
     "testedWrongBearings": true,
-    "activeSeconds": 135.0444999999991
+    "activeSeconds": 155.56049999999922
   },
   "native": {
     "unityAssemblies": "2022.3.20f1",
@@ -42,7 +43,8 @@
     "Spatial call from the Rain West horn",
     "Head rotation aligned bearing",
     "Recorded direction and opened linen map",
-    "Short, middle, long, short on alternating palms"
+    "Short, middle, long, short on alternating palms",
+    "Opened Linn\u2019s school linen with the controller in Root Choir and released the page on close"
   ],
   "streaming": {
     "transfers": 15,
@@ -53,26 +55,132 @@
     "musicPlayers": 1,
     "previousWorldsRetained": 0,
     "revisitGPU": {
-      "geometries": 26,
-      "textures": 26,
+      "geometries": 30,
+      "textures": 25,
       "programs": 5
     },
-    "compressedModelBytes": 1758194
+    "compressedModelBytes": 2060621
   },
   "isolatedFrameSample": {
-    "renderer": "Chromium SwiftShader",
-    "samples": [
-      {
-        "district": "RowanHollow",
-        "samples": 90,
-        "scale": 0.5120000000000001,
-        "medianMs": 33.399999999999636,
-        "p95Ms": 99.89999999999964,
-        "calls": 28,
-        "triangles": 38254
-      }
-    ]
+    "renderer": "Chromium SwiftShader at 768 x 432",
+    "before": {
+      "district": "RowanHollow",
+      "samples": 90,
+      "scale": 0.5120000000000001,
+      "medianMs": 33.399999999999636,
+      "p95Ms": 100,
+      "calls": 28,
+      "triangles": 38254
+    },
+    "after": {
+      "district": "RowanHollow",
+      "samples": 90,
+      "scale": 0.5120000000000001,
+      "medianMs": 33.30000000000109,
+      "p95Ms": 83.39999999999964,
+      "calls": 24,
+      "triangles": 20671
+    }
   },
   "standaloneHTML": "Loaded one release HTML over loopback, blocked all other HTTP requests, opened the map with the fallback decompressor.",
-  "hardware": "No physical Quest frame-time or comfort measurement."
+  "hardware": "No physical Quest frame-time or comfort measurement.",
+  "groveDetail": {
+    "cells": 12,
+    "collisionSHA256": "7e9dd0626b13b0ca70399e294964d9fa290e7fa42f0ae3ebcfa806e25afd14be",
+    "method": "Eight fixed headings, same position, full trees versus the paired meshes. Counts include the rest of the scene.",
+    "headings": {
+      "before": [
+        {
+          "yaw": 0,
+          "triangles": 37966,
+          "calls": 26
+        },
+        {
+          "yaw": 0.784,
+          "triangles": 38332,
+          "calls": 29
+        },
+        {
+          "yaw": 1.5715,
+          "triangles": 38236,
+          "calls": 26
+        },
+        {
+          "yaw": 2.3555,
+          "triangles": 37126,
+          "calls": 14
+        },
+        {
+          "yaw": 3.1430000000000002,
+          "triangles": 36558,
+          "calls": 22
+        },
+        {
+          "yaw": 3.9270000000000005,
+          "triangles": 36558,
+          "calls": 22
+        },
+        {
+          "yaw": 4.711,
+          "triangles": 36072,
+          "calls": 14
+        },
+        {
+          "yaw": 5.4985,
+          "triangles": 37128,
+          "calls": 15
+        }
+      ],
+      "after": [
+        {
+          "yaw": 0,
+          "triangles": 20807,
+          "calls": 30
+        },
+        {
+          "yaw": 0.784,
+          "triangles": 23524,
+          "calls": 34
+        },
+        {
+          "yaw": 1.5715,
+          "triangles": 22872,
+          "calls": 29
+        },
+        {
+          "yaw": 2.3555,
+          "triangles": 21351,
+          "calls": 16
+        },
+        {
+          "yaw": 3.1430000000000002,
+          "triangles": 21063,
+          "calls": 24
+        },
+        {
+          "yaw": 3.9270000000000005,
+          "triangles": 20918,
+          "calls": 24
+        },
+        {
+          "yaw": 4.711,
+          "triangles": 19070,
+          "calls": 18
+        },
+        {
+          "yaw": 5.4985,
+          "triangles": 22316,
+          "calls": 21
+        }
+      ]
+    },
+    "averageTriangles": {
+      "before": 37247,
+      "after": 21490.125
+    },
+    "averageDrawCalls": {
+      "before": 21,
+      "after": 24.5
+    }
+  }
 }

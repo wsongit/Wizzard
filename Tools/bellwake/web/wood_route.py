@@ -4,8 +4,15 @@ import json
 
 
 async def restore_wood(act, page, start, out, extended=False):
+    grove_views = set()
+
     async def use(name):
-        return await act("A_" + name)
+        sample = await act("A_" + name)
+        if sample["district"] == "RowanHollow":
+            cells = sample["grove"]
+            assert len(cells) == 12 and all(near != far for near, far in cells), name
+            grove_views.add(tuple(near for near, far in cells))
+        return sample
 
     async def face(angle):
         await page.evaluate(
@@ -83,12 +90,23 @@ async def restore_wood(act, page, start, out, extended=False):
     assert s["works"]["signals"]["wrenMended"] == 1
     await book()
     end = await use("Gate")
-    assert end["district"] == "RootChoir" and end["forestAudio"] is None
+    assert (
+        end["district"] == "RootChoir"
+        and end["forestAudio"] is None
+        and end["grove"] == []
+    )
+    assert len(grove_views) >= 4, grove_views
+    await page.keyboard.press("j")
+    await page.wait_for_function(
+        "document.querySelector('#leaves img[data-illustration=RowanLinen]')?.naturalWidth===768"
+    )
+    await page.keyboard.press("j")
     (out / "rowan-hollow.json").write_text(
         json.dumps(
             dict(
                 bearings=6,
                 voices=3,
+                differentGroveViews=len(grove_views),
                 savedAndResumed=True,
                 testedWrongBearings=extended,
                 activeSeconds=end["secondsByPlace"]["RowanHollow"],
