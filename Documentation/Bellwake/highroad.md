@@ -15,3 +15,5 @@ In the forest image, broad olive patches remain visible underneath shorter brigh
 The earlier ROM inspection measured 839 static triangle instances in Kakariko room 0 and 1,639 in Hyrule Field room 0. The two rooms used 20 and 36 culling groups respectively. Kakariko includes 32 × 32, 64 × 32 and 16 × 64 tile settings. Those measurements guided the use of simple silhouettes with painted surface detail. The counts cover decoded room geometry. Actors are separate. [ROM measurements and scope](../oot-rom-study.md)
 
 At VR scale a player can lean close enough to see the underside of a fringe, scarf or apron. Tavi's swept locks now taper to solid tips. The first-person gloves use a faceted knuckle profile and pointed wrist fur. The topology pass preserves texture seams while checking for physical openings in articulated character parts.
+
+The walkthrough study includes a measured daylight foliage palette, front and profile character references, and seek times for the stair, bridge and waterline approaches. [Timestamped art study](ocarina-walkthrough-study.md)
