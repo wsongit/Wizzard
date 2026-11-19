@@ -1,6 +1,7 @@
 """Walk the five wards through the regular player controls, including a journal and shelter checkpoint."""
 
 import json
+from route_checkpoint import write_json
 
 TRAILS = {
     "QuinceFold": ["Knife", "Stock", "Scion", "Spring", "Mother"],
@@ -11,10 +12,14 @@ TRAILS = {
 }
 
 
-async def walk_wards(act, page, start, out, only=None):
-    report = {}
+async def walk_wards(act, page, start, out, only=None, enter=None):
+    path = out / "pilgrims-cut.json"
+    report = json.loads(path.read_text()) if enter and path.exists() else {}
+    state = None
     for name, stations in TRAILS.items():
         if only and only != name:
+            continue
+        if enter and not await enter(name):
             continue
         p = await page.evaluate("bellProbe()")
         assert p["district"] == name, p["district"]
@@ -57,6 +62,6 @@ async def walk_wards(act, page, start, out, only=None):
             "next": state["district"],
             "activeSeconds": state["secondsByPlace"][name],
         }
-        (out / "pilgrims-cut.json").write_text(json.dumps(report, indent=2) + "\n")
-    if not only:
+        write_json(path, report)
+    if not only and state is not None:
         assert state["district"] == "RowanHollow"

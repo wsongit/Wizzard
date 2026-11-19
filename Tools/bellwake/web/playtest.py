@@ -1,6 +1,6 @@
 """Play the instrumented offline bundle through ordinary keyboard and look events.
 Serve a --test build on loopback. The read-only probe exposes positions and counters.
-Usage: python playtest.py URL AUDIT_DIRECTORY RESULT_DIRECTORY
+Usage: python playtest.py URL AUDIT_DIRECTORY RESULT_DIRECTORY [--timed | --resume]
 """
 
 import asyncio, json, math, sys, os, heapq, time
@@ -8,6 +8,7 @@ from pathlib import Path
 from playwright.async_api import async_playwright
 from pilgrim_route import walk_wards, TRAILS
 from works_route import complete_works, complete_coast
+from route_checkpoint import RouteCheckpoint
 from wood_route import restore_wood, wood_walk_trip
 from quiet_route import morning_song
 from press_route import print_plates
@@ -149,6 +150,21 @@ async def run():
         parish_only = "--parish" in sys.argv
         lock_only="--swallow" in sys.argv
         wood_only="--wood" in sys.argv
+        timed = "--timed" in sys.argv or "--resume" in sys.argv
+        if timed and set(sys.argv[4:]) - {"--timed", "--resume", "--compact"}:
+            raise ValueError("Use a full fresh campaign for timed routes")
+        checkpoint = RouteCheckpoint(out, "--resume" in sys.argv) if timed else None
+        if checkpoint:
+            if checkpoint.entry and checkpoint.entry["stage"] == "Finished":
+                print("Timed route already completed; see known-route.json and playthrough.json.")
+                await b.close()
+                return
+            await checkpoint.restore(page)
+
+        async def enter(stage):
+            assert not errors, errors
+            return checkpoint is None or await checkpoint.enter(stage, page)
+
         if wood_only or song_only or press_only or pilots_only or lock_only or parish_only or target_post or glasscut_only or endings_only or works_only or coast_only or ward_only or engine_only or supper_only:
             saved = {"number": 13, "leaves": 7}
             if wood_only:
@@ -205,8 +221,8 @@ async def run():
                 + ");sessionStorage.fixture='1'}"
             )
         await start()
-        timed = "--timed" in sys.argv
-        run_start = time.monotonic()
+        if checkpoint:
+            checkpoint.started = time.monotonic()
 
         async def act(id):
             p = await page.evaluate("bellProbe()")
@@ -413,55 +429,69 @@ async def run():
             if glasscut_only:
                 await act("A_Gate")
             else:
-                await profile()
-                await perform(act,page,start,out)
-                await act("A_Letter")
-                await act("A_Gate")
-                await passage("Saltwake")
-                await walk_wards(act,page,start,out)
-                await restore_wood(act,page,start,out)
-                await profile()
-                await act("A_Talk")
-                await act("A_Key0")
-                await act("A_Key2")
-                await page.mouse.up()
-                await start()  # saved partial melody survives reload
-                await act("A_Key1")
-                await act("A_Key0")
-                await act("A_Letter")
-                await act("A_Gate")
-                await passage("RimePost")
-                await survey_parish(act,page,start,out)
-                await profile()
-                await act("A_Talk")
-                await act("A_Key1")
-                await act("A_Key0")
-                await act("A_Key2")
-                await act("A_Letter")
-                await act("A_Gate")
-            if (await page.evaluate("bellProbe().district"))=="SwallowLock":
+                if await enter("Market"):
+                    await profile()
+                    await perform(act,page,start,out)
+                    await act("A_Letter")
+                    await act("A_Gate")
+                if await enter("Saltwake"):
+                    await passage("Saltwake")
+                await walk_wards(act,page,start,out,enter=enter)
+                if await enter("RowanHollow"):
+                    await restore_wood(act,page,start,out)
+                if await enter("RootChoir"):
+                    await profile()
+                    await act("A_Talk")
+                    await act("A_Key0")
+                    await act("A_Key2")
+                    await page.mouse.up()
+                    await start()  # saved partial melody survives reload
+                    await act("A_Key1")
+                    await act("A_Key0")
+                    await act("A_Letter")
+                    await act("A_Gate")
+                if await enter("RimePost"):
+                    await passage("RimePost")
+                if await enter("Parish"):
+                    await survey_parish(act,page,start,out)
+                if await enter("Reedwater"):
+                    await profile()
+                    await act("A_Talk")
+                    await act("A_Key1")
+                    await act("A_Key0")
+                    await act("A_Key2")
+                    await act("A_Letter")
+                    await act("A_Gate")
+            if await enter("SwallowLock") and await page.evaluate("bellProbe().district") == "SwallowLock":
                 await run_lock(act,page,start,out)
-            await passage("Glasscut")
-            await profile()
-            await act("A_Talk")
-            await act("A_Key2")
-            await act("A_Key0")
-            await act("A_Key1")
-            await act("A_Lens")
-            await act("A_Letter")
-            await act("A_Gate")
-            await print_plates(act,page,start,out)
-            await lead_pilots(act,page,start,out)
-            await complete_works(act, page, start, out)
-            await profile()
-            await act("A_Letter")
-            await act("A_Talk")
-            for i in range(3):
-                await act("A_Key1")  # three misses must allow a clean retry
-            await act("A_Talk")
-            await act("A_Key0")
-            await act("A_Key2")
-            await act("A_Key1")
+            if await enter("Glasscut"):
+                await passage("Glasscut")
+            if await enter("CinderLens"):
+                await profile()
+                await act("A_Talk")
+                await act("A_Key2")
+                await act("A_Key0")
+                await act("A_Key1")
+                await act("A_Lens")
+                await act("A_Letter")
+                await act("A_Gate")
+            if await enter("Press"):
+                await print_plates(act,page,start,out)
+            if await enter("Pilots"):
+                await lead_pilots(act,page,start,out)
+            await complete_works(act, page, start, out, enter=enter)
+            if await enter("Keeper"):
+                await profile()
+                await act("A_Letter")
+                await act("A_Talk")
+                for i in range(3):
+                    await act("A_Key1")  # three misses must allow a clean retry
+                await act("A_Talk")
+                await act("A_Key0")
+                await act("A_Key2")
+                await act("A_Key1")
+        if not await enter("Endings"):
+            raise ValueError(f"Unknown checkpoint stage: {checkpoint.entry['stage']}")
         save = await page.evaluate(
             "localStorage.getItem('wizzard.bellwake.desktop.v1')"
         )
@@ -480,7 +510,7 @@ async def run():
                     {
                         "method": "Fresh save, normal movement, keyboard interaction and chart hints. Includes all 27 dispatches, five leaves, the optional night roll, checkpoint reloads and a keeper retry.",
                         "firstEnding": final["ending"],
-                        "elapsedSeconds": round(time.monotonic() - run_start, 2),
+                        "elapsedSeconds": round(checkpoint.elapsed, 2),
                         "activeSeconds": round(sum(durations.values()), 2),
                         "activeSecondsByPlace": {
                             place: round(seconds, 2)
@@ -552,6 +582,8 @@ async def run():
                 indent=2,
             )
         )
+        if checkpoint:
+            await enter("Finished")
         await b.close()
 
 

@@ -1,9 +1,10 @@
 """Normal-input route through all three trades; reuse it in the full campaign playthrough."""
 
 import json
+from route_checkpoint import write_json
 
 
-async def complete_works(act, page, start, out):
+async def complete_guilds(act, page, start):
     homes = []
 
     async def use(keys):
@@ -45,23 +46,31 @@ async def complete_works(act, page, start, out):
     await use("Score River Forge Sky River Forge Sky River Sky Listen")
     state = await use("Final")
     district(state, "Wrenfall")
-    state = await complete_coast(act, page, start, out)
+    return homes
+
+
+async def complete_works(act, page, start, out, enter=None):
     from engine_route import complete_engine
-    state = await complete_engine(act,page,start,out)
-    district(state, "StillBelfry")
-    assert state["works"] is None
-    (out / "underworks.json").write_text(
-        json.dumps(
-            {
-                "visits": homes,
-                "nightRollRestored": True,
-                "wetGaugeSurvivedReload": True,
-                "witnesses": ["reed", "yoke", "glass"],
-                "activeSeconds": state["secondsByPlace"],
-            },
-            indent=2,
-        )
-    )
+
+    report_path = out / "underworks.json"
+    if enter is None or await enter("Guilds"):
+        homes = await complete_guilds(act, page, start)
+        write_json(report_path, {
+            "visits": homes,
+            "nightRollRestored": True,
+            "wetGaugeSurvivedReload": True,
+            "witnesses": ["reed", "yoke", "glass"],
+        })
+    if enter is None or await enter("Wrenfall"):
+        await complete_coast(act, page, start, out)
+    if enter is None or await enter("Engine"):
+        state = await complete_engine(act, page, start, out)
+        assert state["district"] == "StillBelfry" and state["works"] is None
+        report = json.loads(report_path.read_text())
+        if report["visits"][-1] != "StillBelfry":
+            report["visits"].append("StillBelfry")
+        report["activeSeconds"] = state["secondsByPlace"]
+        write_json(report_path, report)
 
 
 async def complete_coast(act, page, start, out):

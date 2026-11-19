@@ -223,3 +223,16 @@ The native rule check exercised four actions at each of 10,414 puzzle positions.
 Use `Tools/bellwake/PassageCheck.cs` with `Assets/Scripts/BellwakePassage.cs` and Mono’s `System.Web.Extensions` reference to run the rule check. Pass `Assets/Resources/Bellwake` to its executable. The browser playthrough accepts `--last-post`, `--glasscut` and `--endings` to reproduce those crossings independently.
 
 The expanded eight-district travel check made 24 transitions in a single browser tab. Per-district GPU counts held steady across all three visits and the previous world, collision tree and panorama cleared on every trip. An emulated Quest 3 retained both tracked palms through six transfers. A physical Quest run is still needed for the 72 Hz frame budget.
+
+## Rowan Hollow and campaign checkpoint recovery
+
+The fresh-save browser run played from Bellmarket through Rowan Hollow, the three guilds and the launch at Wrenfall. A cloud restart interrupted the run there. Separate keyboard playtests crossed the reef, completed all three Countertide workshops, reached Still Belfry and played both endings. The Wrenfall test measured 27.66 metres of vessel travel. The Countertide test checked 157 station inputs and restored each machine after a page reload. The last completed full-route timing, from before Rowan Hollow was added, was 35 minutes 16 seconds of active play with known solutions.
+
+The timed runner now saves the earned browser state and elapsed time on disk at chapter entries. In a recovery test, a fresh character finished the paper play and Saltwake, then the test process was stopped at Quince Fold. A new browser restored the first witness leaf and completed the knife and stock stations in the orchard. To repeat the run, serve the instrumented build and use the navigation grids from the Blender audit. Keep the result directory on persistent storage. Use the same build, navigation grids and result directory when resuming.
+
+```sh
+python Tools/bellwake/web/playtest.py URL AUDIT_DIRECTORY RESULT_DIRECTORY --timed --compact
+python Tools/bellwake/web/playtest.py URL AUDIT_DIRECTORY RESULT_DIRECTORY --resume --compact
+```
+
+After an interruption, the runner replays the unfinished chapter. The elapsed time follows the saved route and excludes downtime and discarded attempts. The first ending produces `known-route.json`. The second ending and journal checks produce `playthrough.json`.
