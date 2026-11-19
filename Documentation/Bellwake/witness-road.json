@@ -54,5 +54,14 @@
   "endings": [
     1,
     2
-  ]
+  ],
+  "streaming": {
+    "renderer": "Chromium SwiftShader",
+    "transitions": 24,
+    "medianLoadIncludingThreeFramesMs": 225.5,
+    "maxTransitionFrameMs": 133,
+    "retiredWorldsAfterCollection": 0,
+    "samePerDistrictGPUCountsOnAllThreeVisits": true,
+    "emulatedQuestTransfers": 6
+  }
 }
