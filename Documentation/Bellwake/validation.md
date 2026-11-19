@@ -20,7 +20,7 @@ Three complete laps made 117 transfers through all 34 districts. One set, one co
 
 The optional Quest Browser timing report was exercised in an emulated 90 Hz session. The exported JSON included play intervals for Bellmarket, Drift Fen and the Glass Rookery, as well as both in-headset area loads. The emulator uses a cloud software renderer. Target frame time on a physical Quest is still unverified.
 
-A 768 × 432 desktop software-rendering pass warmed each of five districts for 90 frames and turned through a further 90. The 95th-percentile intervals were 216.6 ms in Bellmarket, 33.4 ms in PaperCourt, 50.1 ms in SwallowLock, 50.0 ms in DriftFen, 50.0 ms in GlassRookery. Adaptive rendering scale varied across the run. These cloud intervals exceed the 13.9 ms budget for a 72 Hz headset. [Frame samples and the measured rendering scale](field-frames.json)
+An isolated 768 × 432 desktop software-rendering pass warmed each of five districts for 90 frames and turned through a further 90. The 95th-percentile intervals were 66.6 ms in Bellmarket, 49.9 ms in the Paper Theatre, 50.1 ms at Swallow Stair, 50.1 ms in Drift Fen and 50.0 ms in the Glass Rookery. The adaptive render scale was 0.512 at each sample. These cloud intervals exceed the 13.9 ms budget for a 72 Hz headset. [Frame samples and renderer counts](field-frames.json)
 
 ## The Glass Rookery
 

@@ -4,44 +4,44 @@
     {
       "district": "Bellmarket",
       "samples": 90,
-      "scale": 0.5120000000000001,
-      "medianMs": 49.899999999999636,
-      "p95Ms": 216.60000000000218,
-      "calls": 27,
-      "triangles": 17073
+      "scale": 0.512,
+      "medianMs": 16.7,
+      "p95Ms": 66.6,
+      "calls": 17,
+      "triangles": 11070
     },
     {
       "district": "PaperCourt",
       "samples": 90,
-      "scale": 0.5620000000000002,
-      "medianMs": 16.700000000000728,
-      "p95Ms": 33.400000000001455,
+      "scale": 0.512,
+      "medianMs": 16.7,
+      "p95Ms": 49.9,
       "calls": 8,
       "triangles": 3698
     },
     {
       "district": "SwallowLock",
       "samples": 90,
-      "scale": 0.5,
-      "medianMs": 33.19999999999709,
-      "p95Ms": 50.10000000000218,
+      "scale": 0.512,
+      "medianMs": 16.8,
+      "p95Ms": 50.1,
       "calls": 15,
       "triangles": 16032
     },
     {
       "district": "DriftFen",
       "samples": 90,
-      "scale": 0.5,
-      "medianMs": 16.799999999995634,
-      "p95Ms": 50,
-      "calls": 23,
-      "triangles": 19726
+      "scale": 0.512,
+      "medianMs": 33.3,
+      "p95Ms": 50.1,
+      "calls": 25,
+      "triangles": 19866
     },
     {
       "district": "GlassRookery",
       "samples": 90,
-      "scale": 0.5,
-      "medianMs": 16.700000000004366,
+      "scale": 0.512,
+      "medianMs": 16.8,
       "p95Ms": 50,
       "calls": 17,
       "triangles": 12343
