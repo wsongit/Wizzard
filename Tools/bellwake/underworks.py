@@ -947,6 +947,9 @@ build_sillwater(room,post,step,v,machine,flags)
 from swallow_lock import add as add_stairlock
 add_stairlock(room,post,step,v,machine,flags)
 
+from drift_fen import add as add_drift_fen
+add_drift_fen(rooms,room,post,step,flags)
+
 for descriptor in rooms:
     for station in descriptor["stations"]:
         station["note"] = {

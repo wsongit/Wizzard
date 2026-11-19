@@ -248,6 +248,33 @@ async def packet_checkpoint(browser):
     print("PASS Quest packet desk, northeast landing and return to Tavi’s first morning",flush=True)
 
 
+async def fen_checkpoint(browser):
+    plan=json.loads((here.parents[2]/"Assets/Resources/Bellwake/Underworks.json").read_text())
+    flag=plan["flags"].index("fenFork")
+    words=[0]*((len(plan["flags"])-1)//30)
+    words[flag//30-1]=1<<(flag%30)
+    save={"number":13,"works":{"active":True,"chamber":next(i for i,r in enumerate(plan["rooms"]) if r["key"]=="DriftFen"),"camp":"RestFind1","furtherBadges":words}}
+    page=await browser.new_page(viewport={"width":630,"height":380})
+    errors=[]
+    page.on("pageerror",lambda e:errors.append(str(e)))
+    await page.add_init_script(script=harness)
+    await page.add_init_script("localStorage.setItem('wizzard.bellwake.desktop.v1',"+json.dumps(json.dumps(save))+")")
+    await page.goto(sys.argv[1]);await page.click("#vr",timeout=60000)
+    await page.wait_for_function("bellProbe().vr && bellProbe().district==='DriftFen' && bellProbe().palms.every(Boolean)")
+    await tracked_navigation(page)
+    await page.wait_for_function("bellProbe().handFork!==null")
+    await page.evaluate("testDevice.controllers.left.connected=false")
+    await page.wait_for_function("bellProbe().handFork===null")
+    await page.evaluate("testDevice.controllers.left.connected=true")
+    await page.wait_for_function("bellProbe().handFork!==null")
+    await page.evaluate("testDevice.controllers.left.updateButtonValue('squeeze',1)")
+    await page.wait_for_function("bellProbe().uncovered==='A_Find1'")
+    await page.evaluate("testDevice.controllers.left.updateButtonValue('squeeze',0)")
+    await trigger_station(page,"Find1","bellProbe().works.signals.bagRecovered===1 && !bellProbe().uncovered")
+    assert not errors,errors
+    await page.evaluate("testDevice.activeSession.end()");await page.close()
+    print("PASS left grip revealed Pella’s hidden brass clasp and right trigger recovered it",flush=True)
+
 async def swallow_checkpoint(browser):
     plan=json.loads((here.parents[2]/"Assets/Resources/Bellwake/Underworks.json").read_text())
     index=plan["flags"].index("fenWatch")
@@ -328,6 +355,10 @@ async def run():
                 "--enable-unsafe-swiftshader",
             ],
         )
+        if "--fen" in sys.argv:
+            await fen_checkpoint(b)
+            await b.close()
+            return
         if "--swallow" in sys.argv:
             await swallow_checkpoint(b)
             await b.close()

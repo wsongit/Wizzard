@@ -220,6 +220,7 @@ async function loadModel(key) {
   return (await loader.parseAsync(await loadPackedAsset(data.models[key]), "")).scene;
 }
 function bytes(encoded) {
+  if (Uint8Array.fromBase64) return Uint8Array.fromBase64(encoded).buffer;
   let b = atob(encoded),
     array = new Uint8Array(b.length);
   for (let i = 0; i < b.length; i++) array[i] = b.charCodeAt(i);
@@ -363,8 +364,11 @@ async function loadRoom() {
   movingTrail = null;
   roadPage = 0;
   fixtures = [];
+  motionLeft = 0;
   observation = null;
   surveyImage = null;
+  uncoveredFind = null;
+  forkRang = -Infinity;
   guide = null;
   passage.book = null;
   nodes = {};
@@ -520,10 +524,12 @@ function chartPoint(out, tile) {
 const railAxis = new T.Vector3(),
   railPoint = new T.Vector3(),
   drumAngles = [0, 0, 0];
+let motionLeft = 0, fixturePasses = 0;
 let fixtures = [],
   observation = null,
   voyageFraction = 0;
 function animateWorks(mix, dt = 0) {
+  if (__TEST__) fixturePasses++;
   for (const fixture of fixtures) {
     const { v, obj, pos, rot } = fixture;
     const n = works.signals[v.signal];
@@ -563,9 +569,18 @@ function animateWorks(mix, dt = 0) {
     }
   }
 }
+function wakeMachinery() {
+  motionLeft = fixtures.length ? 1.65 : 0;
+  for (const f of fixtures) {
+    if (f.v.kind === "voyage")
+      motionLeft = Math.max(motionLeft, Math.abs(works.signals[f.v.signal]-(f.fraction||0))*f.v.amount+.1);
+  }
+}
 function sync() {
   if (works.active) {
+    wakeMachinery();
     animateWorks(0);
+    syncFinds();
     return;
   }
   if (passage.active) {
@@ -631,6 +646,7 @@ async function interact(id, palm = -1) {
   }
   if (works.active) {
     const station = works.station(id);
+    if (station.search && (station.id !== uncoveredFind || works.signals[station.evidence])) return;
     cancelRehearsal();
     if (id === "A_Book" && nodes.Linnet && works.signals.landed && voyageFraction < 1) {
       say(
@@ -913,8 +929,60 @@ function move(dt) {
     resetFeet();
   updateCamera();
 }
+let uncoveredFind = null, forkRang = -Infinity;
+const forkOffset = new T.Vector3();
+function poseFork(time) {
+  const tool = nodes.HandFork;
+  if (!tool) return;
+  const vrMode = !!vr.session;
+  tool.visible = !!works.signals.fenFork && started && !book && (!vrMode || (vr.ready && vr.hands[0].valid));
+  nodes.BenchFork.visible = !works.signals.fenFork;
+  if (!tool.visible) return;
+  const anchor = vrMode ? vr.palms[0] : camera;
+  tool.quaternion.copy(anchor.quaternion);
+  forkOffset.set(...(vrMode ? vrForkPosition : desktopForkPosition)).applyQuaternion(anchor.quaternion);
+  tool.position.copy(anchor.position).add(forkOffset);
+  tool.scale.setScalar(.49);
+  tool.rotateX(vrMode ? -.46 : -.53);
+  const age = (time-forkRang)*.001;
+  if (age>=0 && age<.85) tool.rotateZ(.11*Math.exp(-age*5)*Math.sin(age*49));
+}
+const desktopForkPosition = [-.23,-.32,-.47], vrForkPosition = [0,.018,-.045];
+const relativeBearings = ["ahead", "ahead to your right", "to your right", "behind you to the right", "behind you", "behind you to the left", "to your left", "ahead to your left"];
+function syncFinds() {
+  for (const s of works.room.stations) {
+    if (!s.search) continue;
+    const shown = uncoveredFind === s.id && !works.signals[s.evidence];
+    nodes[s.search].visible = shown;
+    nodes[s.id].visible = shown;
+  }
+}
+function soundFork() {
+  const title = "Willa’s sounding fork";
+  if (!works.signals.fenFork) { say(title, "Willa has the fork at the ferry."); return; }
+  forkRang = performance.now();
+  const origin = vr.session ? vr.head : camera.position;
+  let nearest = Infinity, match = null;
+  for (const s of works.room.stations) {
+    if (!s.search || works.signals[s.evidence]) continue;
+    const d = origin.distanceTo(nodes[s.id].position);
+    if (d < nearest) { nearest = d; match = s; }
+  }
+  if (!match) { say(title, "Four loads marked. Only the wind answers now."); return; }
+  const target = nodes[match.id].position;
+  uncoveredFind = nearest <= 3.35 && Math.abs(target.y-origin.y)<2.4 ? match.id : null;
+  syncFinds();
+  tone(uncoveredFind ? 2 : nearest < 13 ? 1 : 0);
+  if (uncoveredFind) { say(title,"The ground rings clear. Look down and lift the "+match.label.toLowerCase()+"."); return; }
+  const f = vr.session ? vr.direction : camera.getWorldDirection(forward);
+  const x = target.x-origin.x, z = target.z-origin.z;
+  const sector = (Math.round(Math.atan2(-f.z*x+f.x*z,f.x*x+f.z*z)*4/Math.PI)+8)%8;
+  say(title,(nearest<13?"A strong reply ":nearest<32?"A soft reply ":"A distant reply ")+relativeBearings[sector]+". Ring again after moving.",6);
+}
 function callGuide() {
-  if (!guide || book || busy) return;
+  if (!started || book || busy) return;
+  if (works.active && works.room.key === "DriftFen") { soundFork(); return; }
+  if (!guide) return;
   const origin = nodes.MapSW.position,
     east = nodes.MapSE.position,
     north = nodes.MapNW.position;
@@ -1156,6 +1224,7 @@ function loop(time, frame) {
   }
   if (!group) return;
   if (vr.session) vr.update(frame, delta, book);
+  if (nodes.HandFork) poseFork(time);
   if (instruments.targets.length) {
     for (let i = 0; i < 2; i++) {
       const point = vr.ready && !book && vr.hands[i].valid ? vr.palms[i].position : null;
@@ -1194,7 +1263,10 @@ function loop(time, frame) {
     if (nodes.GreatBell) nodes.GreatBell.rotation.z = Math.sin(time * 0.0018) * (fight ? 0.12 : 0.017);
   }
   if (guide?.body.visible && !book) flyGuide(delta, time / 1000);
-  if (works.active) animateWorks(1 - Math.exp(-delta * 8), delta);
+  if (works.active && motionLeft > 0) {
+    motionLeft = Math.max(0, motionLeft-delta);
+    animateWorks(motionLeft === 0 ? 1 : 1-Math.exp(-delta*8), delta);
+  }
   if (passage.active && movingTrail) {
     const t = Math.max(0, (time - trailTime) / 90),
       leg = Math.floor(t);
@@ -1289,6 +1361,9 @@ if (__TEST__)
       : null,
     guide: guide?.body.visible ? { cells: guide.cells, pos: guide.body.position.toArray() } : null,
     vrMap: !!vr.mapMode,
+    fixturePasses, motionLeft,
+    handFork: nodes.HandFork?.visible ? nodes.HandFork.position.toArray() : null,
+    uncovered: uncoveredFind && nodes[uncoveredFind]?.visible ? uncoveredFind : null,
     machinery: Object.fromEntries(
       fixtures
         .filter((f) => f.v.kind === "slide" || f.v.node === "Drum" || f.v.node === "Heddle0")

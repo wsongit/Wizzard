@@ -1,0 +1,36 @@
+{
+  "geometry": [
+    {
+      "asset": "DriftFen",
+      "groundProbes": 48841,
+      "boundaryRays": 8900,
+      "interiorCrossings": 0,
+      "walkableCells": 44473,
+      "stations": 11,
+      "minApproaches": 64,
+      "triangles": 19912,
+      "visibleMaterialSlots": 37
+    },
+    {
+      "asset": "SwallowLock",
+      "groundProbes": 5929,
+      "boundaryRays": 3140,
+      "interiorCrossings": 0,
+      "walkableCells": 4603,
+      "stations": 13,
+      "minApproaches": 61,
+      "triangles": 17894,
+      "visibleMaterialSlots": 58
+    }
+  ],
+  "measuredTravel": {
+    "transfers": 21,
+    "retiredAliveMax": 0,
+    "musicPlayersMax": 1,
+    "scenesMax": 1,
+    "collisionTreesMax": 1,
+    "returnedGpuCountsMatched": true
+  },
+  "controller": "Meta Quest 3 emulation in Chromium",
+  "native": "Unity 2022.3.20f1 runtime, editor and development assemblies compiled. Physical headset testing pending."
+}

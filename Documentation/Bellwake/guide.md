@@ -24,7 +24,7 @@ The market, Root Choir, Reedwater, Cinder Lens and belfry each hold a witness le
 
 The witness book shows active playtime. Loading, the open journal and unfocused play are excluded. The clock starts with this update for existing checkpoints. Players already past a new district retain their place in the story.
 
-A fresh desktop run through all thirty required areas reached its first ending in 32 minutes 36 seconds of active play. The runner already knew the routes and puzzle solutions. The target is roughly 25–30 hours for a first-time main-story playthrough. That duration remains unverified. [Playthrough details](validation.md)
+A desktop run of the earlier, thirty-area campaign reached its first ending in 32 minutes 36 seconds of active play. The runner already knew the routes and puzzle solutions. The target is roughly 25–30 hours for a first-time main-story playthrough. That duration remains unverified. [Playthrough details](validation.md)
 
 ## Tavi’s Paper Theatre
 
@@ -101,7 +101,7 @@ Crouching makes the ground easier to reach with the palms. The journal pauses th
 
 ## Direct browser play
 
-Double-click `Play/Bellwake.html` in the downloaded project or extract the standalone play ZIP and open its HTML file. Geometry, textures, music and the JavaScript player are embedded. The browser edition contains all twenty-eight campaign areas. The large meadow and Mossbell Village are accessible through the Unity edition.
+Double-click `Play/Bellwake.html` in the downloaded project or extract the standalone play ZIP and open its HTML file. Geometry, textures, music and the JavaScript player are embedded. The browser edition includes the entire Bellwake campaign and the optional harbour kitchen. The large meadow and Mossbell Village are accessible through the Unity edition.
 
 For Quest Browser, serve the entire `Play` directory over HTTPS and open `index.html` for on-demand chapter downloads and choose **Enter VR**. With a USB-connected developer-mode Quest, a local alternative uses Python and Android platform tools on the PC. From the repository root, run these in separate terminals.
 
@@ -148,3 +148,11 @@ The browser uses Three.js under the MIT license, included in the HTML. Meta’s 
 After solving Reedwater’s three sluices, go through its arch and take the watch from Fen. Read the sailing chit for the prevailing tides, the designated crane and its loading mark. Open the headwater feed to raise the fore chamber. The bucket chain transfers one mark from fore to aft. The tail sluice drains the aft chamber. A gate lifts when the water on both sides matches. Haul the boat one reach east or west at a time, use the crane, then stamp the receipt at the opposite landing. All four jobs share the same water and boat. On the fourth crossing, the night-watch tin reveals Ina’s slip. File it by name or by her swallow mark before leaving for Glasscut.
 
 ![The school organ aboard the Swallow, the two operating boards and the lock from the towpath](swallow-stair.jpg)
+
+## Drift Fen
+
+Fen’s western footpath leads to the damaged settlements along Alder Stream. Willa keeps the sounding fork at the ferry. Ring it with Q on desktop or the left grip in VR. Its pitch and Willa’s bearing tell you when to turn and when you are close. Once the fork gives a clear reply, look down and lift the uncovered object with E or a trigger. The field sheet in your journal marks both fords and all four settlements.
+
+You can recover the metal pieces in any order. At the school, read the names behind the missing bass reed. At the old bakehouse, look for Brindle’s tally. Pella’s clasp and the watchman’s key lead to the two remaining loads. Each discovery survives leaving the fen, closing the game or returning to the lock. The heavy cargo travels by crane.
+
+![Penny School, Pella’s ward, the signal tower and Brindle’s bakery in the playable floodplain](drift-fen.jpg)

@@ -413,7 +413,7 @@ def make(lib):
         if id == "Fen":
             canopy(x, y + 0.18, z)
             model("WZ_SWA_N01", "Fen in the lock coat", x, y, z, 1.75, 12, "Speaker")
-        elif id == "Gate":
+        elif id in ("Gate","FenRoad"):
             arch(x, y, z, 2.75, 3.3, "HarbourBrick", OAK)
         elif id == "Sheet":
             for dx in (-1.40, 1.40):
@@ -466,7 +466,7 @@ def make(lib):
                         "PaperBills",
                         "Slip",
                     )
-        if id not in ("Fen", "Gate"):
+        if id not in ("Fen", "Gate", "FenRoad"):
             block("Sign backing", (x, y - 0.26, z + 0.72), (1.46, 0.14, 0.36), OAK)
             mount(s, 0, r, j, lambda _, xx, yy: bank(xx, yy))
         marker(s["id"], x, y - 0.52, z + 1.38)

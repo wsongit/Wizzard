@@ -21,10 +21,39 @@ async def run_lock(act, page, start, out, extended=False):
     state = await page.evaluate("bellProbe()")
     assert state["district"] == "SwallowLock", state["district"]
     assert (await use("Gate"))["district"] == "SwallowLock"
+    if extended:
+        await page.wait_for_function("bellProbe().motionLeft===0")
+        before = await page.evaluate("bellProbe().fixturePasses")
+        await page.evaluate("async()=>{for(let i=0;i<40;i++)await new Promise(requestAnimationFrame)}")
+        assert await page.evaluate("bellProbe().fixturePasses") == before
     await use("Fen")
     state = await use("Hook")
     assert not state["works"]["signals"]["aboard"]
     state = await use("Sign")
+    assert (await use("FenRoad"))["district"] == "DriftFen"
+    await page.keyboard.press("q")
+    assert await page.evaluate("!bellProbe().uncovered && !bellProbe().works.signals.fenFork")
+    await use("Guide")
+    await page.keyboard.press("q")
+    assert await page.evaluate(
+        "!bellProbe().uncovered && document.getElementById('speech').textContent.includes('reply')"
+    )
+    await page.keyboard.press("j")
+    await page.wait_for_function("!document.getElementById('survey').hidden")
+    await page.keyboard.press("j")
+    finds = ("organRecovered", "watchRecovered", "flourRecovered", "bagRecovered")
+    for n, flag in zip((2, 3, 0, 1), finds):
+        await use("Story" + str(n))
+        state = await use("Find" + str(n))
+        assert state["works"]["signals"][flag] and not state["uncovered"]
+        if n == 3:
+            await page.mouse.up()
+            await start()
+            assert (await page.evaluate("bellProbe()"))["works"] == state["works"]
+    await page.keyboard.press("q")
+    assert await page.evaluate("document.getElementById('speech').textContent.includes('Only the wind')")
+    state = await use("Home")
+    assert state["district"] == "SwallowLock" and all(state["works"]["signals"][f] for f in finds)
     receipts = []
 
     async def ship_position(state):
@@ -78,6 +107,8 @@ async def run_lock(act, page, start, out, extended=False):
         json.dumps(
             {
                 "crossings": 4,
+                "salvaged": list(finds),
+                "fenActiveSeconds": state["secondsByPlace"]["DriftFen"],
                 "operationsPerCrossing": receipts,
                 "knownRouteActiveSeconds": state["secondsByPlace"]["SwallowLock"],
                 "choicesTested": 2 if extended else 1,

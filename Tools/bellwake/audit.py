@@ -233,6 +233,8 @@ def main(key):
     )
 
 
-report = [main(p.stem) for p in sorted((RES / "Rooms").glob("*.fbx"))]
+selection = sys.argv[sys.argv.index("--")+2:]
+keys = selection or [p.stem for p in sorted((RES / "Rooms").glob("*.fbx"))]
+report = [main(key) for key in keys]
 (out / "summary.json").write_text(json.dumps(report, indent=2))
 print(json.dumps(report, indent=2))

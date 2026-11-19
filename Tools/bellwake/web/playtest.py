@@ -93,6 +93,10 @@ drive = """async ({points,id})=>{
  aim(x,z);await frame();}}
  }finally{key('keyup','KeyW');key('keyup','ShiftLeft');}
  let p=bellProbe(),m=p.markers[id];aim(m[0],m[2],m[1]);
+ if(p.district==="DriftFen" && id.startsWith("A_Find")){
+   key("keydown","KeyQ");key("keyup","KeyQ");await frame();
+   if(bellProbe().uncovered!==id)throw Error("Fork failed at "+id);
+ }
  for(let i=0;i<60;i++){await frame();p=bellProbe();if(p.focus===id){key('keydown','KeyE');key('keyup','KeyE');return;}}
  throw Error('Focus mismatch '+id+' '+JSON.stringify(p));
 }"""
@@ -109,7 +113,8 @@ async def run():
                 "--ignore-gpu-blocklist",
             ],
         )
-        page = await b.new_page(viewport={"width": 768, "height": 432})
+        viewport={"width":384,"height":216} if "--compact" in sys.argv else {"width":768,"height":432}
+        page = await b.new_page(viewport=viewport)
         page.on("pageerror", lambda e: errors.append(str(e)))
         page.on(
             "console", lambda m: errors.append(m.text) if m.type == "error" else None
@@ -414,7 +419,7 @@ async def run():
         assert final["ending"] == 1 and final["leaves"] == 31
         if timed:
             durations = final["secondsByPlace"]
-            assert len(durations) == 31, durations
+            assert len(durations) == 32, durations
             (out / "known-route.json").write_text(
                 json.dumps(
                     {

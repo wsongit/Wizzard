@@ -162,6 +162,13 @@ class WorksCheck
             Require(string.IsNullOrEmpty(next),"premature lock departure");
             Run(lockWatch,"Fen West Hook Sign");
             Require(lockWatch.Signal("voyageNo")==0 && lockWatch.Signal("aboard")==0,"unearned cargo");
+            Run(lockWatch,"FenRoad Find0");
+            Require(lockWatch.Room.key=="DriftFen" && lockWatch.Signal("flourRecovered")==0,"unearned sounding fork");
+            Run(lockWatch,"Guide Find2 Find0");
+            lockWatch=Reload(plan,lockWatch);
+            Require(lockWatch.Signal("organRecovered")==1 && lockWatch.camp=="RestFind0","lost salvage checkpoint");
+            Run(lockWatch,"Find3 Find1 Home");
+            Require(lockWatch.Room.key=="SwallowLock" && lockWatch.camp=="RestFenRoad","lost return towpath");
             lockWatch=SolveGallery(plan,lockWatch,"stairlock");
             Run(lockWatch,filing=="Name"?"Name Mark":"Mark Name");
             lockWatch=Reload(plan,lockWatch);

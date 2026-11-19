@@ -23,7 +23,7 @@ namespace Wizzard
         PassageAtlas atlas;
         WorksPlan worksPlan;
         WorksStation observation;
-        float voyageFraction;
+        float voyageFraction, motionLeft;
         bool InWorks => story.works!=null && story.works.active;
         WorksVisual[] fixtures=Array.Empty<WorksVisual>();
         Vector3[] fixtureLocations;
@@ -193,7 +193,10 @@ namespace Wizzard
             flight.Clear();
             display.ClearSurvey();
             fixtures=Array.Empty<WorksVisual>();
+            motionLeft=0;
             observation=null;
+            uncoveredFind=null;
+            handFork=null; forkRang=-10f;
             roadPage=0;
             movingTrail = null;
             focus = lastHint = null;
@@ -300,6 +303,7 @@ namespace Wizzard
                 if(InWorks)
                 {
                     fixtures=story.works.Room.visuals;
+                    if (nodes.TryGetValue("HandFork",out handFork)) handFork.localScale *= .49f;
                     if (nodes.TryGetValue("RailStart",out var railStart))
                         railAxis=(nodes["RailEnd"].position-railStart.position).normalized;
                     fixtureLocations=Array.ConvertAll(fixtures,v=>nodes[v.node].position);
@@ -489,7 +493,14 @@ namespace Wizzard
         }
         void Sync()
         {
-            if(InWorks) { AnimateWorks(false); return; }
+            if(InWorks)
+            {
+                motionLeft = fixtures.Length==0 ? 0 : 1.65f;
+                foreach(var v in fixtures)
+                    if (v.kind=="voyage")
+                        motionLeft=Mathf.Max(motionLeft,Mathf.Abs(story.works.Signal(v.signal)-voyageFraction)*v.amount+.1f);
+                AnimateWorks(false); SyncFinds(); return;
+            }
             if (InPassage)
             {
                 int page=Route.Page;
@@ -592,6 +603,7 @@ namespace Wizzard
                     ShowBook();
                 }
             }
+            if (handFork!=null) PoseFork();
             if (journalOpen)
             {
                 pulseUntil += Time.unscaledDeltaTime;
@@ -611,6 +623,7 @@ namespace Wizzard
                 return;
             }
             if (guide != null) { if (call) CallGuide(); FlyGuide(); }
+            else if (call && InWorks && story.works.Room.key=="DriftFen") SoundFork();
             FindFocus();
             AnimateSet();
             float now = Time.unscaledTime;
@@ -688,6 +701,65 @@ namespace Wizzard
             return new Vector2(Vector3.Dot(position-origin, east)/east.sqrMagnitude,
                                Vector3.Dot(position-origin, north)/north.sqrMagnitude);
         }
+        string uncoveredFind;
+        Transform handFork;
+        float forkRang = -10f;
+        void PoseFork()
+        {
+            bool vrMode = XRSettings.isDeviceActive;
+            bool equipped = story.works.Signal("fenFork") != 0;
+            Toggle("BenchFork", !equipped);
+            bool visible = equipped && !journalOpen && (!vrMode || player.PalmTracked(0));
+            Active(handFork,visible);
+            if (!visible) return;
+            Transform anchor = vrMode ? player.leftHand : player.head;
+            Vector3 offset = vrMode ? new Vector3(0,.018f,.045f) : new Vector3(-.23f,-.32f,.47f);
+            float age = Time.unscaledTime-forkRang;
+            float shake = age<.85f ? 6.3f*Mathf.Exp(-age*5)*Mathf.Sin(age*49) : 0;
+            handFork.SetPositionAndRotation(anchor.position+anchor.rotation*offset, anchor.rotation*Quaternion.Euler(vrMode?26:30,0,shake));
+        }
+        static readonly string[] relativeBearings = { "ahead", "ahead to your right", "to your right", "behind you to the right", "behind you", "behind you to the left", "to your left", "ahead to your left" };
+
+        void SyncFinds()
+        {
+            foreach (var station in story.works.Room.stations)
+            {
+                if (string.IsNullOrEmpty(station.search)) continue;
+                bool shown = station.id == uncoveredFind && story.works.Signal(station.evidence) == 0;
+                Toggle(station.search, shown);
+                Toggle(station.id, shown);
+            }
+        }
+
+        void SoundFork()
+        {
+            const string title = "Willa’s sounding fork";
+            if (story.works.Signal("fenFork")==0) { Say(title,"Willa has the fork at the ferry."); return; }
+            forkRang=Time.unscaledTime;
+            float nearest = float.PositiveInfinity;
+            WorksStation match = null;
+            Vector3 reply = default;
+            foreach (var station in story.works.Room.stations)
+            {
+                if (string.IsNullOrEmpty(station.search) || story.works.Signal(station.evidence)!=0) continue;
+                Vector3 delta = nodes[station.id].position-player.head.position;
+                if (delta.sqrMagnitude >= nearest) continue;
+                nearest=delta.sqrMagnitude; match=station; reply=delta;
+            }
+            if (match==null) { Say(title,"Four loads marked. Only the wind answers now."); return; }
+            float distance=Mathf.Sqrt(nearest);
+            bool found=distance<=3.35f && Mathf.Abs(reply.y)<2.4f;
+            uncoveredFind=found ? match.id : null;
+            SyncFinds();
+            notes.PlayOneShot(chimes[found?2:distance<13?1:0]);
+            if (found) { Say(title,"The ground rings clear. Look down and lift the "+match.label.ToLowerInvariant()+"."); return; }
+            Vector3 facingFlat=Vector3.ProjectOnPlane(player.head.forward,Vector3.up);
+            float angle=Vector3.SignedAngle(facingFlat,Vector3.ProjectOnPlane(reply,Vector3.up),Vector3.up);
+            int sector=(Mathf.RoundToInt(angle/45)+8)%8;
+            string strength=distance<13?"A strong reply ":distance<32?"A soft reply ":"A distant reply ";
+            Say(title,strength+relativeBearings[sector]+". Ring again after moving.",6);
+        }
+
         void CallGuide()
         {
             var uv = SurveyPosition(player.head.position);
@@ -839,7 +911,11 @@ namespace Wizzard
         void AnimateSet()
         {
             float t = Time.time;
-            if (InWorks) AnimateWorks(false);
+            if (InWorks && motionLeft>0)
+            {
+                motionLeft=Mathf.Max(0,motionLeft-Time.deltaTime);
+                AnimateWorks(motionLeft==0);
+            }
             if (InPassage && !string.IsNullOrEmpty(movingTrail))
             {
                 float progress=(t-trailTime)/.09f;
@@ -943,6 +1019,7 @@ namespace Wizzard
             {
                 var station=story.works.Station(id);
                 string title=station.label;
+                if (!string.IsNullOrEmpty(station.search) && (station.id!=uncoveredFind || story.works.Signal(station.evidence)!=0)) return;
                 if (id=="A_Book" && nodes.ContainsKey("Linnet") && story.works.Signal("landed")!=0 && voyageFraction<1)
                 {
                     Say(title,"Her sail is rounding the last stone. Elin will have the book when she makes fast.");

@@ -4,6 +4,10 @@
 
 The Sillwater campaign reached its first ending in **32 minutes 36 seconds of active play**, or 33 minutes 9 seconds elapsed, across 30 required places. The fresh-save desktop runner walked with normal controls, staged Tavi’s four scenes, traced the six parish bearings and completed all eleven gallery dispatches. It collected the five witness leaves and tested both endings from the final checkpoint. The run reported zero application errors. Travel, the journal and unfocused time are excluded from the active clock. The runner knew the puzzles in advance. There is no measured first-time human or physical-headset completion time. [Timing by location](known-route.json)
 
+## Drift Fen
+
+The player-input test walked the floodplain, recovered all four objects in a different order from the sailing manifest, reloaded halfway and returned to both cranes. Distant soundings gave directional hints and kept objects concealed. The Quest controller emulator revealed and collected Pella’s clasp with the left grip and right trigger. Disconnecting and reconnecting the left controller hid and restored the handheld fork. Blender checked 48,841 terrain positions, 8,900 perimeter rays and all eleven stations. The final floodplain has 19,912 triangles and 37 visible material slots.
+
 ## Swallow Stair
 
 The desktop input route delivered all four cargoes, reloaded Pella’s bag in transit, tested both filings of the watch slip and carried each result into Glasscut. The four crossings took 11, 8, 9 and 11 mechanical operations with the solutions known. The Quest controller emulator raised the fore pound, closed the west gate and transferred water to the aft pound. Blender reimported the lock and checked 5,929 ground positions, 3,140 perimeter rays and clear approaches to all 12 stations. The finished lock has 17,690 visible triangles. Across 15 between-area transfers, the travel check found one live set, one collision tree and one music player, and collected the previous scene each time. Physical Quest timing remains unmeasured.

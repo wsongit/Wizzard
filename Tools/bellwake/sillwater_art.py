@@ -220,10 +220,10 @@ def terrain(key, span, h, step):
         )
 
 
-def house(x, y, w, d, h, style=0):
-    base = float(land(x, y))
+def house(x, y, w, d, h, style=0, height=land):
+    base = float(height(x, y))
     lowest = (
-        min(float(land(x + a * w / 2, y + b * d / 2)) for a in (-1, 1) for b in (-1, 1))
+        min(float(height(x + a * w / 2, y + b * d / 2)) for a in (-1, 1) for b in (-1, 1))
         - 0.26
     )
     block(
