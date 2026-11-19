@@ -21,10 +21,15 @@ namespace Wizzard
         readonly XrPress use = new XrPress(), journal = new XrPress();
         BellwakeJourney story;
         PassageAtlas atlas;
+        WorksPlan worksPlan;
+        bool InWorks => story.works!=null && story.works.active;
+        WorksVisual[] fixtures=Array.Empty<WorksVisual>();
+        Vector3[] fixtureLocations;
+        Quaternion[] fixtureAngles;
         BellwakePassage Route => story.passage;
         bool InPassage => Route != null && Route.active;
-        string RoomTitle => InPassage ? Route.region.title : BellwakeJourney.Titles[story.room];
-        string Objective => InPassage ? Route.Objective() : story.Objective();
+        string RoomTitle => InWorks ? story.works.Room.title : InPassage ? Route.region.title : BellwakeJourney.Titles[story.room];
+        string Objective => InWorks ? story.works.Objective() : InPassage ? Route.Objective() : story.Objective();
         BellwakeDisplay display;
         GorillaPlayer player;
         GameObject set, meadow, sign;
@@ -68,6 +73,7 @@ namespace Wizzard
             display = new BellwakeDisplay(rig.head);
             story = Restore();
             atlas = JsonUtility.FromJson<PassageAtlas>(Resources.Load<TextAsset>(Path + "Passages").text);
+            worksPlan=JsonUtility.FromJson<WorksPlan>(Resources.Load<TextAsset>(Path+"Underworks").text);
             PrepareRoute();
             if (Debug.isDebugBuild)
             {
@@ -99,7 +105,10 @@ namespace Wizzard
         void PrepareRoute()
         {
             if (Route == null) story.passage = new BellwakePassage();
-            int slots=BellwakeJourney.Rooms.Length+atlas.regions.Length+1;
+            if(story.works==null) story.works=new BellwakeWorks();
+            if(story.room!=3 || !story.Solved) story.works.active=false;
+            if(InWorks) story.works.Bind(worksPlan);
+            int slots=BellwakeJourney.Rooms.Length+atlas.regions.Length+1+worksPlan.rooms.Length;
             if (story.secondsByPlace==null || story.secondsByPlace.Length<slots)
                 Array.Resize(ref story.secondsByPlace, slots);
             Route.completed = Mathf.Clamp(Mathf.Max(Route.completed,story.room),0,atlas.regions.Length);
@@ -149,8 +158,9 @@ namespace Wizzard
             curtain.color = new Color(0, 0, 0, to);
             curtainRenderer.enabled = to > 0;
         }
-        IEnumerator ReleaseArea()
+        IEnumerator ReleaseArea(string nextMusic=null)
         {
+            fixtures=Array.Empty<WorksVisual>();
             movingTrail = null;
             focus = lastHint = null;
             struck = null;
@@ -158,8 +168,11 @@ namespace Wizzard
             nodes.Clear();
             points.Clear();
             rest.Clear();
-            score.Stop();
-            score.clip = null;
+            if(score.clip!=null && score.clip.name!=nextMusic)
+            {
+                score.Stop();
+                score.clip=null;
+            }
             sky.SetTexture("_Panorama", null);
             if (set != null) { set.SetActive(false); Destroy(set); set = null; }
             if (village != null) { village.enabled = false; Destroy(village); village = null; }
@@ -182,9 +195,11 @@ namespace Wizzard
             try
             {
                 yield return Fade(0, 1);
-                yield return ReleaseArea();
                 PrepareRoute();
-                string key = InPassage ? atlas.regions[story.room].key : BellwakeJourney.Rooms[story.room];
+                string key = InWorks ? story.works.Room.key : InPassage ? atlas.regions[story.room].key : BellwakeJourney.Rooms[story.room];
+                bool dawn = story.ending != 0;
+                string theme = dawn ? "Morning" : InWorks ? story.works.Room.theme : key;
+                yield return ReleaseArea(theme);
                 if (InPassage)
                 {
                     var charts=Resources.LoadAsync<TextAsset>(Path+"Charts/"+key);
@@ -233,18 +248,26 @@ namespace Wizzard
                 var dir = nodes["Look"].position - spawn;
                 dir.y = 0;
                 facing = Quaternion.LookRotation(dir);
-                bool dawn = story.ending != 0;
-                string theme = dawn ? "Morning" : key;
                 var panorama = Resources.LoadAsync<Cubemap>(Path + "Skies/" + theme);
-                var song = Resources.LoadAsync<AudioClip>(Path + "Audio/" + theme);
+                var song = score.clip==null ? Resources.LoadAsync<AudioClip>(Path + "Audio/" + theme) : null;
                 yield return panorama;
                 ApplyLook((Cubemap)panorama.asset);
+                if(InWorks)
+                {
+                    fixtures=story.works.Room.visuals;
+                    fixtureLocations=Array.ConvertAll(fixtures,v=>nodes[v.node].position);
+                    fixtureAngles=Array.ConvertAll(fixtures,v=>nodes[v.node].rotation);
+                    AnimateWorks(true);
+                }
                 Sync();
                 player.Teleport(spawn, facing);
                 Physics.SyncTransforms();
-                yield return song;
-                score.clip = (AudioClip)song.asset;
-                score.Play();
+                if(song!=null)
+                {
+                    yield return song;
+                    score.clip=(AudioClip)song.asset;
+                    score.Play();
+                }
                 pulseUntil = Time.unscaledTime + 32;
                 Save();
                 Say(dawn ? "BELLWAKE  /  EPILOGUE" : "BELLWAKE  /  " + RoomTitle,
@@ -253,7 +276,7 @@ namespace Wizzard
                                                     "the bell."
                                               : "At dawn the river sings with a human voice. Tavi has set two " +
                                                 "places for breakfast.")
-                    : InPassage ? Objective
+                    : InPassage || InWorks ? Objective
                     : story.room == 0 && !story.commissioned
                         ? "The morning bell failed to ring. Find Tavi on the path. Look at her and press E or a " +
                               "controller trigger."
@@ -310,6 +333,7 @@ namespace Wizzard
         }
         string Label(string id)
         {
+            if (InWorks) return story.works.Station(id).label;
             if (InPassage) return Route.Label(id);
             switch (id)
             {
@@ -317,6 +341,7 @@ namespace Wizzard
                 return story.room == 4 && story.strikes == 3 ? "Ina" : BellwakeJourney.Speakers[story.room];
             case "A_Ina":
                 return "Ina";
+            case "A_Nameplate": return "Fourth hand";
             case "A_Roster":
                 return "Watch roster";
             case "A_Letter":
@@ -353,8 +378,24 @@ namespace Wizzard
             Vector3 nw=nodes["NW"].position;
             return nw + (nodes["NE"].position-nw)*(tile%7/6f) + (nodes["SW"].position-nw)*(tile/7/6f);
         }
+        void AnimateWorks(bool snap)
+        {
+            float mix=snap?1:1-Mathf.Exp(-Time.deltaTime*8);
+            for(int i=0;i<fixtures.Length;i++)
+            {
+                var v=fixtures[i];var t=nodes[v.node];int n=story.works.Signal(v.signal);
+                if(v.kind=="show") { Active(t,n==v.match); continue; }
+                if(v.kind=="lift") t.position=Vector3.Lerp(t.position,fixtureLocations[i]+Vector3.up*(v.amount*n),mix);
+                else
+                {
+                    Vector3 axis=v.kind=="turn"?Vector3.up:facing*Vector3.forward;
+                    t.rotation=Quaternion.Slerp(t.rotation,Quaternion.AngleAxis(n*v.amount,axis)*fixtureAngles[i],mix);
+                }
+            }
+        }
         void Sync()
         {
+            if(InWorks) { AnimateWorks(false); return; }
             if (InPassage)
             {
                 int page=Route.Page;
@@ -367,6 +408,8 @@ namespace Wizzard
                 Toggle("GateLight",Route.Done);
                 return;
             }
+            bool memorial=story.ending!=0 && story.works.Remembered(worksPlan,"named");
+            Toggle("NightRoll",memorial);Toggle("A_Nameplate",memorial);
             bool gate = story.room == 0 ? story.commissioned : story.Solved && story.room < 4;
             Toggle("GateLight", gate);
             Toggle("Ina", story.ending == 2);
@@ -404,7 +447,8 @@ namespace Wizzard
                 return;
             if (Application.isFocused && !journalOpen && story.ending==0 && Time.unscaledDeltaTime<1)
             {
-                int slot=outdoors ? story.secondsByPlace.Length-1 :
+                int slot=outdoors ? BellwakeJourney.Rooms.Length+atlas.regions.Length :
+                    InWorks ? BellwakeJourney.Rooms.Length+atlas.regions.Length+1+story.works.chamber :
                     InPassage ? BellwakeJourney.Rooms.Length+story.room : story.room;
                 story.secondsByPlace[slot]+=Time.unscaledDeltaTime;
             }
@@ -455,7 +499,7 @@ namespace Wizzard
                     {
                         journalPage++;
                     } while (journalPage < 5 && (story.letters & (1 << journalPage)) == 0);
-                    if (journalPage == 5)
+                    if (journalPage > 5 || (journalPage == 5 && !InWorks))
                         journalPage = -1;
                     ShowBook();
                 }
@@ -512,6 +556,8 @@ namespace Wizzard
             if (journalPage < 0)
                 display.Say("Witness book   /   " + story.LeafCount + " of 5 leaves   /   " + story.PlayTime(),
                             Objective + "   •   Trigger/E to turn a page. A/X or J to close.");
+            else if (journalPage==5 && InWorks)
+                display.Say("The fourth hand",story.works.Register());
             else
                 display.Say(BellwakeJourney.Titles[journalPage], BellwakeJourney.Leaf(journalPage));
         }
@@ -551,6 +597,7 @@ namespace Wizzard
         void AnimateSet()
         {
             float t = Time.time;
+            if(InWorks) { AnimateWorks(false); return; }
             if (InPassage && !string.IsNullOrEmpty(movingTrail))
             {
                 float progress=(t-trailTime)/.09f;
@@ -608,6 +655,19 @@ namespace Wizzard
         void Interact(string id)
         {
             string line;
+            if(InWorks)
+            {
+                var station=story.works.Station(id);
+                string title=station.label;
+                line=story.works.Use(id,out string destination);
+                if(!string.IsNullOrEmpty(destination))
+                {
+                    if(destination=="@final") { story.works.active=false;story.Gate(); }
+                    StartCoroutine(EnterRoom());
+                }
+                else { notes.PlayOneShot(chimes[station.note]);Sync();Save();Say(title,line); }
+                return;
+            }
             if (InPassage)
             {
                 if (id=="A_Gate" && Route.Done && story.Gate())
@@ -627,9 +687,14 @@ namespace Wizzard
             }
             switch (id)
             {
+            case "A_Nameplate":
+                line="NIGHT ROLL  /  Ina, fourth hand of the flood watch. Paid in full. Below the engraving hangs a left-handed pilot’s knot.";
+                break;
             case "A_Ina":
             case "A_Roster":
                 line = story.Epilogue();
+                if(story.works.Remembered(worksPlan,"named")) line+=" Below it hangs a new brass plate: Ina, fourth hand of the night shift.";
+
                 break;
             case "A_Meadow":
                 StartCoroutine(EnterMeadow());
@@ -661,6 +726,12 @@ namespace Wizzard
                     story.commissioned && (story.room==0 || story.Solved))
                 {
                     Route.active=true;
+                    StartCoroutine(EnterRoom());
+                    return;
+                }
+                if(story.room==3 && story.Solved)
+                {
+                    story.works.active=true;
                     StartCoroutine(EnterRoom());
                     return;
                 }
@@ -780,13 +851,22 @@ namespace Wizzard
                             !Physics.Raycast(spawn+Vector3.up,Vector3.down,3,player.surfaces))
                             throw new InvalidOperationException("Passage missing on round trip: "+r);
                     }
+                    for(int r=0;r<worksPlan.rooms.Length;r++)
+                    {
+                        story=new BellwakeJourney {room=3,seals=3,commissioned=true,
+                            works=new BellwakeWorks {active=true,chamber=r}};
+                        yield return EnterRoom();
+                        if(!InWorks || set.name!=worksPlan.rooms[r].key ||
+                            !Physics.Raycast(spawn+Vector3.up,Vector3.down,3,player.surfaces))
+                            throw new InvalidOperationException("Lower Works room missing on round trip: "+r);
+                    }
                     yield return EnterMeadow();
                     if (set != null || nodes.Count != 0 || score.clip != null || sky.GetTexture("_Panorama") != null)
                         throw new InvalidOperationException("A chapter still owns resources in the meadow.");
                     yield return village.CheckCrossing(true);
                     yield return village.CheckCrossing(false);
                 }
-                Debug.Log("Bellwake passed 24 chapter loads and three meadow/village round trips.");
+                Debug.Log("Bellwake passed 48 chapter loads and three meadow/village round trips.");
             }
             finally
             {

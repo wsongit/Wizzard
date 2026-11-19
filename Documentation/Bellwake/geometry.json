@@ -4,10 +4,20 @@
     "groundProbes": 5929,
     "boundaryRays": 3140,
     "walkableCells": 4734,
-    "stations": 6,
+    "stations": 7,
     "minApproaches": 74,
-    "triangles": 13310,
-    "visibleMaterialSlots": 29
+    "triangles": 13524,
+    "visibleMaterialSlots": 32
+  },
+  {
+    "asset": "CastingBed",
+    "groundProbes": 5929,
+    "boundaryRays": 3140,
+    "walkableCells": 4941,
+    "stations": 10,
+    "minApproaches": 60,
+    "triangles": 10196,
+    "visibleMaterialSlots": 20
   },
   {
     "asset": "CinderLens",
@@ -20,6 +30,26 @@
     "visibleMaterialSlots": 31
   },
   {
+    "asset": "EchoRotunda",
+    "groundProbes": 5929,
+    "boundaryRays": 3140,
+    "walkableCells": 5377,
+    "stations": 7,
+    "minApproaches": 60,
+    "triangles": 10790,
+    "visibleMaterialSlots": 20
+  },
+  {
+    "asset": "FloodLedger",
+    "groundProbes": 5929,
+    "boundaryRays": 3140,
+    "walkableCells": 5177,
+    "stations": 10,
+    "minApproaches": 60,
+    "triangles": 13402,
+    "visibleMaterialSlots": 19
+  },
+  {
     "asset": "Glasscut",
     "groundProbes": 5929,
     "boundaryRays": 3140,
@@ -28,6 +58,16 @@
     "minApproaches": 56,
     "triangles": 7876,
     "visibleMaterialSlots": 21
+  },
+  {
+    "asset": "LanternCourt",
+    "groundProbes": 5929,
+    "boundaryRays": 3140,
+    "walkableCells": 5292,
+    "stations": 8,
+    "minApproaches": 60,
+    "triangles": 10672,
+    "visibleMaterialSlots": 28
   },
   {
     "asset": "LeftPalm",
@@ -40,6 +80,16 @@
   {
     "asset": "MossbellApproach",
     "triangles": 874
+  },
+  {
+    "asset": "OrreryLoft",
+    "groundProbes": 5929,
+    "boundaryRays": 3140,
+    "walkableCells": 5045,
+    "stations": 9,
+    "minApproaches": 60,
+    "triangles": 12674,
+    "visibleMaterialSlots": 25
   },
   {
     "asset": "Reedwater",
@@ -100,7 +150,37 @@
     "visibleMaterialSlots": 36
   },
   {
+    "asset": "SumpHall",
+    "groundProbes": 5929,
+    "boundaryRays": 3140,
+    "walkableCells": 5156,
+    "stations": 7,
+    "minApproaches": 60,
+    "triangles": 11978,
+    "visibleMaterialSlots": 21
+  },
+  {
     "asset": "TrailSign",
     "triangles": 200
+  },
+  {
+    "asset": "TwinIntake",
+    "groundProbes": 5929,
+    "boundaryRays": 3140,
+    "walkableCells": 4952,
+    "stations": 11,
+    "minApproaches": 44,
+    "triangles": 13328,
+    "visibleMaterialSlots": 17
+  },
+  {
+    "asset": "WeighHouse",
+    "groundProbes": 5929,
+    "boundaryRays": 3140,
+    "walkableCells": 5308,
+    "stations": 8,
+    "minApproaches": 60,
+    "triangles": 11598,
+    "visibleMaterialSlots": 26
   }
 ]

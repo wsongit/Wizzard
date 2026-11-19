@@ -16,12 +16,18 @@ for k, (name, top, low) in enumerate(
         ("CinderLens", (102, 73, 98), (214, 154, 110)),
         ("StillBelfry", (34, 41, 76), (154, 145, 180)),
         ("Morning", (106, 158, 196), (255, 208, 162)),
+        ("LowerWorks",(40,53,74),(139,145,138)),
+        ("Waterworks",(54,87,98),(168,184,169)),
+        ("Bronzeworks",(94,59,73),(190,157,132)),
+        ("Lampworks",(48,55,96),(150,158,181)),
         ("Saltwake", (57,117,153), (211,205,157)),
         ("RimePost", (66,94,148), (199,218,218)),
         ("Glasscut", (53,58,97), (175,158,171)),
     ]
 ):
     if sys.argv[1:] and name not in sys.argv[1:]: continue
+    # Preserve the original atmosphere seeds for existing witness-road districts.
+    k = {"Saltwake": 6, "RimePost": 7, "Glasscut": 8}.get(name, k)
     rng = np.random.default_rng(522 + k)
     w, h = 768, 384
     v, u = np.mgrid[:h, :w]

@@ -27,7 +27,12 @@ def asset(path):
 regions = json.loads((root / "Assets/Resources/Bellwake/Passages.json").read_text())[
     "regions"
 ]
-rooms = story["rooms"] + [region["key"] for region in regions]
+works = json.loads((root / "Assets/Resources/Bellwake/Underworks.json").read_text())
+rooms = (
+    story["rooms"]
+    + [region["key"] for region in regions]
+    + [r["key"] for r in works["rooms"]]
+)
 subprocess.run(
     [
         "node",
@@ -42,6 +47,7 @@ data = dict(
     story=story,
     streamed=streamed,
     regions=regions,
+    works=works,
     charts={
         r["key"]: asset(
             root / "Assets/Resources/Bellwake/Charts" / (r["key"] + ".json")

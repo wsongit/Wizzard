@@ -5,7 +5,12 @@ from pathlib import Path
 
 here = Path(__file__).resolve().parent
 harness = subprocess.check_output(
-    [str(here / "node_modules/.bin/esbuild"), "--bundle", "--format=iife", "--loader=js"],
+    [
+        str(here / "node_modules/.bin/esbuild"),
+        "--bundle",
+        "--format=iife",
+        "--loader=js",
+    ],
     input="import {XRDevice,metaQuest3} from 'iwer'; window.testDevice=new XRDevice(metaQuest3);testDevice.installRuntime({forceInstall:true,polyfillLayers:false});",
     cwd=here,
     text=True,
@@ -18,17 +23,31 @@ async def run():
     async with async_playwright() as pw:
         b = await pw.chromium.launch(
             executable_path="/usr/bin/chromium",
-            args=["--no-sandbox", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"],
+            args=[
+                "--no-sandbox",
+                "--use-angle=swiftshader",
+                "--enable-unsafe-swiftshader",
+            ],
         )
         p = await b.new_page(viewport={"width": 630, "height": 380})
         errors = []
-        p.on("pageerror", lambda e: (print("error", e, flush=True), errors.append(str(e))))
-        p.on("console", lambda m: print(m.type, m.text[:180], flush=True) if m.type == "error" else None)
+        p.on(
+            "pageerror",
+            lambda e: (print("error", e, flush=True), errors.append(str(e))),
+        )
+        p.on(
+            "console",
+            lambda m: (
+                print(m.type, m.text[:180], flush=True) if m.type == "error" else None
+            ),
+        )
         await p.add_init_script(script=harness)
         await p.goto(sys.argv[1])
         await p.wait_for_selector("#start:enabled")
         await p.click("#vr")
-        await p.wait_for_function("bellProbe().vr && bellProbe().palms.every(Boolean)", timeout=35000)
+        await p.wait_for_function(
+            "bellProbe().vr && bellProbe().palms.every(Boolean)", timeout=35000
+        )
         print("entry", await p.evaluate("bellProbe()"), flush=True)
         await p.evaluate("testDevice.controllers.right.updateButtonValue('a-button',1)")
         await p.wait_for_function("bellProbe().book")
@@ -45,7 +64,10 @@ async def run():
         before = await p.evaluate("bellProbe().vrHead")
         print("plant", before, flush=True)
         for i in range(12):
-            await p.evaluate("(i)=>testDevice.controllers.right.position.set(.22,.025,-.45+.048*i)", i)
+            await p.evaluate(
+                "(i)=>testDevice.controllers.right.position.set(.22,.025,-.45+.048*i)",
+                i,
+            )
             await p.wait_for_timeout(55)
         after = await p.evaluate("bellProbe().vrHead")
         print("push", after, flush=True)
@@ -65,9 +87,26 @@ async def run():
         await p.wait_for_function("!bellProbe().palms[0]")
         await p.evaluate("testDevice.controllers.left.connected=true")
         await p.wait_for_function("bellProbe().palms[0]")
-        for room in [5,1,6,2,7,0]:
+        for room in [5, 1, 6, 2, 7, 8, 9, 11, 14, 15, 0]:
             await p.evaluate("room => bellTravel(room)", room)
-            await p.wait_for_function("bellProbe().vr && bellProbe().sets === 1 && bellProbe().palms.every(Boolean)")
+            await p.wait_for_function(
+                "bellProbe().vr && bellProbe().sets === 1 && bellProbe().palms.every(Boolean)"
+            )
+            if room == 8:
+                # Approach the night roll using tracked head motion in the hall, then use the real XR trigger.
+                await p.wait_for_timeout(200)
+                await p.evaluate("""async()=>{for(let i=0;i<22;i++){
+                  testDevice.position.x-=.135;testDevice.position.z-=.10;
+                  await new Promise(r=>setTimeout(r,40));
+                }}""")
+                await p.wait_for_function("bellProbe().focus==='A_Roll'", timeout=10000)
+                await p.evaluate(
+                    "testDevice.controllers.right.updateButtonValue('trigger',1)"
+                )
+                await p.wait_for_function("bellProbe().works.signals.admitted===1")
+                await p.evaluate(
+                    "testDevice.controllers.right.updateButtonValue('trigger',0)"
+                )
         await p.evaluate("testDevice.activeSession.end()")
         await p.wait_for_function("!bellProbe().vr")
         assert not errors, errors

@@ -1,4 +1,5 @@
 import * as T from "three";
+import { Underworks } from "./underworks.js";
 import { Passage } from "./passage.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { TrackedRunner } from "./vr.js";
@@ -9,7 +10,7 @@ const data = window.BELLWAKE,
   $ = (id) => document.getElementById(id);
 const graph = data.story,
   store = "wizzard.bellwake.desktop.v1";
-let savedPassage, lastCheckpoint;
+let savedPassage, savedWorks, lastCheckpoint;
 let secondsByPlace = {};
 let number = 0,
   leaves = 0,
@@ -19,28 +20,40 @@ let number = 0,
   initialAngle = 0,
   gestureEnd = 0;
 try {
-  lastCheckpoint=localStorage.getItem(store);
+  lastCheckpoint = localStorage.getItem(store);
   const value = JSON.parse(lastCheckpoint);
   if (value && Number.isInteger(value.number) && graph.states[value.number]) {
     number = value.number;
     leaves = value.leaves & 31;
     muted = !!value.muted;
     savedPassage = value.passage;
+    savedWorks = value.works;
     for (const [key, t] of Object.entries(value.secondsByPlace || {}))
       if (Number.isFinite(t) && t >= 0) secondsByPlace[key] = t;
   }
 } catch {}
 const state = () => graph.states[number];
 let passage = new Passage(data.regions, savedPassage, state().room, state().ending);
-const locationKey = () => (passage.active ? passage.region.key : graph.rooms[state().room]);
-const locationName = () => (passage.active ? passage.region.title : graph.titles[state().room]);
-const objective = () => (passage.active ? passage.objective() : state().objective);
+let works = new Underworks(data.works, savedWorks, state().room === 3 && state().solved);
+const locationKey = () =>
+  works.active ? works.room.key : passage.active ? passage.region.key : graph.rooms[state().room];
+const locationName = () =>
+  works.active ? works.room.title : passage.active ? passage.region.title : graph.titles[state().room];
+const objective = () =>
+  works.active ? works.objective() : passage.active ? passage.objective() : state().objective;
 function save(timerOnly = false) {
   try {
-    if (timerOnly && localStorage.getItem(store)!==lastCheckpoint) return;
-    const checkpoint=JSON.stringify({number,leaves,muted,passage:passage.progress,secondsByPlace});
-    localStorage.setItem(store,checkpoint);
-    lastCheckpoint=checkpoint;
+    if (timerOnly && localStorage.getItem(store) !== lastCheckpoint) return;
+    const checkpoint = JSON.stringify({
+      number,
+      leaves,
+      muted,
+      passage: passage.progress,
+      works: works.progress,
+      secondsByPlace,
+    });
+    localStorage.setItem(store, checkpoint);
+    lastCheckpoint = checkpoint;
   } catch {}
 }
 function playTime() {
@@ -87,7 +100,10 @@ const loader = new GLTFLoader(),
   step = new T.Vector3();
 const capsule = new Capsule(new T.Vector3(), new T.Vector3(), 0.26);
 const effects = new Map();
-let music = null;
+let music = null,
+  musicTheme = "",
+  musicGeneration = 0;
+const themeKey = () => (state().ending ? "Morning" : works.active ? works.room.theme : locationKey());
 function assetURL(kind, name, mime) {
   return data.streamed ? data[kind][name] : "data:" + mime + ";base64," + data[kind][name];
 }
@@ -97,10 +113,14 @@ function dropMusic() {
   music.removeAttribute("src");
   music.load();
   music = null;
+  musicTheme = "";
 }
 function playMusic() {
+  if (music && musicTheme === themeKey()) return;
   dropMusic();
-  music = new Audio(assetURL("sounds", state().ending ? "Morning" : locationKey(), "audio/ogg"));
+  musicTheme = themeKey();
+  musicGeneration++;
+  music = new Audio(assetURL("sounds", musicTheme, "audio/ogg"));
   music.loop = true;
   music.volume = 0.35;
   music.muted = muted;
@@ -197,6 +217,7 @@ function say(title, line, seconds = 8) {
   speechEnd = performance.now() + seconds * 1000;
 }
 function label(id) {
+  if (works.active) return works.station(id).label;
   if (passage.active) return passage.label(id);
   if (id.startsWith("A_Key")) return state().keys[+id.slice(-1)];
   return {
@@ -205,6 +226,7 @@ function label(id) {
     A_Gate: state().ending ? "Begin again" : "Way arch",
     A_Ina: "Ina",
     A_Roster: "Watch roster",
+    A_Nameplate: "Fourth hand",
     A_End0: "Share the watch",
     A_End1: "Free the voice",
     A_Lens: "Casting cup",
@@ -263,9 +285,10 @@ async function loadRoom() {
     sky.material.map.dispose();
     sky.material.map = null;
     renderer.renderLists.dispose();
-    dropMusic();
+    if (musicTheme !== themeKey()) dropMusic();
   }
   movingTrail = null;
+  fixtures = [];
   passage.book = null;
   nodes = {};
   markers = [];
@@ -273,7 +296,7 @@ async function loadRoom() {
   // Submit an opaque frame in the headset as well as the desktop canvas.
   await loadingFrame();
   const key = locationKey(),
-    theme = s.ending ? "Morning" : key;
+    theme = themeKey();
   const [model, collision, panorama, booklet] = await Promise.all([
     loadModel(key),
     data.streamed
@@ -337,18 +360,29 @@ async function loadRoom() {
   await renderer.compileAsync(scene, camera);
   ring = null;
   resetFeet();
+  if (works.active) {
+    fixtures = works.room.visuals.map((v) => ({
+      v,
+      obj: nodes[v.node],
+      pos: nodes[v.node].position.clone(),
+      rot: nodes[v.node].rotation.clone(),
+    }));
+    animateWorks(1);
+  }
   sync();
   timer = 32;
   focus = "";
   $("prompt").hidden = true;
   $("speech").hidden = true;
-  $("chapter").textContent = passage.active
-    ? "The witness road"
-    : s.ending
-      ? "Epilogue"
-      : k
-        ? "Chapter " + ["", "I", "II", "III", "IV"][k]
-        : "The Long Meadow";
+  $("chapter").textContent = works.active
+    ? "The Lower Works"
+    : passage.active
+      ? "The witness road"
+      : s.ending
+        ? "Epilogue"
+        : k
+          ? "Chapter " + ["", "I", "II", "III", "IV"][k]
+          : "The Long Meadow";
   $("location").textContent = locationName();
   if (started) playMusic();
   save();
@@ -365,7 +399,28 @@ function chartPoint(out, tile) {
   out.addScaledVector(step.subVectors(nodes.NE.position, nodes.NW.position), (tile % 7) / 6);
   return out.addScaledVector(step.subVectors(nodes.SW.position, nodes.NW.position), Math.floor(tile / 7) / 6);
 }
+let fixtures = [];
+function animateWorks(mix) {
+  for (const { v, obj, pos, rot } of fixtures) {
+    const n = works.signals[v.signal];
+    if (v.kind === "show") {
+      obj.visible = n === v.match;
+      continue;
+    }
+    if (v.kind === "lift") obj.position.y += (pos.y + n * v.amount - obj.position.y) * mix;
+    else {
+      const axis = v.kind === "turn" ? "y" : "z",
+        target = rot[axis] + (n * v.amount * Math.PI) / 180;
+      const diff = target - obj.rotation[axis];
+      obj.rotation[axis] += Math.atan2(Math.sin(diff), Math.cos(diff)) * mix;
+    }
+  }
+}
 function sync() {
+  if (works.active) {
+    animateWorks(0);
+    return;
+  }
   if (passage.active) {
     const page = passage.page,
       pos = passage.piece;
@@ -383,6 +438,8 @@ function sync() {
   for (const [name, on] of [
     ["Ina", s.ending === 2],
     ["A_Ina", s.ending === 2],
+    ["NightRoll", !!s.ending && !!works.signals.named],
+    ["A_Nameplate", !!s.ending && !!works.signals.named],
     ["Roster", s.ending === 1],
     ["A_Roster", s.ending === 1],
     ["HushWave", s.room === 4 && s.challenged && !s.solved],
@@ -415,6 +472,30 @@ function welcome() {
 }
 async function interact(id) {
   if (!started || busy || book || !id) return;
+  if (works.active) {
+    const name = label(id),
+      result = works.use(id);
+    if (result.to) {
+      if (result.to === "@final") {
+        works.progress.active = false;
+        number = state().moves.A_Gate[0];
+      }
+      if (await room()) welcome();
+    } else {
+      tone(works.station(id).note);
+      sync();
+      save();
+      say(name, result.line, 10);
+    }
+    return;
+  }
+  if (id === "A_Nameplate" && state().ending && works.signals.named) {
+    say(
+      "Night roll",
+      "Ina, fourth hand of the flood watch. Paid in full. Below the engraving hangs a left-handed pilot’s knot.",
+    );
+    return;
+  }
   if (passage.active) {
     if (id === "A_Gate" && passage.done) {
       number = state().moves.A_Gate[0];
@@ -452,6 +533,7 @@ async function interact(id) {
     leaves = 0;
     secondsByPlace = {};
     passage = new Passage(data.regions, null, 0, 0);
+    works = new Underworks(data.works, null, false);
     if (await room()) welcome();
     return;
   }
@@ -474,6 +556,11 @@ async function interact(id) {
     if (await room()) welcome();
     return;
   }
+  if (id === "A_Gate" && prev.room === 3 && graph.states[move[0]].room === 4) {
+    works.progress.active = true;
+    if (await room()) welcome();
+    return;
+  }
   number = move[0];
   if (id === "A_Letter") leaves |= 1 << prev.room;
   if (prev.room !== state().room) {
@@ -487,7 +574,11 @@ async function interact(id) {
   if (!prev.challenged && state().challenged) timer = 32;
   sync();
   save();
-  say(name, move[1], id === "A_Talk" || id === "A_Letter" ? 12 : 6);
+  const dedication =
+    (id === "A_Roster" || id === "A_Ina") && works.signals.named
+      ? " Below it hangs a new brass plate: Ina, fourth hand of the night shift."
+      : "";
+  say(name, move[1] + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
 }
 function pick() {
   focus = "";
@@ -559,6 +650,11 @@ function toggleBook(open) {
     $("booktitle").textContent = locationName() + "   ·   " + playTime();
     $("objective").textContent = objective() + "   ·   " + state().seals + " of 3 vows";
     $("leaves").replaceChildren();
+    if (works.active) {
+      const item = document.createElement("li");
+      item.textContent = works.register();
+      $("leaves").append(item);
+    }
     for (let i = 0; i < 5; i++)
       if (leaves & (1 << i)) {
         const li = document.createElement("li");
@@ -718,6 +814,7 @@ function loop(time, frame) {
     if (fight && nodes.HushWave) nodes.HushWave.scale.setScalar(1 + 12 * (1 - Math.min(1, timer / 24)));
     if (nodes.GreatBell) nodes.GreatBell.rotation.z = Math.sin(time * 0.0018) * (fight ? 0.12 : 0.017);
   }
+  if (works.active) animateWorks(1 - Math.exp(-delta * 8));
   if (passage.active && movingTrail) {
     const t = Math.max(0, (time - trailTime) / 90),
       leg = Math.floor(t);
@@ -776,11 +873,15 @@ if (__TEST__)
     retiredAlive: retired?.filter((ref) => ref.deref()).length || 0,
     trees: tree ? 1 : 0,
     music: music ? 1 : 0,
+    musicTheme,
+    musicGeneration,
     effects: effects.size,
     sets: group && scene.children.includes(group) ? 1 : 0,
     secondsByPlace: { ...secondsByPlace },
     room: state().room,
     district: locationKey(),
+    dedication: !!nodes.NightRoll?.visible,
+    works: works.active ? { ...works.progress, signals: { ...works.signals } } : null,
     passage:
       passage.active && passage.book
         ? { ...passage.progress, hint: passage.piece.hint, win: passage.piece.win }
@@ -808,13 +909,17 @@ if (__TEST__)
 if (__TEST__)
   window.bellTravel = async (index) => {
     if (busy) throw Error("Travel already in progress");
-    const district = index >= graph.rooms.length ? index - graph.rooms.length : -1;
-    const base = district < 0 ? index : district;
-    const target = graph.states.findIndex((s) => s.room === base && (district < 0 || s.commissioned));
-    if (target < 0) throw Error("Unknown chapter");
+    const expansion = index - graph.rooms.length;
+    const chamber = expansion - data.regions.length;
+    const base = chamber >= 0 ? 3 : expansion >= 0 ? expansion : index;
+    const target = graph.states.findIndex(
+      (s) => s.room === base && (expansion < 0 || s.commissioned) && (chamber < 0 || s.solved),
+    );
+    if (target < 0 || chamber >= data.works.rooms.length) throw Error("Unknown district");
     number = target;
     passage = new Passage(data.regions, null, base, 0);
-    passage.progress.active = district >= 0;
+    passage.progress.active = expansion >= 0 && chamber < 0;
+    works = new Underworks(data.works, { active: chamber >= 0, chamber }, true);
     await room();
   };
 renderer.setAnimationLoop(loop);

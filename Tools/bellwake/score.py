@@ -81,12 +81,18 @@ sets = [
         "bronze",
     ),
     ("Morning", 0.55, [62, 67, 69, 62], [4, 7, 9, 12, None, 11, 7, 9, None, 4, 2, 0], "reed"),
+    ("LowerWorks",.65,[50,55,57,52],[0,None,7,5,None,3,10,None,7,5,None,2],"bronze"),
+    ("Waterworks",.56,[62,57,60,55],[5,7,None,10,9,None,5,2,None,3,2,0],"reed"),
+    ("Bronzeworks",.47,[48,55,51,53],[0,7,3,None,12,10,None,7,3,None,2,0],"lute"),
+    ("Lampworks",.71,[59,62,55,57],[12,None,7,9,None,5,2,None,3,7,None,0],"bronze"),
     ("Saltwake", .53,[59,62,64,57],[7,None,5,3,7,10,None,9,5,None,3,2],"lute"),
     ("RimePost", .72,[65,60,62,58],[12,None,None,7,8,None,5,3,None,5,None,0],"bronze"),
     ("Glasscut", .48,[54,57,52,59],[0,7,None,12,3,10,None,5,7,2,None,3],"reed"),
 ]
 for idx, (name, beat, roots, line, instr) in enumerate(sets):
     if sys.argv[1:] and name not in sys.argv[1:]: continue
+    # Preserve the original atmosphere seeds for existing witness-road districts.
+    idx = {"Saltwake": 6, "RimePost": 7, "Glasscut": 8}.get(name, idx)
     n = round(48 * beat * rate)
     audio = np.zeros(n)
 

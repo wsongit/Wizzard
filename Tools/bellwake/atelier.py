@@ -216,7 +216,7 @@ def model(id, name, x, y, z, height, heading=0, group="Set"):
     return obj
 
 
-def finish(key):
+def finish(key, sky_key=None):
     folder = ROOT / "Blender/Bellwake"
     folder.mkdir(exist_ok=True)
     scene = bpy.context.scene
@@ -231,7 +231,7 @@ def finish(key):
     scene.render.resolution_percentage = 100
     cam = bpy.data.objects.new("Review camera", bpy.data.cameras.new("Review lens"))
     bpy.context.collection.objects.link(cam)
-    skyfile = RES / "Skies" / (key + ".jpg")
+    skyfile = RES / "Skies" / ((sky_key or key) + ".jpg")
     if skyfile.exists():
         cam.location = (7, -16, 4.3)
         aim = Vector((-1, 3, 2.2))
@@ -264,7 +264,7 @@ def finish(key):
         scene.world.node_tree.links.new(node.outputs[0], bg.inputs[0])
     for group, objs in batches.items():
         hidden = (
-            group in ("C_Solids", "HushWave", "Roster", "Ina", "GateLight")
+            group in ("C_Solids", "HushWave", "Roster", "Ina", "NightRoll", "GateLight")
             or group.startswith(("Choice", "Call", "Flow", "Stray"))
             or group in ("Ray1", "Ray2", "Ray3")
         )

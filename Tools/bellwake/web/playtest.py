@@ -6,6 +6,7 @@ Usage: python playtest.py URL AUDIT_DIRECTORY RESULT_DIRECTORY
 import asyncio, json, math, sys, os, heapq
 from pathlib import Path
 from playwright.async_api import async_playwright
+from works_route import complete_works
 
 url, navdir, outdir = sys.argv[1:4]
 out = Path(outdir)
@@ -116,12 +117,25 @@ async def run():
             await page.mouse.move(380, 200)
             await page.mouse.down()
 
+        works_only = "--works" in sys.argv
         target_post = "--last-post" in sys.argv
         glasscut_only = "--glasscut" in sys.argv
-        endings_only = "--endings" in sys.argv
-        if target_post or glasscut_only or endings_only:
+        nameplate = "--night-roll" in sys.argv
+        endings_only = "--endings" in sys.argv or nameplate
+        if target_post or glasscut_only or endings_only or works_only:
             saved = {"number": 13, "leaves": 7}
-            if endings_only: saved={"number":31,"leaves":31}
+            if works_only:
+                saved = {"number": 21, "leaves": 15}
+            if endings_only:
+                saved = {"number": 31, "leaves": 31}
+            if nameplate:
+                plan = json.loads(
+                    (
+                        Path(__file__).resolve().parents[3]
+                        / "Assets/Resources/Bellwake/Underworks.json"
+                    ).read_text()
+                )
+                saved["works"] = {"badges": 1 << plan["flags"].index("named")}
             if target_post:
                 saved["passage"] = {
                     "completed": 2,
@@ -149,6 +163,25 @@ async def run():
                     if abs(g["offset"] + c[0] * g["step"]) <= 0.5
                     and -6.5 <= g["offset"] + c[1] * g["step"] <= -5.5
                 ]
+            if p["district"] == "Bellmarket" and id == "A_Talk":
+                # Tavi speaks from beneath the awning. Approach her from its open frontage.
+                g["goals"][id] = [
+                    c
+                    for c in g["goals"][id]
+                    if -2.7 <= g["offset"] + c[0] * g["step"] <= -1.3
+                    and -11.6 <= g["offset"] + c[1] * g["step"] <= -10
+                ]
+            if p.get("works"):
+                # Stand in front of the station as a player reading its plaque would.
+                mx, my, mz = p["markers"][id]
+                front = [
+                    c
+                    for c in g["goals"][id]
+                    if abs(g["offset"] + c[0] * g["step"] - mx) < 1.4
+                    and 1.25 < -mz - (g["offset"] + c[1] * g["step"]) < 2.75
+                ]
+                if front:
+                    g["goals"][id] = front
             path = route(
                 g,
                 [
@@ -237,6 +270,11 @@ async def run():
             )
             await b.close()
             return
+        if works_only:
+            await act("A_Gate")
+            await complete_works(act, page, start, out)
+            await b.close()
+            return
         if not endings_only:
             if glasscut_only:
                 await act("A_Gate")
@@ -273,6 +311,7 @@ async def run():
             await act("A_Lens")
             await act("A_Letter")
             await act("A_Gate")
+            await complete_works(act, page, start, out)
             await profile()
             await act("A_Letter")
             await act("A_Talk")
@@ -287,6 +326,9 @@ async def run():
         )
         final = await act("A_End0")
         assert final["ending"] == 1 and final["leaves"] == 31
+        if nameplate:
+            assert final["dedication"]
+            await act("A_Nameplate")
         await act("A_Roster")
         await act("A_Talk")
         await page.mouse.up()
@@ -296,6 +338,9 @@ async def run():
         await start()
         final = await act("A_End1")
         assert final["ending"] == 2 and final["leaves"] == 31
+        if nameplate:
+            assert final["dedication"]
+            await act("A_Nameplate")
         await act("A_Ina")
         await act("A_Talk")
         await page.keyboard.press("j")

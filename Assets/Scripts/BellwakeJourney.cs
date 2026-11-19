@@ -7,6 +7,7 @@ namespace Wizzard
     public sealed class BellwakeJourney
     {
         public BellwakePassage passage;
+        public BellwakeWorks works;
         public float[] secondsByPlace;
         public string PlayTime()
         {

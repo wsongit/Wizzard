@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 RES = ROOT / "Assets/Resources/Bellwake"
 out = Path(sys.argv[sys.argv.index("--") + 1])
 out.mkdir(exist_ok=True)
+works={room["key"]:room for room in json.loads((RES/"Underworks.json").read_text())["rooms"]}
 
 
 def tree(objects):
@@ -74,7 +75,10 @@ def main(key):
     spawn = objects["Spawn"].matrix_world.translation
     assert (spawn - Vector((0, -14, 0.08))).length < 0.02, (key, spawn)
     markers = {n: o.matrix_world.translation for n, o in objects.items() if n.startswith("A_")}
-    if key != "Bellmarket":
+    if key in works:
+        assert set(markers)=={s["id"] for s in works[key]["stations"]},key
+        assert all(v["node"] in objects for v in works[key]["visuals"]),key
+    elif key != "Bellmarket":
         assert {"A_Key0", "A_Key1", "A_Key2"}.issubset(markers)
     rows = 77
     step = 0.5
@@ -88,7 +92,7 @@ def main(key):
             assert hit and normal.z > 0.84, (key, x, y, "ground hole or slope")
             z = hit.z
             surfaces[i, j] = z
-            if key in ("Saltwake","RimePost","Glasscut"):
+            if key in works or key in ("Saltwake","RimePost","Glasscut"):
                 # Thin posts may fall between vertical probes. Reserve clearance for the swept body.
                 for h in (.23,.50,.8,1.1,1.39,1.62):
                     near=solid.find_nearest(Vector((x,y,z+h)),.46)

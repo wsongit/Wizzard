@@ -11,12 +11,21 @@ Tavi made a warning bell during the flood. Her sister Ina gave it a voice for a 
 | Reedwater Lock | Ask Fen which channel saved the village. Each wheel changes the pair of sluices marked on its station. |
 | Glasscut Gallery | Read Jass’s casting records. Move the bronze miner behind the gem cart and push it onto the white socket. |
 | The Cinder Lens | Trace the amber ray from the kiln. Turn the three mirrors and catch the light in the casting cup. |
+| The Lower Works | Sign the night roll below Cinder Lens. Explore the three guild wings in any order, listen to the craftspeople and take their work to the great resonator. |
 | The Still Belfry | Speak to the keeper to start the encounter. Reach and activate the called seal before the toll. After three misses, the keeper lets you try again. |
 | The morning market | Choose who carries the watch. Both choices change the market and open a final conversation. |
 
 The market, Root Choir, Reedwater, Cinder Lens and belfry each hold a witness leaf. Each of the three witness-road districts has nine dispatches and three witness posts. The compass keys on the chart chest take a trigger or E. The navigator offers a hint, the rewind lever resets the current chart, and the stamping desk certifies a delivery. Current chart positions and sealed dispatches survive a reload. A chapter, puzzle action or recovered leaf updates the checkpoint. Unity stores the journey in PlayerPrefs. The browser edition saves to local storage for its current origin. The epilogue arch takes two deliberate activations to start a fresh journey.
 
 The witness book shows active playtime. Loading, the open journal and unfocused play are excluded. The clock starts with this update for existing checkpoints. Players already past a new district retain their place in the story.
+
+## Beneath the village
+
+In the Court of Three Trades, stand by the night roll and look toward the doors. West leads to the waterworks, east to the foundry and north to the lampmakers. Each wing has two chambers. Follow their service stairs to move between trades. A return to the court preserves your work at every machine.
+
+At the intake, the narrow and wide tanks measure three and five. Use the gauges while drawing, transferring and emptying water. The archive records what people heard when the flood arrived. In the weigh house, the old western pan already carries a burden. The casting bed beyond it holds a cold mould. In the lampworks, follow both beams and read the bearings beside the orrery windows. When all three guilds have entrusted you with their work, fit the artifacts in the rotunda, play the testimony and hear Ina before taking the final lift.
+
+**The Fourth Hand** is optional. Ask Nema in the court whose name was left off the night roll. Fen knows the rope knot, Orrel kept the pay leaf and Brannic kept a spare wage. Ossa can cast the three proofs into a nameplate. Bring it to Nema. On your final return to Bellmarket you can read it at the way arch in either ending.
 
 ## Controls
 
@@ -32,7 +41,7 @@ Crouching makes the ground easier to reach with the palms. The journal pauses th
 
 ## Direct browser play
 
-Double-click `Play/Bellwake.html` in the downloaded project or extract the standalone play ZIP and open its HTML file. Geometry, textures, music and the JavaScript player are embedded. The browser edition contains all eight campaign districts. The large meadow and Mossbell Village are accessible through the Unity edition.
+Double-click `Play/Bellwake.html` in the downloaded project or extract the standalone play ZIP and open its HTML file. Geometry, textures, music and the JavaScript player are embedded. The browser edition contains all sixteen campaign areas. The large meadow and Mossbell Village are accessible through the Unity edition.
 
 For Quest Browser, serve the entire `Play` directory over HTTPS and open `index.html` for on-demand chapter downloads and choose **Enter VR**. With a USB-connected developer-mode Quest, a local alternative uses Python and Android platform tools on the PC. From the repository root, run these in separate terminals.
 
@@ -48,7 +57,7 @@ Open `http://localhost:8090/index.html` in Quest Browser while USB forwarding is
 
 ## Editable art and sound
 
-The eleven packed Blender sources in `Blender/Bellwake` contain the five sets, the meadow trail sign, the runner’s arms, the two individually modeled hands, the meadow outcrop and the mountain gate. The campaign reuses characters and props from the supplied Wizzard Themed Library, with articulated head and arm pivots on speakers. The cottages use the existing Mossbell Blender artwork. The court geometry, interactive mechanisms, bell tower, escarpments, banners, floor paintings, skies and score were authored for this campaign.
+The packed Blender sources in `Blender/Bellwake` contain the sixteen campaign sets, the meadow trail sign, the runner’s arms, the two individually modeled hands, the meadow outcrop and the mountain gate. The campaign reuses characters and props from the supplied Wizzard Themed Library, with articulated head and arm pivots on speakers. The cottages use the existing Mossbell Blender artwork. The court geometry, interactive mechanisms, bell tower, escarpments, banners, floor paintings, skies and score were authored for this campaign.
 
 Ground and path share one continuous mesh. Lighting includes baked ground contact shadows. Buildings, clothing, brass and foliage use their own paintings and UV atlases. The Unity player loads one campaign room at a time and adds mesh colliders to the terrain, visible static set, rim and solid cores.
 
@@ -58,15 +67,15 @@ After editing the source, regenerate the FBX and GLB for that room from the proj
 blender -b --python-exit-code 1 --python Tools/bellwake/export.py -- RootChoir
 ```
 
-The procedural authoring scripts are in `Tools/bellwake`. Rebuilding from those scripts uses the original Wizzard Themed Library folder. Editing and exporting the packed Blender scenes works independently of that download. The PNG paintings are under `Assets/Resources/Bellwake/Textures`. The nine original music loops and four bell cues are under `Assets/Resources/Bellwake/Audio`.
+The procedural authoring scripts are in `Tools/bellwake`. Rebuilding from those scripts uses the original Wizzard Themed Library folder. Editing and exporting the packed Blender scenes works independently of that download. The PNG paintings are under `Assets/Resources/Bellwake/Textures`. The thirteen original music loops and four bell cues are under `Assets/Resources/Bellwake/Audio`.
 
 ## Rebuild the portable edition
 
-Run the packed-scene exporter without a room argument to prepare all GLBs. Compile `Tools/bellwake/StoryGraph.cs` together with `Assets/Scripts/BellwakeJourney.cs` and `Assets/Scripts/BellwakePassage.cs` using Mono’s C# compiler and `System.Web.Extensions`. The resulting executable accepts the destination of the JSON story table. It checks that both endings are reachable from every unfinished state before writing the file.
+Run the packed-scene exporter without a room argument to prepare all GLBs. Compile `Tools/bellwake/StoryGraph.cs` together with `Assets/Scripts/BellwakeJourney.cs` with `Assets/Scripts/BellwakePassage.cs` and `Assets/Scripts/BellwakeWorks.cs` using Mono’s C# compiler and `System.Web.Extensions`. The resulting executable accepts the destination of the JSON story table. It checks that both endings are reachable from every unfinished state before writing the file.
 
 ```sh
 blender -b --python-exit-code 1 --python Tools/bellwake/export.py
-mcs -r:System.Web.Extensions -out:/tmp/BellwakeStory.exe Tools/bellwake/StoryGraph.cs Assets/Scripts/BellwakeJourney.cs Assets/Scripts/BellwakePassage.cs
+mcs -r:System.Web.Extensions -out:/tmp/BellwakeStory.exe Tools/bellwake/StoryGraph.cs Assets/Scripts/BellwakeJourney.cs Assets/Scripts/BellwakePassage.cs Assets/Scripts/BellwakeWorks.cs
 mono /tmp/BellwakeStory.exe Tools/bellwake/.web-assets/story.json
 npm ci --prefix Tools/bellwake/web
 python Tools/bellwake/web/package.py Play/Bellwake.html

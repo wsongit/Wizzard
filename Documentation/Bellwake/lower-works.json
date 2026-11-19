@@ -1,0 +1,970 @@
+{
+  "normalInput": {
+    "visits": [
+      "SumpHall",
+      "SumpHall",
+      "TwinIntake",
+      "FloodLedger",
+      "WeighHouse",
+      "CastingBed",
+      "LanternCourt",
+      "OrreryLoft",
+      "SumpHall",
+      "EchoRotunda",
+      "StillBelfry"
+    ],
+    "nightRollRestored": true,
+    "wetGaugeSurvivedReload": true,
+    "witnesses": [
+      "reed",
+      "yoke",
+      "glass"
+    ],
+    "activeSeconds": {
+      "CinderLens": 4.5998,
+      "SumpHall": 12.999500000000026,
+      "TwinIntake": 19.915900000000054,
+      "FloodLedger": 20.882499999999972,
+      "WeighHouse": 12.166199999999996,
+      "CastingBed": 21.715699999999917,
+      "LanternCourt": 13.082699999999981,
+      "OrreryLoft": 18.115999999999964,
+      "EchoRotunda": 25.065700000000014,
+      "StillBelfry": 0.08339999999999417
+    }
+  },
+  "endingsWithEarnedNameplate": [
+    1,
+    2
+  ],
+  "endingPageErrors": [],
+  "rules": {
+    "machinePositions": 252,
+    "transitions": 955,
+    "completedWingOrders": 6
+  },
+  "geometry": {
+    "chambers": 8,
+    "groundProbes": 47432,
+    "perimeterRays": 25120,
+    "minimumApproachCells": 44
+  },
+  "streaming": {
+    "renderer": "Chromium SwiftShader",
+    "laps": 3,
+    "samples": [
+      {
+        "room": 5,
+        "loadMs": 448,
+        "maxTravelFrameMs": 150,
+        "walkP95Ms": 183,
+        "gpu": {
+          "geometries": 25,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Saltwake",
+        "musicGeneration": 2,
+        "effects": 0,
+        "floor": 0.2599999999999999,
+        "retiredAlive": 0
+      },
+      {
+        "room": 1,
+        "loadMs": 525,
+        "maxTravelFrameMs": 250,
+        "walkP95Ms": 217,
+        "gpu": {
+          "geometries": 24,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "RootChoir",
+        "musicGeneration": 3,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 6,
+        "loadMs": 604,
+        "maxTravelFrameMs": 283,
+        "walkP95Ms": 133,
+        "gpu": {
+          "geometries": 24,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "RimePost",
+        "musicGeneration": 4,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 2,
+        "loadMs": 415,
+        "maxTravelFrameMs": 133,
+        "walkP95Ms": 133,
+        "gpu": {
+          "geometries": 24,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Reedwater",
+        "musicGeneration": 5,
+        "effects": 0,
+        "floor": 0.2599999999999999,
+        "retiredAlive": 0
+      },
+      {
+        "room": 7,
+        "loadMs": 334,
+        "maxTravelFrameMs": 100,
+        "walkP95Ms": 100,
+        "gpu": {
+          "geometries": 20,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Glasscut",
+        "musicGeneration": 6,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 3,
+        "loadMs": 287,
+        "maxTravelFrameMs": 117,
+        "walkP95Ms": 67,
+        "gpu": {
+          "geometries": 25,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "CinderLens",
+        "musicGeneration": 7,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 8,
+        "loadMs": 220,
+        "maxTravelFrameMs": 67,
+        "walkP95Ms": 83,
+        "gpu": {
+          "geometries": 19,
+          "textures": 15,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "LowerWorks",
+        "musicGeneration": 8,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 9,
+        "loadMs": 438,
+        "maxTravelFrameMs": 267,
+        "walkP95Ms": 50,
+        "gpu": {
+          "geometries": 17,
+          "textures": 15,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Waterworks",
+        "musicGeneration": 9,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 10,
+        "loadMs": 232,
+        "maxTravelFrameMs": 67,
+        "walkP95Ms": 83,
+        "gpu": {
+          "geometries": 19,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Waterworks",
+        "musicGeneration": 9,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 11,
+        "loadMs": 316,
+        "maxTravelFrameMs": 83,
+        "walkP95Ms": 67,
+        "gpu": {
+          "geometries": 21,
+          "textures": 12,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bronzeworks",
+        "musicGeneration": 10,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 12,
+        "loadMs": 209,
+        "maxTravelFrameMs": 67,
+        "walkP95Ms": 50,
+        "gpu": {
+          "geometries": 18,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bronzeworks",
+        "musicGeneration": 10,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 13,
+        "loadMs": 401,
+        "maxTravelFrameMs": 250,
+        "walkP95Ms": 50,
+        "gpu": {
+          "geometries": 23,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Lampworks",
+        "musicGeneration": 11,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 14,
+        "loadMs": 261,
+        "maxTravelFrameMs": 67,
+        "walkP95Ms": 50,
+        "gpu": {
+          "geometries": 26,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Lampworks",
+        "musicGeneration": 11,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 15,
+        "loadMs": 219,
+        "maxTravelFrameMs": 50,
+        "walkP95Ms": 67,
+        "gpu": {
+          "geometries": 17,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "LowerWorks",
+        "musicGeneration": 12,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 4,
+        "loadMs": 224,
+        "maxTravelFrameMs": 100,
+        "walkP95Ms": 50,
+        "gpu": {
+          "geometries": 24,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "StillBelfry",
+        "musicGeneration": 13,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 0,
+        "loadMs": 235,
+        "maxTravelFrameMs": 83,
+        "walkP95Ms": 67,
+        "gpu": {
+          "geometries": 24,
+          "textures": 25,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bellmarket",
+        "musicGeneration": 14,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 5,
+        "loadMs": 261,
+        "maxTravelFrameMs": 67,
+        "walkP95Ms": 33,
+        "gpu": {
+          "geometries": 25,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Saltwake",
+        "musicGeneration": 15,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 1,
+        "loadMs": 217,
+        "maxTravelFrameMs": 83,
+        "walkP95Ms": 67,
+        "gpu": {
+          "geometries": 24,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "RootChoir",
+        "musicGeneration": 16,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 6,
+        "loadMs": 284,
+        "maxTravelFrameMs": 100,
+        "walkP95Ms": 50,
+        "gpu": {
+          "geometries": 24,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "RimePost",
+        "musicGeneration": 17,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 2,
+        "loadMs": 155,
+        "maxTravelFrameMs": 33,
+        "walkP95Ms": 50,
+        "gpu": {
+          "geometries": 24,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Reedwater",
+        "musicGeneration": 18,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 7,
+        "loadMs": 252,
+        "maxTravelFrameMs": 67,
+        "walkP95Ms": 50,
+        "gpu": {
+          "geometries": 20,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Glasscut",
+        "musicGeneration": 19,
+        "effects": 0,
+        "floor": 0.2599999999999999,
+        "retiredAlive": 0
+      },
+      {
+        "room": 3,
+        "loadMs": 209,
+        "maxTravelFrameMs": 67,
+        "walkP95Ms": 50,
+        "gpu": {
+          "geometries": 25,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "CinderLens",
+        "musicGeneration": 20,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 8,
+        "loadMs": 373,
+        "maxTravelFrameMs": 83,
+        "walkP95Ms": 83,
+        "gpu": {
+          "geometries": 19,
+          "textures": 15,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "LowerWorks",
+        "musicGeneration": 21,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 9,
+        "loadMs": 251,
+        "maxTravelFrameMs": 83,
+        "walkP95Ms": 50,
+        "gpu": {
+          "geometries": 17,
+          "textures": 15,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Waterworks",
+        "musicGeneration": 22,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 10,
+        "loadMs": 250,
+        "maxTravelFrameMs": 100,
+        "walkP95Ms": 67,
+        "gpu": {
+          "geometries": 19,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Waterworks",
+        "musicGeneration": 22,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 11,
+        "loadMs": 207,
+        "maxTravelFrameMs": 67,
+        "walkP95Ms": 67,
+        "gpu": {
+          "geometries": 21,
+          "textures": 12,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bronzeworks",
+        "musicGeneration": 23,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 12,
+        "loadMs": 346,
+        "maxTravelFrameMs": 117,
+        "walkP95Ms": 50,
+        "gpu": {
+          "geometries": 18,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bronzeworks",
+        "musicGeneration": 23,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 13,
+        "loadMs": 263,
+        "maxTravelFrameMs": 83,
+        "walkP95Ms": 67,
+        "gpu": {
+          "geometries": 23,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Lampworks",
+        "musicGeneration": 24,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 14,
+        "loadMs": 294,
+        "maxTravelFrameMs": 83,
+        "walkP95Ms": 100,
+        "gpu": {
+          "geometries": 26,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Lampworks",
+        "musicGeneration": 24,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 15,
+        "loadMs": 339,
+        "maxTravelFrameMs": 167,
+        "walkP95Ms": 133,
+        "gpu": {
+          "geometries": 17,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "LowerWorks",
+        "musicGeneration": 25,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 4,
+        "loadMs": 369,
+        "maxTravelFrameMs": 83,
+        "walkP95Ms": 150,
+        "gpu": {
+          "geometries": 24,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "StillBelfry",
+        "musicGeneration": 26,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 0,
+        "loadMs": 454,
+        "maxTravelFrameMs": 150,
+        "walkP95Ms": 200,
+        "gpu": {
+          "geometries": 24,
+          "textures": 25,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bellmarket",
+        "musicGeneration": 27,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 5,
+        "loadMs": 316,
+        "maxTravelFrameMs": 133,
+        "walkP95Ms": 217,
+        "gpu": {
+          "geometries": 25,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Saltwake",
+        "musicGeneration": 28,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 1,
+        "loadMs": 587,
+        "maxTravelFrameMs": 333,
+        "walkP95Ms": 117,
+        "gpu": {
+          "geometries": 24,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "RootChoir",
+        "musicGeneration": 29,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 6,
+        "loadMs": 402,
+        "maxTravelFrameMs": 150,
+        "walkP95Ms": 183,
+        "gpu": {
+          "geometries": 24,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "RimePost",
+        "musicGeneration": 30,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 2,
+        "loadMs": 273,
+        "maxTravelFrameMs": 133,
+        "walkP95Ms": 167,
+        "gpu": {
+          "geometries": 24,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Reedwater",
+        "musicGeneration": 31,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 7,
+        "loadMs": 438,
+        "maxTravelFrameMs": 134,
+        "walkP95Ms": 100,
+        "gpu": {
+          "geometries": 20,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Glasscut",
+        "musicGeneration": 32,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 3,
+        "loadMs": 293,
+        "maxTravelFrameMs": 67,
+        "walkP95Ms": 67,
+        "gpu": {
+          "geometries": 25,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "CinderLens",
+        "musicGeneration": 33,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 8,
+        "loadMs": 349,
+        "maxTravelFrameMs": 183,
+        "walkP95Ms": 83,
+        "gpu": {
+          "geometries": 19,
+          "textures": 15,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "LowerWorks",
+        "musicGeneration": 34,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 9,
+        "loadMs": 373,
+        "maxTravelFrameMs": 133,
+        "walkP95Ms": 83,
+        "gpu": {
+          "geometries": 17,
+          "textures": 15,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Waterworks",
+        "musicGeneration": 35,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 10,
+        "loadMs": 182,
+        "maxTravelFrameMs": 67,
+        "walkP95Ms": 67,
+        "gpu": {
+          "geometries": 19,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Waterworks",
+        "musicGeneration": 35,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 11,
+        "loadMs": 205,
+        "maxTravelFrameMs": 67,
+        "walkP95Ms": 50,
+        "gpu": {
+          "geometries": 21,
+          "textures": 12,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bronzeworks",
+        "musicGeneration": 36,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 12,
+        "loadMs": 236,
+        "maxTravelFrameMs": 67,
+        "walkP95Ms": 67,
+        "gpu": {
+          "geometries": 18,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bronzeworks",
+        "musicGeneration": 36,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 13,
+        "loadMs": 225,
+        "maxTravelFrameMs": 67,
+        "walkP95Ms": 50,
+        "gpu": {
+          "geometries": 23,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Lampworks",
+        "musicGeneration": 37,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 14,
+        "loadMs": 187,
+        "maxTravelFrameMs": 67,
+        "walkP95Ms": 67,
+        "gpu": {
+          "geometries": 26,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Lampworks",
+        "musicGeneration": 37,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 15,
+        "loadMs": 193,
+        "maxTravelFrameMs": 67,
+        "walkP95Ms": 50,
+        "gpu": {
+          "geometries": 17,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "LowerWorks",
+        "musicGeneration": 38,
+        "effects": 0,
+        "floor": 0.2600000000000001,
+        "retiredAlive": 0
+      },
+      {
+        "room": 4,
+        "loadMs": 194,
+        "maxTravelFrameMs": 67,
+        "walkP95Ms": 50,
+        "gpu": {
+          "geometries": 24,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "StillBelfry",
+        "musicGeneration": 39,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 0,
+        "loadMs": 425,
+        "maxTravelFrameMs": 183,
+        "walkP95Ms": 50,
+        "gpu": {
+          "geometries": 24,
+          "textures": 25,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bellmarket",
+        "musicGeneration": 40,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      }
+    ]
+  }
+}

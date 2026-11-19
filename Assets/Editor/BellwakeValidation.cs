@@ -13,6 +13,8 @@ namespace Wizzard.Editor
             var atlas=JsonUtility.FromJson<PassageAtlas>(Resources.Load<TextAsset>("Bellwake/Passages").text);
             var rooms=new List<string>(BellwakeJourney.Rooms);
             foreach(var region in atlas.regions) rooms.Add(region.key);
+            var works=JsonUtility.FromJson<WorksPlan>(Resources.Load<TextAsset>("Bellwake/Underworks").text);
+            foreach(var chamber in works.rooms) rooms.Add(chamber.key);
             foreach (string room in rooms)
             {
                 string prefix = "Bellwake/";
@@ -31,22 +33,29 @@ namespace Wizzard.Editor
                         Require(m != null && Resources.Load<Texture2D>(prefix + "Textures/" + m.name) != null,
                                 room + " paint on " + t.name);
                 }
-                foreach (var marker in new[] { "Terrain", "Set", "C_Solids", "Spawn", "Look", "A_Talk", "A_Gate",
-                                               "GateLight" })
+                foreach (var marker in new[] { "Terrain", "Set", "C_Solids", "Spawn", "Look", "Rim" })
                     Require(names.Contains(marker), room + " marker " + marker);
-                if(Array.IndexOf(BellwakeJourney.Rooms,room)<0)
+                var chamber=Array.Find(works.rooms,r=>r.key==room);
+                if(chamber!=null)
+                {
+                    foreach(var station in chamber.stations) Require(names.Contains(station.id),room+" "+station.id);
+                    foreach(var visual in chamber.visuals) Require(names.Contains(visual.node),room+" "+visual.node);
+                }
+                else foreach(var id in new[]{"A_Talk","A_Gate","GateLight"}) Require(names.Contains(id),room+" "+id);
+                if(chamber==null && Array.IndexOf(BellwakeJourney.Rooms,room)<0)
                 {
                     foreach(var id in new[]{"Chart","Pawn","Cargo","NW","NE","SW","A_Key0","A_Key1","A_Key2","A_Key3","A_Stamp","A_Hint","A_Reset","A_Log0","A_Log1","A_Log2"})
                         Require(names.Contains(id),room+" marker "+id);
                     Require(Resources.Load<TextAsset>(prefix+"Charts/"+room)!=null,room+" charts");
                 }
-                else Require(names.Contains("A_Letter"),room+" letter");
+                else if(chamber==null) Require(names.Contains("A_Letter"),room+" letter");
                 if (Array.IndexOf(BellwakeJourney.Rooms,room)>0)
                     for (int i = 0; i < 3; i++)
                         Require(names.Contains("A_Key" + i) && names.Contains("Rotor" + i),
                                 room + " station " + i);
-                Require(Resources.Load<Cubemap>(prefix + "Skies/" + room) != null, room + " sky");
-                var clip = Resources.Load<AudioClip>(prefix + "Audio/" + room);
+                string theme=chamber==null?room:chamber.theme;
+                Require(Resources.Load<Cubemap>(prefix + "Skies/" + theme) != null, room + " sky");
+                var clip = Resources.Load<AudioClip>(prefix + "Audio/" + theme);
                 Require(clip != null && clip.length > 12, room + " music");
             }
             foreach (var file in new[] { "LeftPalm", "RightPalm", "RunnerArm", "TrailSign", "MeadowOutcrop",

@@ -537,6 +537,17 @@ def machinery(k):
         marker("A_Roster", 3, -6.65, 1.45)
 
 
+def night_roll():
+    # The dedication mounts directly to the front of the east arch pier.
+    x,y,z=2.36,14.53,ground(0,2.36,15)+1.2
+    group="NightRoll"
+    block("Guild dedication frame",(x,y,z+.22),(.65,.08,.49),"Brass",group)
+    geometry("Night roll enamel",[(x-.30,y-.046,z+.025),(x+.30,y-.046,z+.025),(x+.30,y-.046,z+.415),(x-.30,y-.046,z+.415)],[(0,1,2,3)],"NightRegister",group,[(0,0),(1,0),(1,1),(0,1)])
+    for j in range(10):
+        a=j*math.tau/10;b=(j+1)*math.tau/10
+        shaft("Pilot’s left-hand knot",(x+.10*math.sin(2*a),y-.07+.032*math.cos(3*a),z-.10+.13*math.cos(a)),(x+.10*math.sin(2*b),y-.07+.032*math.cos(3*b),z-.10+.13*math.cos(b)),.022,.022,"Wood",6,group)
+    marker("A_Nameplate",x,y-.38,z+.23)
+
 def make(key, lib):
     k = ROOMS.index(key)
     init(lib, 4971 + k)
@@ -546,6 +557,7 @@ def make(key, lib):
     actors(k)
     machinery(k)
     portal(k)
+    if k==0: night_roll()
     marker("Spawn", 0, -14, 0.08)
     marker("Look", 0, -4, 1.4)
     district(k)

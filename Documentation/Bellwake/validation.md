@@ -1,5 +1,17 @@
 # Bellwake release checks
 
+## Lower Works release
+
+A keyboard-and-mouse run entered all eight chambers, restored a partially filled intake from a checkpoint, recovered three guild artifacts and rode the lift to the Still Belfry. It also completed the fourth hand’s petition. Separate epilogue runs read the earned nameplate in both endings. The native rules check visited 252 machinery positions, checked 955 transitions and completed all six possible guild orders. The Unity 2022.3.20f1 compiler accepted the release and development player and editor assemblies.
+
+The eight new Blender exports passed 47,432 ground probes and 25,120 perimeter rays. Every station had at least 44 reachable approach cells. The emulated Quest 3 used a tracked controller to sign the night roll, crossed eleven room boundaries and retained the ability to plant a hand and push off.
+
+A single Chromium tab crossed all sixteen campaign areas three times. After each of the 48 transfers one world, one collision hierarchy and one score remained live. Previous room roots, collisions and panoramas cleared after collection. Revisited areas returned to their original resource counts. A transfer within a guild kept the current music playing. Interrupting an asset request recovered the last checkpoint.
+
+The cloud software renderer recorded a median of 278.5 ms and a 95th percentile of 525 ms from door selection to ready, including three presentation frames. Its largest transition frame interval was 333 ms. The run used SwiftShader and overlapped other browser work. Physical Quest frame pacing and first-time human completion time remain unmeasured. [All 48 transfers and dungeon playthrough results](lower-works.json)
+
+## Earlier campaign checks
+
 The browser playthrough started at Tavi’s market stall and used the normal movement, look and interaction controls. It collected every witness leaf, saved and reloaded a partial forest melody, solved the lock and lens puzzles, lost the belfry encounter, retried it and reached both endings. The watch roster and Ina each appeared in the appropriate epilogue. The run recorded zero application errors. The C# story explorer also visited all 35 reachable progression states and found a path to each ending from every unfinished state.
 
 ## Geometry and placement
