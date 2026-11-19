@@ -73,12 +73,17 @@ export class Underworks {
   }
   objective() {
     const s = this.signals;
-    if (this.progress.returnTicket && this.room.middle && !s.parishWarrant)
+    if (this.progress.returnTicket && this.room.key.startsWith("Sillwater") && !s.parishWarrant)
       return "Welcome to Sillwater. Open your field sheet and find Ada near the south bell. The northeast towpath takes your return ticket whenever you want to leave.";
-    if (this.progress.returnTicket && this.room.middle && s.parishSigned)
+    if (this.progress.returnTicket && this.room.key.startsWith("Sillwater") && s.parishSigned)
       return "Your signed title is in the witness book. Use your return ticket at the northeast towpath on either shore.";
     const goal = this.nextGoal();
-    if (goal) return this.format(goal.line);
+    if (goal) {
+      const line = this.format(goal.line);
+      if (this.progress.returnTicket && this.room.key==="DriftFen") return line+" Your return boat is at Swallow Stair.";
+      if (this.progress.returnTicket && this.room.key==="SwallowLock") return line+" The northeast towpath takes your return fare at any time.";
+      return line;
+    }
     if (this.room.key === "Wrenfall") {
       if (s.landed) return "The Linnet is at the north landing. Collect Elin’s flood book.";
       if (!s.charter) return this.room.intro;
@@ -110,11 +115,11 @@ export class Underworks {
   format(line) {
     return line.replace(/\{(\w+)\}/g, (_, key) => this.signals[key]);
   }
-  takePacket() {
+  takePacket(fen = false) {
     this.progress.active = true;
     this.progress.returnTicket = true;
-    this.progress.chamber = this.plan.rooms.findIndex(r => r.middle);
-    this.progress.camp = "RestGate";
+    this.progress.chamber = this.plan.rooms.findIndex(r => r.key === (fen?"DriftFen":"SillwaterEbb"));
+    this.progress.camp = fen ? "RestGuide" : "RestGate";
   }
   use(id) {
     if (this.progress.returnTicket && this.room.middle && id === "A_Gate") {

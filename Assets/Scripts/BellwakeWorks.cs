@@ -179,12 +179,18 @@ namespace Wizzard
         }
         public string Objective()
         {
-            if (returnTicket && Room.middle && Signal("parishWarrant")==0)
+            if (returnTicket && Room.key.StartsWith("Sillwater") && Signal("parishWarrant")==0)
                 return "Welcome to Sillwater. Open your field sheet and find Ada near the south bell. The northeast towpath takes your return ticket whenever you want to leave.";
-            if (returnTicket && Room.middle && Signal("parishSigned")!=0)
+            if (returnTicket && Room.key.StartsWith("Sillwater") && Signal("parishSigned")!=0)
                 return "Your signed title is in the witness book. Use your return ticket at the northeast towpath on either shore.";
             var goal = NextGoal();
-            if (goal != null) return Format(goal.line);
+            if (goal != null)
+            {
+                string objective=Format(goal.line);
+                if (returnTicket && Room.key=="DriftFen") return objective+" Your return boat is at Swallow Stair.";
+                if (returnTicket && Room.key=="SwallowLock") return objective+" The northeast towpath takes your return fare at any time.";
+                return objective;
+            }
             if (Room.key == "Wrenfall")
             {
                 if (Signal("landed") != 0) return "The Linnet is at the north landing. Collect Elin’s flood book.";
@@ -214,12 +220,12 @@ namespace Wizzard
         {
             return Array.Find(Room.stations, s => s.id == id);
         }
-        public void TakePacket()
+        public void TakePacket(bool fen = false)
         {
             active = true;
             returnTicket = true;
-            chamber = Array.FindIndex(plan.rooms, r => r.middle);
-            camp = "RestGate";
+            chamber = Array.FindIndex(plan.rooms, r => r.key==(fen?"DriftFen":"SillwaterEbb"));
+            camp = fen ? "RestGuide" : "RestGate";
         }
         public string Use(string id, out string destination)
         {

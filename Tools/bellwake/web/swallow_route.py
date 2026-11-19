@@ -117,3 +117,53 @@ async def run_lock(act, page, start, out, extended=False):
         )
         + "\n"
     )
+
+
+async def fen_fare(act, page, start, out):
+    for number, leaves in ((0, 0), (33, 31), (34, 31)):
+        await page.mouse.up()
+        await page.evaluate(
+            "s=>localStorage.setItem('wizzard.bellwake.desktop.v1',s)",
+            json.dumps(dict(number=number, leaves=leaves)),
+        )
+        await start()
+        before = await page.evaluate("bellProbe()")
+        field = await act("A_FenPass")
+        assert (
+            field["district"] == "DriftFen"
+            and field["works"]["returnTicket"]
+            and field["works"]["camp"] == "RestGuide"
+        )
+        await act("A_Guide")
+        if number == 0:
+            await act("A_Find0")
+        await page.mouse.up()
+        await start()
+        state = await page.evaluate("bellProbe()")
+        assert state["district"] == "DriftFen" and state["works"]["signals"]["fenFork"] == 1
+        quay = await act("A_Home")
+        assert quay["district"] == "SwallowLock" and quay["works"]["returnTicket"]
+        returned = await act("A_Gate")
+        assert (
+            returned["district"] == before["district"]
+            and returned["number"] == number
+            and returned["ending"] == before["ending"]
+            and returned["leaves"] == leaves
+        )
+        if number == 0:
+            await act("A_FenPass")
+            assert await page.evaluate("bellProbe().works.signals.flourRecovered===1")
+            await act("A_Home")
+            await act("A_Gate")
+    (out / "fen-return.json").write_text(
+        json.dumps(
+            {
+                "freshMarket": True,
+                "bothEpilogues": True,
+                "reloadInField": True,
+                "earlyFindPreserved": True,
+            },
+            indent=2,
+        )
+        + "\n"
+    )

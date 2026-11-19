@@ -422,6 +422,7 @@ namespace Wizzard
                 return "Witness leaf";
             case "A_Gate":
                 return story.ending != 0 ? "Begin again" : "Way arch";
+            case "A_FenPass": return "Drift Fen return fare";
             case "A_Packet": return "Sillwater packet counter";
             case "A_Playhouse": return "Paper theatre door";
             case "A_Meadow":
@@ -1102,8 +1103,9 @@ namespace Wizzard
                 if(story.works.Remembered(worksPlan,"named")) line+=" Below it hangs a new brass plate: Ina, fourth hand of the night shift.";
 
                 break;
+            case "A_FenPass":
             case "A_Packet":
-                story.works.TakePacket();
+                story.works.TakePacket(id=="A_FenPass");
                 StartCoroutine(EnterRoom());
                 return;
             case "A_Playhouse":

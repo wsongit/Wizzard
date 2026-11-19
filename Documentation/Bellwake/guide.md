@@ -151,7 +151,7 @@ After solving Reedwater’s three sluices, go through its arch and take the watc
 
 ## Drift Fen
 
-Fen’s western footpath leads to the damaged settlements along Alder Stream. Willa keeps the sounding fork at the ferry. Ring it with Q on desktop or the left grip in VR. Its pitch and Willa’s bearing tell you when to turn and when you are close. Once the fork gives a clear reply, look down and lift the uncovered object with E or a trigger. The field sheet in your journal marks both fords and all four settlements.
+For an immediate visit from Bellmarket, take the red Drift Fen fare beside the Sillwater counter. To get back, leave the fen for Swallow Stair and use its northeast towpath. You can also enter during the main story. Fen’s western footpath leads to the damaged settlements along Alder Stream. Willa keeps the sounding fork at the ferry. Ring it with Q on desktop or the left grip in VR. Its pitch and Willa’s bearing tell you when to turn and when you are close. Once the fork gives a clear reply, look down and lift the uncovered object with E or a trigger. The field sheet in your journal marks both fords and all four settlements.
 
 You can recover the metal pieces in any order. At the school, read the names behind the missing bass reed. At the old bakehouse, look for Brindle’s tally. Pella’s clasp and the watchman’s key lead to the two remaining loads. Each discovery survives leaving the fen, closing the game or returning to the lock. The heavy cargo travels by crane.
 

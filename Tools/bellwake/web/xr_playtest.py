@@ -229,7 +229,7 @@ async def parish_checkpoint(browser):
     print("PASS tracked Willow transit, visual bearing and brass chart pin displacement",flush=True)
 
 
-async def packet_checkpoint(browser):
+async def packet_checkpoint(browser,fen=False):
     page=await browser.new_page(viewport={"width":630,"height":380})
     errors=[]
     page.on("pageerror",lambda e:errors.append(str(e)))
@@ -238,14 +238,24 @@ async def packet_checkpoint(browser):
     await page.click("#vr",timeout=60000)
     await page.wait_for_function("bellProbe().vr && bellProbe().palms.every(Boolean)")
     await tracked_navigation(page)
-    await page.evaluate("walkSurvey(6,12.35)")
-    await trigger_station(page,"Packet","!bellProbe().busy && bellProbe().district==='SillwaterEbb'")
+    if fen:
+        await page.evaluate("walkSurvey(9.2,13.50)")
+        await trigger_station(page,"FenPass","!bellProbe().busy && bellProbe().district==='DriftFen'")
+        await trigger_station(page,"Guide","bellProbe().works.signals.fenFork===1")
+        for x,z in ((0,23),(-7,23),(-7,21.2)):
+            await page.evaluate("([x,z])=>walkSurvey(x,z)",[x,z])
+        await trigger_station(page,"Home","!bellProbe().busy && bellProbe().district==='SwallowLock'")
+        for x,z in ((-16,10),(-18.5,10),(-18.5,-10.8),(14,-10.8),(14,-11.45)):
+            await page.evaluate("([x,z])=>walkSurvey(x,z)",[x,z])
+    else:
+        await page.evaluate("walkSurvey(6,12.35)")
+        await trigger_station(page,"Packet","!bellProbe().busy && bellProbe().district==='SillwaterEbb'")
     await trigger_station(page,"Gate","!bellProbe().busy && bellProbe().district==='Bellmarket'")
     assert (await page.evaluate("bellProbe().number"))==0
     assert not errors,errors
     await page.evaluate("testDevice.activeSession.end()")
     await page.close()
-    print("PASS Quest packet desk, northeast landing and return to Tavi’s first morning",flush=True)
+    print("PASS Quest return fare, "+("Willa’s fork, lock towpath" if fen else "parish landing")+" and return to Tavi’s first morning",flush=True)
 
 
 async def fen_checkpoint(browser):
@@ -363,8 +373,8 @@ async def run():
             await swallow_checkpoint(b)
             await b.close()
             return
-        if "--packet" in sys.argv:
-            await packet_checkpoint(b)
+        if "--packet" in sys.argv or "--fen-pass" in sys.argv:
+            await packet_checkpoint(b,"--fen-pass" in sys.argv)
             await b.close()
             return
         if "--parish" in sys.argv:

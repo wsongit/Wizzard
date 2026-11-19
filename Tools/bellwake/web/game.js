@@ -304,6 +304,7 @@ function label(id) {
     A_Meadow: "Long Meadow trail",
     A_Playhouse: "Paper theatre door",
     A_Packet: "Sillwater packet counter",
+    A_FenPass: "Drift Fen return fare",
   }[id];
 }
 function dispose(old) {
@@ -762,8 +763,8 @@ async function interact(id, palm = -1) {
     say("Tavi",data.works.theatreInvitation,16);
     return;
   }
-  if (id === "A_Packet") {
-    works.takePacket();
+  if (id === "A_Packet" || id === "A_FenPass") {
+    works.takePacket(id === "A_FenPass");
     if (await room()) welcome();
     return;
   }

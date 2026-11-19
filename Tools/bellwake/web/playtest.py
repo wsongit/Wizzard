@@ -9,7 +9,7 @@ from playwright.async_api import async_playwright
 from pilgrim_route import walk_wards, TRAILS
 from works_route import complete_works, complete_coast
 from theatre_route import perform
-from swallow_route import run_lock
+from swallow_route import run_lock, fen_fare
 from parish_route import survey_parish, packet_trip
 from engine_route import complete_engine, complete_supper
 
@@ -344,6 +344,11 @@ async def run():
             return
         if lock_only:
             await run_lock(act,page,start,out,True)
+            assert not errors,errors
+            await b.close()
+            return
+        if "--fen-pass" in sys.argv:
+            await fen_fare(act,page,start,out)
             assert not errors,errors
             await b.close()
             return

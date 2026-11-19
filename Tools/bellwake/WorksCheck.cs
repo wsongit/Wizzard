@@ -153,6 +153,12 @@ class WorksCheck
         Require(visitor.returnTicket && visitor.Room.key=="SillwaterEbb" && visitor.camp=="RestGate","missing return ticket");
         visitor.Use("A_Gate",out towpath);
         Require(towpath=="@reedwater" && !visitor.returnTicket && visitor.Signal("parishSigned")==0,"early packet return");
+        visitor.TakePacket(true);
+        visitor=Reload(plan,visitor);
+        Require(visitor.Room.key=="DriftFen" && visitor.returnTicket && visitor.camp=="RestGuide","lost fen fare");
+        Run(visitor,"Guide Find0 Home");
+        visitor.Use("A_Gate",out towpath);
+        Require(towpath=="@reedwater" && !visitor.returnTicket && visitor.Signal("flourRecovered")==1 && visitor.Signal("voyageNo")==0,"lost early salvage");
         foreach(string filing in new[]{"Name","Mark"})
         {
             var lockWatch=new BellwakeWorks {active=true,chamber=Array.FindIndex(plan.rooms,r=>r.key=="SwallowLock")};
