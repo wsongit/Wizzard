@@ -56,6 +56,7 @@ for (const file of process.argv.slice(2)) {
   const box = baseline.world.subTrees[0].box;
   const width = Math.min(60, Math.max(20, (box.max.x - box.min.x) / 2 - 1));
   const counts = { capsule: 0, sphere: 0, ray: 0 };
+  let visibilityQueries = 0;
   for (let i = 0; i < 768; i++) {
     const p = new Vector3((2 * random() - 1) * width, random() * 3, (2 * random() - 1) * width);
     const direction = new Vector3(random() - 0.5, i % 2 ? -1 : random() - 0.5, random() - 0.5).normalize();
@@ -72,6 +73,14 @@ for (const file of process.argv.slice(2)) {
       candidate.world.rayIntersect(ray, cutoff),
       "distance",
     );
+    const limits = [0, cutoff, Infinity];
+    if (a) limits.push(a.distance, a.distance + 1e-7, a.distance - 1e-7);
+    for (const limit of limits) {
+      const expected = !!a && a.distance < limit;
+      if (candidate.world.rayBlocked(ray, limit) !== expected)
+        throw Error(key + " wall visibility differs at " + limit);
+      visibilityQueries++;
+    }
     const s = baseline.world.sphereIntersect(sphere),
       c = baseline.world.capsuleIntersect(cap);
     compare(key, s, candidate.world.sphereIntersect(sphere), "depth");
@@ -83,6 +92,7 @@ for (const file of process.argv.slice(2)) {
   report.push({
     room: key,
     queries: 3072,
+    visibilityQueries,
     hits: counts,
     packedBytes: buffer.byteLength,
     referenceHeap: baseline.heap,

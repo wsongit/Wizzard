@@ -103,6 +103,9 @@ async def pilot_letters(act, page, start):
         await start()
         await page.keyboard.press("j")
         assert plan["pilotMail"] in await page.locator("#leaves").inner_text()
+        await page.wait_for_function("document.querySelector('#leaves img')?.naturalWidth === 768")
+
         await page.keyboard.press("j")
+        assert await page.locator("#leaves img").count() == 0
         await act("A_Talk")
         assert plan["pilotEndings"][end - 1] in await page.locator("#words").inner_text()

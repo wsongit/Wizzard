@@ -377,7 +377,11 @@ def actors(k):
     x, y = (-2, -8) if k != 4 else (0, 4)
     h = [1.84, 1.66, 1.82, 1.94, 3.8][k]
     name = ["Tavi", "Moss", "Fen", "Ossa", "The Quiet"][k]
-    model(CHARS[k], name, x, y, 0, h, 0, "Speaker")
+    if k == 0:
+        from tavi_art import make_tavi
+        make_tavi(x, y, 0, h)
+    else:
+        model(CHARS[k], name, x, y, 0, h, 0, "Speaker")
     origins["Speaker"] = (x, y, 0)
     marker("A_Talk", x, y - 0.6, min(h * 0.79, 1.9))
     collision("Speaker footing", x, y, -0.1, 0.74, 0.7, min(h, 1.65))

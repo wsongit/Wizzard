@@ -26,7 +26,7 @@ The market, Root Choir, Reedwater, Cinder Lens and belfry each hold a witness le
 
 The witness book shows active playtime. Loading, the open journal and unfocused play are excluded. The clock starts with this update for existing checkpoints. Players already past a new district retain their place in the story.
 
-The 31-place Swallow Stair route reached its first ending in 41 minutes 28 seconds of active play with known solutions. Drift Fen and the Glass Rookery extend that route. The design target is 25–30 hours for a first-time player. A human completion time has yet to be measured. [Playthrough details](validation.md)
+The 32-place Drift Fen route reached its first ending in 36 minutes 36 seconds of active play with known solutions. The Glass Rookery extends that route. The design target is 25–30 hours for a first-time player. A human completion time has yet to be measured. [Playthrough details](validation.md)
 
 ## Tavi’s Paper Theatre
 
@@ -58,7 +58,7 @@ In the map office, the registrar has a folio for each lost house. Its red thread
 
 Leave the Cinder Lens through the casting gate. Orla is waiting at the lodge with a carved whistle. Her flight book shows a different chart for each bird. A solid blue line means running water, and a broken ochre line means quiet water. Read the numbered stone at the next perch, stand within calling distance and press Q or squeeze the left grip. You can hear the bird answer before it lands.
 
-Pip, the little grebe, carries the first tube. Slate, a grey heron, follows a different watercourse. For Ash, the copper tern, match the destination’s shutter letter on the lantern console as well. Once a bird reaches its home perch, return to Orla’s sending desk. The last tube holds something Ina made for Tavi. It stays in your witness book through either ending.
+Pip, the little grebe, carries the first tube. Slate, a grey heron, follows a different watercourse. For Ash, the copper tern, match the destination’s shutter letter on the lantern console as well. Once a bird reaches its home perch, return to Orla’s sending desk. The last tube holds something Ina made for Tavi. Open the witness book to unfold her charcoal portrait. On Quest, turn the pages with a trigger. The letter stays with you through either ending.
 
 [Pip, Slate, Ash and the glasshouse as they appear in play](glass-rookery.jpg)
 

@@ -32,6 +32,14 @@ namespace Wizzard.Editor
                 sky.filterMode = FilterMode.Bilinear;
                 return;
             }
+            if (assetPath.StartsWith("Assets/Resources/Bellwake/Letters/"))
+            {
+                var page = (TextureImporter)assetImporter;
+                page.npotScale = TextureImporterNPOTScale.None;
+                page.wrapMode = TextureWrapMode.Clamp;
+                page.filterMode = FilterMode.Bilinear;
+                return;
+            }
             if (!assetPath.StartsWith("Assets/Resources/Bellwake/Textures/"))
                 return;
             var tile = (TextureImporter)assetImporter;

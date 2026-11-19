@@ -285,6 +285,36 @@ async def pilot_checkpoint(browser):
     print("PASS tracked whistle, grebe reply, wingbeats, landing and pilot chart in the headset",flush=True)
 
 
+async def portrait_checkpoint(browser):
+    plan = json.loads((here.parents[2] / "Assets/Resources/Bellwake/Underworks.json").read_text())
+    idx, machine = next((i, m) for i, m in enumerate(plan["machines"]) if m["key"] == "pilots")
+    machines = [0] * len(plan["machines"])
+    machines[idx] = next(i for i, r in enumerate(machine["rows"]) if r["values"][0] == 3)
+    save = {"number": 33, "leaves": 31, "works": {"machines": machines}}
+    page = await browser.new_page()
+    errors = []
+    page.on("pageerror", lambda e: errors.append(str(e)))
+    await page.add_init_script(script=harness)
+    await page.add_init_script("localStorage.setItem('wizzard.bellwake.desktop.v1',"+json.dumps(json.dumps(save))+")")
+    await page.goto(sys.argv[1])
+    await page.click("#vr", timeout=60000)
+    await page.wait_for_function("bellProbe().vr && bellProbe().palms.every(Boolean)")
+    async def press(control, assertion):
+        await page.evaluate("(c)=>testDevice.controllers.right.updateButtonValue(c,1)",control)
+        await page.wait_for_function(assertion)
+        await page.evaluate("(c)=>testDevice.controllers.right.updateButtonValue(c,0)",control)
+        await page.wait_for_timeout(180)
+    for _ in range(2):
+        await press("a-button","bellProbe().book")
+        await press("trigger","bellProbe().vrPortrait")
+        await press("trigger","bellProbe().journalPage === 2 && !bellProbe().vrMap")
+        await press("a-button","!bellProbe().book && !bellProbe().sheetAllocated")
+    await page.evaluate("testDevice.activeSession.end()")
+    assert not errors, errors
+    await page.close()
+    print("PASS tracked journal opens Ina's illustrated gift twice and releases its GPU page on close.",flush=True)
+
+
 async def fen_checkpoint(browser):
     plan=json.loads((here.parents[2]/"Assets/Resources/Bellwake/Underworks.json").read_text())
     flag=plan["flags"].index("fenFork")
@@ -392,6 +422,10 @@ async def run():
                 "--enable-unsafe-swiftshader",
             ],
         )
+        if "--portrait" in sys.argv:
+            await portrait_checkpoint(b)
+            await b.close()
+            return
         if "--pilots" in sys.argv:
             await pilot_checkpoint(b)
             await b.close()

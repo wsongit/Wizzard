@@ -196,6 +196,7 @@ let group = null,
   surveyImage = null,
   roadPage = 0,
   journalPage = 0,
+  portraitPage = null,
   journalText = [],
   focus = "",
   timer = 0,
@@ -911,9 +912,7 @@ function pick() {
     if (dot < 0.64) continue;
     ray.set(origin, look);
     ray.far = Math.max(0.01, distance - 0.45);
-    // Check the nearest wall rather than ray-testing every decorative triangle.
-    const hit = tree.rayIntersect(ray.ray, ray.far);
-    if (hit && hit.distance < ray.far) continue;
+    if (tree.rayBlocked(ray.ray, ray.far)) continue;
     const weight =
       passage.active || state().ending ? distance * 0.025 + 20 * (1 - dot) : distance + 4 * (1 - dot);
     if (weight < best) {
@@ -1099,7 +1098,11 @@ function toggleBook(open) {
   keys.clear();
   $("book").hidden = !open;
   $("hud").hidden = open;
-  if (open) {
+  if (!open) {
+    vr.releaseSheet();
+    portraitPage = null;
+    $("leaves").replaceChildren();
+  } else {
     document.exitPointerLock?.();
     drawSurvey();
     $("booktitle").textContent = locationName() + "   ·   " + playTime();
@@ -1107,7 +1110,13 @@ function toggleBook(open) {
     $("leaves").replaceChildren();
     if (works.signals.pilotNo===3) {
       const sketch=document.createElement("li");
-      sketch.textContent=data.works.pilotMail;
+      sketch.textContent = data.works.pilotMail;
+      portraitPage = document.createElement("img");
+      portraitPage.alt = "Ina’s charcoal portrait of Tavi, with a note from the night of the flood.";
+      portraitPage.width = 768;
+      portraitPage.height = 544;
+      portraitPage.src = assetURL("letters", "Tavi", "image/jpeg");
+      sketch.append(portraitPage);
       $("leaves").append(sketch);
     }
     if (works.signals.parishSigned) {
@@ -1363,6 +1372,7 @@ function loop(time, frame) {
           ? label(focus)
           : "The keeper calls";
     if (book && surveyImage && journalPage === 0) vr.showSurvey($("survey"));
+    else if (book && journalPage === 1 && portraitPage?.naturalWidth) vr.showSurvey(portraitPage);
     else vr.caption(title, text);
   }
   sky.position.copy(vr.session ? vr.head : camera.position);
@@ -1408,6 +1418,8 @@ if (__TEST__)
     pilotCall: replyName,
     pilots: nodes.Roost0 ? fixtures.filter(f=>f.flight).map(f=>({visible:f.obj.visible, position:f.obj.position.toArray(),target:nodes["Roost"+works.signals.birdAt].position.toArray(),wing:f.flight.wings[0].rotation.z})) : null,
     vrMap: !!vr.mapMode,
+    vrPortrait: !!(vr.mapMode && portraitPage && vr.mapInk.image === portraitPage),
+    sheetAllocated: !!vr.mapInk,
     fixturePasses, motionLeft,
     handFork: nodes.HandFork?.visible ? nodes.HandFork.position.toArray() : null,
     uncovered: uncoveredFind && nodes[uncoveredFind]?.visible ? uncoveredFind : null,

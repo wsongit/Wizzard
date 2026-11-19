@@ -46,10 +46,11 @@ class PackedCollision extends Octree {
       } else if (count < 0) {
         cursor += 7;
       } else {
-        leaf(cursor + 7, next);
+        if (leaf(cursor + 7, next)) return true;
         cursor = next;
       }
     }
+    return false;
   }
 
   readFace(offset, face) {
@@ -75,6 +76,20 @@ class PackedCollision extends Octree {
   getCapsuleTriangles(capsule, faces) {
     this.collect(capsule, faces);
   }
+  // Head sweeps and interaction sightlines only need to know whether a wall
+  // lies strictly before the target. An intersection at the target stays clear.
+  rayBlocked(ray, limit) {
+    if (limit <= 0 || ray.direction.lengthSq() === 0) return false;
+    return this.visit(ray, (start, end) => {
+      for (let i = start; i < end; i += 9) {
+        const face = this.readFace(i, this.face);
+        if (ray.intersectTriangle(face.a, face.b, face.c, true, this.hit)
+          && ray.origin.distanceTo(this.hit) < limit) return true;
+      }
+      return false;
+    }, limit);
+  }
+
   rayIntersect(ray, limit = Infinity) {
     if (ray.direction.lengthSq() === 0) return;
     let best = Infinity,

@@ -92,7 +92,7 @@ namespace Wizzard
             survey.gameObject.SetActive(false);
             surveyInk.mainTexture=null;
         }
-        public void Survey(Texture image,Vector2 position)
+        public void Survey(Texture image, Vector2? position = null)
         {
             if (survey==null)
             {
@@ -110,7 +110,12 @@ namespace Wizzard
                 marker.GetComponent<Renderer>().sharedMaterial=pinInk;
             }
             surveyInk.mainTexture=image;
-            pin.localPosition=new Vector3((16+480*position.x)/768f-.5f,.5f-(512-480*position.y)/544f,-.006f);
+            pin.gameObject.SetActive(position.HasValue);
+            if (position.HasValue)
+            {
+                Vector2 p = position.Value;
+                pin.localPosition = new Vector3((16 + 480*p.x)/768f - .5f, .5f - (512 - 480*p.y)/544f, -.006f);
+            }
             survey.gameObject.SetActive(true);
         }
         public void Say(string title, string text)

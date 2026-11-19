@@ -276,8 +276,7 @@ export class TrackedRunner {
       const travel = this.work.length();
       if (travel > 0.01) {
         this.guardRay.set(this.safeHead, this.work.normalize());
-        const hit = tree.rayIntersect(this.guardRay, travel);
-        blocked = !!hit && hit.distance < travel;
+        blocked = tree.rayBlocked(this.guardRay, travel);
       }
     }
     if (!blocked) {
@@ -298,15 +297,26 @@ export class TrackedRunner {
   surveyChanged() {
     if (this.mapInk) this.mapInk.needsUpdate = true;
   }
-  showSurvey(canvas) {
+  showSurvey(sheet) {
     if (!this.mapInk) {
-      this.mapInk = new T.CanvasTexture(canvas);
+      this.mapInk = new T.CanvasTexture(sheet);
       this.mapInk.colorSpace = T.SRGBColorSpace;
+    } else if (this.mapInk.image !== sheet) {
+      this.mapInk.image = sheet;
+      this.mapInk.needsUpdate = true;
     }
     this.mapMode = true;
     this.card.visible = true;
     this.card.scale.y = (1.42 * 544) / 768 / 0.38;
     this.card.material.map = this.mapInk;
+  }
+  releaseSheet() {
+    if (!this.mapInk) return;
+    this.card.material.map = this.ink;
+    this.card.scale.y = 1;
+    this.mapMode = false;
+    this.mapInk.dispose();
+    this.mapInk = null;
   }
   caption(title, words) {
     if (this.mapMode) {

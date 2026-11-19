@@ -2,7 +2,15 @@
 
 ## Previous full playthrough
 
-The 31-place Swallow Stair route reached its first ending in **41 minutes 28 seconds of active play**, or 42 minutes 16 seconds elapsed. The fresh-save runner knew the solutions, walked using normal controls, collected the five witness leaves and tested both endings from the last checkpoint. It reported zero application errors. This measurement predates Drift Fen and the Glass Rookery. First-time human and physical-headset completion times remain unmeasured. [Timing by location](known-route.json)
+The 32-place Drift Fen route reached its first ending in **36 minutes 36 seconds of active play**, or 37 minutes 10 seconds elapsed. The fresh-save runner used normal movement and known solutions. It recovered four missing cargoes, completed the hydraulic crossings, collected all five witness leaves and reached both endings. It reported zero application errors. This run predates the Glass Rookery. Different workloads on the shared software renderer affect movement time. First-time human and physical-headset completion times remain unmeasured. [Timing by location](known-route.json)
+
+## Tavi and Ina’s letter
+
+Tavi’s face, fringe, clothes and tools share one 256 × 256 texture. Her head and arm keep separate pivots for looking at the player and gesturing. The Blender reimport sampled 5,929 ground positions and cast 3,140 perimeter rays in each of her two locations. Both passed.
+
+Ina’s portrait is rendered in Blender from those same character meshes. A desktop test restored each ending and read the illustrated letter. A Quest controller emulator opened the page twice, turned to a different page and closed the book. The image texture was released each time. [Tavi in the market and her sister’s sketch](tavi-and-ina.jpg)
+
+Wall visibility for selecting objects and sweeping the tracked head now exits on the first obstruction. The full differential suite compared 126,663 visibility tests with the reference collision system, including hits at the exact target distance. Another 104,448 ray, body and palm queries matched across all 34 districts. The native loader starts the panorama, score and room model requests together after releasing the previous district. A bird’s voice is queued only for a district containing its perch.
 
 ## The Glass Rookery
 

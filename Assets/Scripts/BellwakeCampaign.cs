@@ -238,13 +238,25 @@ namespace Wizzard
                 bool dawn = story.ending != 0 && !InWorks;
                 string theme = dawn ? "Morning" : InWorks ? story.works.Room.theme : key;
                 yield return ReleaseArea(theme);
+                var request = Resources.LoadAsync<GameObject>(Path + "Rooms/" + key);
+                var panorama = Resources.LoadAsync<Cubemap>(Path + "Skies/" + theme);
+                var song = score.clip == null ? Resources.LoadAsync<AudioClip>(Path + "Audio/" + theme) : null;
+                Dictionary<string, ResourceRequest> pilotCalls = null;
+                if (InWorks)
+                {
+                    foreach (var visual in story.works.Room.visuals)
+                    {
+                        if (visual.kind != "perch") continue;
+                        if (pilotCalls == null) pilotCalls = new Dictionary<string, ResourceRequest>();
+                        pilotCalls.Add(visual.node, Resources.LoadAsync<AudioClip>(Path + "Audio/" + visual.node + "Call"));
+                    }
+                }
                 if (InPassage)
                 {
                     var charts=Resources.LoadAsync<TextAsset>(Path+"Charts/"+key);
                     yield return charts;
                     Route.Bind(atlas.regions[story.room],JsonUtility.FromJson<PassageBook>(((TextAsset)charts.asset).text));
                 }
-                var request = Resources.LoadAsync<GameObject>(Path + "Rooms/" + key);
                 yield return request;
                 if (request.asset == null)
                     throw new InvalidOperationException("Missing Bellwake room " + key);
@@ -297,8 +309,6 @@ namespace Wizzard
                 facing = Quaternion.LookRotation(dir);
                 spawn = Arrival();
                 if (InWorks && story.works.Room.early) PrepareGuide();
-                var panorama = Resources.LoadAsync<Cubemap>(Path + "Skies/" + theme);
-                var song = score.clip==null ? Resources.LoadAsync<AudioClip>(Path + "Audio/" + theme) : null;
                 yield return panorama;
                 ApplyLook((Cubemap)panorama.asset);
                 if(InWorks)
@@ -323,7 +333,12 @@ namespace Wizzard
                         for (int j=0;j<fixtures.Length;j++)
                         {
                             var v=fixtures[j];
-                            if (v.kind=="perch") pilotFlights[j]=new BellwakePilotFlight(nodes[v.node],nodes[v.node+"Left"],nodes[v.node+"Right"],roosts,nodes["MapNW"].position-nodes["MapSW"].position,v.amount, Resources.Load<AudioClip>(Path+"Audio/"+v.node+"Call"));
+                            if (v.kind != "perch") continue;
+                            var call = pilotCalls[v.node];
+                            if (!call.isDone) yield return call;
+                            pilotFlights[j] = new BellwakePilotFlight(nodes[v.node], nodes[v.node + "Left"],
+                                nodes[v.node + "Right"], roosts, nodes["MapNW"].position - nodes["MapSW"].position,
+                                v.amount, (AudioClip)call.asset);
                         }
                     }
                     AnimateWorks(true);
@@ -839,7 +854,10 @@ namespace Wizzard
                 }
             }
             else if (journalPage == 9)
-                display.Say("Ash’s reed tube",worksPlan.pilotMail);
+            {
+                display.Say("Ash’s reed tube", worksPlan.pilotMail);
+                display.Survey(Resources.Load<Texture2D>(Path + "Letters/Tavi"));
+            }
             else if (journalPage == 8)
                 display.Say("Three houses of Sillwater", worksPlan.parishLedger);
             else if (journalPage == 7)

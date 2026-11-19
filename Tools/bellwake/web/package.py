@@ -59,6 +59,7 @@ data = dict(
         )
         for r in regions
     },
+    letters={"Tavi": asset(root / "Assets/Resources/Bellwake/Letters/Tavi.jpg")},
     skies={
         p.stem: asset(p)
         for p in (root / "Assets/Resources/Bellwake/Skies").glob("*.jpg")

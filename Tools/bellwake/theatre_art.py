@@ -524,7 +524,8 @@ def make(lib):
         y = s["y"]
         z = height(0, x, y)
         if id == "Talk":
-            model("WZ_VIL_N01", "Tavi in her courtyard", x, y, z, 1.79, 13, "Speaker")
+            from tavi_art import make_tavi
+            make_tavi(x, y, z, 1.79, 13)
         elif id == "Door":
             arch(x, y, z, 2.6, 3, "Masonry", "Wood")
         else:
