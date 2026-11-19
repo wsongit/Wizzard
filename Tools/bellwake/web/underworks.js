@@ -7,7 +7,8 @@ export class Underworks {
       invited: !!saved.invited,
       camp: typeof saved.camp === "string" ? saved.camp : "",
       chamber: Number.isInteger(saved.chamber) && plan.rooms[saved.chamber] ? saved.chamber : 0,
-      badges: (saved.badges | 0) & ((1 << plan.flags.length) - 1),
+      badges: (saved.badges | 0) & ((1 << Math.min(30,plan.flags.length)) - 1),
+      furtherBadges: Array.from({length: Math.max(0,Math.floor((plan.flags.length-1)/30))},(_,i)=>saved.furtherBadges?.[i] | 0),
       machines: plan.machines.map((m, i) =>
         Number.isInteger(saved.machines?.[i]) && m.rows[saved.machines[i]] ? saved.machines[i] : 0,
       ),
@@ -23,7 +24,10 @@ export class Underworks {
   refresh() {
     const p = this.progress;
     this.signals = {};
-    this.plan.flags.forEach((s, i) => (this.signals[s] = (p.badges >> i) & 1));
+    this.plan.flags.forEach((s,i)=>{
+      const bits=i<30 ? p.badges : p.furtherBadges[Math.floor(i/30)-1];
+      this.signals[s]=(bits >> (i%30)) & 1;
+    });
     this.plan.machines.forEach((m, i) =>
       m.channels.forEach((s, j) => (this.signals[s] = m.rows[p.machines[i]].values[j])),
     );
@@ -106,7 +110,11 @@ export class Underworks {
     const r = station?.rules.find((rule) => rule.when.every((c) => this.signals[c.signal] === c.value));
     if (!r) return { line: this.objective(), to: "" };
     const p = this.progress;
-    if (r.award) p.badges |= 1 << this.plan.flags.indexOf(r.award);
+    if (r.award) {
+      const index=this.plan.flags.indexOf(r.award), bit=1 << (index%30);
+      if(index<30) p.badges|=bit;
+      else p.furtherBadges[Math.floor(index/30)-1]|=bit;
+    }
     if (r.move) {
       const [key, op] = r.move.split("."),
         i = this.plan.machines.findIndex((m) => m.key === key),
@@ -116,7 +124,7 @@ export class Underworks {
     this.refresh();
     if (station.camp) p.camp = station.camp;
     if (r.to) {
-      p.camp = r.to.startsWith("#") ? r.to.slice(1) : "";
+      p.camp = r.to.startsWith("#") ? r.to.slice(1) : r.arrival || "";
       if (!r.to.startsWith("@") && !r.to.startsWith("#"))
         p.chamber = this.plan.rooms.findIndex((room) => room.key === r.to);
     }

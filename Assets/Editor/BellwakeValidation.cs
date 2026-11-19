@@ -59,9 +59,15 @@ namespace Wizzard.Editor
                             Require(names.Contains(part),room+" "+part);
                         Require(chamber.ground.Length==225, room+" guide heights");
                     }
+                    foreach (var source in works.rooms)
+                        foreach (var station in source.stations)
+                            foreach (var rule in station.rules)
+                                if (rule.to==room && !string.IsNullOrEmpty(rule.arrival))
+                                    Require(names.Contains(rule.arrival), room+" arrival "+rule.arrival);
                     foreach(var visual in chamber.visuals)
                     {
                         Require(names.Contains(visual.node),room+" "+visual.node);
+                        if (!string.IsNullOrEmpty(visual.visibleSignal)) Require(Array.IndexOf(works.flags,visual.visibleSignal)>=0,room+" missing visibility flag");
                         if (visual.kind=="slide") Require(names.Contains("RailStart") && names.Contains("RailEnd"),room+" slide guides");
                         if (visual.kind=="pointer")
                             foreach (var bearing in new[]{"Bearing0","Bearing1","Bearing2"}) Require(names.Contains(bearing),room+" selector index");

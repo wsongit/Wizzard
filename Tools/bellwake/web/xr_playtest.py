@@ -195,6 +195,40 @@ async def theatre_checkpoint(browser):
     print("PASS market invitation, blue door, casting pattern and woodcut figure reel with tracked controllers",flush=True)
 
 
+async def parish_checkpoint(browser):
+    for room,chamber,camp in (("SillwaterEbb",20,"RestWillow"),("SillwaterOffice",22,"RestWest")):
+        page=await browser.new_page(viewport={"width":630,"height":380})
+        errors=[]
+        page.on("pageerror",lambda e:errors.append(str(e)))
+        await page.add_init_script(script=harness)
+        save={"number":6,"works":{"active":True,"chamber":chamber,"camp":camp,"furtherBadges":[1]}}
+        await page.add_init_script("localStorage.setItem('wizzard.bellwake.desktop.v1',"+json.dumps(json.dumps(save))+")")
+        await page.goto(sys.argv[1])
+        await page.click("#vr",timeout=60000)
+        await page.wait_for_function("key=>bellProbe().vr && bellProbe().district===key && bellProbe().palms.every(Boolean)",arg=room)
+        await tracked_navigation(page)
+        if room=="SillwaterEbb":
+            for visible in (True,False):
+                await page.evaluate("testDevice.controllers.right.updateButtonValue('a-button',1)")
+                await page.wait_for_function("v=>bellProbe().vrMap===v",arg=visible)
+                await page.evaluate("testDevice.controllers.right.updateButtonValue('a-button',0)")
+                await page.wait_for_timeout(300)
+            await trigger_station(page,"Willow","!!bellProbe().sight")
+            await page.evaluate("sightToward(bellProbe().sight.target)")
+            await page.wait_for_function("bellProbe().sight?.linedUp")
+            await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',1)")
+            await page.wait_for_function("!bellProbe().sight && bellProbe().works.signals.fixWillow===1")
+            await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',0)")
+        else:
+            before=await page.evaluate("bellProbe().machinery.MapPin.position")
+            await trigger_station(page,"West","bellProbe().works.signals.parishCol===1")
+            await page.wait_for_function("x=>Math.abs(bellProbe().machinery.MapPin.position[0]-x)<.04",arg=before[0]-1.52)
+        await page.evaluate("testDevice.activeSession.end()")
+        assert not errors,errors
+        await page.close()
+    print("PASS tracked Willow transit, visual bearing and brass chart pin displacement",flush=True)
+
+
 async def kitchen_checkpoint(browser):
     page = await browser.new_page(viewport={"width": 630, "height": 380})
     errors = []
@@ -253,6 +287,10 @@ async def run():
                 "--enable-unsafe-swiftshader",
             ],
         )
+        if "--parish" in sys.argv:
+            await parish_checkpoint(b)
+            await b.close()
+            return
         if "--theatre" in sys.argv:
             await theatre_checkpoint(b)
             await b.close()

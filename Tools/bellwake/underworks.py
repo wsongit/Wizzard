@@ -941,6 +941,9 @@ supper_notes=add_kitchen(rooms,flags,room,post,step,v,machine)
 from theatre import build as build_theatre, CADENCES, INVITATION
 theatre_credits=build_theatre(room,post,step,v,machine,flags)
 
+from sillwater import build as build_sillwater
+build_sillwater(room,post,step,v,machine,flags)
+
 for descriptor in rooms:
     for station in descriptor["stations"]:
         station["note"] = {
@@ -960,6 +963,11 @@ if __name__ == "__main__":
                 theatreInvitation=INVITATION,
                 theatreCredits=theatre_credits,
                 theatreCadences=CADENCES,
+                parishLedger="Ada’s seal restores three addresses to the toll map: the Oar House, the school at Penny Reach, and the bell lock.",
+                parishEndings=[
+                    "The new watch list gives every runner a meeting place. Against Ina’s name Ada has written Penny Reach school.",
+                    "Ina traces the three names on Ada’s map. ‘Penny Reach. My peg was the third one from the door.’",
+                ],
                 supperNotes=supper_notes,
                 supperEndings=[
                     "Nell, Ara and Wen sign together for the first morning watch. Iona brings four bowls up to the tower.",

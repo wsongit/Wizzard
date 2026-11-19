@@ -1,0 +1,77 @@
+{
+  "bearings": 6,
+  "chartPins": [
+    [
+      1,
+      3
+    ],
+    [
+      4,
+      2
+    ],
+    [
+      2,
+      4
+    ]
+  ],
+  "activeSeconds": {
+    "SillwaterEbb": 182.09279999999995,
+    "SillwaterFlood": 98.54610000000002,
+    "SillwaterOffice": 19.199199999999983
+  },
+  "geometry": [
+    {
+      "asset": "SillwaterEbb",
+      "groundProbes": 56169,
+      "boundaryRays": 9540,
+      "interiorCrossings": 0,
+      "walkableCells": 51420,
+      "stations": 8,
+      "minApproaches": 60,
+      "triangles": 30840,
+      "visibleMaterialSlots": 30
+    },
+    {
+      "asset": "SillwaterFlood",
+      "groundProbes": 56169,
+      "boundaryRays": 9540,
+      "interiorCrossings": 0,
+      "walkableCells": 51430,
+      "stations": 8,
+      "minApproaches": 60,
+      "triangles": 30664,
+      "visibleMaterialSlots": 30
+    },
+    {
+      "asset": "SillwaterOffice",
+      "groundProbes": 5929,
+      "boundaryRays": 3140,
+      "interiorCrossings": 0,
+      "walkableCells": 5245,
+      "stations": 9,
+      "minApproaches": 90,
+      "triangles": 6200,
+      "visibleMaterialSlots": 31
+    }
+  ],
+  "streaming": [
+    {
+      "transfers": 105,
+      "distinctPlaces": 31,
+      "maxRetiredAlive": 0,
+      "liveWorlds": 1,
+      "liveCollisionTrees": 1,
+      "liveScores": 1,
+      "identicalGpuCountsAcrossLaps": true
+    },
+    {
+      "transfers": 21,
+      "distinctPlaces": 5,
+      "maxRetiredAlive": 0,
+      "liveWorlds": 1,
+      "liveCollisionTrees": 1,
+      "liveScores": 1,
+      "identicalGpuCountsAcrossLaps": true
+    }
+  ]
+}

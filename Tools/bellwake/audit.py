@@ -129,6 +129,11 @@ def main(key):
         assert all(v["node"] in objects for v in works[key]["visuals"]),key
         assert all(s["swing"] in objects for s in works[key]["stations"] if s.get("swing")),key
         assert all(s["sight"] in objects for s in works[key]["stations"] if s.get("sight")),key
+        for source in works.values():
+            for station in source["stations"]:
+                for rule in station["rules"]:
+                    if rule.get("to")==key and rule.get("arrival"):
+                        assert rule["arrival"] in objects,(source["key"],key,rule["arrival"])
         for visual in works[key]["visuals"]:
             if visual["kind"]=="slide":assert {"RailStart","RailEnd"}.issubset(objects),key
             if visual["kind"]=="pointer":assert {"Bearing0","Bearing1","Bearing2"}.issubset(objects),key

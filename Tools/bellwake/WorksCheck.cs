@@ -24,7 +24,7 @@ class WorksCheck
     }
     static BellwakeWorks Reload(WorksPlan plan, BellwakeWorks w)
     {
-        var resume = new BellwakeWorks { active = w.active, chamber = w.chamber, camp = w.camp, badges = w.badges,
+        var resume = new BellwakeWorks { active = w.active, chamber = w.chamber, camp = w.camp, badges = w.badges, invited=w.invited,furtherBadges=(int[])w.furtherBadges.Clone(),
                                          machines = (int[])w.machines.Clone() };
         resume.Bind(plan);
         return resume;
@@ -35,6 +35,7 @@ class WorksCheck
         if (m.channels[0].StartsWith(m.key)) return row.values[row.values.Length-1]==1;
         switch (m.key)
         {
+        case "parishplot": return s("parishJob")==3;
         case "paperstage": return s("paperCredit")!=0;
         case "potcall": return s("supperBeat")==9;
         case "distribution": return s("drumBearing")==2;
@@ -128,6 +129,22 @@ class WorksCheck
                         q.Enqueue(i);
             Require(good.Count == m.rows.Length, m.key + " stranded mechanism");
         }
+        var parish=new BellwakeWorks {active=true,chamber=Array.FindIndex(plan.rooms,r=>r.middle),machines=new int[2],badges=1<<Array.IndexOf(plan.flags,"reed")};
+        parish.Bind(plan);
+        Run(parish,"Gate South");
+        Require(parish.Room.key=="SillwaterEbb" && parish.Signal("parishWarrant")==0,"unearned tide");
+        Run(parish,"Ada Willow Crane Net North");
+        parish=Reload(plan,parish);
+        Require(parish.Room.key=="SillwaterFlood" && parish.camp=="RestNorth" && parish.Signal("fixWillow")==1 && parish.Signal("reed")==1 && parish.Signal("paperPattern")==0,"old save or tide checkpoint");
+        Run(parish,"Office West North Stamp Seal");
+        Require(parish.Signal("parishJob")==0 && parish.Signal("parishSigned")==0,"premature survey");
+        Run(parish,"Door1 Vestry Orchard Market Office Stamp East East Stamp North North Stamp");
+        parish=Reload(plan,parish);
+        Require(parish.Signal("parishJob")==3 && parish.Signal("fixMarket")==1,"lost field bearing");
+        Run(parish,"Seal Door0");
+        string towpath;
+        parish.Use("A_Gate",out towpath);
+        Require(towpath=="@reedwater" && parish.Signal("parishSigned")==1,"signed towpath");
         foreach (string credit in new[] {"Maker","Runner"})
         {
             var court=new BellwakeWorks {active=true,chamber=Array.FindIndex(plan.rooms,r=>r.prologue)};

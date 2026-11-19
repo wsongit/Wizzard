@@ -42,7 +42,7 @@ let works = new Underworks(
   data.works,
   savedWorks,
   savedRoom?.prologue ? state().room === 0 :
-    savedRoom?.early ? state().room === 1 && !state().ending : state().room === 3 && state().solved,
+    savedRoom?.middle ? state().room === 2 && !state().ending : savedRoom?.early ? state().room === 1 && !state().ending : state().room === 3 && state().solved,
 );
 const roomRadius = () => (works.active && works.room.halfSpan) || 20;
 const locationKey = () =>
@@ -393,7 +393,7 @@ async function loadRoom() {
     if (o.name.startsWith("A_")) markers.push(o);
     if (o.isMesh) {
       const old = o.material;
-      if (works.active && works.room.early && old.name === key + "Survey") surveyImage = old.map.source.data;
+      if (works.active && old.name === key + "Survey") surveyImage = old.map.source.data;
       if (!palette.has(old)) {
         const paint = new T.MeshLambertMaterial({ map: old.map, color: old.color, side: T.DoubleSide });
         if (old.map) {
@@ -527,7 +527,7 @@ function animateWorks(mix, dt = 0) {
     const { v, obj, pos, rot } = fixture;
     const n = works.signals[v.signal];
     if (v.kind === "show") {
-      obj.visible = n === v.match && (v.node !== "CrewAshore" || voyageFraction >= 1);
+      obj.visible = n === v.match && (!v.visibleSignal || !!works.signals[v.visibleSignal]) && (v.node !== "CrewAshore" || voyageFraction >= 1);
       continue;
     }
     if (v.kind === "pointer") {
@@ -638,7 +638,7 @@ async function interact(id, palm = -1) {
       );
       return;
     }
-    if (station.sight && works.signals.charter && !works.signals[station.evidence]) {
+    if (station.sight && works.signals[station.prime || "charter"] && !works.signals[station.evidence]) {
       if (observation !== station) {
         observation = station;
         say(station.label, station.direction, 18);
@@ -660,7 +660,7 @@ async function interact(id, palm = -1) {
       return;
     }
     if (result.to) {
-      if (result.to === "@choir" || result.to === "@market") works.progress.active = false;
+      if (result.to === "@choir" || result.to === "@market" || result.to === "@reedwater") works.progress.active = false;
       if (result.to === "@final") {
         works.progress.active = false;
         number = state().moves.A_Gate[0];
@@ -695,8 +695,8 @@ async function interact(id, palm = -1) {
     if (id === "A_Gate" && passage.done) {
       number = state().moves.A_Gate[0];
       passage.leave();
-      if (state().room === 1) {
-        works.progress.chamber = openingWard;
+      if (state().room === 1 || state().room === 2) {
+        works.progress.chamber = state().room===1 ? openingWard : data.works.rooms.findIndex(r=>r.middle);
         works.progress.camp = "";
         works.progress.active = true;
       }
@@ -806,7 +806,9 @@ async function interact(id, palm = -1) {
     ? " " + data.works.supperEndings[state().ending - 1] : "";
   const programme = id === "A_Talk" && state().ending && works.signals.paperCredit
     ? " " + data.works.theatreCredits[works.signals.paperCredit - 1] : "";
-  say(name, move[1] + programme + pilotLine + supperLine + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
+  const parishLine = (id === "A_Ina" || id === "A_Roster") && state().ending && works.signals.parishSigned
+    ? " " + data.works.parishEndings[state().ending - 1] : "";
+  say(name, move[1] + programme + pilotLine + supperLine + parishLine + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
 }
 function bearingClear() {
   const origin = vr.session ? vr.head : camera.position;
@@ -982,6 +984,11 @@ function toggleBook(open) {
     $("booktitle").textContent = locationName() + "   ·   " + playTime();
     $("objective").textContent = objective() + "   ·   " + state().seals + " of 3 vows";
     $("leaves").replaceChildren();
+    if (works.signals.parishSigned) {
+      const page = document.createElement("li");
+      page.textContent = data.works.parishLedger;
+      $("leaves").append(page);
+    }
     if (works.kitchenJournal()) {
       const slip = document.createElement("li");
       slip.textContent = "The supper call   ·   " + works.kitchenJournal();
@@ -992,7 +999,7 @@ function toggleBook(open) {
       page.textContent = data.works.logTitle + "   ·   " + data.works.logEntry;
       $("leaves").append(page);
     }
-    if (works.active && !works.room.early && !works.room.prologue) {
+    if (works.active && !works.room.early && !works.room.prologue && !works.room.middle) {
       const item = document.createElement("li");
       item.textContent = works.register();
       $("leaves").append(item);
@@ -1244,6 +1251,7 @@ if (__TEST__)
       lamps: [0,1,2,3].filter(i=>nodes["LitShell"+i].visible).length,
       gesture: ring?.name
     } : null,
+    threads: fixtures.filter(f=>f.v.node.startsWith("Thread") && f.obj.visible).map(f=>f.v.node).sort(),
     meal: nodes.ServedTable ? { served: nodes.ServedTable.visible, crew: nodes.MessCrew.visible, lamp: nodes.KitchenLamp.visible } : null,
     retiredAlive: retired?.filter((ref) => ref.deref()).length || 0,
     trees: tree ? 1 : 0,
@@ -1304,10 +1312,10 @@ if (__TEST__)
     if (busy) throw Error("Travel already in progress");
     const expansion = index - graph.rooms.length;
     const chamber = expansion - data.regions.length;
-    const early = data.works.rooms[chamber]?.early, prologue = data.works.rooms[chamber]?.prologue;
-    const base = chamber >= 0 ? (prologue ? 0 : early ? 1 : 3) : expansion >= 0 ? expansion : index;
+    const early = data.works.rooms[chamber]?.early, prologue = data.works.rooms[chamber]?.prologue, middle=data.works.rooms[chamber]?.middle;
+    const base = chamber >= 0 ? (prologue ? 0 : middle ? 2 : early ? 1 : 3) : expansion >= 0 ? expansion : index;
     const target = graph.states.findIndex(
-      (s) => s.room === base && (prologue ? !s.commissioned : expansion < 0 || s.commissioned) && (chamber < 0 || prologue || early || s.solved),
+      (s) => s.room === base && (prologue ? !s.commissioned : expansion < 0 || s.commissioned) && (chamber < 0 || prologue || middle || early || s.solved),
     );
     if (target < 0 || chamber >= data.works.rooms.length) throw Error("Unknown district");
     number = target;

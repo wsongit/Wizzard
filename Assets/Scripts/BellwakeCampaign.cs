@@ -130,7 +130,7 @@ namespace Wizzard
             int savedChamber=story.works.chamber;
             var chamber = savedChamber >= 0 && savedChamber < worksPlan.rooms.Length ? worksPlan.rooms[savedChamber] : null;
             bool eligible = chamber != null && (chamber.prologue ? story.room == 0 :
-                chamber.early ? story.room == 1 && story.ending == 0 : story.room == 3 && story.Solved);
+                chamber.middle ? story.room==2 && story.ending==0 : chamber.early ? story.room == 1 && story.ending == 0 : story.room == 3 && story.Solved);
             if (!eligible) story.works.active = false;
             story.works.Bind(worksPlan);
             int slots=BellwakeJourney.Rooms.Length+atlas.regions.Length+1+worksPlan.rooms.Length;
@@ -244,6 +244,7 @@ namespace Wizzard
                 yield return request;
                 if (request.asset == null)
                     throw new InvalidOperationException("Missing Bellwake room " + key);
+                yield return LoadPaints((GameObject)request.asset);
                 outdoors = false;
                 set = Instantiate((GameObject)request.asset);
                 set.name = key;
@@ -346,26 +347,34 @@ namespace Wizzard
                 curtainRenderer.enabled = false;
             }
         }
+        IEnumerator LoadPaints(GameObject model)
+        {
+            var pending = new Dictionary<string, ResourceRequest>();
+            foreach (var renderer in model.GetComponentsInChildren<MeshRenderer>(true))
+            {
+                if (renderer.name == "C_Solids") continue;
+                foreach (var slot in renderer.sharedMaterials)
+                {
+                    if (slot == null || paints.ContainsKey(slot.name) || pending.ContainsKey(slot.name)) continue;
+                    pending.Add(slot.name, Resources.LoadAsync<Texture2D>(Path + "Textures/" + slot.name));
+                }
+            }
+            var shader = Shader.Find("Wizzard/BellwakePaint");
+            foreach (var entry in pending)
+            {
+                if (!entry.Value.isDone) yield return entry.Value;
+                var texture = entry.Value.asset as Texture2D;
+                if (texture == null) throw new InvalidOperationException("Unmapped Bellwake paint " + entry.Key);
+                var paint = new Material(shader) { name = entry.Key, mainTexture = texture };
+                if (entry.Key == "SeaGlass" || entry.Key == "Amber") paint.SetFloat("_Glow", .88f);
+                paints.Add(entry.Key, paint);
+            }
+        }
         void Paint(Renderer renderer)
         {
             var slots = renderer.sharedMaterials;
             for (int i = 0; i < slots.Length; i++)
-            {
-                if (slots[i] == null)
-                    continue;
-                string name = slots[i].name;
-                if (!paints.TryGetValue(name, out var mat))
-                {
-                    var tile = Resources.Load<Texture2D>(Path + "Textures/" + name);
-                    if (tile == null)
-                        throw new InvalidOperationException("Unmapped Bellwake paint " + name);
-                    mat = new Material(Shader.Find("Wizzard/BellwakePaint")) { name = name, mainTexture = tile };
-                    if (name == "SeaGlass" || name == "Amber")
-                        mat.SetFloat("_Glow", .88f);
-                    paints.Add(name, mat);
-                }
-                slots[i] = mat;
-            }
+                if (slots[i] != null) slots[i] = paints[slots[i].name];
             renderer.sharedMaterials = slots;
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         }
@@ -446,7 +455,7 @@ namespace Wizzard
             for(int i=0;i<fixtures.Length;i++)
             {
                 var v=fixtures[i];var t=nodes[v.node];int n=story.works.Signal(v.signal);
-                if(v.kind=="show") { Active(t,n==v.match && (v.node!="CrewAshore" || voyageFraction>=1)); continue; }
+                if(v.kind=="show") { Active(t,n==v.match && (string.IsNullOrEmpty(v.visibleSignal) || story.works.Signal(v.visibleSignal)!=0) && (v.node!="CrewAshore" || voyageFraction>=1)); continue; }
                 if (v.kind=="pointer")
                 {
                     t.rotation=Quaternion.Slerp(t.rotation,Quaternion.AngleAxis(drumAngles[n],Vector3.up)*fixtureAngles[i],mix);
@@ -591,9 +600,10 @@ namespace Wizzard
                     {
                         journalPage++;
                     } while (journalPage < 5 && (story.letters & (1 << journalPage)) == 0);
-                    if (journalPage == 5 && (!InWorks || story.works.Room.early || story.works.Room.prologue)) journalPage++;
+                    if (journalPage == 5 && (!InWorks || story.works.Room.early || story.works.Room.prologue || story.works.Room.middle)) journalPage++;
                     if (journalPage == 6 && !HasFloodBook) journalPage++;
-                    if (journalPage > 7 || (journalPage == 7 && story.works.KitchenJournal().Length == 0))
+                    if (journalPage == 7 && story.works.KitchenJournal().Length == 0) journalPage++;
+                    if (journalPage > 8 || (journalPage == 8 && !story.works.Remembered(worksPlan, "parishSigned")))
                         journalPage = -1;
                     ShowBook();
                 }
@@ -723,12 +733,14 @@ namespace Wizzard
             {
                 display.Say("Witness book   /   " + story.LeafCount + " of 5 leaves   /   " + story.PlayTime(),
                             Objective + "   •   Trigger/E to turn a page. A/X or J to close.");
-                if (InWorks && story.works.Room.early)
+                if (InWorks && nodes.ContainsKey("MapSW"))
                 {
                     display.Survey(paints[story.works.Room.key+"Survey"].mainTexture,
                                    SurveyPosition(player.head.position));
                 }
             }
+            else if (journalPage == 8)
+                display.Say("Three houses of Sillwater", worksPlan.parishLedger);
             else if (journalPage == 7)
                 display.Say("The supper call", story.works.KitchenJournal());
             else if (journalPage == 6)
@@ -935,7 +947,7 @@ namespace Wizzard
                     Say(title,"Her sail is rounding the last stone. Elin will have the book when she makes fast.");
                     return;
                 }
-                if (!string.IsNullOrEmpty(station.sight) && story.works.Signal("charter") != 0 &&
+                if (!string.IsNullOrEmpty(station.sight) && story.works.Signal(string.IsNullOrEmpty(station.prime)?"charter":station.prime) != 0 &&
                     story.works.Signal(station.evidence) == 0)
                 {
                     if (observation != station)
@@ -960,7 +972,7 @@ namespace Wizzard
                     {
                         spawn=Arrival(); player.Teleport(spawn,facing); Save(); Say(title,line); return;
                     }
-                    if(destination=="@choir" || destination=="@market") story.works.active=false;
+                    if(destination=="@choir" || destination=="@market" || destination=="@reedwater") story.works.active=false;
                     if(destination=="@final") { story.works.active=false;story.Gate(); }
                     StartCoroutine(EnterRoom());
                 }
@@ -972,9 +984,9 @@ namespace Wizzard
                 if (id=="A_Gate" && Route.Done && story.Gate())
                 {
                     Route.Leave();
-                    if(story.room==1)
+                    if(story.room==1 || story.room==2)
                     {
-                        story.works.chamber=Array.FindIndex(worksPlan.rooms,r=>r.early);
+                        story.works.chamber=Array.FindIndex(worksPlan.rooms,r=>story.room==1?r.early:r.middle);
                         story.works.camp="";
                         story.works.active=true;
                     }
@@ -1004,6 +1016,7 @@ namespace Wizzard
             case "A_Roster":
                 line = story.Epilogue();
                 if (story.works.Remembered(worksPlan, "supperServed")) line += " " + worksPlan.supperEndings[story.ending-1];
+                if (story.works.Remembered(worksPlan, "parishSigned")) line += " " + worksPlan.parishEndings[story.ending-1];
                 if (HasFloodBook) line += " " + worksPlan.logEndings[story.ending-1];
                 if(story.works.Remembered(worksPlan,"named")) line+=" Below it hangs a new brass plate: Ina, fourth hand of the night shift.";
 
@@ -1128,10 +1141,17 @@ namespace Wizzard
                 terrain.Initialize(player);
                 village = gameObject.AddComponent<MossbellVillage>();
                 village.Initialize(player, meadow);
-                sign = Instantiate(Resources.Load<GameObject>(Path + "Rooms/TrailSign"), meadow.transform);
+                var signRequest = Resources.LoadAsync<GameObject>(Path + "Rooms/TrailSign");
+                yield return signRequest;
+                var signModel = (GameObject)signRequest.asset;
+                yield return LoadPaints(signModel);
+                sign = Instantiate(signModel, meadow.transform);
                 sign.transform.position = new Vector3(0, MeadowWorld.Height(0, 3), 3);
                 foreach (var r in sign.GetComponentsInChildren<MeshRenderer>())
-                    Paint(r);
+                {
+                    if (r.name == "C_Solids") r.enabled = false;
+                    else Paint(r);
+                }
                 outdoors = true;
                 player.ResetPlayer();
                 Physics.SyncTransforms();
@@ -1181,7 +1201,7 @@ namespace Wizzard
                     }
                     for(int r=0;r<worksPlan.rooms.Length;r++)
                     {
-                        story=new BellwakeJourney {room=worksPlan.rooms[r].prologue ? 0 : worksPlan.rooms[r].early ? 1 : 3,seals=3,commissioned=!worksPlan.rooms[r].prologue,
+                        story=new BellwakeJourney {room=worksPlan.rooms[r].prologue ? 0 : worksPlan.rooms[r].middle ? 2 : worksPlan.rooms[r].early ? 1 : 3,seals=3,commissioned=!worksPlan.rooms[r].prologue,
                             works=new BellwakeWorks {active=true,chamber=r}};
                         yield return EnterRoom();
                         if(!InWorks || set.name!=worksPlan.rooms[r].key ||

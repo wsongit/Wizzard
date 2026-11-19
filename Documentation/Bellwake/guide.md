@@ -10,6 +10,7 @@ Tavi made a warning bell during the flood. Her sister Ina gave it a voice for a 
 | The Pilgrims’ Cut | Restore the Quince Fold, Saffron Kilns, Vellum Walk, Cairnwatch Rise and Rain Court. The road continues to the Root Choir. |
 | The Root Choir | Listen to Moss. Ring the three individually pitched bells in the order described by the forest round. |
 | The Rimeway Post | Recover the lost post. Slide the mail sled through the cache and stop it at the landing. |
+| Three houses of Sillwater | Meet Ada at ebb. Consult the field map in your witness book, visit the survey stands at both tides and reconstruct the three addresses in the map office. |
 | Reedwater Lock | Ask Fen which channel saved the village. Each wheel changes the pair of sluices marked on its station. |
 | Glasscut Gallery | Read Jass’s casting records. Move the bronze miner behind the gem cart and push it onto the white socket. |
 | The Cinder Lens | Trace the amber ray from the kiln. Turn the three mirrors and catch the light in the casting cup. |
@@ -23,7 +24,7 @@ The market, Root Choir, Reedwater, Cinder Lens and belfry each hold a witness le
 
 The witness book shows active playtime. Loading, the open journal and unfocused play are excluded. The clock starts with this update for existing checkpoints. Players already past a new district retain their place in the story.
 
-Before the paper-theatre opening was added, a fresh desktop run through the twenty-six required areas reached its first ending in 29 minutes 14 seconds of active play. The test already knew the routes and puzzle solutions, and shared the cloud renderer with other checks. First-time human and headset completion times remain unmeasured. [Playthrough details](validation.md)
+A fresh desktop run of the paper-theatre release reached its first ending in 30 minutes 52 seconds of active play across the twenty-seven required places. Sillwater adds three places beyond that release. The test already knew the routes and puzzle solutions. First-time human and headset completion times remain unmeasured. [Playthrough details](validation.md)
 
 ## Tavi’s Paper Theatre
 
@@ -40,6 +41,14 @@ At the grafting bench, take Mara’s brass waywren. Press Q or squeeze the left 
 On the final morning, an illuminated book is fastened to the west pier of the market arch. Each household has sent a letter. Turn the pages with E or a trigger to learn how your decision at the belfry changed their lives. [The public road book in Bellmarket](public-road-book.jpg)
 
 [Five work yards and the orchard survey as they appear in play](pilgrims-cut.jpg)
+
+## Three houses of Sillwater
+
+The river changes the route across the parish when you pull either tide bell. At ebb, take the oyster causeway. At flood, use the ferry bridge. The east crossing stays open. Your field sheet shows the instruments and your position at the current tide. Two copies of the survey also hang beside the landings.
+
+Stand beside a brass telescope and press E or a trigger. Follow its barrel to the landmark named in the prompt. Look at the landmark itself and press again to record its bearing. You can begin on either shore or revisit the office between sightings.
+
+In the map office, the registrar has a folio for each lost house. Its red thread follows the ebb bearing and its blue thread follows the flood bearing. Turn the four carriage wheels to move the brass pin to their intersection. Stamp each address and have the title sealed. The signed ledger travels with you to Reedwater and into either ending. [In-game views of the parish and map office](sillwater.jpg)
 
 ## Beneath the village
 

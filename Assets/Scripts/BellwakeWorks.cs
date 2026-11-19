@@ -7,9 +7,10 @@ namespace Wizzard
     public sealed class WorksPlan
     {
         public string logTitle, logEntry, theatreInvitation;
-        public string[] logEndings, supperEndings, theatreCredits, theatreCadences;
+        public string[] logEndings, supperEndings, parishEndings, theatreCredits, theatreCadences;
         public SupperNote[] supperNotes;
         public RoadLeaf[] roadLeaves;
+        public string parishLedger;
         public string[] flags;
         public WorksMachine[] machines;
         public WorksRoom[] rooms;
@@ -40,7 +41,7 @@ namespace Wizzard
     public sealed class WorksRoom
     {
         public string key, title, intro, theme, chapter, fog;
-        public bool early, prologue;
+        public bool early, prologue, middle;
         public WorksRule[] goals;
         public float halfSpan;
         public float[] ground;
@@ -50,14 +51,14 @@ namespace Wizzard
     [Serializable]
     public sealed class WorksStation
     {
-        public string id, label, sight, evidence, direction, camp, trail, tune, swing;
+        public string id, label, sight, evidence, direction, camp, trail, tune, swing, prime;
         public int note;
         public WorksRule[] rules;
     }
     [Serializable]
     public sealed class WorksRule
     {
-        public string line, award, move, to, lead;
+        public string line, award, move, to, lead, arrival;
         public WorksCondition[] when;
     }
     [Serializable]
@@ -78,7 +79,10 @@ namespace Wizzard
     public sealed class BellwakeWorks
     {
         public bool active, invited;
+        // The first 30 flags retain their original save positions in badges.
+        const int FlagsPerWord = 30;
         public int chamber, badges;
+        public int[] furtherBadges;
         public string camp;
         public int[] machines;
         [NonSerialized]
@@ -89,6 +93,8 @@ namespace Wizzard
         public void Bind(WorksPlan layout)
         {
             plan = layout;
+            int words=Math.Max(0,(plan.flags.Length-1)/FlagsPerWord);
+            if (furtherBadges==null || furtherBadges.Length!=words) Array.Resize(ref furtherBadges,words);
             if (machines == null || machines.Length != plan.machines.Length)
                 Array.Resize(ref machines, plan.machines.Length);
             if (chamber < 0 || chamber >= plan.rooms.Length)
@@ -102,7 +108,7 @@ namespace Wizzard
         void Refresh()
         {
             for (int i = 0; i < plan.flags.Length; i++)
-                signals[plan.flags[i]] = (badges >> i) & 1;
+                signals[plan.flags[i]] = HasBadge(i) ? 1 : 0;
             for (int i = 0; i < machines.Length; i++)
             {
                 var m = plan.machines[i];
@@ -118,7 +124,13 @@ namespace Wizzard
         public bool Remembered(WorksPlan layout, string name)
         {
             int index = Array.IndexOf(layout.flags, name);
-            return index >= 0 && (badges & (1 << index)) != 0;
+            return index >= 0 && HasBadge(index);
+        }
+        bool HasBadge(int index)
+        {
+            int word = index / FlagsPerWord;
+            int bits = word==0 ? badges : furtherBadges!=null && word<=furtherBadges.Length ? furtherBadges[word-1] : 0;
+            return (bits & (1 << (index % FlagsPerWord))) != 0;
         }
         public string KitchenJournal()
         {
@@ -209,7 +221,12 @@ namespace Wizzard
                 if (Array.Exists(rule.when, c => Signal(c.signal) != c.value))
                     continue;
                 if (!string.IsNullOrEmpty(rule.award))
-                    badges |= 1 << Array.IndexOf(plan.flags, rule.award);
+                {
+                    int index=Array.IndexOf(plan.flags,rule.award);
+                    int bit=1 << (index % FlagsPerWord);
+                    if (index<FlagsPerWord) badges|=bit;
+                    else furtherBadges[index/FlagsPerWord-1]|=bit;
+                }
                 if (!string.IsNullOrEmpty(rule.move))
                 {
                     string[] command = rule.move.Split('.');
@@ -225,7 +242,7 @@ namespace Wizzard
                     if (destination.StartsWith("#")) camp = destination.Substring(1);
                     else
                     {
-                        camp = "";
+                        camp = rule.arrival ?? "";
                         if (!destination.StartsWith("@")) chamber = Array.FindIndex(plan.rooms,r=>r.key==rule.to);
                     }
                 }

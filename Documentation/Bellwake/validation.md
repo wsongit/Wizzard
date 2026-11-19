@@ -1,5 +1,13 @@
 # Bellwake release checks
 
+## Three houses of Sillwater
+
+A player-input test took all six optical bearings, rejected off-target sightings, restored the north landing after a reload, triangulated three deeds from the observed directions and left for Reedwater with Ada’s seal. A Quest 3 controller emulator opened and closed the field sheet, sighted the oar and moved the chart carriage 1.52 metres. The self-contained browser edition restored the flood map and signed title with external asset requests blocked.
+
+Blender reimported all three shipped FBXs. The checks sampled 118,267 ground positions and cast 22,220 boundary rays. Every station and tide-change checkpoint was reachable. The ebb shore contains 30,840 visible-model triangles, flood has 30,664 and the office has 6,200. The C# progression check reached its goal from all 2,133 machine positions and checked 9,120 transitions. The game and editor scripts compiled against Unity 2022.3.20f1.
+
+The 31-place streaming test made 105 transfers. Three additional laps made 21 transfers between the finished shores, office, lock and market. The previous world, collision tree and panorama were collectible on every transfer. Returning to the same area produced the same GPU resource counts. The meadow streaming model crossed 3,327 positions and peaked at 21 of 64 chunks loaded. Unity now queues the current area’s texture requests during the fade. Physical Quest frame times and native APK execution still need a licensed device build. [Parish geometry and playtest measurements](sillwater.json)
+
 ## Tavi’s Paper Theatre
 
 The browser route followed Tavi’s invitation, left and re-entered the courtyard, reconstructed four scenes from physical keepsakes, restored a mid-play checkpoint and played the four projector melodies. It printed both possible credits and checked the corresponding line from Tavi after both endings. Legacy morning-market checkpoints could enter and leave without losing their endings. An emulated Quest 3 used tracked controllers to talk to Tavi, enter the blue door, inspect the casting pattern and turn the figure reel.
