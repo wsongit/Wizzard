@@ -20,6 +20,8 @@ The market, Root Choir, Reedwater, Cinder Lens and belfry each hold a witness le
 
 The witness book shows active playtime. Loading, the open journal and unfocused play are excluded. The clock starts with this update for existing checkpoints. Players already past a new district retain their place in the story.
 
+The current known-solution desktop run reached an ending in 7 minutes 3 seconds of active play. A first-time human completion time is still unmeasured. [Playthrough details](validation.md)
+
 ## Beneath the village
 
 In the Court of Three Trades, stand by the night roll and look toward the doors. West leads to the waterworks, east to the foundry and north to the lampmakers. Each wing has two chambers. Follow their service stairs to move between trades. A return to the court preserves your work at every machine.
@@ -32,7 +34,7 @@ At the intake, the narrow and wide tanks measure three and five. Use the gauges 
 
 Mirren waits outside the chart shelter. The large survey beside her shows where the paths meet. The western chapel records the water level the cutter needs. At Split Stone, use the sighting rail, face the bell on the distant stack and press E or a trigger to record the bearing. The northern lookout has a glass trained on a second mark. You can walk a few steps around each instrument for a clearer view. The journal records each observation.
 
-At the eastern mast, pull the halyards in the order the pilots recorded. The flags above you show how many signals the cutter has acknowledged. Haul the harbour capstan, watch the Linnet round the reef, then meet her skipper at the landing to continue to the belfry.
+At the eastern mast, pull the halyards in the order the pilots recorded. The flags above you show how many signals the cutter has acknowledged. Haul the harbour capstan, watch the Linnet round the reef, then meet her skipper at the landing to continue to the belfry. Her signed flood book stays in your journal. At the morning market, the harbour crew has a different part in each ending.
 
 [Four views from the headland](wrenfall.jpg)
 
@@ -44,7 +46,7 @@ At the eastern mast, pull the halyards in the order the pilots recorded. The fla
 | Look or turn | Head tracking and right-stick snap turn | Middle click to capture the mouse, Escape to release | Drag or use the arrow keys, double click to capture the mouse |
 | Speak, ring or turn | Face a nearby station and press a trigger | E | E |
 | Open or close the witness book | A or X | J | J |
-| Read a collected leaf | In the Unity book, a trigger turns the page | E with the book open | Collected leaves appear in the book |
+| Read a collected leaf | With the book open, a trigger turns the page | E with the book open | Collected leaves appear in the book |
 
 Crouching makes the ground easier to reach with the palms. The journal pauses the final encounter’s countdown.
 

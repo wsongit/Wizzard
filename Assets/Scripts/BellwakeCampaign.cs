@@ -30,6 +30,7 @@ namespace Wizzard
         Quaternion[] fixtureAngles;
         BellwakePassage Route => story.passage;
         bool InPassage => Route != null && Route.active;
+        bool HasFloodBook => !InWorks && (story.room == 4 || story.ending != 0) && story.works.Remembered(worksPlan,"landed");
         float RoomRadius => InWorks && story.works.Room.halfSpan > 0 ? story.works.Room.halfSpan : 20f;
         string RoomTitle => InWorks ? story.works.Room.title : InPassage ? Route.region.title : BellwakeJourney.Titles[story.room];
         string Objective => InWorks ? story.works.Objective() : InPassage ? Route.Objective() : story.Objective();
@@ -514,7 +515,8 @@ namespace Wizzard
                     {
                         journalPage++;
                     } while (journalPage < 5 && (story.letters & (1 << journalPage)) == 0);
-                    if (journalPage > 5 || (journalPage == 5 && !InWorks))
+                    if (journalPage == 5 && !InWorks) journalPage++;
+                    if (journalPage > 6 || (journalPage == 6 && !HasFloodBook))
                         journalPage = -1;
                     ShowBook();
                 }
@@ -571,6 +573,8 @@ namespace Wizzard
             if (journalPage < 0)
                 display.Say("Witness book   /   " + story.LeafCount + " of 5 leaves   /   " + story.PlayTime(),
                             Objective + "   •   Trigger/E to turn a page. A/X or J to close.");
+            else if (journalPage == 6)
+                display.Say(worksPlan.logTitle,worksPlan.logEntry);
             else if (journalPage==5 && InWorks)
                 display.Say("The fourth hand",story.works.Register());
             else
@@ -749,6 +753,7 @@ namespace Wizzard
             case "A_Ina":
             case "A_Roster":
                 line = story.Epilogue();
+                if (HasFloodBook) line += " " + worksPlan.logEndings[story.ending-1];
                 if(story.works.Remembered(worksPlan,"named")) line+=" Below it hangs a new brass plate: Ina, fourth hand of the night shift.";
 
                 break;

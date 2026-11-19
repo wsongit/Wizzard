@@ -6,6 +6,8 @@ namespace Wizzard
     [Serializable]
     public sealed class WorksPlan
     {
+        public string logTitle, logEntry;
+        public string[] logEndings;
         public string[] flags;
         public WorksMachine[] machines;
         public WorksRoom[] rooms;

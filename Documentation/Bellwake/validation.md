@@ -1,10 +1,18 @@
 # Bellwake release checks
 
+## Fresh-save completion time
+
+A clean browser profile began with Tavi’s first conversation, completed all 27 dispatches and all seventeen areas, earned the five witness leaves and restored Ina’s name to the roll. It reached the first ending after **7 minutes 3 seconds of active play** and 7 minutes 10 seconds on the wall clock. The run used the Wrenfall release at `5d44dec`, normal movement and interaction, chart hints and advance knowledge of the solutions. It included intentional checkpoint reloads and one keeper retry. The test then restored the decision and reached the other ending with zero application errors.
+
+This gives a repeatable baseline for campaign length. First-time human pacing still needs a playthrough. To repeat the baseline, use the desktop playtest command below with `--timed` and a fresh browser profile. The results directory includes the active time for each area. [Measured times by location](known-route.json)
+
 ## Wrenfall Head
 
 A player-input run went from Cinder Lens through all three guilds and across the 120-by-120-metre headland to the Still Belfry. It tried each optical instrument off target, sighted each offshore mark, saved and restored the first flag, and followed the Linnet to the berth. The cutter moved 27.66 metres between its measured start and end points. Seven crew models appear on arrival. An emulated Quest 3 crossed the former room boundary, reached the eastern rail beyond 38 metres and recorded the distant bell using head tracking and the controller trigger.
 
-Blender reimported the final FBX. Its 35,533 visible triangles passed 56,169 ground probes, 9,540 boundary rays and the connected approach check at all eleven stations. The final art pass kept the collision file and every reachable grid cell identical to the movement-tested version. Unity 2022.3.20f1 compiled the release and development scripts. The native rule check passed 256 mechanism states, 967 transitions and all six orders of the Lower Works.
+A checkpoint carrying Elin’s flood book reached both endings. The roster and Ina each gave their own response, and the book appeared in the journal after reloading the final decision. A pre-coast checkpoint reached both endings with its original journal. The emulated headset used the controller trigger to turn a journal page.
+
+A separate clean checkout exported the packed Wrenfall Blender scene and reproduced all 17 mesh groups, 31 embedded textures, 34 scene nodes and the exact collision binary. Blender reimported the final FBX. Its 35,533 visible triangles passed 56,169 ground probes, 9,540 boundary rays and the connected approach check at all eleven stations. The final art pass kept the collision file and every reachable grid cell identical to the movement-tested version. Unity 2022.3.20f1 compiled the release and development scripts. The native rule check passed 256 mechanism states, 967 transitions and all six orders of the Lower Works.
 
 The streamed edition loaded the coastal model, collision data, sky and music when restoring Wrenfall. The standalone HTML restored the same journal from its embedded assets. Across three laps of all seventeen areas, each of the 51 arrivals retained one world, one collision hierarchy and one score. Collection cleared every retired world, collision hierarchy and panorama. Revisited areas returned to their original geometry, texture and program counts.
 

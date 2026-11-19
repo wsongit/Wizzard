@@ -944,6 +944,17 @@ for descriptor in rooms:
 if __name__ == "__main__":
     (RES / "Underworks.json").write_text(
         json.dumps(
-            dict(flags=flags, machines=machines, rooms=rooms), separators=(",", ":")
+            dict(
+                flags=flags,
+                machines=machines,
+                rooms=rooms,
+                logTitle="The Linnet’s flood book",
+                logEntry="Six salt-blurred names and Elin’s careful seventh. In the margin she wrote, “A bell can call for hands. It cannot promise on their behalf.”",
+                logEndings=[
+                    "Elin has signed for the night tide. Six lines stand open for volunteers.",
+                    "Ina opens the pilots’ book to the last page. “Do you think Elin would teach me to steer?”",
+                ],
+            ),
+            separators=(",", ":"),
         )
     )

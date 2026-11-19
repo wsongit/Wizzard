@@ -1,0 +1,34 @@
+{
+  "method": "Fresh save, normal movement, keyboard interaction and chart hints. Includes all 27 dispatches, five leaves, the optional night roll, checkpoint reloads and a keeper retry.",
+  "firstEnding": 1,
+  "elapsedSeconds": 429.88,
+  "activeSeconds": 423.32,
+  "activeSecondsByPlace": {
+    "Bellmarket": 5.63,
+    "Saltwake": 31.87,
+    "RootChoir": 11.12,
+    "RimePost": 31.53,
+    "Reedwater": 6.73,
+    "Glasscut": 32.42,
+    "CinderLens": 8.5,
+    "SumpHall": 12.93,
+    "TwinIntake": 20.07,
+    "FloodLedger": 21.15,
+    "WeighHouse": 12.05,
+    "CastingBed": 22.22,
+    "LanternCourt": 13.42,
+    "OrreryLoft": 18.6,
+    "EchoRotunda": 30.47,
+    "Wrenfall": 137.01,
+    "StillBelfry": 7.62
+  },
+  "endingsChecked": [
+    1,
+    2
+  ],
+  "dispatches": 27,
+  "leaves": 5,
+  "optionalNightRoll": true,
+  "testErrors": [],
+  "testedCommit": "5d44dec429915bf023d19db61d513a9926b2b073"
+}

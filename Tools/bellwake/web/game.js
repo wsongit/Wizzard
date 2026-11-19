@@ -38,6 +38,8 @@ let works = new Underworks(data.works, savedWorks, state().room === 3 && state()
 const roomRadius = () => (works.active && works.room.halfSpan) || 20;
 const locationKey = () =>
   works.active ? works.room.key : passage.active ? passage.region.key : graph.rooms[state().room];
+const hasFloodBook = () =>
+  !works.active && (state().room === 4 || state().ending !== 0) && !!works.signals.landed;
 const locationName = () =>
   works.active ? works.room.title : passage.active ? passage.region.title : graph.titles[state().room];
 const objective = () =>
@@ -147,6 +149,8 @@ let group = null,
   started = false,
   busy = true,
   book = false,
+  journalPage = 0,
+  journalText = [],
   focus = "",
   timer = 0,
   speechEnd = 0,
@@ -182,7 +186,8 @@ const vr = new TrackedRunner(
   loadModel,
   () => ({ tree, spawn: nodes.Spawn?.position, radius: roomRadius() }),
   () => {
-    if (!book) interact(focus);
+    if (book) journalPage = (journalPage + 1) % journalText.length;
+    else interact(focus);
   },
   () => toggleBook(!book),
   () => {
@@ -622,7 +627,11 @@ async function interact(id) {
     (id === "A_Roster" || id === "A_Ina") && works.signals.named
       ? " Below it hangs a new brass plate: Ina, fourth hand of the night shift."
       : "";
-  say(name, move[1] + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
+  const pilotLine =
+    (id === "A_Ina" || id === "A_Roster") && state().ending && hasFloodBook()
+      ? " " + data.works.logEndings[state().ending - 1]
+      : "";
+  say(name, move[1] + pilotLine + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
 }
 function bearingClear() {
   const origin = vr.session ? vr.head : camera.position;
@@ -724,6 +733,11 @@ function toggleBook(open) {
     $("booktitle").textContent = locationName() + "   ·   " + playTime();
     $("objective").textContent = objective() + "   ·   " + state().seals + " of 3 vows";
     $("leaves").replaceChildren();
+    if (hasFloodBook()) {
+      const page = document.createElement("li");
+      page.textContent = data.works.logTitle + "   ·   " + data.works.logEntry;
+      $("leaves").append(page);
+    }
     if (works.active) {
       const item = document.createElement("li");
       item.textContent = works.register();
@@ -743,6 +757,11 @@ function toggleBook(open) {
       li.textContent = "Look for a witness leaf on the stone lectern in each district.";
       $("leaves").append(li);
     }
+    journalPage = 0;
+    journalText = [
+      $("objective").textContent + "   •   Trigger for next page. A/X to close.",
+      ...Array.from($("leaves").children, (li) => li.textContent),
+    ];
   }
 }
 $("start").onclick = () => {
@@ -920,7 +939,7 @@ function loop(time, frame) {
   if (nodes.Familiar) nodes.Familiar.rotation.y = Math.sin(time * 0.00085) * 0.14;
   if (vr.session) {
     const text = book
-      ? objective() + "   •   " + state().seals + " of three vows. Press A/X to close."
+      ? journalText[journalPage]
       : !$("speech").hidden
         ? $("words").textContent
         : focus
@@ -929,7 +948,7 @@ function loop(time, frame) {
             ? $("clock").textContent
             : "";
     const title = book
-      ? "Witness book"
+      ? "Witness book   ·   " + (journalPage + 1) + "/" + journalText.length
       : !$("speech").hidden
         ? $("act").textContent
         : focus
@@ -984,6 +1003,8 @@ if (__TEST__)
     tris: renderer.info.render.triangles,
     timer,
     book,
+    journalPage,
+    journalCaption: book ? journalText[journalPage] : "",
   });
 if (__TEST__)
   window.bellTravel = async (index) => {

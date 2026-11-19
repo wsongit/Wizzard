@@ -103,6 +103,11 @@ async def run():
         print("entry", await p.evaluate("bellProbe()"), flush=True)
         await p.evaluate("testDevice.controllers.right.updateButtonValue('a-button',1)")
         await p.wait_for_function("bellProbe().book")
+        await p.evaluate("testDevice.controllers.right.updateButtonValue('trigger',1)")
+        await p.wait_for_function(
+            "bellProbe().journalPage===1 && bellProbe().journalCaption.includes('witness leaf')"
+        )
+        await p.evaluate("testDevice.controllers.right.updateButtonValue('trigger',0)")
         await p.evaluate("testDevice.controllers.right.updateButtonValue('a-button',0)")
         await p.wait_for_timeout(350)
         await p.evaluate("testDevice.controllers.right.updateButtonValue('a-button',1)")

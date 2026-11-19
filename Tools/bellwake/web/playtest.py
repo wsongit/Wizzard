@@ -121,7 +121,8 @@ async def run():
         works_only = "--works" in sys.argv
         target_post = "--last-post" in sys.argv
         glasscut_only = "--glasscut" in sys.argv
-        nameplate = "--night-roll" in sys.argv
+        floodbook = "--flood-book" in sys.argv
+        nameplate = "--night-roll" in sys.argv or floodbook
         endings_only = "--endings" in sys.argv or nameplate
         if target_post or glasscut_only or endings_only or works_only or coast_only:
             saved = {"number": 13, "leaves": 7}
@@ -142,7 +143,10 @@ async def run():
                         / "Assets/Resources/Bellwake/Underworks.json"
                     ).read_text()
                 )
-                saved["works"] = {"badges": 1 << plan["flags"].index("named")}
+                flags = ["named", "landed"] if floodbook else ["named"]
+                saved["works"] = {
+                    "badges": sum(1 << plan["flags"].index(flag) for flag in flags)
+                }
             if target_post:
                 saved["passage"] = {
                     "completed": 2,
@@ -365,6 +369,8 @@ async def run():
             assert final["dedication"]
             await act("A_Nameplate")
         await act("A_Roster")
+        if floodbook:
+            assert "night tide" in await page.locator("#words").inner_text()
         await act("A_Talk")
         await page.mouse.up()
         await page.evaluate(
@@ -377,9 +383,15 @@ async def run():
             assert final["dedication"]
             await act("A_Nameplate")
         await act("A_Ina")
+        if floodbook:
+            assert "teach me to steer" in await page.locator("#words").inner_text()
         await act("A_Talk")
         await page.keyboard.press("j")
         assert (await page.evaluate("bellProbe()"))["book"]
+        if endings_only:
+            assert (
+                "The Linnet’s flood book" in await page.locator("#leaves").inner_text()
+            ) == floodbook
         await page.keyboard.press("j")
         assert not errors, errors
         (out / "playthrough.json").write_text(
