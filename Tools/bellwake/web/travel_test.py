@@ -34,6 +34,27 @@ async def main():
             const tick = t => {if(prev !== undefined) gaps.push(t-prev); prev=t; requestAnimationFrame(tick)};
             requestAnimationFrame(tick);
         }""")
+        if "--wards" in sys.argv:
+            for index in range(17,22):
+                await page.evaluate("i=>bellTravel(i)",index)
+                sample=await page.evaluate("""async() => {
+                    const frame=()=>new Promise(requestAnimationFrame);
+                    for(let i=0;i<90;i++) await frame();
+                    gaps.length=0;
+                    dispatchEvent(new KeyboardEvent('keydown',{code:'ArrowLeft'}));
+                    for(let i=0;i<90;i++) await frame();
+                    dispatchEvent(new KeyboardEvent('keyup',{code:'ArrowLeft'}));
+                    const s=bellProbe(), sorted=gaps.slice().sort((a,b)=>a-b);
+                    return {district:s.district,samples:sorted.length,scale:s.ratio,
+                        medianMs:sorted[Math.floor(sorted.length*.5)],p95Ms:sorted[Math.floor(sorted.length*.95)],
+                        calls:s.calls,triangles:s.tris};
+                }""")
+                samples.append(sample)
+                print(sample,flush=True)
+            assert not errors,errors
+            Path(destination).write_text(json.dumps({"renderer":"Chromium SwiftShader","samples":samples},indent=2)+"\n")
+            await browser.close()
+            return
         route = [5, 17,18,19,20,21, 1, 6, 2, 7, 3, 8, 9, 10, 11, 12, 13, 14, 15, 16, 4, 0]
         for lap in range(3):
             for room in route:

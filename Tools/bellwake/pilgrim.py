@@ -478,3 +478,33 @@ def add_chapter(room, post, step, visual, machine):
         for st in r["stations"]:
             if st["id"] in ("A_Talk", "A_Gate"):
                 st["camp"] = "Rest" + st["id"][2:]
+
+
+# Five letters in the market's public road book. Each family answers the player's last choice.
+ROAD_LEAVES = [
+    dict(
+        name="Mara · Orchard post",
+        shared="A graft takes when the two cuts grow one skin. Come evening nine children cut nine lanterns from my winter quinces. You should see them waiting their turns at the bell.",
+        freed="Ina came for a cutting. She held the knife backward until I showed her. We planted the graft by her door. By supper she had asked me three times when it might flower.",
+    ),
+    dict(
+        name="Jori · Tileworks post",
+        shared="I made a thumb tile for each new keeper. Once their shift is done they lay it warm-side down on the sill. My daughter can tell who worked the night by touching the clay.",
+        freed="Tavi asked for a roof tile with no mark on it. She and Ina sat on my kiln step drawing sea birds into the wet clay with the same pin.",
+    ),
+    dict(
+        name="Senn · Archive post",
+        shared="In the index I wrote room for ten hands, although only nine households live along the road. A stranger ought to be able to sign. You did.",
+        freed="The day the bell let her go, Ina brought the book back herself. She crossed out the word missing. She left the space after her name quite empty.",
+    ),
+    dict(
+        name="Tern · Beacon post",
+        shared="Someone left a lamp in the cairn for whoever takes the hill after dark. Tonight it was my turn. I left dry socks for the next pair of feet.",
+        freed="My sister walked the high mile with Ina. Neither said much. At the last cairn they left two green stones in the dry niche, one for each return.",
+    ),
+    dict(
+        name="Issa · Water court",
+        shared="The closure is lifted in nine different hands. My seal sits at the bottom with the rest. The right of way belongs to the next person who needs it.",
+        freed="Today a young bellmender asked me if she needed leave to use the road. I took the old closure plate down and gave it to her for a boat anchor.",
+    ),
+]

@@ -1,10 +1,26 @@
 # Bellwake release checks
 
+## Fresh-save completion time
+
+The 22-area route candidate reached the first ending in **25 minutes 55 seconds of active play** and 26 minutes 18 seconds elapsed. The runner used ordinary keyboard movement, a known route and chart hints. It completed all 29 work-yard actions, 27 dispatches, five witness leaves and the optional night roll. A checkpoint replay reached the second ending. It logged zero application errors. Concurrent software-rendering tests affected the clock. Final scenery, the public road book, waywren controls and the packed collision loader were tested separately. [Times for all 22 areas](known-route.json)
+
+## The Pilgrims’ Cut
+
+Each of the five 120-metre-square wards has 225 surveyed cells. The tested order through the work yards covers 5.904 km along the lane centrelines. An ordinary-input playthrough gathered all 29 pieces of road work, reloaded each ward at a shelter, used the return bells and reached the Root Choir. A separate test opened the market book, read all five household letters for each ending, and restored an older final checkpoint that predated the road.
+
+Blender reimported the shipped FBXs. In each ward the audit sampled the ground 56,169 times and cast 9,540 rays around the boundary. It checked another 8,400 crossings against the survey’s open and closed passages, including at ankle and head height. Every named station had at least 22 walkable approach positions in the connected ground flood fill. The new areas range from 25,824 to 39,306 visible-model triangles including the movable fixtures.
+
+Three laps of all 22 areas made 66 transfers in Chromium. Each arrived with one active set, collision world and score. Forced collection released the previous set, collision world and sky every time. The repeated visits had matching GPU resource counts. The browser also recovered its checkpoint after a deliberately failed district download. In this concurrent SwiftShader run the median transfer took 773 ms and the 95th percentile was 1,330 ms, including three presentation frames. The worst interval during a transfer was 817 ms.
+
+A separate test warmed each ward for 90 frames and turned through the scene for another 90. At 768 × 432 with adaptive rendering scale 0.512, SwiftShader median frame intervals ranged from 66.6 to 100 ms and the 95th percentiles from 116.6 to 200 ms. These cloud runs do not establish a comfortable headset frame rate.
+
+The browser now queries the baked collision buffer directly. Across the five wards the previous loader added 11.1–19.0 MB to the Node JavaScript heap at load. The packed loader retained 0.95–1.56 MB of binary data per ward and added less than 9 KB to that heap at load, before the small contact pool warmed up. A differential check compared 67,584 capsule, sphere and ray queries in the 22 areas, including the contact normals and hit positions. The emulated Quest 3 tested the survey with A, tool acquisition with a trigger, a moving waywren with the left grip and hand-powered movement. Physical Quest frame timing and a first-time human completion remain unmeasured. [District, geometry, memory and transfer measurements](pilgrims-cut.json)
+
 ## Fresh-save completion time before the Pilgrims’ Cut
 
 A clean browser profile began with Tavi’s first conversation, completed all 27 dispatches and all seventeen areas, earned the five witness leaves and restored Ina’s name to the roll. It reached the first ending after **7 minutes 3 seconds of active play** and 7 minutes 10 seconds on the wall clock. The run used the Wrenfall release at `5d44dec`, normal movement and interaction, chart hints and advance knowledge of the solutions. It included intentional checkpoint reloads and one keeper retry. The test then restored the decision and reached the other ending with zero application errors.
 
-This gives a repeatable baseline for campaign length. First-time human pacing still needs a playthrough. To repeat the baseline, use the desktop playtest command below with `--timed` and a fresh browser profile. The results directory includes the active time for each area. [Measured times by location](known-route.json)
+To time the current route, use the desktop playtest command below with `--timed` and a fresh browser profile. The results directory includes the active time for each area.
 
 ## Wrenfall Head
 

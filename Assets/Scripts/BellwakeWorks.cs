@@ -8,9 +8,15 @@ namespace Wizzard
     {
         public string logTitle, logEntry;
         public string[] logEndings;
+        public RoadLeaf[] roadLeaves;
         public string[] flags;
         public WorksMachine[] machines;
         public WorksRoom[] rooms;
+    }
+    [Serializable]
+    public sealed class RoadLeaf
+    {
+        public string name, shared, freed;
     }
     [Serializable]
     public sealed class WorksMachine

@@ -157,6 +157,7 @@ let group = null,
   book = false,
   guide = null,
   surveyImage = null,
+  roadPage = 0,
   journalPage = 0,
   journalText = [],
   focus = "",
@@ -245,6 +246,7 @@ function label(id) {
     A_Gate: state().ending ? "Begin again" : "Way arch",
     A_Ina: "Ina",
     A_Roster: "Watch roster",
+    A_RoadBook: "Letters from the public road",
     A_Nameplate: "Fourth hand",
     A_End0: "Share the watch",
     A_End1: "Free the voice",
@@ -307,6 +309,7 @@ async function loadRoom() {
     if (musicTheme !== themeKey()) dropMusic();
   }
   movingTrail = null;
+  roadPage = 0;
   fixtures = [];
   observation = null;
   surveyImage = null;
@@ -505,6 +508,8 @@ function sync() {
   for (const [name, on] of [
     ["Ina", s.ending === 2],
     ["A_Ina", s.ending === 2],
+    ["RoadBook", !!s.ending && !!works.signals.RainCourtArch],
+    ["A_RoadBook", !!s.ending && !!works.signals.RainCourtArch],
     ["NightRoll", !!s.ending && !!works.signals.named],
     ["A_Nameplate", !!s.ending && !!works.signals.named],
     ["Roster", s.ending === 1],
@@ -581,6 +586,16 @@ async function interact(id) {
       save();
       say(name, result.line, 10);
     }
+    return;
+  }
+  if (id === "A_RoadBook" && state().ending && works.signals.RainCourtArch) {
+    const leaf = data.works.roadLeaves[roadPage];
+    say(
+      leaf.name,
+      (state().ending === 1 ? leaf.shared : leaf.freed) + "   •   E / trigger for the next letter.",
+      12,
+    );
+    roadPage = (roadPage + 1) % data.works.roadLeaves.length;
     return;
   }
   if (id === "A_Nameplate" && state().ending && works.signals.named) {
@@ -728,9 +743,9 @@ function pick() {
     ray.set(origin, look);
     ray.far = Math.max(0.01, distance - 0.45);
     // Check the nearest wall rather than ray-testing every decorative triangle.
-    const hit = tree.rayIntersect(ray.ray);
+    const hit = tree.rayIntersect(ray.ray, ray.far);
     if (hit && hit.distance < ray.far) continue;
-    const weight = passage.active ? distance * 0.025 + 20 * (1 - dot) : distance + 4 * (1 - dot);
+    const weight = passage.active || state().ending ? distance * 0.025 + 20 * (1 - dot) : distance + 4 * (1 - dot);
     if (weight < best) {
       best = weight;
       focus = o.name;
@@ -954,24 +969,27 @@ resize();
 let previous = 0,
   accum = 0,
   frameWindow = 0,
+  severe = 0,
   slow = 0,
   fast = 0;
 function adapt(interval) {
   // UI stays at native resolution. Scale only the 3D buffer on a slow renderer.
-  if (interval > 200 || interval <= 0) return;
+  if (interval > 1200 || interval <= 0 || document.hidden) return;
+  severe = interval > 100 ? severe + 1 : 0;
   frameWindow++;
   if (interval > 26) slow++;
   if (interval < 19) fast++;
-  if (frameWindow < 42) return;
+  if (frameWindow < 42 && severe < 8) return;
   let ratio = renderer.getPixelRatio(),
     next = ratio;
-  if (slow > 23) next = Math.max(0.5, ratio * 0.8);
+  if (severe >= 8 || slow > 23) next = Math.max(0.5, ratio * 0.8);
   else if (fast > 39) next = Math.min(Math.min(devicePixelRatio, 1.5), ratio + 0.05);
   if (Math.abs(next - ratio) > 0.025) {
     renderer.setPixelRatio(next);
     resize();
   }
   frameWindow = 0;
+  severe = 0;
   slow = 0;
   fast = 0;
 }
@@ -1101,6 +1119,7 @@ if (__TEST__)
     secondsByPlace: { ...secondsByPlace },
     room: state().room,
     district: locationKey(),
+    roadBook: !!nodes.RoadBook?.visible,
     dedication: !!nodes.NightRoll?.visible,
     works: works.active ? { ...works.progress, signals: { ...works.signals } } : null,
     passage:
@@ -1157,7 +1176,7 @@ renderer.setAnimationLoop(loop);
 room()
   .then((loaded) => {
     if (!loaded) return;
-    $("start").disabled = false;
+    $("start").disabled = $("vr").disabled = false;
     $("start").textContent = number ? "Continue journey" : "Begin journey";
   })
   .catch(fail);

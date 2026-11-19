@@ -35,6 +35,8 @@ namespace Wizzard.Editor
                 }
                 foreach (var marker in new[] { "Terrain", "Set", "C_Solids", "Spawn", "Look", "Rim" })
                     Require(names.Contains(marker), room + " marker " + marker);
+                if (room=="Bellmarket")
+                    Require(names.Contains("A_RoadBook") && names.Contains("RoadBook"), "market road letters");
                 var chamber=Array.Find(works.rooms,r=>r.key==room);
                 if(chamber!=null)
                 {

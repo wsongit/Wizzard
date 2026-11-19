@@ -930,7 +930,7 @@ for station in r["stations"]:
             evidence="distress",
             direction="Face the cutter beyond the northern bluff. Center the star above her sail, then press E or trigger.",
         )
-from pilgrim import add_chapter
+from pilgrim import add_chapter, ROAD_LEAVES
 
 add_chapter(room,post,step,v,machine)
 
@@ -949,6 +949,7 @@ if __name__ == "__main__":
     (RES / "Underworks.json").write_text(
         json.dumps(
             dict(
+                roadLeaves=ROAD_LEAVES,
                 flags=flags,
                 machines=machines,
                 rooms=rooms,

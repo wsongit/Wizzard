@@ -548,8 +548,33 @@ def night_roll():
         shaft("Pilot’s left-hand knot",(x+.10*math.sin(2*a),y-.07+.032*math.cos(3*a),z-.10+.13*math.cos(a)),(x+.10*math.sin(2*b),y-.07+.032*math.cos(3*b),z-.10+.13*math.cos(b)),.022,.022,"Wood",6,group)
     marker("A_Nameplate",x,y-.38,z+.23)
 
+def public_road_book():
+    # Hang the open ledger on the west gate pier opposite Ina's dedication.
+    x,y,z=-2.36,14.50,ground(0,-2.36,15)+1.17
+    group="RoadBook"
+    block("Brass-backed charter case",(x,y,z+.17),(.92,.15,.68),"Brass",group)
+    block("Oiled walnut cover",(x,y-.085,z+.17),(.86,.042,.62),"Wood",group)
+    for side in (-1,1):
+        for j in range(4):
+            block("Bound vellum leaves",(x+side*.196,y-.12-j*.008,z+.17),(.389-j*.007,.014,.539-j*.007),"HousePlaster",group)
+        a,b=x+side*.022,x+side*.375
+        u0,u1=(.5,0) if side<0 else (.5,1)
+        geometry("Ruled illuminated page",[(a,y-.172,z-.08),(b,y-.149,z-.08),(b,y-.149,z+.417),(a,y-.172,z+.417)],[(0,1,2,3)],"RoadLetters",group,
+                 [(u0,0),(u1,0),(u1,1),(u0,1)])
+    shaft("Raised sewing cord",(x,y-.158,z-.112),(x,y-.158,z+.456),.022,.022,"Wood",8,group)
+    for dx,dz in [(-.405,-.095),(.405,-.095),(-.405,.427),(.405,.427)]:
+        shaft("Corner boss",(x+dx,y-.094,z+dz),(x+dx,y-.123,z+dz),.028,.019,"Brass",8,group)
+    for j in range(5):
+        xx=x+(j-2)*.085
+        block("Household tally ribbon",(xx,y-.141,z-.117-(j%2)*.02),(.048,.018,.14),"SeaCloth" if j%2 else "Amber",group)
+    marker("A_RoadBook",x,y-.40,z+.18)
+
+
 def make(key, lib):
     k = ROOMS.index(key)
+    if k == 0:
+        from pilgrim_art import road_leaf_paint
+        road_leaf_paint()
     init(lib, 4971 + k)
     floor(k)
     ridge(k)
@@ -557,7 +582,9 @@ def make(key, lib):
     actors(k)
     machinery(k)
     portal(k)
-    if k==0: night_roll()
+    if k==0:
+        night_roll()
+        public_road_book()
     marker("Spawn", 0, -14, 0.08)
     marker("Look", 0, -4, 1.4)
     district(k)

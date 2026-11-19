@@ -1,27 +1,34 @@
 {
   "method": "Fresh save, normal movement, keyboard interaction and chart hints. Includes all 27 dispatches, five leaves, the optional night roll, checkpoint reloads and a keeper retry.",
   "firstEnding": 1,
-  "elapsedSeconds": 429.88,
-  "activeSeconds": 423.32,
+  "elapsedSeconds": 1578.36,
+  "activeSeconds": 1555.19,
   "activeSecondsByPlace": {
-    "Bellmarket": 5.63,
-    "Saltwake": 31.87,
-    "RootChoir": 11.12,
-    "RimePost": 31.53,
-    "Reedwater": 6.73,
-    "Glasscut": 32.42,
-    "CinderLens": 8.5,
-    "SumpHall": 12.93,
-    "TwinIntake": 20.07,
-    "FloodLedger": 21.15,
-    "WeighHouse": 12.05,
-    "CastingBed": 22.22,
-    "LanternCourt": 13.42,
-    "OrreryLoft": 18.6,
-    "EchoRotunda": 30.47,
-    "Wrenfall": 137.01,
-    "StillBelfry": 7.62
+    "Bellmarket": 12.17,
+    "Saltwake": 40.5,
+    "QuinceFold": 171.34,
+    "SaffronKilns": 142.54,
+    "VellumWalk": 140.29,
+    "Cairnwatch": 262.56,
+    "RainCourt": 204.41,
+    "RootChoir": 10.98,
+    "RimePost": 40.03,
+    "Reedwater": 11.82,
+    "Glasscut": 61.4,
+    "CinderLens": 11.42,
+    "SumpHall": 26.08,
+    "TwinIntake": 45.53,
+    "FloodLedger": 40.83,
+    "WeighHouse": 21.03,
+    "CastingBed": 46.5,
+    "LanternCourt": 34.05,
+    "OrreryLoft": 53.9,
+    "EchoRotunda": 53.95,
+    "Wrenfall": 115.8,
+    "StillBelfry": 8.07
   },
+  "build": "Pilgrims’ Cut route candidate, before the final scenery, waywren, market letters and packed collision loader. These changes received separate export, input and streaming tests.",
+  "concurrentCloudRuns": true,
   "endingsChecked": [
     1,
     2
@@ -30,5 +37,10 @@
   "leaves": 5,
   "optionalNightRoll": true,
   "testErrors": [],
-  "testedCommit": "5d44dec429915bf023d19db61d513a9926b2b073"
+  "previousRelease": {
+    "commit": "5d44dec",
+    "areas": 17,
+    "activeSeconds": 423.32,
+    "elapsedSeconds": 429.88
+  }
 }

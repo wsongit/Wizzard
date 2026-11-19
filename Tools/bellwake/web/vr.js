@@ -276,7 +276,7 @@ export class TrackedRunner {
       const travel = this.work.length();
       if (travel > 0.01) {
         this.guardRay.set(this.safeHead, this.work.normalize());
-        const hit = tree.rayIntersect(this.guardRay);
+        const hit = tree.rayIntersect(this.guardRay, travel);
         blocked = !!hit && hit.distance < travel;
       }
     }

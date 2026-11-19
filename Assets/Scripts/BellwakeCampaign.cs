@@ -51,7 +51,7 @@ namespace Wizzard
         int lastSecond = -1;
         float messageUntil, pulseUntil, restartUntil, cameraCheck;
         bool loading, outdoors, journalOpen;
-        int journalPage;
+        int journalPage, roadPage;
         BellwakeFrameSample profiler;
         Vector3 spawn;
         Quaternion facing;
@@ -113,7 +113,7 @@ namespace Wizzard
             int savedChamber=story.works.chamber;
             bool early=savedChamber>=0 && savedChamber<worksPlan.rooms.Length && worksPlan.rooms[savedChamber].early;
             if(early ? story.room!=1 || story.ending!=0 : story.room!=3 || !story.Solved) story.works.active=false;
-            if(InWorks) story.works.Bind(worksPlan);
+            story.works.Bind(worksPlan);
             int slots=BellwakeJourney.Rooms.Length+atlas.regions.Length+1+worksPlan.rooms.Length;
             if (story.secondsByPlace==null || story.secondsByPlace.Length<slots)
                 Array.Resize(ref story.secondsByPlace, slots);
@@ -171,6 +171,7 @@ namespace Wizzard
             display.ClearSurvey();
             fixtures=Array.Empty<WorksVisual>();
             observation=null;
+            roadPage=0;
             movingTrail = null;
             focus = lastHint = null;
             struck = null;
@@ -360,6 +361,7 @@ namespace Wizzard
                 return story.room == 4 && story.strikes == 3 ? "Ina" : BellwakeJourney.Speakers[story.room];
             case "A_Ina":
                 return "Ina";
+            case "A_RoadBook": return "Letters from the public road";
             case "A_Nameplate": return "Fourth hand";
             case "A_Roster":
                 return "Watch roster";
@@ -437,6 +439,9 @@ namespace Wizzard
                 return;
             }
             bool memorial=story.ending!=0 && story.works.Remembered(worksPlan,"named");
+            bool publicRoad = story.ending!=0 && story.works.Signal("RainCourtArch")==1;
+            Toggle("RoadBook",publicRoad);
+            Toggle("A_RoadBook",publicRoad);
             Toggle("NightRoll",memorial);Toggle("A_Nameplate",memorial);
             bool gate = story.room == 0 ? story.commissioned : story.Solved && story.room < 4;
             Toggle("GateLight", gate);
@@ -712,7 +717,8 @@ namespace Wizzard
                 if (Physics.Raycast(player.head.position, delta.normalized, Mathf.Max(0, distance - .45f),
                                     player.surfaces, QueryTriggerInteraction.Ignore))
                     continue;
-                float weight = hand && !InPassage ? 0 : InPassage ? distance*.025f + 20*(1-dot) : distance + 4*(1-dot);
+                bool readBySight = InPassage || story.ending != 0;
+                float weight = hand && !readBySight ? 0 : readBySight ? distance*.025f + 20*(1-dot) : distance + 4*(1-dot);
                 if (weight < nearest)
                 {
                     nearest = weight;
@@ -845,6 +851,11 @@ namespace Wizzard
             }
             switch (id)
             {
+            case "A_RoadBook":
+                var leaf = worksPlan.roadLeaves[roadPage];
+                Say(leaf.name, (story.ending==1 ? leaf.shared : leaf.freed) + "   •   E / trigger for the next letter.", 12);
+                roadPage=(roadPage+1)%worksPlan.roadLeaves.Length;
+                return;
             case "A_Nameplate":
                 line="NIGHT ROLL  /  Ina, fourth hand of the flood watch. Paid in full. Below the engraving hangs a left-handed pilot’s knot.";
                 break;

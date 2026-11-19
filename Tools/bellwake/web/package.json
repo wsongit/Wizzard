@@ -4,6 +4,7 @@
   },
   "name": "wizzard-bellwake",
   "private": true,
+  "type": "module",
   "devDependencies": {
     "esbuild": "0.25.11",
     "iwer": "2.8.0"

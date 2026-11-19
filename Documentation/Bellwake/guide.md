@@ -21,13 +21,15 @@ The market, Root Choir, Reedwater, Cinder Lens and belfry each hold a witness le
 
 The witness book shows active playtime. Loading, the open journal and unfocused play are excluded. The clock starts with this update for existing checkpoints. Players already past a new district retain their place in the story.
 
-The known-solution desktop run before the Pilgrims’ Cut reached an ending in 7 minutes 3 seconds of active play. A first-time human completion time is still unmeasured. [Playthrough details](validation.md)
+A fresh desktop run through all twenty-two areas reached its first ending in 25 minutes 55 seconds of active play. The test already knew the routes and puzzle solutions, and shared the cloud renderer with other checks. First-time human and headset completion times remain unmeasured. [Playthrough details](validation.md)
 
 ## The Pilgrims’ Cut
 
 Mara keeps the orchard shelter on the road out of Saltwake. The flood survey erased a public right of way. An old tree, the tilemakers’ mile and the evidence of the families who used the road can restore it. Each ward has a survey board. Open your witness book to see the same survey with your location marked in red. Each square measures eight metres.
 
 At the grafting bench, take Mara’s brass waywren. Press Q or squeeze the left grip to send it along the lanes toward the next available job. It waits after four junctions. You can call it again wherever you stand. Work yards double as shelter checkpoints. After restoring a ward, ring the return line at the final work yard to reach the entrance. The other bell carries you to the open wicket. Later wards have a return path to the previous one.
+
+On the final morning, an illuminated book is fastened to the west pier of the market arch. Each household has sent a letter. Turn the pages with E or a trigger to learn how your decision at the belfry changed their lives. [The public road book in Bellmarket](public-road-book.jpg)
 
 [Five work yards and the orchard survey as they appear in play](pilgrims-cut.jpg)
 

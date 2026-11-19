@@ -123,7 +123,8 @@ async def run():
         works_only = "--works" in sys.argv
         target_post = "--last-post" in sys.argv
         glasscut_only = "--glasscut" in sys.argv
-        floodbook = "--flood-book" in sys.argv
+        road_letters = "--road-letters" in sys.argv
+        floodbook = "--flood-book" in sys.argv or road_letters
         nameplate = "--night-roll" in sys.argv or floodbook
         endings_only = "--endings" in sys.argv or nameplate
         if target_post or glasscut_only or endings_only or works_only or coast_only or ward_only:
@@ -151,6 +152,12 @@ async def run():
                 saved["works"] = {
                     "badges": sum(1 << plan["flags"].index(flag) for flag in flags)
                 }
+            if road_letters:
+                machines=[0]*len(plan["machines"])
+                idx=next(i for i,m in enumerate(plan["machines"]) if m["key"]=="RainCourt")
+                m=plan["machines"][idx]
+                machines[idx]=next(i for i,row in enumerate(m["rows"]) if row["values"][m["channels"].index("RainCourtArch")]==1)
+                saved["works"]["machines"]=machines
             if target_post:
                 saved["passage"] = {
                     "completed": 2,
@@ -375,6 +382,18 @@ async def run():
                 )
                 + "\n"
             )
+        async def road_book(ending):
+            claimed=road_letters or not (endings_only or glasscut_only)
+            assert final["roadBook"]==claimed
+            if not claimed:return
+            await act("A_RoadBook")
+            for i,speaker in enumerate(("Mara","Jori","Senn","Tern","Issa","Mara")):
+                if i:await page.keyboard.press("e")
+                assert speaker.lower() in (await page.locator("#act").inner_text()).lower()
+                if i==0:
+                    assert ("graft takes" if ending==1 else "cutting") in await page.locator("#words").inner_text()
+                    await page.screenshot(path=str(out/("road-book-ending-"+str(ending)+".jpg")))
+        await road_book(1)
         if nameplate:
             assert final["dedication"]
             await act("A_Nameplate")
@@ -389,6 +408,7 @@ async def run():
         await start()
         final = await act("A_End1")
         assert final["ending"] == 2 and final["leaves"] == 31
+        await road_book(2)
         if nameplate:
             assert final["dedication"]
             await act("A_Nameplate")

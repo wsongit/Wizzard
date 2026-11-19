@@ -1,0 +1,1777 @@
+{
+  "chapter": "The Pilgrims’ Cut",
+  "art": "Blender 4.3.2. Tests reimport the exported FBX. Interior tests cast both ways at five lateral offsets and two body heights per passage edge. Survey directions also terminate from every cell.",
+  "routeMeasurement": "Shortest centreline distance between the entrance and the work yards in the tested order, using the earned bells to exit. Excludes diversions, the rest of the campaign and short approaches within yards.",
+  "wards": {
+    "QuinceFold": {
+      "stationsOnKnownWalk": [
+        "Knife",
+        "Stock",
+        "Scion",
+        "Spring",
+        "Mother"
+      ],
+      "shelterReload": "RestKnife",
+      "nextDistrict": "SaffronKilns",
+      "workYardRouteMetres": 1056,
+      "export": {
+        "asset": "QuinceFold",
+        "groundProbes": 56169,
+        "boundaryRays": 9540,
+        "interiorCrossings": 8400,
+        "walkableCells": 40437,
+        "stations": 10,
+        "minApproaches": 53,
+        "triangles": 35749,
+        "visibleMaterialSlots": 33
+      }
+    },
+    "SaffronKilns": {
+      "stationsOnKnownWalk": [
+        "Mould",
+        "Silt",
+        "Press",
+        "Dry",
+        "Fire",
+        "Wall"
+      ],
+      "shelterReload": "RestMould",
+      "nextDistrict": "VellumWalk",
+      "workYardRouteMetres": 1240,
+      "export": {
+        "asset": "SaffronKilns",
+        "groundProbes": 56169,
+        "boundaryRays": 9540,
+        "interiorCrossings": 8400,
+        "walkableCells": 46541,
+        "stations": 12,
+        "minApproaches": 22,
+        "triangles": 26866,
+        "visibleMaterialSlots": 34
+      }
+    },
+    "VellumWalk": {
+      "stationsOnKnownWalk": [
+        "Roll",
+        "Potter",
+        "Herd",
+        "Ferry",
+        "Stitch",
+        "Shelf"
+      ],
+      "shelterReload": "RestRoll",
+      "nextDistrict": "Cairnwatch",
+      "workYardRouteMetres": 1144,
+      "export": {
+        "asset": "VellumWalk",
+        "groundProbes": 56169,
+        "boundaryRays": 9540,
+        "interiorCrossings": 8400,
+        "walkableCells": 46740,
+        "stations": 12,
+        "minApproaches": 52,
+        "triangles": 39306,
+        "visibleMaterialSlots": 32
+      }
+    },
+    "Cairnwatch": {
+      "stationsOnKnownWalk": [
+        "Spool",
+        "Spike",
+        "Saddle",
+        "Glass",
+        "Beacon",
+        "Stone"
+      ],
+      "shelterReload": "RestSpool",
+      "nextDistrict": "RainCourt",
+      "workYardRouteMetres": 1312,
+      "export": {
+        "asset": "Cairnwatch",
+        "groundProbes": 56169,
+        "boundaryRays": 9540,
+        "interiorCrossings": 8400,
+        "walkableCells": 39917,
+        "stations": 12,
+        "minApproaches": 22,
+        "triangles": 34996,
+        "visibleMaterialSlots": 34
+      }
+    },
+    "RainCourt": {
+      "stationsOnKnownWalk": [
+        "Rod",
+        "Gauge",
+        "Weir",
+        "East",
+        "Court",
+        "Arch"
+      ],
+      "shelterReload": "RestRod",
+      "nextDistrict": "RootChoir",
+      "workYardRouteMetres": 1152,
+      "export": {
+        "asset": "RainCourt",
+        "groundProbes": 56169,
+        "boundaryRays": 9540,
+        "interiorCrossings": 8400,
+        "walkableCells": 40878,
+        "stations": 12,
+        "minApproaches": 46,
+        "triangles": 25824,
+        "visibleMaterialSlots": 31
+      }
+    }
+  },
+  "wardWorkYardMetres": 5904,
+  "desktop": {
+    "normalInput": true,
+    "shelterResumeWards": 5,
+    "surveysOpened": 5,
+    "waywrenFlight": true
+  },
+  "questInput": "Meta Quest 3 IWER emulation. Tracked palms, locomotion, snap turn, reconnected controller, ward survey, trigger at the grafting bench, left squeeze to call the guide, coast navigation and sighting.",
+  "native": "Development and release Android C# and editor integrations compiled against Unity 2022.3.20f1 and the pinned XR packages. No physical headset frame sample or native player run.",
+  "rules": {
+    "machinePositions": 298,
+    "transitions": 1212,
+    "guildOrders": 6,
+    "wardActions": 29
+  },
+  "collision": {
+    "renderer": "Node / Three.js",
+    "queries": 67584,
+    "scenarios": "Capsule, palm sphere, unrestricted ray and limited-length ray. Same contact, depth and normals or ray distance and point as the previous object tree. Heap is a GC-based measurement before gameplay scratch allocation; buffer bytes reported separately.",
+    "samples": [
+      {
+        "room": "Bellmarket",
+        "queries": 3072,
+        "hits": {
+          "capsule": 48,
+          "sphere": 48,
+          "ray": 169
+        },
+        "packedBytes": 487588,
+        "referenceHeap": 5675472,
+        "packedHeap": 2776,
+        "referenceLoadMs": 40.13344799999999,
+        "packedLoadMs": 2.1817219999999793
+      },
+      {
+        "room": "Cairnwatch",
+        "queries": 3072,
+        "hits": {
+          "capsule": 312,
+          "sphere": 254,
+          "ray": 554
+        },
+        "packedBytes": 1413892,
+        "referenceHeap": 17620920,
+        "packedHeap": 4584,
+        "referenceLoadMs": 46.913415999999984,
+        "packedLoadMs": 1.8700340000000324
+      },
+      {
+        "room": "CastingBed",
+        "queries": 3072,
+        "hits": {
+          "capsule": 233,
+          "sphere": 196,
+          "ray": 627
+        },
+        "packedBytes": 421636,
+        "referenceHeap": 5043696,
+        "packedHeap": -2576,
+        "referenceLoadMs": 7.817986000000019,
+        "packedLoadMs": 0.1867099999999482
+      },
+      {
+        "room": "CinderLens",
+        "queries": 3072,
+        "hits": {
+          "capsule": 51,
+          "sphere": 53,
+          "ray": 187
+        },
+        "packedBytes": 233052,
+        "referenceHeap": 2726784,
+        "packedHeap": 1152,
+        "referenceLoadMs": 23.929014000000052,
+        "packedLoadMs": 0.07092599999998583
+      },
+      {
+        "room": "EchoRotunda",
+        "queries": 3072,
+        "hits": {
+          "capsule": 180,
+          "sphere": 196,
+          "ray": 488
+        },
+        "packedBytes": 441724,
+        "referenceHeap": 5225984,
+        "packedHeap": 976,
+        "referenceLoadMs": 16.52064800000005,
+        "packedLoadMs": 0.051087000000052285
+      },
+      {
+        "room": "FloodLedger",
+        "queries": 3072,
+        "hits": {
+          "capsule": 255,
+          "sphere": 219,
+          "ray": 559
+        },
+        "packedBytes": 599580,
+        "referenceHeap": 7734712,
+        "packedHeap": 2440,
+        "referenceLoadMs": 31.659683000000086,
+        "packedLoadMs": 0.3868400000000065
+      },
+      {
+        "room": "Glasscut",
+        "queries": 3072,
+        "hits": {
+          "capsule": 88,
+          "sphere": 97,
+          "ray": 380
+        },
+        "packedBytes": 253692,
+        "referenceHeap": 2969752,
+        "packedHeap": 4456,
+        "referenceLoadMs": 3.5938699999999244,
+        "packedLoadMs": 0.23892799999998715
+      },
+      {
+        "room": "LanternCourt",
+        "queries": 3072,
+        "hits": {
+          "capsule": 245,
+          "sphere": 197,
+          "ray": 594
+        },
+        "packedBytes": 425524,
+        "referenceHeap": 5074848,
+        "packedHeap": 1096,
+        "referenceLoadMs": 13.222393000000011,
+        "packedLoadMs": 0.11703599999987091
+      },
+      {
+        "room": "OrreryLoft",
+        "queries": 3072,
+        "hits": {
+          "capsule": 220,
+          "sphere": 205,
+          "ray": 435
+        },
+        "packedBytes": 492844,
+        "referenceHeap": 5639216,
+        "packedHeap": 2696,
+        "referenceLoadMs": 22.149073000000044,
+        "packedLoadMs": 0.7817629999999554
+      },
+      {
+        "room": "QuinceFold",
+        "queries": 3072,
+        "hits": {
+          "capsule": 320,
+          "sphere": 244,
+          "ray": 537
+        },
+        "packedBytes": 1444096,
+        "referenceHeap": 17891432,
+        "packedHeap": 1208,
+        "referenceLoadMs": 36.930986000000075,
+        "packedLoadMs": 17.3877829999999
+      },
+      {
+        "room": "RainCourt",
+        "queries": 3072,
+        "hits": {
+          "capsule": 306,
+          "sphere": 259,
+          "ray": 516
+        },
+        "packedBytes": 953316,
+        "referenceHeap": 11142344,
+        "packedHeap": 8360,
+        "referenceLoadMs": 18.042553999999882,
+        "packedLoadMs": 0.544206000000031
+      },
+      {
+        "room": "Reedwater",
+        "queries": 3072,
+        "hits": {
+          "capsule": 48,
+          "sphere": 56,
+          "ray": 178
+        },
+        "packedBytes": 345964,
+        "referenceHeap": 4330608,
+        "packedHeap": 2056,
+        "referenceLoadMs": 4.525709000000006,
+        "packedLoadMs": 0.38713099999995393
+      },
+      {
+        "room": "RimePost",
+        "queries": 3072,
+        "hits": {
+          "capsule": 119,
+          "sphere": 91,
+          "ray": 238
+        },
+        "packedBytes": 311368,
+        "referenceHeap": 4009392,
+        "packedHeap": 1096,
+        "referenceLoadMs": 4.207642000000078,
+        "packedLoadMs": 0.8848270000000866
+      },
+      {
+        "room": "RootChoir",
+        "queries": 3072,
+        "hits": {
+          "capsule": 65,
+          "sphere": 61,
+          "ray": 180
+        },
+        "packedBytes": 510632,
+        "referenceHeap": 5997392,
+        "packedHeap": 1096,
+        "referenceLoadMs": 11.839388999999983,
+        "packedLoadMs": 0.8500450000001365
+      },
+      {
+        "room": "SaffronKilns",
+        "queries": 3072,
+        "hits": {
+          "capsule": 319,
+          "sphere": 260,
+          "ray": 522
+        },
+        "packedBytes": 990252,
+        "referenceHeap": 11412664,
+        "packedHeap": 2008,
+        "referenceLoadMs": 48.79506199999969,
+        "packedLoadMs": 1.2326789999997345
+      },
+      {
+        "room": "Saltwake",
+        "queries": 3072,
+        "hits": {
+          "capsule": 193,
+          "sphere": 143,
+          "ray": 364
+        },
+        "packedBytes": 242592,
+        "referenceHeap": 2815912,
+        "packedHeap": 1096,
+        "referenceLoadMs": 11.93833799999993,
+        "packedLoadMs": 0.4117070000002059
+      },
+      {
+        "room": "StillBelfry",
+        "queries": 3072,
+        "hits": {
+          "capsule": 47,
+          "sphere": 45,
+          "ray": 175
+        },
+        "packedBytes": 314428,
+        "referenceHeap": 4042592,
+        "packedHeap": -3544,
+        "referenceLoadMs": 2.637727000000268,
+        "packedLoadMs": 0.3251479999998992
+      },
+      {
+        "room": "SumpHall",
+        "queries": 3072,
+        "hits": {
+          "capsule": 211,
+          "sphere": 213,
+          "ray": 507
+        },
+        "packedBytes": 493132,
+        "referenceHeap": 5690984,
+        "packedHeap": 2056,
+        "referenceLoadMs": 18.90036000000009,
+        "packedLoadMs": 0.7849379999997836
+      },
+      {
+        "room": "TwinIntake",
+        "queries": 3072,
+        "hits": {
+          "capsule": 280,
+          "sphere": 198,
+          "ray": 624
+        },
+        "packedBytes": 595476,
+        "referenceHeap": 7768912,
+        "packedHeap": 1144,
+        "referenceLoadMs": 38.46601899999996,
+        "packedLoadMs": 1.4625229999996918
+      },
+      {
+        "room": "VellumWalk",
+        "queries": 3072,
+        "hits": {
+          "capsule": 320,
+          "sphere": 245,
+          "ray": 521
+        },
+        "packedBytes": 1558108,
+        "referenceHeap": 18993032,
+        "packedHeap": 1096,
+        "referenceLoadMs": 13.925567999999657,
+        "packedLoadMs": 1.2231050000000323
+      },
+      {
+        "room": "WeighHouse",
+        "queries": 3072,
+        "hits": {
+          "capsule": 243,
+          "sphere": 180,
+          "ray": 601
+        },
+        "packedBytes": 452812,
+        "referenceHeap": 5366008,
+        "packedHeap": -6560,
+        "referenceLoadMs": 4.588151999999809,
+        "packedLoadMs": 0.2075609999997141
+      },
+      {
+        "room": "Wrenfall",
+        "queries": 3072,
+        "hits": {
+          "capsule": 241,
+          "sphere": 132,
+          "ray": 372
+        },
+        "packedBytes": 984276,
+        "referenceHeap": 11397696,
+        "packedHeap": -41272,
+        "referenceLoadMs": 3.6451379999998608,
+        "packedLoadMs": 0.4840359999998327
+      }
+    ]
+  },
+  "travel": {
+    "renderer": "Chromium SwiftShader",
+    "laps": 3,
+    "transfers": 66,
+    "concurrentWorkload": true,
+    "medianReadyMs": 773.0,
+    "p95ReadyMs": 1330,
+    "worstTravelFrameMs": 817,
+    "maxRetiredAlive": 0,
+    "samples": [
+      {
+        "room": 5,
+        "loadMs": 724,
+        "maxTravelFrameMs": 283,
+        "walkP95Ms": 233,
+        "gpu": {
+          "geometries": 25,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Saltwake",
+        "musicGeneration": 2,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 17,
+        "loadMs": 516,
+        "maxTravelFrameMs": 250,
+        "walkP95Ms": 483,
+        "gpu": {
+          "geometries": 17,
+          "textures": 19,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "QuinceFold",
+        "musicGeneration": 3,
+        "effects": 0,
+        "floor": 0.4646150195023879,
+        "retiredAlive": 0
+      },
+      {
+        "room": 18,
+        "loadMs": 1703,
+        "maxTravelFrameMs": 750,
+        "walkP95Ms": 683,
+        "gpu": {
+          "geometries": 18,
+          "textures": 19,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "SaffronKilns",
+        "musicGeneration": 4,
+        "effects": 0,
+        "floor": 0.5275315310479388,
+        "retiredAlive": 0
+      },
+      {
+        "room": 19,
+        "loadMs": 1247,
+        "maxTravelFrameMs": 533,
+        "walkP95Ms": 600,
+        "gpu": {
+          "geometries": 19,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "VellumWalk",
+        "musicGeneration": 5,
+        "effects": 0,
+        "floor": 0.5419591917531891,
+        "retiredAlive": 0
+      },
+      {
+        "room": 20,
+        "loadMs": 1211,
+        "maxTravelFrameMs": 483,
+        "walkP95Ms": 600,
+        "gpu": {
+          "geometries": 20,
+          "textures": 19,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Cairnwatch",
+        "musicGeneration": 6,
+        "effects": 0,
+        "floor": 0.4580427565857035,
+        "retiredAlive": 0
+      },
+      {
+        "room": 21,
+        "loadMs": 1415,
+        "maxTravelFrameMs": 817,
+        "walkP95Ms": 583,
+        "gpu": {
+          "geometries": 18,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "RainCourt",
+        "musicGeneration": 7,
+        "effects": 0,
+        "floor": 0.3663002484223383,
+        "retiredAlive": 0
+      },
+      {
+        "room": 1,
+        "loadMs": 1098,
+        "maxTravelFrameMs": 350,
+        "walkP95Ms": 517,
+        "gpu": {
+          "geometries": 24,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "RootChoir",
+        "musicGeneration": 8,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 6,
+        "loadMs": 900,
+        "maxTravelFrameMs": 317,
+        "walkP95Ms": 300,
+        "gpu": {
+          "geometries": 24,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "RimePost",
+        "musicGeneration": 9,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 2,
+        "loadMs": 508,
+        "maxTravelFrameMs": 217,
+        "walkP95Ms": 217,
+        "gpu": {
+          "geometries": 24,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Reedwater",
+        "musicGeneration": 10,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 7,
+        "loadMs": 502,
+        "maxTravelFrameMs": 200,
+        "walkP95Ms": 283,
+        "gpu": {
+          "geometries": 20,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Glasscut",
+        "musicGeneration": 11,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 3,
+        "loadMs": 799,
+        "maxTravelFrameMs": 250,
+        "walkP95Ms": 300,
+        "gpu": {
+          "geometries": 25,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "CinderLens",
+        "musicGeneration": 12,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 8,
+        "loadMs": 1031,
+        "maxTravelFrameMs": 617,
+        "walkP95Ms": 617,
+        "gpu": {
+          "geometries": 19,
+          "textures": 15,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "LowerWorks",
+        "musicGeneration": 13,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 9,
+        "loadMs": 1302,
+        "maxTravelFrameMs": 483,
+        "walkP95Ms": 467,
+        "gpu": {
+          "geometries": 17,
+          "textures": 15,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Waterworks",
+        "musicGeneration": 14,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 10,
+        "loadMs": 808,
+        "maxTravelFrameMs": 367,
+        "walkP95Ms": 300,
+        "gpu": {
+          "geometries": 19,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Waterworks",
+        "musicGeneration": 14,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 11,
+        "loadMs": 655,
+        "maxTravelFrameMs": 233,
+        "walkP95Ms": 300,
+        "gpu": {
+          "geometries": 21,
+          "textures": 12,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bronzeworks",
+        "musicGeneration": 15,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 12,
+        "loadMs": 815,
+        "maxTravelFrameMs": 400,
+        "walkP95Ms": 333,
+        "gpu": {
+          "geometries": 18,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bronzeworks",
+        "musicGeneration": 15,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 13,
+        "loadMs": 743,
+        "maxTravelFrameMs": 217,
+        "walkP95Ms": 317,
+        "gpu": {
+          "geometries": 23,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Lampworks",
+        "musicGeneration": 16,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 14,
+        "loadMs": 863,
+        "maxTravelFrameMs": 400,
+        "walkP95Ms": 233,
+        "gpu": {
+          "geometries": 26,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Lampworks",
+        "musicGeneration": 16,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 15,
+        "loadMs": 764,
+        "maxTravelFrameMs": 283,
+        "walkP95Ms": 217,
+        "gpu": {
+          "geometries": 17,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "LowerWorks",
+        "musicGeneration": 17,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 16,
+        "loadMs": 751,
+        "maxTravelFrameMs": 200,
+        "walkP95Ms": 467,
+        "gpu": {
+          "geometries": 38,
+          "textures": 32,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Wrenfall",
+        "musicGeneration": 18,
+        "effects": 0,
+        "floor": 0.39700497968377957,
+        "retiredAlive": 0
+      },
+      {
+        "room": 4,
+        "loadMs": 908,
+        "maxTravelFrameMs": 333,
+        "walkP95Ms": 233,
+        "gpu": {
+          "geometries": 24,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "StillBelfry",
+        "musicGeneration": 19,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 0,
+        "loadMs": 441,
+        "maxTravelFrameMs": 167,
+        "walkP95Ms": 300,
+        "gpu": {
+          "geometries": 24,
+          "textures": 25,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bellmarket",
+        "musicGeneration": 20,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 5,
+        "loadMs": 721,
+        "maxTravelFrameMs": 283,
+        "walkP95Ms": 233,
+        "gpu": {
+          "geometries": 25,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Saltwake",
+        "musicGeneration": 21,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 17,
+        "loadMs": 504,
+        "maxTravelFrameMs": 167,
+        "walkP95Ms": 717,
+        "gpu": {
+          "geometries": 17,
+          "textures": 19,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "QuinceFold",
+        "musicGeneration": 22,
+        "effects": 0,
+        "floor": 0.4557974526801638,
+        "retiredAlive": 0
+      },
+      {
+        "room": 18,
+        "loadMs": 772,
+        "maxTravelFrameMs": 300,
+        "walkP95Ms": 667,
+        "gpu": {
+          "geometries": 18,
+          "textures": 19,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "SaffronKilns",
+        "musicGeneration": 23,
+        "effects": 0,
+        "floor": 0.5001167167197044,
+        "retiredAlive": 0
+      },
+      {
+        "room": 19,
+        "loadMs": 1029,
+        "maxTravelFrameMs": 483,
+        "walkP95Ms": 783,
+        "gpu": {
+          "geometries": 19,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "VellumWalk",
+        "musicGeneration": 24,
+        "effects": 0,
+        "floor": 0.5701260956864411,
+        "retiredAlive": 0
+      },
+      {
+        "room": 20,
+        "loadMs": 1261,
+        "maxTravelFrameMs": 600,
+        "walkP95Ms": 500,
+        "gpu": {
+          "geometries": 20,
+          "textures": 19,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Cairnwatch",
+        "musicGeneration": 25,
+        "effects": 0,
+        "floor": 0.4386202878496228,
+        "retiredAlive": 0
+      },
+      {
+        "room": 21,
+        "loadMs": 761,
+        "maxTravelFrameMs": 350,
+        "walkP95Ms": 350,
+        "gpu": {
+          "geometries": 18,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "RainCourt",
+        "musicGeneration": 26,
+        "effects": 0,
+        "floor": 0.37751082299849065,
+        "retiredAlive": 0
+      },
+      {
+        "room": 1,
+        "loadMs": 638,
+        "maxTravelFrameMs": 283,
+        "walkP95Ms": 300,
+        "gpu": {
+          "geometries": 24,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "RootChoir",
+        "musicGeneration": 27,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 6,
+        "loadMs": 518,
+        "maxTravelFrameMs": 133,
+        "walkP95Ms": 233,
+        "gpu": {
+          "geometries": 24,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "RimePost",
+        "musicGeneration": 28,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 2,
+        "loadMs": 319,
+        "maxTravelFrameMs": 200,
+        "walkP95Ms": 267,
+        "gpu": {
+          "geometries": 24,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Reedwater",
+        "musicGeneration": 29,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 7,
+        "loadMs": 700,
+        "maxTravelFrameMs": 267,
+        "walkP95Ms": 233,
+        "gpu": {
+          "geometries": 20,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Glasscut",
+        "musicGeneration": 30,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 3,
+        "loadMs": 445,
+        "maxTravelFrameMs": 167,
+        "walkP95Ms": 200,
+        "gpu": {
+          "geometries": 25,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "CinderLens",
+        "musicGeneration": 31,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 8,
+        "loadMs": 588,
+        "maxTravelFrameMs": 233,
+        "walkP95Ms": 217,
+        "gpu": {
+          "geometries": 19,
+          "textures": 15,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "LowerWorks",
+        "musicGeneration": 32,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 9,
+        "loadMs": 724,
+        "maxTravelFrameMs": 333,
+        "walkP95Ms": 250,
+        "gpu": {
+          "geometries": 17,
+          "textures": 15,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Waterworks",
+        "musicGeneration": 33,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 10,
+        "loadMs": 506,
+        "maxTravelFrameMs": 150,
+        "walkP95Ms": 283,
+        "gpu": {
+          "geometries": 19,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Waterworks",
+        "musicGeneration": 33,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 11,
+        "loadMs": 709,
+        "maxTravelFrameMs": 267,
+        "walkP95Ms": 267,
+        "gpu": {
+          "geometries": 21,
+          "textures": 12,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bronzeworks",
+        "musicGeneration": 34,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 12,
+        "loadMs": 561,
+        "maxTravelFrameMs": 183,
+        "walkP95Ms": 250,
+        "gpu": {
+          "geometries": 18,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bronzeworks",
+        "musicGeneration": 34,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 13,
+        "loadMs": 456,
+        "maxTravelFrameMs": 133,
+        "walkP95Ms": 283,
+        "gpu": {
+          "geometries": 23,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Lampworks",
+        "musicGeneration": 35,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 14,
+        "loadMs": 763,
+        "maxTravelFrameMs": 367,
+        "walkP95Ms": 217,
+        "gpu": {
+          "geometries": 26,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Lampworks",
+        "musicGeneration": 35,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 15,
+        "loadMs": 689,
+        "maxTravelFrameMs": 200,
+        "walkP95Ms": 300,
+        "gpu": {
+          "geometries": 17,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "LowerWorks",
+        "musicGeneration": 36,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 16,
+        "loadMs": 802,
+        "maxTravelFrameMs": 300,
+        "walkP95Ms": 383,
+        "gpu": {
+          "geometries": 38,
+          "textures": 32,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Wrenfall",
+        "musicGeneration": 37,
+        "effects": 0,
+        "floor": 0.39735647567641724,
+        "retiredAlive": 0
+      },
+      {
+        "room": 4,
+        "loadMs": 842,
+        "maxTravelFrameMs": 317,
+        "walkP95Ms": 200,
+        "gpu": {
+          "geometries": 24,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "StillBelfry",
+        "musicGeneration": 38,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 0,
+        "loadMs": 683,
+        "maxTravelFrameMs": 183,
+        "walkP95Ms": 483,
+        "gpu": {
+          "geometries": 24,
+          "textures": 25,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bellmarket",
+        "musicGeneration": 39,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 5,
+        "loadMs": 992,
+        "maxTravelFrameMs": 600,
+        "walkP95Ms": 233,
+        "gpu": {
+          "geometries": 25,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Saltwake",
+        "musicGeneration": 40,
+        "effects": 0,
+        "floor": 0.2600000000000001,
+        "retiredAlive": 0
+      },
+      {
+        "room": 17,
+        "loadMs": 511,
+        "maxTravelFrameMs": 167,
+        "walkP95Ms": 500,
+        "gpu": {
+          "geometries": 17,
+          "textures": 19,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "QuinceFold",
+        "musicGeneration": 41,
+        "effects": 0,
+        "floor": 0.44249057788069723,
+        "retiredAlive": 0
+      },
+      {
+        "room": 18,
+        "loadMs": 1303,
+        "maxTravelFrameMs": 667,
+        "walkP95Ms": 867,
+        "gpu": {
+          "geometries": 18,
+          "textures": 19,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "SaffronKilns",
+        "musicGeneration": 42,
+        "effects": 0,
+        "floor": 0.5073889910639305,
+        "retiredAlive": 0
+      },
+      {
+        "room": 19,
+        "loadMs": 1330,
+        "maxTravelFrameMs": 433,
+        "walkP95Ms": 550,
+        "gpu": {
+          "geometries": 19,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "VellumWalk",
+        "musicGeneration": 43,
+        "effects": 0,
+        "floor": 0.5490247602959288,
+        "retiredAlive": 0
+      },
+      {
+        "room": 20,
+        "loadMs": 1197,
+        "maxTravelFrameMs": 583,
+        "walkP95Ms": 333,
+        "gpu": {
+          "geometries": 20,
+          "textures": 19,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Cairnwatch",
+        "musicGeneration": 44,
+        "effects": 0,
+        "floor": 0.4819717659866062,
+        "retiredAlive": 0
+      },
+      {
+        "room": 21,
+        "loadMs": 1026,
+        "maxTravelFrameMs": 550,
+        "walkP95Ms": 500,
+        "gpu": {
+          "geometries": 18,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "RainCourt",
+        "musicGeneration": 45,
+        "effects": 0,
+        "floor": 0.372997955782107,
+        "retiredAlive": 0
+      },
+      {
+        "room": 1,
+        "loadMs": 620,
+        "maxTravelFrameMs": 300,
+        "walkP95Ms": 617,
+        "gpu": {
+          "geometries": 24,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "RootChoir",
+        "musicGeneration": 46,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 6,
+        "loadMs": 1299,
+        "maxTravelFrameMs": 567,
+        "walkP95Ms": 367,
+        "gpu": {
+          "geometries": 24,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "RimePost",
+        "musicGeneration": 47,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 2,
+        "loadMs": 1194,
+        "maxTravelFrameMs": 417,
+        "walkP95Ms": 617,
+        "gpu": {
+          "geometries": 24,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Reedwater",
+        "musicGeneration": 48,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 7,
+        "loadMs": 825,
+        "maxTravelFrameMs": 317,
+        "walkP95Ms": 417,
+        "gpu": {
+          "geometries": 20,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Glasscut",
+        "musicGeneration": 49,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 3,
+        "loadMs": 548,
+        "maxTravelFrameMs": 217,
+        "walkP95Ms": 433,
+        "gpu": {
+          "geometries": 25,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "CinderLens",
+        "musicGeneration": 50,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 8,
+        "loadMs": 1096,
+        "maxTravelFrameMs": 517,
+        "walkP95Ms": 783,
+        "gpu": {
+          "geometries": 19,
+          "textures": 15,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "LowerWorks",
+        "musicGeneration": 51,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 9,
+        "loadMs": 1003,
+        "maxTravelFrameMs": 333,
+        "walkP95Ms": 633,
+        "gpu": {
+          "geometries": 17,
+          "textures": 15,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Waterworks",
+        "musicGeneration": 52,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 10,
+        "loadMs": 969,
+        "maxTravelFrameMs": 300,
+        "walkP95Ms": 350,
+        "gpu": {
+          "geometries": 19,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Waterworks",
+        "musicGeneration": 52,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 11,
+        "loadMs": 1356,
+        "maxTravelFrameMs": 450,
+        "walkP95Ms": 500,
+        "gpu": {
+          "geometries": 21,
+          "textures": 12,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bronzeworks",
+        "musicGeneration": 53,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 12,
+        "loadMs": 709,
+        "maxTravelFrameMs": 283,
+        "walkP95Ms": 383,
+        "gpu": {
+          "geometries": 18,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bronzeworks",
+        "musicGeneration": 53,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 13,
+        "loadMs": 774,
+        "maxTravelFrameMs": 267,
+        "walkP95Ms": 500,
+        "gpu": {
+          "geometries": 23,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Lampworks",
+        "musicGeneration": 54,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 14,
+        "loadMs": 838,
+        "maxTravelFrameMs": 317,
+        "walkP95Ms": 300,
+        "gpu": {
+          "geometries": 26,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Lampworks",
+        "musicGeneration": 54,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 15,
+        "loadMs": 741,
+        "maxTravelFrameMs": 300,
+        "walkP95Ms": 350,
+        "gpu": {
+          "geometries": 17,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "LowerWorks",
+        "musicGeneration": 55,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 16,
+        "loadMs": 832,
+        "maxTravelFrameMs": 283,
+        "walkP95Ms": 750,
+        "gpu": {
+          "geometries": 38,
+          "textures": 32,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Wrenfall",
+        "musicGeneration": 56,
+        "effects": 0,
+        "floor": 0.3973576410606848,
+        "retiredAlive": 0
+      },
+      {
+        "room": 4,
+        "loadMs": 729,
+        "maxTravelFrameMs": 250,
+        "walkP95Ms": 283,
+        "gpu": {
+          "geometries": 24,
+          "textures": 14,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "StillBelfry",
+        "musicGeneration": 57,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 0,
+        "loadMs": 788,
+        "maxTravelFrameMs": 350,
+        "walkP95Ms": 450,
+        "gpu": {
+          "geometries": 24,
+          "textures": 25,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bellmarket",
+        "musicGeneration": 58,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      }
+    ]
+  },
+  "frameSample": {
+    "renderer": "Chromium SwiftShader",
+    "samples": [
+      {
+        "district": "QuinceFold",
+        "samples": 90,
+        "scale": 0.5120000000000001,
+        "medianMs": 99.89999999999964,
+        "p95Ms": 166.59999999999854,
+        "calls": 11,
+        "triangles": 34150
+      },
+      {
+        "district": "SaffronKilns",
+        "samples": 90,
+        "scale": 0.5120000000000001,
+        "medianMs": 66.59999999999854,
+        "p95Ms": 116.59999999999854,
+        "calls": 16,
+        "triangles": 26868
+      },
+      {
+        "district": "VellumWalk",
+        "samples": 90,
+        "scale": 0.5120000000000001,
+        "medianMs": 100,
+        "p95Ms": 200,
+        "calls": 15,
+        "triangles": 39468
+      },
+      {
+        "district": "Cairnwatch",
+        "samples": 90,
+        "scale": 0.5120000000000001,
+        "medianMs": 83.29999999999563,
+        "p95Ms": 183.1999999999971,
+        "calls": 16,
+        "triangles": 34922
+      },
+      {
+        "district": "RainCourt",
+        "samples": 90,
+        "scale": 0.5120000000000001,
+        "medianMs": 66.69999999999709,
+        "p95Ms": 116.69999999999709,
+        "calls": 11,
+        "triangles": 25610
+      }
+    ]
+  },
+  "endings": {
+    "roadLettersPerEnding": 5,
+    "oldFinalCheckpoint": [],
+    "earnedRoadBook": []
+  }
+}

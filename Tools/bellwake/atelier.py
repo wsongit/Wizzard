@@ -264,7 +264,7 @@ def finish(key, sky_key=None):
         scene.world.node_tree.links.new(node.outputs[0], bg.inputs[0])
     for group, objs in batches.items():
         hidden = (
-            group in ("C_Solids", "HushWave", "Roster", "Ina", "NightRoll", "GateLight")
+            group in ("C_Solids", "HushWave", "Roster", "Ina", "NightRoll", "RoadBook", "GateLight")
             or group.startswith(("Choice", "Call", "Flow", "Stray"))
             or group in ("Ray1", "Ray2", "Ray3")
         )
@@ -277,6 +277,7 @@ def finish(key, sky_key=None):
             if area.type == "VIEW_3D":
                 area.spaces.active.region_3d.view_perspective = "CAMERA"
     bpy.context.preferences.filepaths.save_version = 0
+    bpy.data.orphans_purge(do_recursive=True)
     bpy.ops.wm.save_as_mainfile(filepath=str(folder / (key + ".blend")), compress=True)
     export(key)
 

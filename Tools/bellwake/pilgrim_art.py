@@ -870,3 +870,58 @@ def facades(k, edges):
                     "Slate" if n == 4 else "Masonry",
                 )
             slab("Spillway curb", 0, 0.19, 0.30, 4.50, 0.45, 0.44, "MossRock")
+
+
+def road_leaf_paint():
+    """Illuminated endpapers, sized for the lectern on the market pier."""
+    w, h = 384, 248
+    rng = np.random.default_rng(196)
+    y, x = np.mgrid[:h, :w]
+    shade = (
+        9 * np.cos((x % 192 - 91) / 87)
+        - 11 * np.exp(-abs(x - 191) / 12)
+        + 2 * np.sin(y / 9)
+        + rng.normal(0, 3.4, (h, w))
+    )
+    image = Image.fromarray(
+        np.uint8(np.clip(np.array([220, 202, 156])[None, None, :] + shade[:, :, None], 0, 255))
+    )
+    d = ImageDraw.Draw(image)
+    gold = "#9d713c"
+    red = "#8c342f"
+    ink = "#473a2b"
+    green = "#4f694f"
+    font = lambda n: ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf", n)
+    for left in (8, 200):
+        d.rectangle((left, 8, left + 175, h - 9), outline=gold, width=2)
+        d.rectangle((left + 4, 12, left + 171, h - 13), outline=green, width=1)
+        for rx, ry in ((left + 5, 13), (left + 170, 13), (left + 5, h - 14), (left + 170, h - 14)):
+            d.polygon([(rx - 3, ry), (rx, ry - 4), (rx + 3, ry), (rx, ry + 4)], fill=red)
+    d.text((25, 23), "The public road", font=font(19), fill=red)
+    d.text((27, 48), "Nine household marks", font=font(11), fill=ink)
+    for i in range(9):
+        cx, cy = 40 + i % 3 * 45, 86 + i // 3 * 44
+        d.ellipse((cx - 14, cy - 14, cx + 14, cy + 14), outline=gold, width=2)
+        angle = i * math.pi / 7
+        n = 3 + i % 4
+        pts = [
+            (
+                cx + 9 * math.cos(angle + j * 2 * math.pi / n),
+                cy + 9 * math.sin(angle + j * 2 * math.pi / n),
+            )
+            for j in range(n)
+        ]
+        d.line(pts + [pts[0]], fill=green if i % 2 else red, width=2)
+        d.ellipse((cx - 2, cy - 2, cx + 2, cy + 2), fill=ink)
+    d.text((26, 210), "Entered at Mossbell", font=font(12), fill=ink)
+    d.text((214, 23), "Letters home", font=font(19), fill=red)
+    for i, name in enumerate(("Mara", "Jori", "Senn", "Tern", "Issa")):
+        yy = 58 + i * 33
+        d.text((217, yy), name, font=font(14), fill=green if i % 2 else red)
+        d.line((265, yy + 9, 351 - i * 3, yy + 9), fill=gold, width=1)
+        for j in range(2):
+            for k in range(5):
+                px = 220 + k * 26
+                py = yy + 19 + j * 3
+                d.line((px, py, px + 13 + int(rng.integers(0, 10)), py), fill=ink, width=1)
+    image.save(RES / "Textures/RoadLetters.png")
