@@ -73,5 +73,38 @@
       "liveScores": 1,
       "identicalGpuCountsAcrossLaps": true
     }
-  ]
+  ],
+  "steadyFrames": {
+    "renderer": "Chromium SwiftShader, 768 × 432, separate run after the main playthrough",
+    "warmupFrames": 90,
+    "samples": [
+      {
+        "district": "SillwaterEbb",
+        "samples": 90,
+        "scale": 0.512,
+        "medianMs": 33.3,
+        "p95Ms": 66.7,
+        "calls": 24,
+        "triangles": 30996
+      },
+      {
+        "district": "SillwaterFlood",
+        "samples": 90,
+        "scale": 0.512,
+        "medianMs": 33.3,
+        "p95Ms": 66.6,
+        "calls": 24,
+        "triangles": 30820
+      },
+      {
+        "district": "SillwaterOffice",
+        "samples": 90,
+        "scale": 0.512,
+        "medianMs": 16.7,
+        "p95Ms": 50,
+        "calls": 10,
+        "triangles": 3830
+      }
+    ]
+  }
 }

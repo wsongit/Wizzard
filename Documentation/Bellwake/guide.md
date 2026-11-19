@@ -24,7 +24,7 @@ The market, Root Choir, Reedwater, Cinder Lens and belfry each hold a witness le
 
 The witness book shows active playtime. Loading, the open journal and unfocused play are excluded. The clock starts with this update for existing checkpoints. Players already past a new district retain their place in the story.
 
-A fresh desktop run of the paper-theatre release reached its first ending in 30 minutes 52 seconds of active play across the twenty-seven required places. Sillwater adds three places beyond that release. The test already knew the routes and puzzle solutions. First-time human and headset completion times remain unmeasured. [Playthrough details](validation.md)
+A fresh desktop run through all thirty required areas reached its first ending in 32 minutes 36 seconds of active play. The runner already knew the routes and puzzle solutions. The target is roughly 25–30 hours for a first-time main-story playthrough. That duration remains unverified. [Playthrough details](validation.md)
 
 ## Tavi’s Paper Theatre
 

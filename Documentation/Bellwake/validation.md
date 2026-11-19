@@ -1,5 +1,9 @@
 # Bellwake release checks
 
+## Current main-story playthrough
+
+The Sillwater campaign reached its first ending in **32 minutes 36 seconds of active play**, or 33 minutes 9 seconds elapsed, across 30 required places. The fresh-save desktop runner walked with normal controls, staged Tavi’s four scenes, traced the six parish bearings and completed all eleven gallery dispatches. It collected the five witness leaves and tested both endings from the final checkpoint. The run reported zero application errors. Travel, the journal and unfocused time are excluded from the active clock. The runner knew the puzzles in advance. There is no measured first-time human or physical-headset completion time. [Timing by location](known-route.json)
+
 ## Long Meadow ground streaming
 
 The native meadow reuses its vertex, UV, normal and triangle buffers as the player crosses the two-kilometre map. Adjacent tiles compute their edge lighting from the same surrounding heights. A managed test using Unity’s 2022.3 assemblies compared 69,696 vertices against the previous ground surface. The largest change in height was under one micrometre. Positions, UVs and normals matched at all 3,696 shared edge samples. Refilling the terrain buffers 640 times allocated zero managed bytes during the measured loop. Unity still allocates the mesh and its collider when a tile enters the world.
@@ -13,6 +17,8 @@ A player-input test took all six optical bearings, rejected off-target sightings
 Blender reimported all three shipped FBXs. The checks sampled 118,267 ground positions and cast 22,220 boundary rays. Every station and tide-change checkpoint was reachable. The ebb shore contains 30,840 visible-model triangles, flood has 30,664 and the office has 6,200. The C# progression check reached its goal from all 2,133 machine positions and checked 9,120 transitions. The game and editor scripts compiled against Unity 2022.3.20f1.
 
 The 31-place streaming test made 105 transfers. Three additional laps made 21 transfers between the finished shores, office, lock and market. The previous world, collision tree and panorama were collectible on every transfer. Returning to the same area produced the same GPU resource counts. The meadow streaming model crossed 3,327 positions and peaked at 21 of 64 chunks loaded. Unity now queues the current area’s texture requests during the fade. Physical Quest frame times and native APK execution still need a licensed device build. [Parish geometry and playtest measurements](sillwater.json)
+
+An isolated 768 × 432 software-rendering check warmed each parish area for 90 frames, then turned through it for another 90. The 95th-percentile frame intervals were 66.7, 66.6, 50 ms at ebb, at flood and in the office respectively. These timings exceed the 13.9 ms budget for 72 Hz. The test used Chromium SwiftShader and adaptive resolution at 0.512 scale. The physical headset’s GPU has yet to be profiled.
 
 The return ticket was tested from a fresh market, an older Reedwater checkpoint and both endings. The test reloaded at flood, used the towpath before signing, and confirmed the original story checkpoint and ending on return. A completed early survey carried its title past Rimeway. An emulated Quest controller used the market counter and took the packet back. Across the market, lock and three parish areas, 15,360 capsule, sphere and ray queries matched the reference collision implementation.
 
@@ -38,7 +44,7 @@ On an emulated 8 Mbit/s connection with 40 ms latency and cache disabled, a cold
 
 ## Fresh-save completion time
 
-The 26-area Countertide route candidate reached its first ending in **29 minutes 14 seconds of active play** and 29 minutes 46 seconds elapsed. The fresh-save runner used ordinary keyboard movement, a known route and chart hints. It finished the five wards, 27 dispatches, all 11 gallery jobs, five witness leaves, the optional night roll and a keeper retry. It restored the checkpoint to reach the other ending. It logged zero application errors. The optional kitchen was tested separately. For comparison, the previous 22-area route measured 25 minutes 55 seconds of active play. These were concurrent cloud software-rendering runs. A first-time human playthrough and physical Quest timing remain unmeasured. [Times for all 26 required areas](known-route.json)
+The 26-area Countertide route candidate reached its first ending in **29 minutes 14 seconds of active play** and 29 minutes 46 seconds elapsed. The fresh-save runner used ordinary keyboard movement, a known route and chart hints. It finished the five wards, 27 dispatches, all 11 gallery jobs, five witness leaves, the optional night roll and a keeper retry. It restored the checkpoint to reach the other ending. It logged zero application errors. The optional kitchen was tested separately. For comparison, the previous 22-area route measured 25 minutes 55 seconds of active play. These were concurrent cloud software-rendering runs. A first-time human playthrough and physical Quest timing remain unmeasured. [Times for the 26-area release](https://github.com/wsongit/Wizzard/blob/cd11d43/Documentation/Bellwake/known-route.json)
 
 ## The Pilgrims’ Cut
 

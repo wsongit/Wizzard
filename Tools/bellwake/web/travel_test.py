@@ -34,8 +34,9 @@ async def main():
             const tick = t => {if(prev !== undefined) gaps.push(t-prev); prev=t; requestAnimationFrame(tick)};
             requestAnimationFrame(tick);
         }""")
-        if "--wards" in sys.argv:
-            for index in range(17,22):
+        if "--wards" in sys.argv or "--parish-frames" in sys.argv:
+            districts = (28,29,30) if "--parish-frames" in sys.argv else range(17,22)
+            for index in districts:
                 await page.evaluate("i=>bellTravel(i)",index)
                 sample=await page.evaluate("""async() => {
                     const frame=()=>new Promise(requestAnimationFrame);
