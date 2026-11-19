@@ -6,6 +6,7 @@ Usage: python playtest.py URL AUDIT_DIRECTORY RESULT_DIRECTORY
 import asyncio, json, math, sys, os, heapq, time
 from pathlib import Path
 from playwright.async_api import async_playwright
+from pilgrim_route import walk_wards, TRAILS
 from works_route import complete_works, complete_coast
 
 url, navdir, outdir = sys.argv[1:4]
@@ -84,7 +85,7 @@ drive = """async ({points,id})=>{
  try{
  for(const [x,z] of points){while(true){const p=bellProbe();
  if(Math.hypot(p.feet[0]-x,p.feet[2]-z)<.29)break;
- if(++frames>1100)throw Error('Route stalled '+id+' '+JSON.stringify({p:p.feet,x,z,yaw:p.yaw}));
+ if(++frames>Math.max(1100,points.length*110))throw Error('Route stalled '+id+' '+JSON.stringify({p:p.feet,x,z,yaw:p.yaw}));
  aim(x,z);await frame();}}
  }finally{key('keyup','KeyW');key('keyup','ShiftLeft');}
  let p=bellProbe(),m=p.markers[id];aim(m[0],m[2],m[1]);
@@ -117,6 +118,7 @@ async def run():
             await page.mouse.move(380, 200)
             await page.mouse.down()
 
+        ward_only=next((arg[7:] for arg in sys.argv if arg.startswith("--ward=")),None)
         coast_only = "--coast" in sys.argv
         works_only = "--works" in sys.argv
         target_post = "--last-post" in sys.argv
@@ -124,8 +126,10 @@ async def run():
         floodbook = "--flood-book" in sys.argv
         nameplate = "--night-roll" in sys.argv or floodbook
         endings_only = "--endings" in sys.argv or nameplate
-        if target_post or glasscut_only or endings_only or works_only or coast_only:
+        if target_post or glasscut_only or endings_only or works_only or coast_only or ward_only:
             saved = {"number": 13, "leaves": 7}
+            if ward_only:
+                saved={"number":2,"leaves":1,"passage":{"completed":1},"works":{"active":True,"chamber":9+list(TRAILS).index(ward_only)}}
             if works_only:
                 saved = {"number": 21, "leaves": 15}
             if coast_only:
@@ -285,6 +289,11 @@ async def run():
             )
             await b.close()
             return
+        if ward_only:
+            await walk_wards(act,page,start,out,ward_only)
+            assert not errors,errors
+            await b.close()
+            return
         if coast_only:
             await complete_coast(act, page, start, out)
             assert not errors, errors
@@ -304,6 +313,7 @@ async def run():
                 await act("A_Letter")
                 await act("A_Gate")
                 await passage("Saltwake")
+                await walk_wards(act,page,start,out)
                 await profile()
                 await act("A_Talk")
                 await act("A_Key0")
@@ -348,7 +358,7 @@ async def run():
         assert final["ending"] == 1 and final["leaves"] == 31
         if timed:
             durations = final["secondsByPlace"]
-            assert len(durations) == 17, durations
+            assert len(durations) == 22, durations
             (out / "known-route.json").write_text(
                 json.dumps(
                     {

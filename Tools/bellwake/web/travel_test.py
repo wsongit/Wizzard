@@ -34,7 +34,7 @@ async def main():
             const tick = t => {if(prev !== undefined) gaps.push(t-prev); prev=t; requestAnimationFrame(tick)};
             requestAnimationFrame(tick);
         }""")
-        route = [5, 1, 6, 2, 7, 3, 8, 9, 10, 11, 12, 13, 14, 15, 16, 4, 0]
+        route = [5, 17,18,19,20,21, 1, 6, 2, 7, 3, 8, 9, 10, 11, 12, 13, 14, 15, 16, 4, 0]
         for lap in range(3):
             for room in route:
                 sample = await page.evaluate(

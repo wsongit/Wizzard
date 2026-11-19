@@ -34,7 +34,13 @@ try {
 } catch {}
 const state = () => graph.states[number];
 let passage = new Passage(data.regions, savedPassage, state().room, state().ending);
-let works = new Underworks(data.works, savedWorks, state().room === 3 && state().solved);
+const openingWard = data.works.rooms.findIndex((r) => r.early);
+const savedEarly = !!data.works.rooms[savedWorks?.chamber]?.early;
+let works = new Underworks(
+  data.works,
+  savedWorks,
+  savedEarly ? state().room === 1 && !state().ending : state().room === 3 && state().solved,
+);
 const roomRadius = () => (works.active && works.room.halfSpan) || 20;
 const locationKey = () =>
   works.active ? works.room.key : passage.active ? passage.region.key : graph.rooms[state().room];
@@ -149,6 +155,8 @@ let group = null,
   started = false,
   busy = true,
   book = false,
+  guide = null,
+  surveyImage = null,
   journalPage = 0,
   journalText = [],
   focus = "",
@@ -167,9 +175,13 @@ function bytes(encoded) {
   for (let i = 0; i < b.length; i++) array[i] = b.charCodeAt(i);
   return array.buffer;
 }
+function arrival() {
+  const camp = works.active && works.progress.camp;
+  return (camp && camp.startsWith("Rest") && nodes[camp]?.position) || nodes.Spawn?.position;
+}
 function resetFeet() {
   if (vr.session) vr.reset();
-  const p = nodes.Spawn.position;
+  const p = arrival();
   capsule.start.copy(p).y += 0.26;
   capsule.end.copy(p).y += 1.4;
   vy = 0;
@@ -184,7 +196,7 @@ const vr = new TrackedRunner(
   camera,
   renderer,
   loadModel,
-  () => ({ tree, spawn: nodes.Spawn?.position, radius: roomRadius() }),
+  () => ({ tree, spawn: arrival(), radius: roomRadius() }),
   () => {
     if (book) journalPage = (journalPage + 1) % journalText.length;
     else interact(focus);
@@ -194,6 +206,7 @@ const vr = new TrackedRunner(
     toggleBook(false);
     if (!busy && nodes.Spawn) resetFeet();
   },
+  callGuide,
 );
 navigator.xr
   ?.isSessionSupported("immersive-vr")
@@ -296,6 +309,8 @@ async function loadRoom() {
   movingTrail = null;
   fixtures = [];
   observation = null;
+  surveyImage = null;
+  guide = null;
   passage.book = null;
   nodes = {};
   markers = [];
@@ -325,6 +340,7 @@ async function loadRoom() {
     if (o.name.startsWith("A_")) markers.push(o);
     if (o.isMesh) {
       const old = o.material;
+      if (works.active && works.room.early && old.name === key + "Survey") surveyImage = old.map.source.data;
       if (!palette.has(old)) {
         const paint = new T.MeshLambertMaterial({ map: old.map, color: old.color, side: T.DoubleSide });
         if (old.map) {
@@ -346,6 +362,22 @@ async function loadRoom() {
 
   nodes.C_Solids.visible = false;
   scene.add(group);
+  if (works.active && works.room.early) {
+    const body = new T.Group();
+    group.add(body);
+    for (const key of ["GuideBird", "GuideLeft", "GuideRight"]) body.attach(nodes[key]);
+    guide = {
+      body,
+      points: [],
+      cells: [],
+      leg: 0,
+      pos: new T.Vector3(),
+      heading: new T.Vector3(),
+      left: nodes.GuideLeft.rotation.z,
+      right: nodes.GuideRight.rotation.z,
+    };
+    body.visible = false;
+  }
   const color =
     key === "Wrenfall"
       ? "#b7d2c2"
@@ -415,7 +447,10 @@ const trailStart = new T.Vector3(),
 function chartPoint(out, tile) {
   out.copy(nodes.NW.position);
   out.addScaledVector(step.subVectors(nodes.NE.position, nodes.NW.position), (tile % 7) / 6);
-  return out.addScaledVector(step.subVectors(nodes.SW.position, nodes.NW.position), Math.floor(tile / 7) / 6);
+  return out.addScaledVector(
+    step.subVectors(nodes.SW.position, nodes.NW.position),
+    Math.floor(tile / 7) / 6,
+  );
 }
 let fixtures = [],
   observation = null,
@@ -507,7 +542,10 @@ async function interact(id) {
   if (works.active) {
     const station = works.station(id);
     if (id === "A_Book" && nodes.Linnet && works.signals.landed && voyageFraction < 1) {
-      say(station.label, "Her sail is rounding the last stone. Elin will have the book when she makes fast.");
+      say(
+        station.label,
+        "Her sail is rounding the last stone. Elin will have the book when she makes fast.",
+      );
       return;
     }
     if (station.sight && works.signals.charter && !works.signals[station.evidence]) {
@@ -524,7 +562,14 @@ async function interact(id) {
     }
     const name = label(id),
       result = works.use(id);
+    if (result.to?.startsWith("#")) {
+      resetFeet();
+      save();
+      say(name, result.line);
+      return;
+    }
     if (result.to) {
+      if (result.to === "@choir") works.progress.active = false;
       if (result.to === "@final") {
         works.progress.active = false;
         number = state().moves.A_Gate[0];
@@ -549,6 +594,11 @@ async function interact(id) {
     if (id === "A_Gate" && passage.done) {
       number = state().moves.A_Gate[0];
       passage.leave();
+      if (state().room === 1) {
+        works.progress.chamber = openingWard;
+        works.progress.camp = "";
+        works.progress.active = true;
+      }
       if (await room()) welcome();
       return;
     }
@@ -607,6 +657,8 @@ async function interact(id) {
   }
   if (id === "A_Gate" && prev.room === 3 && graph.states[move[0]].room === 4) {
     works.progress.active = true;
+    works.progress.chamber = 0;
+    works.progress.camp = "";
     if (await room()) welcome();
     return;
   }
@@ -721,6 +773,78 @@ function move(dt) {
     resetFeet();
   updateCamera();
 }
+function callGuide() {
+  if (!guide || book || busy) return;
+  const origin = nodes.MapSW.position,
+    east = nodes.MapSE.position,
+    north = nodes.MapNW.position;
+  const head = vr.session ? vr.head : camera.position;
+  const col = T.MathUtils.clamp(Math.floor((15 * (head.x - origin.x)) / (east.x - origin.x)), 0, 14);
+  const row = T.MathUtils.clamp(Math.floor((15 * (head.z - origin.z)) / (north.z - origin.z)), 0, 14);
+  const cells = works.guideTrail(col + 15 * row);
+  if (!cells.length) return;
+  guide.cells = cells;
+  guide.points = cells.map(
+    (id) =>
+      new T.Vector3(
+        origin.x + (east.x - origin.x) * (((id % 15) + 0.5) / 15),
+        works.room.ground[id] + 1.66,
+        origin.z + (north.z - origin.z) * ((Math.floor(id / 15) + 0.5) / 15),
+      ),
+  );
+  guide.leg = 0;
+  guide.pos
+    .copy(head)
+    .addScaledVector(vr.session ? vr.direction : camera.getWorldDirection(guide.heading), 0.55);
+  guide.body.visible = true;
+  guide.body.position.copy(guide.pos);
+}
+function flyGuide(dt, t) {
+  const { pos, body, points, heading } = guide,
+    target = points[guide.leg];
+  if (target) {
+    heading.subVectors(target, pos);
+    const distance = heading.length();
+    if (heading.x * heading.x + heading.z * heading.z > 0.002)
+      body.rotation.y = Math.atan2(-heading.x, -heading.z);
+    if (distance <= 3.4 * dt) {
+      pos.copy(target);
+      guide.leg++;
+    } else pos.addScaledVector(heading, (3.4 * dt) / distance);
+  }
+  body.position.copy(pos);
+  body.position.y += 0.05 * Math.sin(t * 5);
+  const flap = 0.49 * Math.sin(t * 18);
+  nodes.GuideLeft.rotation.z = guide.left + flap;
+  nodes.GuideRight.rotation.z = guide.right - flap;
+}
+function drawSurvey() {
+  const canvas = $("survey");
+  canvas.hidden = !surveyImage;
+  canvas.closest("article").classList.toggle("survey-open", !!surveyImage);
+  if (!surveyImage) return;
+  const origin = nodes.MapSW.position,
+    east = nodes.MapSE.position,
+    north = nodes.MapNW.position;
+  const pos = vr.session ? vr.head : capsule.start;
+  const u = (pos.x - origin.x) / (east.x - origin.x),
+    v = (pos.z - origin.z) / (north.z - origin.z);
+  const c = canvas.getContext("2d");
+  c.drawImage(surveyImage, 0, 0, 768, 544);
+  const x = 16 + 480 * u,
+    y = 512 - 480 * v;
+  c.fillStyle = "#c83422";
+  c.strokeStyle = "#fff8d6";
+  c.lineWidth = 3;
+  c.beginPath();
+  c.arc(x, y, 7, 0, Math.PI * 2);
+  c.fill();
+  c.stroke();
+  c.fillStyle = "#9d211b";
+  c.font = "bold 14px sans-serif";
+  c.fillText("●  You are here", 515, 443);
+  vr.surveyChanged();
+}
 function toggleBook(open) {
   if (!started || busy) return;
   book = open;
@@ -730,6 +854,7 @@ function toggleBook(open) {
   $("hud").hidden = open;
   if (open) {
     document.exitPointerLock?.();
+    drawSurvey();
     $("booktitle").textContent = locationName() + "   ·   " + playTime();
     $("objective").textContent = objective() + "   ·   " + state().seals + " of 3 vows";
     $("leaves").replaceChildren();
@@ -738,7 +863,7 @@ function toggleBook(open) {
       page.textContent = data.works.logTitle + "   ·   " + data.works.logEntry;
       $("leaves").append(page);
     }
-    if (works.active) {
+    if (works.active && !works.room.early) {
       const item = document.createElement("li");
       item.textContent = works.register();
       $("leaves").append(item);
@@ -793,6 +918,7 @@ addEventListener("keydown", (e) => {
   }
   if (book || busy) return;
   keys.add(e.code);
+  if (e.code === "KeyQ") callGuide();
   if (e.code === "KeyE") interact(focus);
   if (e.code === "Space" && onFloor) {
     vy = 4.5;
@@ -907,6 +1033,7 @@ function loop(time, frame) {
     if (fight && nodes.HushWave) nodes.HushWave.scale.setScalar(1 + 12 * (1 - Math.min(1, timer / 24)));
     if (nodes.GreatBell) nodes.GreatBell.rotation.z = Math.sin(time * 0.0018) * (fight ? 0.12 : 0.017);
   }
+  if (guide?.body.visible && !book) flyGuide(delta, time / 1000);
   if (works.active) animateWorks(1 - Math.exp(-delta * 8), delta);
   if (passage.active && movingTrail) {
     const t = Math.max(0, (time - trailTime) / 90),
@@ -954,7 +1081,8 @@ function loop(time, frame) {
         : focus
           ? label(focus)
           : "The keeper calls";
-    vr.caption(title, text);
+    if (book && surveyImage && journalPage === 0) vr.showSurvey($("survey"));
+    else vr.caption(title, text);
   }
   sky.position.copy(vr.session ? vr.head : camera.position);
   renderer.render(scene, camera);
@@ -982,6 +1110,8 @@ if (__TEST__)
     sight: observation
       ? { target: nodes[observation.sight].position.toArray(), linedUp: bearingClear() }
       : null,
+    guide: guide?.body.visible ? { cells: guide.cells, pos: guide.body.position.toArray() } : null,
+    vrMap: !!vr.mapMode,
     vessel: nodes.Linnet?.position.toArray(),
     crew: nodes.CrewAshore?.visible,
     focus,
@@ -1011,9 +1141,10 @@ if (__TEST__)
     if (busy) throw Error("Travel already in progress");
     const expansion = index - graph.rooms.length;
     const chamber = expansion - data.regions.length;
-    const base = chamber >= 0 ? 3 : expansion >= 0 ? expansion : index;
+    const early = data.works.rooms[chamber]?.early;
+    const base = chamber >= 0 ? (early ? 1 : 3) : expansion >= 0 ? expansion : index;
     const target = graph.states.findIndex(
-      (s) => s.room === base && (expansion < 0 || s.commissioned) && (chamber < 0 || s.solved),
+      (s) => s.room === base && (expansion < 0 || s.commissioned) && (chamber < 0 || early || s.solved),
     );
     if (target < 0 || chamber >= data.works.rooms.length) throw Error("Unknown district");
     number = target;

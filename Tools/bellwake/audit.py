@@ -27,6 +27,48 @@ def tree(objects):
     return BVHTree.FromPolygons(vs, fs, all_triangles=True)
 
 
+def ward_passages(key, objects, ground, reach, off, step):
+    sys.path.insert(0,str(Path(__file__).resolve().parent))
+    from pilgrim import FIELDS, SIZE, edge, layout, world, neighbours
+    edges,_ = layout(next(i for i,f in enumerate(FIELDS) if f[0] == key))
+    rim = tree([objects["Rim"]])
+    room = works[key]
+    for name in ["GuideBird","GuideLeft","GuideRight","MapSW","MapSE","MapNW"]:
+        assert name in objects, (key,name)
+    for station in room["stations"]:
+        if station.get("camp"):
+            pt = objects[station["camp"]].matrix_world.translation
+            assert (round((pt.x-off)/step),round((pt.y-off)/step)) in reach,(key,station["camp"])
+        trail = station.get("trail")
+        if trail:
+            assert len(trail)==SIZE*SIZE and trail.count(".")==1
+            destination=trail.index(".")
+            for start in range(len(trail)):
+                cell=start
+                for _ in range(len(trail)):
+                    if cell==destination: break
+                    other=cell+{"N":SIZE,"S":-SIZE,"E":1,"W":-1}[trail[cell]]
+                    assert edge((cell%SIZE,cell//SIZE),(other%SIZE,other//SIZE)) in edges
+                    cell=other
+                assert cell==destination,(key,station["id"],start)
+    shots=0
+    for y in range(SIZE):
+        for x in range(SIZE):
+            a=(x,y)
+            for b in neighbours(a):
+                dx,dy=b[0]-x,b[1]-y
+                wx,wy=world(a)
+                for offset in (-3,-1.5,0,1.5,3):
+                    mx=wx+4*dx-offset*dy
+                    my=wy+4*dy+offset*dx
+                    z=ground.ray_cast((mx,my,10),(0,0,-1),20)[0].z
+                    for height in (.3,1.6):
+                        hit=rim.ray_cast((mx-dx,my-dy,z+height),(dx,dy,0),2)[0]
+                        assert (hit is None)==(edge(a,b) in edges),(key,a,b,offset,height)
+                        shots+=1
+    return shots
+
+
 def main(key):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.ops.import_scene.fbx(filepath=str(RES / "Rooms" / (key + ".fbx")))
@@ -150,6 +192,7 @@ def main(key):
                 choices.append((i, j))
         assert len(choices) > 3, (key, name, "unreachable station")
         goals[name] = sorted(choices)
+    interior = ward_passages(key,objects,ground,reach,off,step) if works.get(key,{}).get("early") else 0
     tri = sum(len(o.data.loop_triangles) for o in mesh if o.name != "C_Solids")
     slots = sum(len(o.data.materials) for o in mesh if o.name != "C_Solids")
     assert tri < 50000 and slots < 64, (key, tri, slots)
@@ -160,6 +203,7 @@ def main(key):
         asset=key,
         groundProbes=rows * rows,
         boundaryRays=rays,
+        interiorCrossings=interior,
         walkableCells=len(reach),
         stations=len(markers),
         minApproaches=min(map(len, goals.values())),

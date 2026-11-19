@@ -10,6 +10,8 @@ namespace Wizzard
         readonly Transform head, card;
         readonly TextMesh heading, body;
         readonly Font font;
+        Transform survey,pin;
+        Material surveyInk,pinInk;
         readonly Material panelMaterial, captionInk, worldInk;
         public BellwakeDisplay(Transform head)
         {
@@ -84,8 +86,36 @@ namespace Wizzard
                 maxScale, Mathf.Min(width / Mathf.Max(.001f, bounds.x), height / Mathf.Max(.001f, bounds.y)));
             label.transform.localScale = Vector3.one * s;
         }
+        public void ClearSurvey()
+        {
+            if (survey==null) return;
+            survey.gameObject.SetActive(false);
+            surveyInk.mainTexture=null;
+        }
+        public void Survey(Texture image,Vector2 position)
+        {
+            if (survey==null)
+            {
+                var sheet=GameObject.CreatePrimitive(PrimitiveType.Quad);
+                Object.Destroy(sheet.GetComponent<Collider>());
+                survey=sheet.transform;survey.SetParent(card,false);
+                survey.localPosition=new Vector3(0,.56f,0);survey.localScale=new Vector3(1.08f,.765f,1);
+                surveyInk=new Material(panelMaterial){color=Color.white,renderQueue=3900};
+                surveyInk.SetFloat("_FullColor",1);
+                sheet.GetComponent<Renderer>().sharedMaterial=surveyInk;
+                var marker=GameObject.CreatePrimitive(PrimitiveType.Quad);
+                Object.Destroy(marker.GetComponent<Collider>());pin=marker.transform;pin.SetParent(survey,false);
+                pin.localScale=new Vector3(.021f,.030f,1);
+                pinInk=new Material(panelMaterial){color=new Color(.83f,.16f,.08f),renderQueue=3901};
+                marker.GetComponent<Renderer>().sharedMaterial=pinInk;
+            }
+            surveyInk.mainTexture=image;
+            pin.localPosition=new Vector3((16+480*position.x)/768f-.5f,.5f-(512-480*position.y)/544f,-.006f);
+            survey.gameObject.SetActive(true);
+        }
         public void Say(string title, string text)
         {
+            ClearSurvey();
             card.gameObject.SetActive(true);
             heading.text = title.ToUpperInvariant();
             body.text = Wrap(text, 51);
@@ -111,6 +141,7 @@ namespace Wizzard
         }
         public void Hide()
         {
+            ClearSurvey();
             card.gameObject.SetActive(false);
         }
         public void Dispose()
@@ -119,6 +150,8 @@ namespace Wizzard
             Object.Destroy(captionInk);
             Object.Destroy(worldInk);
             Object.Destroy(panelMaterial);
+            if(surveyInk!=null) Object.Destroy(surveyInk);
+            if(pinInk!=null) Object.Destroy(pinInk);
             Object.Destroy(card.gameObject);
         }
     }

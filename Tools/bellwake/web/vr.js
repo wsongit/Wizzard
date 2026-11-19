@@ -3,9 +3,10 @@ import { Capsule } from "three/examples/jsm/math/Capsule.js";
 
 const up = new T.Vector3(0, 1, 0);
 export class TrackedRunner {
-  constructor(scene, camera, renderer, load, world, use, book, exit) {
+  constructor(scene, camera, renderer, load, world, use, book, exit, callGuide) {
     this.renderer = renderer;
     this.world = world;
+    this.callGuide = callGuide;
     this.book = book;
     this.rig = new T.Group();
     scene.add(this.rig);
@@ -146,7 +147,8 @@ export class TrackedRunner {
     this.rig.position.add(this.work);
     this.head.add(this.work);
     this.rig.updateMatrixWorld(true);
-    let book = false,
+    let squeeze = false,
+      book = false,
       turn = 0,
       contacts = 0;
     const had = this.hands[0].contact || this.hands[1].contact;
@@ -162,6 +164,7 @@ export class TrackedRunner {
         h.valid = h.contact = false;
         continue;
       }
+      if (!i) squeeze = !!input.gamepad?.buttons[1]?.pressed;
       book ||= !!input.gamepad?.buttons[4]?.pressed;
       if (i && input.gamepad) turn = input.gamepad.axes[2] || input.gamepad.axes[0] || 0;
       const t = pose.transform.position,
@@ -209,6 +212,8 @@ export class TrackedRunner {
         }
       }
     }
+    if (!paused && squeeze && !this.squeezeHeld) this.callGuide();
+    this.squeezeHeld = squeeze;
     if (book && !this.bookHeld) this.book();
     this.bookHeld = book;
     if (!paused && Math.abs(turn) > 0.76 && !this.turnHeld) {
@@ -284,10 +289,31 @@ export class TrackedRunner {
       this.guard.position.copy(this.head).addScaledVector(this.direction, 0.16);
       this.guard.quaternion.copy(this.rotation);
     }
-    this.card.position.set(0, -0.38, -1.63).applyQuaternion(this.rotation).add(this.head);
+    this.card.position
+      .set(0, this.mapMode ? -0.06 : -0.38, -1.63)
+      .applyQuaternion(this.rotation)
+      .add(this.head);
     this.card.quaternion.copy(this.rotation);
   }
+  surveyChanged() {
+    if (this.mapInk) this.mapInk.needsUpdate = true;
+  }
+  showSurvey(canvas) {
+    if (!this.mapInk) {
+      this.mapInk = new T.CanvasTexture(canvas);
+      this.mapInk.colorSpace = T.SRGBColorSpace;
+    }
+    this.mapMode = true;
+    this.card.visible = true;
+    this.card.scale.y = (1.42 * 544) / 768 / 0.38;
+    this.card.material.map = this.mapInk;
+  }
   caption(title, words) {
+    if (this.mapMode) {
+      this.card.material.map = this.ink;
+      this.card.scale.y = 1;
+      this.mapMode = false;
+    }
     if (!this.ready) return;
     this.card.visible = !!words;
     if (!words) return;

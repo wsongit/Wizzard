@@ -185,6 +185,10 @@
         color: #2b382e;
         border-top: 5px solid #a97942;
       }
+      #survey { width: 100%; height: auto; }
+      article.survey-open { padding: 12px 20px; }
+      .survey-open h2 { margin: 4px 0; }
+      .survey-open #survey { max-height: 53vh; width: auto; max-width: 100%; display: block; margin: auto; }
       article h2 {
         font-size: 45px;
         margin: 5px 0 12px;
@@ -270,6 +274,7 @@
         <div class="eyebrow">Witness book</div>
         <h2 id="booktitle"></h2>
         <p id="objective"></p>
+        <canvas id="survey" width="768" height="544" aria-label="Ward survey with your current position" hidden></canvas>
         <ol id="leaves"></ol>
         <p id="bookcontrols">
           WASD moves. Hold Shift to run. Drag or use the arrow keys to look. Press Space to jump and E to

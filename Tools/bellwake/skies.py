@@ -23,12 +23,17 @@ for k, (name, top, low) in enumerate(
         ("Saltwake", (57,117,153), (211,205,157)),
         ("RimePost", (66,94,148), (199,218,218)),
         ("Glasscut", (53,58,97), (175,158,171)),
+        ("QuinceFold", (73,135,167), (220,212,174)),
+        ("SaffronKilns", (105,103,138), (220,171,127)),
+        ("VellumWalk", (65,84,127), (184,172,181)),
+        ("Cairnwatch", (66,101,143), (200,216,215)),
+        ("RainCourt", (64,115,130), (185,205,184)),
         ("Wrenfall", (66, 137, 172), (197, 216, 191)),
     ]
 ):
     if sys.argv[1:] and name not in sys.argv[1:]: continue
     # Preserve the original atmosphere seeds for existing witness-road districts.
-    k = {"Saltwake": 6, "RimePost": 7, "Glasscut": 8}.get(name, k)
+    k = {"Saltwake": 6, "RimePost": 7, "Glasscut": 8, "Wrenfall": 13}.get(name, k)
     rng = np.random.default_rng(522 + k)
     w, h = 768, 384
     v, u = np.mgrid[:h, :w]

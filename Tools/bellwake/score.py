@@ -90,6 +90,13 @@ sets = [
     ("Glasscut", .48,[54,57,52,59],[0,7,None,12,3,10,None,5,7,2,None,3],"reed"),
 ]
 sets.append(("Wrenfall", .48, [62, 69, 67, 64], [12, 10, 7, None, 5, 9, 7, None, 4, 2, None, 0], "reed"))
+sets.extend([
+    ("QuinceFold",.54,[57,62,60,55],[0,7,None,9,7,5,None,4,2,4,None,7],"lute"),
+    ("SaffronKilns",.46,[50,55,53,57],[0,None,3,7,None,10,7,5,3,None,2,0],"bronze"),
+    ("VellumWalk",.72,[64,60,57,59],[7,4,None,2,0,None,5,4,None,7,9,4],"reed"),
+    ("Cairnwatch",.59,[55,58,62,53],[12,None,7,3,5,None,10,7,5,None,2,0],"reed"),
+    ("RainCourt",.64,[60,65,62,67],[4,7,None,9,7,None,5,2,0,None,4,7],"bronze"),
+])
 for idx, (name, beat, roots, line, instr) in enumerate(sets):
     if sys.argv[1:] and name not in sys.argv[1:]: continue
     # Preserve the original atmosphere seeds for existing witness-road districts.

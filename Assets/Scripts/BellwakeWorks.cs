@@ -28,21 +28,24 @@ namespace Wizzard
     public sealed class WorksRoom
     {
         public string key, title, intro, theme, chapter;
+        public bool early;
+        public WorksRule[] goals;
         public float halfSpan;
+        public float[] ground;
         public WorksStation[] stations;
         public WorksVisual[] visuals;
     }
     [Serializable]
     public sealed class WorksStation
     {
-        public string id, label, sight, evidence, direction;
+        public string id, label, sight, evidence, direction, camp, trail;
         public int note;
         public WorksRule[] rules;
     }
     [Serializable]
     public sealed class WorksRule
     {
-        public string line, award, move, to;
+        public string line, award, move, to, lead;
         public WorksCondition[] when;
     }
     [Serializable]
@@ -64,6 +67,7 @@ namespace Wizzard
     {
         public bool active;
         public int chamber, badges;
+        public string camp;
         public int[] machines;
         [NonSerialized]
         WorksPlan plan;
@@ -115,8 +119,37 @@ namespace Wizzard
             return "Fen’s knot " + Signal("knot") + "/1. Orrel’s pay leaf " + Signal("blank") +
                    "/1. Brannic’s spare wage " + Signal("wage") + "/1. Take the three proofs to Ossa.";
         }
+        WorksRule NextGoal()
+        {
+            return Room.goals == null ? null : Array.Find(Room.goals, g =>
+                Array.TrueForAll(g.when, c => Signal(c.signal) == c.value));
+        }
+        public List<int> GuideTrail(int cell)
+        {
+            var result = new List<int>();
+            if (!Room.early || Signal("QuinceFoldKnife") == 0 || cell < 0 || cell >= 225) return result;
+            var goal = NextGoal();
+            var trail = goal == null ? null : Station(goal.lead)?.trail;
+            if (string.IsNullOrEmpty(trail)) return result;
+            result.Add(cell);
+            for (int i = 0; i < 4 && trail[cell] != '.'; i++)
+            {
+                switch (trail[cell])
+                {
+                    case 'N': cell += 15; break;
+                    case 'S': cell -= 15; break;
+                    case 'E': cell++; break;
+                    case 'W': cell--; break;
+                    default: return result;
+                }
+                result.Add(cell);
+            }
+            return result;
+        }
         public string Objective()
         {
+            var goal = NextGoal();
+            if (goal != null) return goal.line;
             if (Room.key == "Wrenfall")
             {
                 if (Signal("landed") != 0) return "The Linnet is at the north landing. Collect Elin’s flood book.";
@@ -160,8 +193,16 @@ namespace Wizzard
                 }
                 Refresh();
                 destination = rule.to;
-                if (!string.IsNullOrEmpty(destination) && destination != "@final")
-                    chamber = Array.FindIndex(plan.rooms, r => r.key == rule.to);
+                if (!string.IsNullOrEmpty(station.camp)) camp = station.camp;
+                if (!string.IsNullOrEmpty(destination))
+                {
+                    if (destination.StartsWith("#")) camp = destination.Substring(1);
+                    else
+                    {
+                        camp = "";
+                        if (!destination.StartsWith("@")) chamber = Array.FindIndex(plan.rooms,r=>r.key==rule.to);
+                    }
+                }
                 string line = rule.line;
                 if (line.Contains("{"))
                     foreach (var value in signals)

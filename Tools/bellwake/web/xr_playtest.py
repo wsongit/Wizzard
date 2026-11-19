@@ -1,6 +1,6 @@
 """Exercise the real WebXR input boundary with Meta's emulated Quest controllers."""
 
-import asyncio, sys, subprocess
+import asyncio, sys, subprocess, json
 from pathlib import Path
 
 here = Path(__file__).resolve().parent
@@ -71,6 +71,45 @@ async def coast_crossing(page):
     )
 
 
+async def orchard_checkpoint(browser):
+    page = await browser.new_page(viewport={"width":630,"height":380})
+    errors=[]
+    page.on("pageerror",lambda e:errors.append(str(e)))
+    await page.add_init_script(script=harness)
+    # Begin at an unclaimed bench. Earning the tool and calling it both use tracked controllers.
+    save={"number":2,"leaves":1,"passage":{"completed":1},"works":{"active":True,"chamber":9,"camp":"RestKnife"}}
+    await page.add_init_script("localStorage.setItem('wizzard.bellwake.desktop.v1',"+json.dumps(json.dumps(save))+")")
+    await page.goto(sys.argv[1])
+    await page.click("#vr",timeout=60000)
+    await page.wait_for_function("bellProbe().vr && bellProbe().district==='QuinceFold' && bellProbe().palms.every(Boolean)")
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('a-button',1)")
+    await page.wait_for_function("bellProbe().vrMap")
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('a-button',0)")
+    await page.wait_for_timeout(500)
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('a-button',1)")
+    await page.wait_for_function("!bellProbe().book && !bellProbe().vrMap")
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('a-button',0)")
+    await page.evaluate("""() => {
+      const s=bellProbe(), [x,y,z]=s.markers.A_Knife, [hx,hy,hz]=s.vrHead;
+      const yaw=Math.atan2(hx-x,hz-z)*.5, pitch=Math.atan2(y-hy,Math.hypot(x-hx,z-hz))*.5;
+      testDevice.quaternion.set(Math.cos(yaw)*Math.sin(pitch),Math.sin(yaw)*Math.cos(pitch),
+                                -Math.sin(yaw)*Math.sin(pitch),Math.cos(yaw)*Math.cos(pitch));
+    }""")
+    await page.wait_for_function("bellProbe().focus==='A_Knife'")
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',1)")
+    await page.wait_for_function("bellProbe().works.signals.QuinceFoldKnife===1")
+    await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',0)")
+    await page.evaluate("testDevice.controllers.left.updateButtonValue('squeeze',1)")
+    await page.wait_for_function("bellProbe().guide?.cells.length>1")
+    pos=await page.evaluate("bellProbe().guide.pos")
+    await page.wait_for_function("p=>Math.hypot(...bellProbe().guide.pos.map((v,i)=>v-p[i]))>.5",arg=pos)
+    await page.evaluate("testDevice.controllers.left.updateButtonValue('squeeze',0)")
+    await page.evaluate("testDevice.activeSession.end()")
+    assert not errors,errors
+    await page.close()
+    print("PASS Quest controller survey, tool acquisition and articulated waywren flight",flush=True)
+
+
 async def run():
     async with async_playwright() as pw:
         b = await pw.chromium.launch(
@@ -81,6 +120,10 @@ async def run():
                 "--enable-unsafe-swiftshader",
             ],
         )
+        await orchard_checkpoint(b)
+        if "--orchard" in sys.argv:
+            await b.close()
+            return
         p = await b.new_page(viewport={"width": 630, "height": 380})
         errors = []
         p.on(
@@ -144,7 +187,7 @@ async def run():
         await p.wait_for_function("!bellProbe().palms[0]")
         await p.evaluate("testDevice.controllers.left.connected=true")
         await p.wait_for_function("bellProbe().palms[0]")
-        for room in [5, 1, 6, 2, 7, 8, 9, 11, 14, 15, 16, 0]:
+        for room in [5, 17, 18, 19, 20, 21, 1, 6, 2, 7, 8, 9, 11, 14, 15, 16, 0]:
             await p.evaluate("room => bellTravel(room)", room)
             await p.wait_for_function(
                 "bellProbe().vr && bellProbe().sets === 1 && bellProbe().palms.every(Boolean)"

@@ -930,6 +930,10 @@ for station in r["stations"]:
             evidence="distress",
             direction="Face the cutter beyond the northern bluff. Center the star above her sail, then press E or trigger.",
         )
+from pilgrim import add_chapter
+
+add_chapter(room,post,step,v,machine)
+
 for descriptor in rooms:
     for station in descriptor["stations"]:
         station["note"] = {

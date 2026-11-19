@@ -35,6 +35,8 @@ namespace Wizzard.Editor
             if (!assetPath.StartsWith("Assets/Resources/Bellwake/Textures/"))
                 return;
             var tile = (TextureImporter)assetImporter;
+            if (assetPath.EndsWith("Survey.png") || assetPath.EndsWith("Signs.png"))
+                tile.npotScale = TextureImporterNPOTScale.None;
             tile.mipmapEnabled = true;
             tile.wrapMode = TextureWrapMode.Repeat;
             tile.filterMode = FilterMode.Bilinear;

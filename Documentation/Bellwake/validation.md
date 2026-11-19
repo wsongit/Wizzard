@@ -1,6 +1,6 @@
 # Bellwake release checks
 
-## Fresh-save completion time
+## Fresh-save completion time before the Pilgrims’ Cut
 
 A clean browser profile began with Tavi’s first conversation, completed all 27 dispatches and all seventeen areas, earned the five witness leaves and restored Ina’s name to the roll. It reached the first ending after **7 minutes 3 seconds of active play** and 7 minutes 10 seconds on the wall clock. The run used the Wrenfall release at `5d44dec`, normal movement and interaction, chart hints and advance knowledge of the solutions. It included intentional checkpoint reloads and one keeper retry. The test then restored the decision and reached the other ending with zero application errors.
 
@@ -90,7 +90,7 @@ On the cloud CPU renderer at 768 × 432, the median door-to-ready sample (includ
 
 The C# meadow window passed 3,327 positions over three laps including map edges and teleports. The run counted 1,617 loads and 1,613 releases with four tiles at the final corner. Peak residency was 21 of 64 chunks. This check executes the selection and eviction code independently of Unity physics.
 
-To repeat the browser travel test, package the test page with `--test --streamed`, serve it, and run `python Tools/bellwake/web/travel_test.py http://localhost:8090/index.html travel.json`. To exercise the native assets in a licensed Unity editor, enter Play mode and choose **Run Bellwake round-trip check (Play Mode)** from the BellwakeCampaign component's context menu. It traverses 15 chapters and three meadow/village round trips while preserving the checkpoint. Development builds log transition duration, worst frame and allocated memory, followed by a 360-frame sample. Native runtime and device measurements require a licensed editor and a Quest.
+To repeat the browser travel test, package the test page with `--test --streamed`, serve it, and run `python Tools/bellwake/web/travel_test.py http://localhost:8090/index.html travel.json`. To exercise the native assets in a licensed Unity editor, enter Play mode and choose **Run Bellwake round-trip check (Play Mode)** from the BellwakeCampaign component's context menu. It traverses each campaign area and three meadow/village round trips while preserving the checkpoint. Development builds log transition duration, worst frame and allocated memory, followed by a 360-frame sample. Native runtime and device measurements require a licensed editor and a Quest.
 
 ## Witness Road campaign expansion
 

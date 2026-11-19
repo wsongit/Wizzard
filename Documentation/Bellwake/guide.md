@@ -6,6 +6,7 @@ Tavi made a warning bell during the flood. Her sister Ina gave it a voice for a 
 | --- | --- |
 | Bellmender’s Market | Find Tavi on the path, then follow the brass way arch. The wooden sign leads to the Long Meadow in Unity. |
 | Saltwake Sound | Find Marn’s three witness posts. At the chart chest, steer the skiff through currents, touch the brass buoy, then reach the white mooring ring. |
+| The Pilgrims’ Cut | Restore the Quince Fold, Saffron Kilns, Vellum Walk, Cairnwatch Rise and Rain Court. The road continues to the Root Choir. |
 | The Root Choir | Listen to Moss. Ring the three individually pitched bells in the order described by the forest round. |
 | The Rimeway Post | Recover the lost post. Slide the mail sled through the cache and stop it at the landing. |
 | Reedwater Lock | Ask Fen which channel saved the village. Each wheel changes the pair of sluices marked on its station. |
@@ -20,7 +21,15 @@ The market, Root Choir, Reedwater, Cinder Lens and belfry each hold a witness le
 
 The witness book shows active playtime. Loading, the open journal and unfocused play are excluded. The clock starts with this update for existing checkpoints. Players already past a new district retain their place in the story.
 
-The current known-solution desktop run reached an ending in 7 minutes 3 seconds of active play. A first-time human completion time is still unmeasured. [Playthrough details](validation.md)
+The known-solution desktop run before the Pilgrims’ Cut reached an ending in 7 minutes 3 seconds of active play. A first-time human completion time is still unmeasured. [Playthrough details](validation.md)
+
+## The Pilgrims’ Cut
+
+Mara keeps the orchard shelter on the road out of Saltwake. The flood survey erased a public right of way. An old tree, the tilemakers’ mile and the evidence of the families who used the road can restore it. Each ward has a survey board. Open your witness book to see the same survey with your location marked in red. Each square measures eight metres.
+
+At the grafting bench, take Mara’s brass waywren. Press Q or squeeze the left grip to send it along the lanes toward the next available job. It waits after four junctions. You can call it again wherever you stand. Work yards double as shelter checkpoints. After restoring a ward, ring the return line at the final work yard to reach the entrance. The other bell carries you to the open wicket. Later wards have a return path to the previous one.
+
+[Five work yards and the orchard survey as they appear in play](pilgrims-cut.jpg)
 
 ## Beneath the village
 
@@ -46,13 +55,14 @@ At the eastern mast, pull the halyards in the order the pilots recorded. The fla
 | Look or turn | Head tracking and right-stick snap turn | Middle click to capture the mouse, Escape to release | Drag or use the arrow keys, double click to capture the mouse |
 | Speak, ring or turn | Face a nearby station and press a trigger | E | E |
 | Open or close the witness book | A or X | J | J |
+| Call Mara’s waywren in the five wards | Left grip | Q | Q |
 | Read a collected leaf | With the book open, a trigger turns the page | E with the book open | Collected leaves appear in the book |
 
 Crouching makes the ground easier to reach with the palms. The journal pauses the final encounter’s countdown.
 
 ## Direct browser play
 
-Double-click `Play/Bellwake.html` in the downloaded project or extract the standalone play ZIP and open its HTML file. Geometry, textures, music and the JavaScript player are embedded. The browser edition contains all seventeen campaign areas. The large meadow and Mossbell Village are accessible through the Unity edition.
+Double-click `Play/Bellwake.html` in the downloaded project or extract the standalone play ZIP and open its HTML file. Geometry, textures, music and the JavaScript player are embedded. The browser edition contains all twenty-two campaign areas. The large meadow and Mossbell Village are accessible through the Unity edition.
 
 For Quest Browser, serve the entire `Play` directory over HTTPS and open `index.html` for on-demand chapter downloads and choose **Enter VR**. With a USB-connected developer-mode Quest, a local alternative uses Python and Android platform tools on the PC. From the repository root, run these in separate terminals.
 
@@ -68,7 +78,7 @@ Open `http://localhost:8090/index.html` in Quest Browser while USB forwarding is
 
 ## Editable art and sound
 
-The packed Blender sources in `Blender/Bellwake` contain the seventeen campaign sets, the meadow trail sign, the runner’s arms, the two individually modeled hands, the meadow outcrop and the mountain gate. The campaign reuses characters and props from the supplied Wizzard Themed Library, with articulated head and arm pivots on speakers. The cottages use the existing Mossbell Blender artwork. The court geometry, interactive mechanisms, bell tower, escarpments, banners, floor paintings, skies and score were authored for this campaign.
+The packed Blender sources in `Blender/Bellwake` contain the twenty-two campaign sets, the meadow trail sign, the runner’s arms, the two individually modeled hands, the meadow outcrop and the mountain gate. The campaign reuses characters and props from the supplied Wizzard Themed Library, with articulated head and arm pivots on speakers. The cottages use the existing Mossbell Blender artwork. The court geometry, interactive mechanisms, bell tower, escarpments, banners, floor paintings, skies and score were authored for this campaign.
 
 Ground and path share one continuous mesh. Lighting includes baked ground contact shadows. Buildings, clothing, brass and foliage use their own paintings and UV atlases. The Unity player loads one campaign room at a time and adds mesh colliders to the terrain, visible static set, rim and solid cores.
 
@@ -78,7 +88,7 @@ After editing the source, regenerate the FBX and GLB for that room from the proj
 blender -b --python-exit-code 1 --python Tools/bellwake/export.py -- RootChoir
 ```
 
-The procedural authoring scripts are in `Tools/bellwake`. Rebuilding from those scripts uses the original Wizzard Themed Library folder. Editing and exporting the packed Blender scenes works independently of that download. The PNG paintings are under `Assets/Resources/Bellwake/Textures`. The fourteen original music loops and four bell cues are under `Assets/Resources/Bellwake/Audio`.
+The procedural authoring scripts are in `Tools/bellwake`. Rebuilding from those scripts uses the original Wizzard Themed Library folder. Editing and exporting the packed Blender scenes works independently of that download. The PNG paintings are under `Assets/Resources/Bellwake/Textures`. The nineteen original music loops and four bell cues are under `Assets/Resources/Bellwake/Audio`.
 
 ## Rebuild the portable edition
 

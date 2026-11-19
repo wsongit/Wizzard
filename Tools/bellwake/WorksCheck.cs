@@ -24,7 +24,7 @@ class WorksCheck
     }
     static BellwakeWorks Reload(WorksPlan plan, BellwakeWorks w)
     {
-        var resume = new BellwakeWorks { active = w.active, chamber = w.chamber, badges = w.badges,
+        var resume = new BellwakeWorks { active = w.active, chamber = w.chamber, camp = w.camp, badges = w.badges,
                                          machines = (int[])w.machines.Clone() };
         resume.Bind(plan);
         return resume;
@@ -32,6 +32,7 @@ class WorksCheck
     static bool Target(WorksMachine m, WorksRow row)
     {
         Func<string, int> s = key => row.values[Array.IndexOf(m.channels, key)];
+        if (m.channels[0].StartsWith(m.key)) return row.values[row.values.Length-1]==1;
         switch (m.key)
         {
         case "water":
@@ -84,6 +85,36 @@ class WorksCheck
                     if (good.Add(i))
                         q.Enqueue(i);
             Require(good.Count == m.rows.Length, m.key + " stranded mechanism");
+        }
+        var pilgrimage = new BellwakeWorks { active=true, chamber=Array.FindIndex(plan.rooms,r=>r.early) };
+        pilgrimage.Bind(plan);
+        Require(pilgrimage.GuideTrail(0).Count == 0, "unearned waywren");
+        foreach (var room in plan.rooms.Where(r=>r.early))
+        {
+            Require(pilgrimage.Room == room, "cross-ward journey");
+            string destination;
+            pilgrimage.Use("A_Gate",out destination);
+            Require(string.IsNullOrEmpty(destination), "unearned road wicket");
+            foreach (var station in room.stations.Where(s=>!string.IsNullOrEmpty(s.trail) && s.id!="A_Gate"))
+            {
+                pilgrimage.Use(station.id,out destination);
+                pilgrimage = Reload(plan,pilgrimage);
+                Require(pilgrimage.camp==station.camp && pilgrimage.Signal(room.key+station.id.Substring(2))==1, "lost ward shelter");
+                for (int cell=0;cell<225;cell++)
+                {
+                    var track=pilgrimage.GuideTrail(cell);
+                    Require(track.Count>=1 && track.Count<=5 && track[0]==cell, "lost guide");
+                    for (int i=1;i<track.Count;i++)
+                        Require(Math.Abs(track[i]%15-track[i-1]%15)+Math.Abs(track[i]/15-track[i-1]/15)==1, "guide jumped junction");
+                }
+            }
+            pilgrimage.Use("A_Bell",out destination);
+            Require(destination=="#RestTalk" && pilgrimage.camp=="RestTalk", "return line");
+            pilgrimage.Use("A_Fast",out destination);
+            Require(destination=="#RestGate" && pilgrimage.camp=="RestGate", "mile line");
+            pilgrimage.Use("A_Gate",out destination);
+            Require(!string.IsNullOrEmpty(destination) && pilgrimage.camp=="", "gate checkpoint");
+            if(room.key=="RainCourt") Require(destination=="@choir","missing choir connection");
         }
         foreach (string order in new[] { "012", "021", "102", "120", "201", "210" })
         {

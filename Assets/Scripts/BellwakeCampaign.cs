@@ -18,7 +18,7 @@ namespace Wizzard
         readonly Dictionary<string, TextMesh> points = new Dictionary<string, TextMesh>();
         readonly Dictionary<string, Material> paints = new Dictionary<string, Material>();
         readonly Dictionary<string, Quaternion> rest = new Dictionary<string, Quaternion>();
-        readonly XrPress use = new XrPress(), journal = new XrPress();
+        readonly XrPress use = new XrPress(), journal = new XrPress(), whistle = new XrPress();
         BellwakeJourney story;
         PassageAtlas atlas;
         WorksPlan worksPlan;
@@ -59,12 +59,12 @@ namespace Wizzard
         sealed class XrPress
         {
             bool previous;
-            public bool Read(InputFeatureUsage<bool> usage)
+            public bool Read(InputFeatureUsage<bool> usage, bool leftOnly = false)
             {
                 var left = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
                 var right = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
                 bool down = (left.TryGetFeatureValue(usage, out bool a) && a) ||
-                            (right.TryGetFeatureValue(usage, out bool b) && b);
+                            (!leftOnly && right.TryGetFeatureValue(usage, out bool b) && b);
                 bool pressed = down && !previous;
                 previous = down;
                 return pressed;
@@ -110,7 +110,9 @@ namespace Wizzard
         {
             if (Route == null) story.passage = new BellwakePassage();
             if(story.works==null) story.works=new BellwakeWorks();
-            if(story.room!=3 || !story.Solved) story.works.active=false;
+            int savedChamber=story.works.chamber;
+            bool early=savedChamber>=0 && savedChamber<worksPlan.rooms.Length && worksPlan.rooms[savedChamber].early;
+            if(early ? story.room!=1 || story.ending!=0 : story.room!=3 || !story.Solved) story.works.active=false;
             if(InWorks) story.works.Bind(worksPlan);
             int slots=BellwakeJourney.Rooms.Length+atlas.regions.Length+1+worksPlan.rooms.Length;
             if (story.secondsByPlace==null || story.secondsByPlace.Length<slots)
@@ -164,6 +166,9 @@ namespace Wizzard
         }
         IEnumerator ReleaseArea(string nextMusic=null)
         {
+            guide = null;
+            flight.Clear();
+            display.ClearSurvey();
             fixtures=Array.Empty<WorksVisual>();
             observation=null;
             movingTrail = null;
@@ -253,6 +258,8 @@ namespace Wizzard
                 var dir = nodes["Look"].position - spawn;
                 dir.y = 0;
                 facing = Quaternion.LookRotation(dir);
+                spawn = Arrival();
+                if (InWorks && story.works.Room.early) PrepareGuide();
                 var panorama = Resources.LoadAsync<Cubemap>(Path + "Skies/" + theme);
                 var song = score.clip==null ? Resources.LoadAsync<AudioClip>(Path + "Audio/" + theme) : null;
                 yield return panorama;
@@ -321,6 +328,12 @@ namespace Wizzard
             }
             renderer.sharedMaterials = slots;
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        }
+        Vector3 Arrival()
+        {
+            string camp = InWorks ? story.works.camp : null;
+            return !string.IsNullOrEmpty(camp) && camp.StartsWith("Rest") && nodes.TryGetValue(camp,out var at)
+                ? at.position : nodes["Spawn"].position;
         }
         void ApplyLook(Cubemap panorama)
         {
@@ -471,6 +484,8 @@ namespace Wizzard
                           (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame);
             bool book = journal.Read(XRUsage.primaryButton) ||
                         (Keyboard.current != null && Keyboard.current.jKey.wasPressedThisFrame);
+            bool call = whistle.Read(XRUsage.gripButton, true) ||
+                        (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame);
             if (outdoors)
             {
                 if (sign == null || !sign.activeInHierarchy ||
@@ -497,6 +512,7 @@ namespace Wizzard
             if (book)
             {
                 journalOpen = !journalOpen;
+                if (!journalOpen) display.ClearSurvey();
                 observation = null;
                 lastHint = null;
                 messageUntil = 0;
@@ -515,13 +531,14 @@ namespace Wizzard
                     {
                         journalPage++;
                     } while (journalPage < 5 && (story.letters & (1 << journalPage)) == 0);
-                    if (journalPage == 5 && !InWorks) journalPage++;
+                    if (journalPage == 5 && (!InWorks || story.works.Room.early)) journalPage++;
                     if (journalPage > 6 || (journalPage == 6 && !HasFloodBook))
                         journalPage = -1;
                     ShowBook();
                 }
                 return;
             }
+            if (guide != null) { if (call) CallGuide(); FlyGuide(); }
             FindFocus();
             AnimateSet();
             float now = Time.unscaledTime;
@@ -563,16 +580,86 @@ namespace Wizzard
             {
                 cameraCheck = now + .2f;
                 // The playable terrain is square, with the spawn 14 metres behind its centre.
-                Vector3 centre = spawn + facing * Vector3.forward * 14, p = player.head.position - centre;
+                Vector3 centre = nodes["Spawn"].position + facing * Vector3.forward * 14, p = player.head.position - centre;
                 if (Mathf.Max(Mathf.Abs(p.x), Mathf.Abs(p.z)) > RoomRadius + .6f || p.y < -.5f)
                     player.Teleport(spawn, facing);
             }
         }
+        Transform guide;
+        readonly List<Vector3> flight = new List<Vector3>();
+        Vector3 flightPosition;
+        int flightLeg;
+        Quaternion leftWingRest, rightWingRest;
+        void PrepareGuide()
+        {
+            guide = new GameObject("Waywren").transform;
+            guide.SetParent(set.transform, false);
+            foreach (string part in new[] { "GuideBird", "GuideLeft", "GuideRight" })
+                nodes[part].SetParent(guide, true);
+            leftWingRest = nodes["GuideLeft"].localRotation;
+            rightWingRest = nodes["GuideRight"].localRotation;
+            guide.gameObject.SetActive(false);
+        }
+        Vector2 SurveyPosition(Vector3 position)
+        {
+            var origin = nodes["MapSW"].position;
+            var east = nodes["MapSE"].position - origin;
+            var north = nodes["MapNW"].position - origin;
+            return new Vector2(Vector3.Dot(position-origin, east)/east.sqrMagnitude,
+                               Vector3.Dot(position-origin, north)/north.sqrMagnitude);
+        }
+        void CallGuide()
+        {
+            var uv = SurveyPosition(player.head.position);
+            int cell = Mathf.Clamp(Mathf.FloorToInt(uv.x*15),0,14) +
+                       15*Mathf.Clamp(Mathf.FloorToInt(uv.y*15),0,14);
+            var cells = story.works.GuideTrail(cell);
+            if (cells.Count == 0) return;
+            var origin = nodes["MapSW"].position;
+            var east = nodes["MapSE"].position - origin;
+            var north = nodes["MapNW"].position - origin;
+            flight.Clear();
+            foreach (int id in cells)
+            {
+                var point = origin + east*((id%15+.5f)/15) + north*((id/15+.5f)/15);
+                point.y = story.works.Room.ground[id] + 1.66f;
+                flight.Add(point);
+            }
+            flightLeg = 0;
+            flightPosition = player.head.position + player.head.forward*.55f;
+            guide.position = flightPosition;
+            guide.gameObject.SetActive(true);
+        }
+        void FlyGuide()
+        {
+            if (!guide.gameObject.activeSelf) return;
+            if (flightLeg < flight.Count)
+            {
+                var target = flight[flightLeg];
+                var heading = target-flightPosition;
+                heading.y = 0;
+                if (heading.sqrMagnitude > .002f)
+                    guide.rotation = Quaternion.LookRotation(heading);
+                flightPosition = Vector3.MoveTowards(flightPosition,target,3.4f*Time.deltaTime);
+                if ((flightPosition-target).sqrMagnitude < .0001f) flightLeg++;
+            }
+            guide.position = flightPosition + Vector3.up*(.05f*Mathf.Sin(Time.time*5));
+            float wing = 28*Mathf.Sin(Time.time*18);
+            nodes["GuideLeft"].localRotation = Quaternion.AngleAxis(wing,Vector3.forward)*leftWingRest;
+            nodes["GuideRight"].localRotation = Quaternion.AngleAxis(-wing,Vector3.forward)*rightWingRest;
+        }
         void ShowBook()
         {
             if (journalPage < 0)
+            {
                 display.Say("Witness book   /   " + story.LeafCount + " of 5 leaves   /   " + story.PlayTime(),
                             Objective + "   •   Trigger/E to turn a page. A/X or J to close.");
+                if (InWorks && story.works.Room.early)
+                {
+                    display.Survey(paints[story.works.Room.key+"Survey"].mainTexture,
+                                   SurveyPosition(player.head.position));
+                }
+            }
             else if (journalPage == 6)
                 display.Say(worksPlan.logTitle,worksPlan.logEntry);
             else if (journalPage==5 && InWorks)
@@ -722,6 +809,11 @@ namespace Wizzard
                 line=story.works.Use(id,out string destination);
                 if(!string.IsNullOrEmpty(destination))
                 {
+                    if(destination.StartsWith("#"))
+                    {
+                        spawn=Arrival(); player.Teleport(spawn,facing); Save(); Say(title,line); return;
+                    }
+                    if(destination=="@choir") story.works.active=false;
                     if(destination=="@final") { story.works.active=false;story.Gate(); }
                     StartCoroutine(EnterRoom());
                 }
@@ -733,6 +825,12 @@ namespace Wizzard
                 if (id=="A_Gate" && Route.Done && story.Gate())
                 {
                     Route.Leave();
+                    if(story.room==1)
+                    {
+                        story.works.chamber=Array.FindIndex(worksPlan.rooms,r=>r.early);
+                        story.works.camp="";
+                        story.works.active=true;
+                    }
                     StartCoroutine(EnterRoom());
                     return;
                 }
@@ -793,6 +891,7 @@ namespace Wizzard
                 if(story.room==3 && story.Solved)
                 {
                     story.works.active=true;
+                    story.works.chamber=0;story.works.camp="";
                     StartCoroutine(EnterRoom());
                     return;
                 }
@@ -914,7 +1013,7 @@ namespace Wizzard
                     }
                     for(int r=0;r<worksPlan.rooms.Length;r++)
                     {
-                        story=new BellwakeJourney {room=3,seals=3,commissioned=true,
+                        story=new BellwakeJourney {room=worksPlan.rooms[r].early ? 1 : 3,seals=3,commissioned=true,
                             works=new BellwakeWorks {active=true,chamber=r}};
                         yield return EnterRoom();
                         if(!InWorks || set.name!=worksPlan.rooms[r].key ||
@@ -927,7 +1026,7 @@ namespace Wizzard
                     yield return village.CheckCrossing(true);
                     yield return village.CheckCrossing(false);
                 }
-                Debug.Log("Bellwake passed 48 chapter loads and three meadow/village round trips.");
+                Debug.Log("Bellwake passed three laps of every chapter and three meadow/village round trips.");
             }
             finally
             {

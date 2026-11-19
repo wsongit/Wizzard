@@ -4,6 +4,7 @@ export class Underworks {
     const saved = data || {};
     this.progress = {
       active: !!saved.active && eligible,
+      camp: typeof saved.camp === "string" ? saved.camp : "",
       chamber: Number.isInteger(saved.chamber) && plan.rooms[saved.chamber] ? saved.chamber : 0,
       badges: (saved.badges | 0) & ((1 << plan.flags.length) - 1),
       machines: plan.machines.map((m, i) =>
@@ -44,8 +45,25 @@ export class Underworks {
       "/1. Take the three proofs to Ossa."
     );
   }
+  nextGoal() {
+    return this.room.goals?.find((g) => g.when.every((c) => this.signals[c.signal] === c.value));
+  }
+  guideTrail(cell) {
+    if (!this.room.early || !this.signals.QuinceFoldKnife) return [];
+    const trail = this.station(this.nextGoal()?.lead)?.trail;
+    if (!trail) return [];
+    const cells = [cell],
+      steps = { N: 15, S: -15, E: 1, W: -1 };
+    while (cells.length < 5 && trail[cell] !== ".") {
+      cell += steps[trail[cell]];
+      cells.push(cell);
+    }
+    return cells;
+  }
   objective() {
     const s = this.signals;
+    const goal = this.nextGoal();
+    if (goal) return goal.line;
     if (this.room.key === "Wrenfall") {
       if (s.landed) return "The Linnet is at the north landing. Collect Elin’s flood book.";
       if (!s.charter) return this.room.intro;
@@ -87,7 +105,12 @@ export class Underworks {
       p.machines[i] = m.rows[p.machines[i]].moves[m.controls.indexOf(op)];
     }
     this.refresh();
-    if (r.to && r.to !== "@final") p.chamber = this.plan.rooms.findIndex((room) => room.key === r.to);
+    if (station.camp) p.camp = station.camp;
+    if (r.to) {
+      p.camp = r.to.startsWith("#") ? r.to.slice(1) : "";
+      if (!r.to.startsWith("@") && !r.to.startsWith("#"))
+        p.chamber = this.plan.rooms.findIndex((room) => room.key === r.to);
+    }
     return { to: r.to, line: r.line.replace(/\{(\w+)\}/g, (_, k) => this.signals[k]) };
   }
 }
