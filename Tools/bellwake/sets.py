@@ -588,7 +588,8 @@ def make(key, lib):
     if k == 0:
         from pilgrim_art import road_leaf_paint
         from theatre_art import ticket_poster
-        from ferry_counter import fen_ticket_paint, fen_ticket
+        from ferry_counter import fen_ticket_paint, fen_ticket, wood_sign_paint, wood_sign
+        wood_sign_paint()
         fen_ticket_paint()
         ticket_poster()
         road_leaf_paint()
@@ -607,6 +608,7 @@ def make(key, lib):
         ticket_door(-9,-10.9,ground(0,-9,-10.9))
         night_roll()
         public_road_book()
+        wood_sign(2.9,-10.9,ground(0,2.9,-10.9))
         fen_ticket(9.2,-11.1,ground(0,9.2,-11.1))
     if k in (0,2):
         x,y=(6,-10) if k==0 else (-6,-10)

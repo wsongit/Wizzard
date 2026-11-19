@@ -89,6 +89,7 @@ export class Underworks {
     const goal = this.nextGoal();
     if (goal) {
       const line = this.format(goal.line);
+      if (this.progress.returnTicket && this.room.key==="RowanHollow") return line+" The north wicket takes you back to Bellmarket whenever you want.";
       if (this.progress.returnTicket && this.room.key==="DriftFen") return line+" Your return boat is at Swallow Stair.";
       if (this.progress.returnTicket && this.room.key==="SwallowLock") return line+" The northeast towpath takes your return fare at any time.";
       return line;
@@ -125,16 +126,22 @@ export class Underworks {
     return line.replace(/\{(\w+)\}/g, (_, key) => this.signals[key]);
   }
   takePacket(fen = false) {
+    this.takeReturnWalk(fen?"DriftFen":"SillwaterEbb", fen?"RestGuide":"RestGate");
+  }
+  takeSchoolPath() {
+    this.takeReturnWalk("RowanHollow","RestLinn");
+  }
+  takeReturnWalk(place, arrival) {
     this.progress.active = true;
     this.progress.returnTicket = true;
-    this.progress.chamber = this.plan.rooms.findIndex(r => r.key === (fen?"DriftFen":"SillwaterEbb"));
-    this.progress.camp = fen ? "RestGuide" : "RestGate";
+    this.progress.chamber = this.plan.rooms.findIndex(r => r.key === place);
+    this.progress.camp = arrival;
   }
   use(id) {
-    if (this.progress.returnTicket && this.room.middle && id === "A_Gate") {
+    if (this.progress.returnTicket && (this.room.middle || this.room.key==="RowanHollow") && id === "A_Gate") {
       this.progress.returnTicket = false;
       this.progress.camp = "";
-      return {to:"@reedwater",line:""};
+      return {to:this.room.key==="RowanHollow"?"@market":"@reedwater",line:""};
     }
     const station = this.station(id);
     const r = station?.rules.find((rule) => rule.when.every((c) => this.signals[c.signal] === c.value));

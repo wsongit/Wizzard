@@ -161,3 +161,32 @@ def fen_ticket(x, y, z):
             "Pennon",
         )
     marker("A_FenPass", x, y - 0.49, z + 1.50)
+
+
+def wood_sign_paint():
+    im=Image.new("RGB",(288,128),"#4e5836")
+    d=ImageDraw.Draw(im)
+    font="/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf"
+    d.rounded_rectangle((3,3,284,124),8,outline="#b3ad78",width=3)
+    d.text((144,19),"ROWAN HOLLOW",font=ImageFont.truetype(font,27),anchor="mt",fill="#fff1c6")
+    d.line((29,70,258,70),fill="#8f9061",width=2)
+    d.text((144,88),"SCHOOL PATH  ·  RETURN WALK",font=ImageFont.truetype(font,13),anchor="mt",fill="#fff0c4")
+    im.save(RES/"Textures/RowanWaypost.png")
+
+
+def wood_sign(x,y,z):
+    lathe("Sawyer’s forked waypost",x,y,z-.15,[(.29,0),(.34,.21),(.19,.45),(.15,2.34),(.10,2.55)],"Wood",8)
+    block("Carved destination board",(x,y-.085,z+1.60),(1.93,.16,.89),"Wood")
+    panel("Rowan school path",x,y-.170,z+1.19,1.80,.80,"RowanWaypost")
+    for side in (-1,1):
+        shaft("Rail cleat",(x,y+.02,z+1.04),(x+side*.73,y+.03,z+1.40),.065,.06,"Wood",7)
+    # A little carved wren with a copper repair across the tail.
+    zz=z+2.23
+    lathe("Waypost wren",x,y,zz,[(.075,0),(.17,.10),(.20,.21),(.13,.31),(.08,.33)],"Brass",9)
+    lathe("Wren crown",x-.13,y,zz+.20,[(.09,0),(.135,.08),(.12,.19),(.065,.22)],"Brass",9)
+    shaft("Bird bill",(x-.20,y,zz+.31),(x-.41,y-.01,zz+.29),.064,.009,"Wood",6)
+    shaft("Cleaved tail",(x+.10,y,zz+.16),(x+.37,y+.012,zz+.40),.108,.05,"Brass",7)
+    shaft("Mended tail tip",(x+.34,y+.01,zz+.38),(x+.46,y+.014,zz+.48),.058,.035,"Amber",7)
+    for side in (-1,1):
+        shaft("Carved wren wing",(x-.026,y+side*.145,zz+.18),(x+.24,y+side*.11,zz+.26),.071,.03,"Wood",7)
+    marker("A_WoodWalk",x,y-.40,z+1.55)

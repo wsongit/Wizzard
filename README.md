@@ -4,7 +4,7 @@ An original, N64-inspired adventure for standalone Meta Quest and desktop. Tavi 
 
 ![Tavi in the opening market and the drawing Ina made for her](Documentation/Bellwake/tavi-and-ina.jpg)
 
-**Play immediately** by opening `Play/Bellwake.html` in Chrome or Edge. Use WASD to move, drag to look, E to interact and J to open your witness book. To try Drift Fen immediately, take the red **Drift Fen** return fare to the right of the market entrance. The neighboring green counter serves Sillwater. The northeast towpath brings you back to Tavi. When hosting for Quest Browser, use `Play/index.html` and its adjacent `assets` folder to download districts as you enter them. Both editions support immersive WebXR on secure origins.
+**Play immediately** by opening `Play/Bellwake.html` in Chrome or Edge. Use WASD to move, drag to look, E to interact and J to open your witness book. To visit Rowan Hollow immediately, use the **Rowan Hollow** sign with the carved bird just to the right of the market entrance. Its north wicket brings you back to the same morning. To try Drift Fen immediately, take the red **Drift Fen** return fare to the right of the market entrance. The neighboring green counter serves Sillwater. The northeast towpath brings you back to Tavi. When hosting for Quest Browser, use `Play/index.html` and its adjacent `assets` folder to download districts as you enter them. Both editions support immersive WebXR on secure origins.
 
 **Open in Unity** with Unity 2022.3.20f1 and choose **Wizzard → Play Bellwake**. The market sign leads to the original two-kilometre Long Meadow and its Mossbell Village gate.
 

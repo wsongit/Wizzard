@@ -201,6 +201,7 @@ namespace Wizzard
             if (goal != null)
             {
                 string objective=Format(goal.line);
+                if (returnTicket && Room.key=="RowanHollow") return objective+" The north wicket takes you back to Bellmarket whenever you want.";
                 if (returnTicket && Room.key=="DriftFen") return objective+" Your return boat is at Swallow Stair.";
                 if (returnTicket && Room.key=="SwallowLock") return objective+" The northeast towpath takes your return fare at any time.";
                 return objective;
@@ -236,19 +237,24 @@ namespace Wizzard
         }
         public void TakePacket(bool fen = false)
         {
+            TakeReturnWalk(fen?"DriftFen":"SillwaterEbb", fen?"RestGuide":"RestGate");
+        }
+        public void TakeSchoolPath() => TakeReturnWalk("RowanHollow","RestLinn");
+        void TakeReturnWalk(string place, string arrival)
+        {
             active = true;
             returnTicket = true;
-            chamber = Array.FindIndex(plan.rooms, r => r.key==(fen?"DriftFen":"SillwaterEbb"));
-            camp = fen ? "RestGuide" : "RestGate";
+            chamber = Array.FindIndex(plan.rooms, r => r.key==place);
+            camp = arrival;
         }
         public string Use(string id, out string destination)
         {
             destination = "";
-            if (returnTicket && Room.middle && id == "A_Gate")
+            if (returnTicket && (Room.middle || Room.key=="RowanHollow") && id == "A_Gate")
             {
                 returnTicket = false;
                 camp = "";
-                destination = "@reedwater";
+                destination = Room.key=="RowanHollow" ? "@market" : "@reedwater";
                 return "";
             }
             var station = Station(id);

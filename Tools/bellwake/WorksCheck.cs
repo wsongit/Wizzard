@@ -260,6 +260,14 @@ class WorksCheck
             wood.Use("A_Gate",out door);
             Require(door=="@choir" && wood.RestoredWood,"forest restoration failed in order "+order);
         }
+        var schoolWalk = new BellwakeWorks();
+        schoolWalk.Bind(plan);
+        schoolWalk.TakeSchoolPath();
+        Run(schoolWalk,"Linn");
+        schoolWalk=Reload(plan,schoolWalk);
+        Require(schoolWalk.returnTicket && schoolWalk.Signal("woodBook")==1,"school path checkpoint");
+        schoolWalk.Use("A_Gate",out garden);
+        Require(garden=="@market" && !schoolWalk.returnTicket && schoolWalk.Signal("woodBook")==1,"school path return");
         var pilgrimage = new BellwakeWorks { active=true, chamber=Array.FindIndex(plan.rooms,r=>r.early) };
         pilgrimage.Bind(plan);
         Require(pilgrimage.GuideTrail(0).Count == 0, "unearned waywren");

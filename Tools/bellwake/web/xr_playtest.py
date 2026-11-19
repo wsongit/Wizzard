@@ -230,6 +230,26 @@ async def theatre_checkpoint(browser):
     print("PASS market invitation, blue door, casting pattern and woodcut figure reel with tracked controllers",flush=True)
 
 
+async def school_waypost(browser):
+    page=await browser.new_page(viewport={"width":630,"height":380})
+    errors=[]
+    page.on("pageerror",lambda e:errors.append(str(e)))
+    await page.add_init_script(script=harness)
+    await page.goto(sys.argv[1])
+    await page.click("#vr",timeout=60000)
+    await page.wait_for_function("bellProbe().vr && bellProbe().district==='Bellmarket'")
+    await tracked_navigation(page)
+    mark=await page.evaluate("bellProbe().markers.A_WoodWalk")
+    await page.evaluate("([x,z])=>walkSurvey(x,z)",[mark[0],mark[2]+1.8])
+    await trigger_station(page,"WoodWalk","!bellProbe().busy && bellProbe().district==='RowanHollow'")
+    assert (await page.evaluate("bellProbe().works"))["returnTicket"]
+    await trigger_station(page,"Linn","bellProbe().works.signals.woodBook===1")
+    await page.evaluate("testDevice.activeSession.end()")
+    assert not errors,errors
+    await page.close()
+    print("PASS tracked market waypost and field book at Linn’s hut",flush=True)
+
+
 async def school_letter(browser):
     plan=json.loads((here.parents[2]/"Assets/Resources/Bellwake/Underworks.json").read_text())
     machines=[0]*len(plan["machines"])
@@ -701,6 +721,10 @@ async def run():
             return
         if "--single-palm" in sys.argv:
             await single_palm_release(b)
+            await b.close()
+            return
+        if "--wood-walk" in sys.argv:
+            await school_waypost(b)
             await b.close()
             return
         if "--wood-letter" in sys.argv:

@@ -115,3 +115,57 @@ async def restore_wood(act, page, start, out, extended=False):
         )
         + "\n"
     )
+
+
+async def wood_walk_trip(act, page, start, out):
+    """A first morning and both epilogues can visit without giving up their story progress."""
+    results = []
+    for stage in (0, 33, 34):
+        await page.mouse.up()
+        if stage:
+            await page.evaluate(
+                "v=>localStorage.setItem('wizzard.bellwake.desktop.v1',v)",
+                json.dumps({"number": stage, "leaves": 31}),
+            )
+        await start()
+        before = await page.evaluate("bellProbe()")
+        assert before["district"] == "Bellmarket" and before["number"] == stage
+        forest = await act("A_WoodWalk")
+        assert forest["district"] == "RowanHollow" and forest["works"]["returnTicket"]
+        assert forest["works"]["camp"] == "RestLinn"
+        book = await act("A_Linn")
+        assert book["works"]["signals"]["woodBook"] == 1
+        await page.mouse.up()
+        await start()
+        restored = await page.evaluate("bellProbe()")
+        assert (
+            restored["district"] == "RowanHollow" and restored["works"] == book["works"]
+        )
+        after = await act("A_Gate")
+        assert (
+            after["district"] == "Bellmarket"
+            and after["number"] == stage
+            and after["leaves"] == before["leaves"]
+        )
+        journal = json.loads(
+            await page.evaluate("localStorage.getItem('wizzard.bellwake.desktop.v1')")
+        )
+        assert not journal["works"]["returnTicket"]
+        if stage == 0:
+            second = await act("A_WoodWalk")
+            assert second["works"]["signals"]["woodBook"] == 1
+            await act("A_Gate")
+            assert (await act("A_Talk"))["district"] == "Bellmarket"
+            assert (await act("A_Playhouse"))["district"] == "PaperCourt"
+        results.append(stage)
+    (out / "wood-walk.json").write_text(
+        json.dumps(
+            {
+                "returnedStoryStates": results,
+                "reloadInForest": True,
+                "firstMorningTheatreStillAvailable": True,
+            },
+            indent=2,
+        )
+        + "\n"
+    )

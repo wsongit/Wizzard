@@ -194,5 +194,41 @@
     "previousWorldsRetained": 0,
     "stableGPUResourceCountsOnRevisit": true,
     "failedRequestRecoveredAtSavedCheckpoint": true
+  },
+  "marketWalk": {
+    "returnedStoryStates": [
+      0,
+      33,
+      34
+    ],
+    "reloadInForest": true,
+    "firstMorningTheatreStillAvailable": true,
+    "marketGeometry": {
+      "asset": "Bellmarket",
+      "groundProbes": 5929,
+      "boundaryRays": 3140,
+      "interiorCrossings": 0,
+      "walkableCells": 4692,
+      "stations": 12,
+      "minApproaches": 69,
+      "triangles": 18161,
+      "visibleMaterialSlots": 44
+    },
+    "marketCollisionParity": {
+      "room": "Bellmarket",
+      "queries": 3072,
+      "visibilityQueries": 2811,
+      "hits": {
+        "capsule": 51,
+        "sphere": 50,
+        "ray": 169
+      },
+      "packedBytes": 588280,
+      "referenceHeap": 7660800,
+      "packedHeap": 1304,
+      "referenceLoadMs": 21.619394,
+      "packedLoadMs": 1.1401109999999903
+    },
+    "emulatedQuest": "Reached the waypost, entered the forest and took the field book with the controller."
   }
 }

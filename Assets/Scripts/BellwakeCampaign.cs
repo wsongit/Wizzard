@@ -172,7 +172,7 @@ namespace Wizzard
             if(story.works==null) story.works=new BellwakeWorks();
             int savedChamber=story.works.chamber;
             var chamber = savedChamber >= 0 && savedChamber < worksPlan.rooms.Length ? worksPlan.rooms[savedChamber] : null;
-            bool eligible = chamber != null && (chamber.homeRoom>0 ? story.room==chamber.homeRoom && story.ending==0 : chamber.prologue ? story.room == 0 :
+            bool eligible = chamber != null && (chamber.homeRoom>0 ? (story.room==chamber.homeRoom && story.ending==0) || (chamber.key=="RowanHollow" && story.room==0 && story.works.returnTicket) : chamber.prologue ? story.room == 0 :
                 chamber.middle ? story.room==2 || (story.room==0 && story.works.returnTicket) : chamber.early ? story.room == 1 && story.ending == 0 : story.room == 3 && story.Solved);
             if (!eligible) story.works.active = false;
             story.works.Bind(worksPlan);
@@ -522,6 +522,7 @@ namespace Wizzard
         }
         string Label(string id)
         {
+            if (InWorks && story.works.returnTicket && story.works.Room.key=="RowanHollow" && id=="A_Gate") return "Return to Bellmarket";
             if (InWorks) return story.works.returnTicket && story.works.Room.middle && id=="A_Gate" ? "Use your return ticket" : story.works.Station(id).label;
             if (InPassage) return Route.Label(id);
             switch (id)
@@ -539,6 +540,7 @@ namespace Wizzard
                 return "Witness leaf";
             case "A_Gate":
                 return story.ending != 0 ? "Begin again" : "Way arch";
+            case "A_WoodWalk": return "Rowan Hollow school path";
             case "A_FenPass": return "Drift Fen return fare";
             case "A_Packet": return "Sillwater packet counter";
             case "A_Playhouse": return "Paper theatre door";
@@ -1382,6 +1384,10 @@ namespace Wizzard
                 if(story.works.Remembered(worksPlan,"named")) line+=" Below it hangs a new brass plate: Ina, fourth hand of the night shift.";
 
                 break;
+            case "A_WoodWalk":
+                story.works.TakeSchoolPath();
+                StartCoroutine(EnterRoom());
+                return;
             case "A_FenPass":
             case "A_Packet":
                 story.works.TakePacket(id=="A_FenPass");

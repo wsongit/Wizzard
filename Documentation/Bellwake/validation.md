@@ -12,6 +12,8 @@ Blender reimported the FBX and checked 42,025 ground samples and 8,260 boundary 
 
 Twelve woodland cells now switch between two meshes made in Blender. At eight fixed headings the renderer submitted 21,490 triangles on average, down from 37,247. Average draw calls rose from 21 to 24.5. Both versions used exactly the same packed collision data. In a separate 90-frame turning test, the software renderer recorded 33.3 ms median and 83.4 ms at the 95th percentile with the new meshes, compared with 33.4 ms and 100 ms before. These measurements came from Chromium with SwiftShader. Quest hardware timing remains open.
 
+The market’s school path was tested from a first morning and both endings. Reloading at Linn’s hut retained the visit. The north wicket returned each player to the same story state with their witness leaves intact. A fresh player could still meet Tavi and enter the paper theatre afterward. The Quest emulator used the market sign and received the field book by controller.
+
 After the last repair, Linn’s signed linen can be read in the journal outside the forest. The Quest controller emulator turned to the illustration in the Root Choir and checked that closing the book released its display.
 
 A separate campaign pass made **123 transfers across all 36 districts**. Each transfer finished with one active world, one collision tree and one score. All three laps returned to the same renderer resource counts, and the test recovered from a failed model request by loading the last checkpoint.

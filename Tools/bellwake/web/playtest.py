@@ -8,7 +8,7 @@ from pathlib import Path
 from playwright.async_api import async_playwright
 from pilgrim_route import walk_wards, TRAILS
 from works_route import complete_works, complete_coast
-from wood_route import restore_wood
+from wood_route import restore_wood, wood_walk_trip
 from quiet_route import morning_song
 from press_route import print_plates
 from pilot_route import lead_pilots, pilot_letters
@@ -327,6 +327,11 @@ async def run():
                 "PASS Glasscut resonance cradle to chart, first route input accepted",
                 flush=True,
             )
+            await b.close()
+            return
+        if "--wood-walk" in sys.argv:
+            await wood_walk_trip(act,page,start,out)
+            assert not errors,errors
             await b.close()
             return
         if wood_only:

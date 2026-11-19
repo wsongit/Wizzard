@@ -46,7 +46,7 @@ const savedRoom = data.works.rooms[savedWorks?.chamber];
 let works = new Underworks(
   data.works,
   savedWorks,
-  savedRoom?.homeRoom ? state().room===savedRoom.homeRoom && !state().ending : savedRoom?.prologue ? state().room === 0 :
+  savedRoom?.homeRoom ? (state().room===savedRoom.homeRoom && !state().ending) || (savedRoom.key==="RowanHollow" && state().room===0 && savedWorks?.returnTicket) : savedRoom?.prologue ? state().room === 0 :
     savedRoom?.middle ? state().room === 2 || (state().room === 0 && savedWorks?.returnTicket) : savedRoom?.early ? state().room === 1 && !state().ending : state().room === 3 && state().solved,
 );
 const roomRadius = () => (works.active && works.room.halfSpan) || 20;
@@ -302,6 +302,7 @@ function say(title, line, seconds = 8) {
   speechEnd = performance.now() + seconds * 1000;
 }
 function label(id) {
+  if (works.active && works.progress.returnTicket && works.room.key==="RowanHollow" && id==="A_Gate") return "Return to Bellmarket";
   if (works.active) return works.progress.returnTicket && works.room.middle && id==="A_Gate" ? "Use your return ticket" : works.station(id).label;
   if (passage.active) return passage.label(id);
   if (id.startsWith("A_Key")) return state().keys[+id.slice(-1)];
@@ -321,6 +322,7 @@ function label(id) {
     A_MorningSong: "Ina’s music box",
     A_Packet: "Sillwater packet counter",
     A_FenPass: "Drift Fen return fare",
+    A_WoodWalk: "Rowan Hollow school path",
   }[id];
 }
 function dispose(old) {
@@ -841,8 +843,9 @@ async function interact(id, palm = -1) {
     say("Tavi",data.works.theatreInvitation,16);
     return;
   }
-  if (id === "A_Packet" || id === "A_FenPass") {
-    works.takePacket(id === "A_FenPass");
+  if (id === "A_Packet" || id === "A_FenPass" || id === "A_WoodWalk") {
+    if (id === "A_WoodWalk") works.takeSchoolPath();
+    else works.takePacket(id === "A_FenPass");
     if (await room()) welcome();
     return;
   }

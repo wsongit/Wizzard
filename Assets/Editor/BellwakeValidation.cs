@@ -46,7 +46,7 @@ namespace Wizzard.Editor
                         Require(names.Contains("Edge_" + name.Substring(4)) && names.Contains("A_" + name.Substring(4)), room+" "+name);
                 if (room=="Bellmarket" || room=="Reedwater") Require(names.Contains("A_Packet"),room+" packet counter");
                 if (room=="Bellmarket")
-                    Require(names.Contains("A_RoadBook") && names.Contains("RoadBook"), "market road letters");
+                    Require(names.Contains("A_WoodWalk") && names.Contains("A_RoadBook") && names.Contains("RoadBook"), "market road letters");
                 if (room=="StillBelfry")
                 {
                     foreach (var part in new[]{"KeeperMask","KeeperLeft","KeeperRight","KeeperLamp","KeeperCue0","KeeperCue1","KeeperCue2","A_MorningSong"})
