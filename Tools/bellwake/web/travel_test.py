@@ -34,7 +34,7 @@ async def main():
             const tick = t => {if(prev !== undefined) gaps.push(t-prev); prev=t; requestAnimationFrame(tick)};
             requestAnimationFrame(tick);
         }""")
-        frame_routes = {"--wards": range(17,22), "--parish-frames": (28,29,30), "--field-frames": (0,27,31,32,33)}
+        frame_routes = {"--press-frames": (34,), "--wards": range(17,22), "--parish-frames": (28,29,30), "--field-frames": (0,27,31,32,33)}
         districts = next((rooms for flag, rooms in frame_routes.items() if flag in sys.argv), None)
         if districts is not None:
             for index in districts:
@@ -57,7 +57,9 @@ async def main():
             Path(destination).write_text(json.dumps({"renderer":"Chromium SwiftShader","samples":samples},indent=2)+"\n")
             await browser.close()
             return
-        route = [27, 5, 17,18,19,20,21, 1, 6, 28, 29, 30, 28, 2, 31, 32, 31, 7, 3, 33, 8, 9, 10, 11, 12, 13, 14, 15, 16, 22, 23, 22, 24, 22, 25, 22, 26, 4, 0]
+        route = [27, 5, 17,18,19,20,21, 1, 6, 28, 29, 30, 28, 2, 31, 32, 31, 7, 3, 34, 33, 8, 9, 10, 11, 12, 13, 14, 15, 16, 22, 23, 22, 24, 22, 25, 22, 26, 4, 0]
+        if "--press" in sys.argv:
+            route=[3,34,33,34,0]
         if "--pilots" in sys.argv:
             route=[3,33,8,33,0]
         if "--swallow" in sys.argv:
@@ -85,7 +87,7 @@ async def main():
                 }""",
                     room,
                 )
-                expected_score = {"GlassRookery":"GlassPilots","DriftFen":"AlderFerry","SwallowLock":"SwallowWater"}.get(sample["district"])
+                expected_score = {"GloamingPress":"SilverBath","GlassRookery":"GlassPilots","DriftFen":"AlderFerry","SwallowLock":"SwallowWater"}.get(sample["district"])
                 if expected_score:
                     assert sample["musicTheme"] == expected_score, sample
                 assert sample["sets"] == sample["trees"] == sample["music"] == 1

@@ -1,0 +1,403 @@
+{
+  "geometry": [
+    {
+      "asset": "GloamingPress",
+      "groundProbes": 5929,
+      "boundaryRays": 3140,
+      "interiorCrossings": 0,
+      "walkableCells": 5462,
+      "stations": 11,
+      "minApproaches": 84,
+      "triangles": 14280,
+      "visibleMaterialSlots": 54
+    }
+  ],
+  "collision": [
+    {
+      "room": "GloamingPress",
+      "queries": 3072,
+      "visibilityQueries": 4557,
+      "hits": {
+        "capsule": 105,
+        "sphere": 126,
+        "ray": 751
+      },
+      "packedBytes": 521580,
+      "referenceHeap": 6251104,
+      "packedHeap": 2176,
+      "referenceLoadMs": 104.44201900000002,
+      "packedLoadMs": 2.2312169999999583
+    }
+  ],
+  "playerInputs": {
+    "plates": [
+      {
+        "plate": "Cradle",
+        "beamSegments": [
+          "LightPath0",
+          "LightPath14",
+          "LightPath5",
+          "LightPath8"
+        ],
+        "visiblePrints": [
+          "PrintCradle"
+        ]
+      },
+      {
+        "plate": "Ladder",
+        "beamSegments": [
+          "LightPath0",
+          "LightPath10",
+          "LightPath13",
+          "LightPath16",
+          "LightPath2",
+          "LightPath3"
+        ],
+        "visiblePrints": [
+          "PrintCradle",
+          "PrintLadder"
+        ]
+      },
+      {
+        "plate": "Hand",
+        "beamSegments": [
+          "LightPath0",
+          "LightPath11",
+          "LightPath12",
+          "LightPath17",
+          "LightPath5",
+          "LightPath8"
+        ],
+        "visiblePrints": [
+          "PrintCradle",
+          "PrintHand",
+          "PrintLadder"
+        ]
+      }
+    ],
+    "reloadAfterMirror": true,
+    "wrongColourTested": true,
+    "activeSeconds": 106.76239999999832
+  },
+  "renderer": {
+    "renderer": "Chromium SwiftShader",
+    "samples": [
+      {
+        "district": "GloamingPress",
+        "samples": 90,
+        "scale": 0.5120000000000001,
+        "medianMs": 33.400000000001455,
+        "p95Ms": 116.69999999999891,
+        "calls": 32,
+        "triangles": 14744
+      }
+    ]
+  },
+  "streaming": {
+    "campaignTransfers": 120,
+    "distinctCampaignAreas": 35,
+    "maxRetiredWorldsAlive": 0,
+    "finalModelTransfers": [
+      {
+        "room": 3,
+        "district": "CinderLens",
+        "loadMs": 2226,
+        "maxTravelFrameMs": 783,
+        "walkP95Ms": 533,
+        "gpu": {
+          "geometries": 25,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "CinderLens",
+        "musicGeneration": 2,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 34,
+        "district": "GloamingPress",
+        "loadMs": 727,
+        "maxTravelFrameMs": 200,
+        "walkP95Ms": 567,
+        "gpu": {
+          "geometries": 35,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "SilverBath",
+        "musicGeneration": 3,
+        "effects": 0,
+        "floor": 0.3646722174772917,
+        "retiredAlive": 0
+      },
+      {
+        "room": 33,
+        "district": "GlassRookery",
+        "loadMs": 1599,
+        "maxTravelFrameMs": 617,
+        "walkP95Ms": 383,
+        "gpu": {
+          "geometries": 24,
+          "textures": 31,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "GlassPilots",
+        "musicGeneration": 4,
+        "effects": 0,
+        "floor": 0.4959519063092018,
+        "retiredAlive": 0
+      },
+      {
+        "room": 34,
+        "district": "GloamingPress",
+        "loadMs": 1014,
+        "maxTravelFrameMs": 300,
+        "walkP95Ms": 617,
+        "gpu": {
+          "geometries": 35,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "SilverBath",
+        "musicGeneration": 5,
+        "effects": 0,
+        "floor": 0.36467221747729167,
+        "retiredAlive": 0
+      },
+      {
+        "room": 0,
+        "district": "Bellmarket",
+        "loadMs": 830,
+        "maxTravelFrameMs": 417,
+        "walkP95Ms": 550,
+        "gpu": {
+          "geometries": 27,
+          "textures": 32,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bellmarket",
+        "musicGeneration": 6,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 3,
+        "district": "CinderLens",
+        "loadMs": 889,
+        "maxTravelFrameMs": 300,
+        "walkP95Ms": 250,
+        "gpu": {
+          "geometries": 25,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "CinderLens",
+        "musicGeneration": 7,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 34,
+        "district": "GloamingPress",
+        "loadMs": 492,
+        "maxTravelFrameMs": 117,
+        "walkP95Ms": 367,
+        "gpu": {
+          "geometries": 35,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "SilverBath",
+        "musicGeneration": 8,
+        "effects": 0,
+        "floor": 0.3646716679370973,
+        "retiredAlive": 0
+      },
+      {
+        "room": 33,
+        "district": "GlassRookery",
+        "loadMs": 1314,
+        "maxTravelFrameMs": 467,
+        "walkP95Ms": 400,
+        "gpu": {
+          "geometries": 24,
+          "textures": 31,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "GlassPilots",
+        "musicGeneration": 9,
+        "effects": 0,
+        "floor": 0.4961522332993285,
+        "retiredAlive": 0
+      },
+      {
+        "room": 34,
+        "district": "GloamingPress",
+        "loadMs": 437,
+        "maxTravelFrameMs": 150,
+        "walkP95Ms": 317,
+        "gpu": {
+          "geometries": 35,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "SilverBath",
+        "musicGeneration": 10,
+        "effects": 0,
+        "floor": 0.36467205469982666,
+        "retiredAlive": 0
+      },
+      {
+        "room": 0,
+        "district": "Bellmarket",
+        "loadMs": 701,
+        "maxTravelFrameMs": 217,
+        "walkP95Ms": 233,
+        "gpu": {
+          "geometries": 27,
+          "textures": 32,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bellmarket",
+        "musicGeneration": 11,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 3,
+        "district": "CinderLens",
+        "loadMs": 673,
+        "maxTravelFrameMs": 167,
+        "walkP95Ms": 183,
+        "gpu": {
+          "geometries": 25,
+          "textures": 13,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "CinderLens",
+        "musicGeneration": 12,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 34,
+        "district": "GloamingPress",
+        "loadMs": 398,
+        "maxTravelFrameMs": 117,
+        "walkP95Ms": 283,
+        "gpu": {
+          "geometries": 35,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "SilverBath",
+        "musicGeneration": 13,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 33,
+        "district": "GlassRookery",
+        "loadMs": 757,
+        "maxTravelFrameMs": 367,
+        "walkP95Ms": 167,
+        "gpu": {
+          "geometries": 24,
+          "textures": 31,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "GlassPilots",
+        "musicGeneration": 14,
+        "effects": 0,
+        "floor": 0.521618430568248,
+        "retiredAlive": 0
+      },
+      {
+        "room": 34,
+        "district": "GloamingPress",
+        "loadMs": 641,
+        "maxTravelFrameMs": 117,
+        "walkP95Ms": 150,
+        "gpu": {
+          "geometries": 35,
+          "textures": 18,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "SilverBath",
+        "musicGeneration": 15,
+        "effects": 0,
+        "floor": 0.36155576149928603,
+        "retiredAlive": 0
+      },
+      {
+        "room": 0,
+        "district": "Bellmarket",
+        "loadMs": 542,
+        "maxTravelFrameMs": 250,
+        "walkP95Ms": 300,
+        "gpu": {
+          "geometries": 27,
+          "textures": 32,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bellmarket",
+        "musicGeneration": 16,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      }
+    ]
+  }
+}

@@ -35,6 +35,7 @@ class WorksCheck
         if (m.channels[0].StartsWith(m.key)) return row.values[row.values.Length-1]==1;
         switch (m.key)
         {
+        case "proofs": return s("glassProof")==3;
         case "pilots": return s("pilotNo")==3;
         case "stairlock": return s("voyageNo")==4;
         case "parishplot": return s("parishJob")==3;
@@ -215,6 +216,20 @@ class WorksCheck
             court.Use("A_Door",out destination);
             Require(destination=="@market","missing exit");
         }
+        var darkroom = new BellwakeWorks {active=true,chamber=Array.FindIndex(plan.rooms,r=>r.key=="GloamingPress")};
+        darkroom.Bind(plan);
+        string garden;
+        darkroom.Use("A_Gate", out garden);
+        Require(string.IsNullOrEmpty(garden),"unearned pilot garden");
+        Run(darkroom,"Hand Cradle Fork North Cradle");
+        Require(darkroom.Signal("glassProof")==1 && darkroom.Signal("printCradle")==1,"missing first print");
+        Run(darkroom,"Fork South Cross Crown Hand Ladder");
+        Require(darkroom.Signal("glassProof")==1 && darkroom.Signal("litHand")==0,"wrong colour exposed plate");
+        darkroom=Reload(plan,darkroom);
+        Run(darkroom,"Crown Ladder Fork North Cross Crown Hand");
+        Require(darkroom.Signal("printHand")==1 && darkroom.Signal("printLadder")==1,"missing photographs");
+        darkroom.Use("A_Gate",out garden);
+        Require(garden=="GlassRookery","missing press exit");
         var pilgrimage = new BellwakeWorks { active=true, chamber=Array.FindIndex(plan.rooms,r=>r.early) };
         pilgrimage.Bind(plan);
         Require(pilgrimage.GuideTrail(0).Count == 0, "unearned waywren");

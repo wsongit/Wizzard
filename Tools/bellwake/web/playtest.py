@@ -8,6 +8,7 @@ from pathlib import Path
 from playwright.async_api import async_playwright
 from pilgrim_route import walk_wards, TRAILS
 from works_route import complete_works, complete_coast
+from press_route import print_plates
 from pilot_route import lead_pilots, pilot_letters
 from theatre_route import perform
 from swallow_route import run_lock, fen_fare
@@ -133,6 +134,7 @@ async def run():
         supper_only = "--supper" in sys.argv
         coast_only = "--coast" in sys.argv
         works_only = "--works" in sys.argv
+        press_only = "--press" in sys.argv
         pilots_only = "--pilots" in sys.argv
         target_post = "--last-post" in sys.argv
         glasscut_only = "--glasscut" in sys.argv
@@ -143,7 +145,7 @@ async def run():
         endings_only = "--endings" in sys.argv or nameplate
         parish_only = "--parish" in sys.argv
         lock_only="--swallow" in sys.argv
-        if pilots_only or lock_only or parish_only or target_post or glasscut_only or endings_only or works_only or coast_only or ward_only or engine_only or supper_only:
+        if press_only or pilots_only or lock_only or parish_only or target_post or glasscut_only or endings_only or works_only or coast_only or ward_only or engine_only or supper_only:
             saved = {"number": 13, "leaves": 7}
             if lock_only:
                 saved={"number":13,"leaves":7}
@@ -151,7 +153,7 @@ async def run():
                 saved={"number":6,"leaves":3,"works":{"active":True,"chamber":20}}
             if ward_only:
                 saved={"number":2,"leaves":1,"passage":{"completed":1},"works":{"active":True,"chamber":9+list(TRAILS).index(ward_only)}}
-            if works_only or pilots_only:
+            if works_only or pilots_only or press_only:
                 saved = {"number": 21, "leaves": 15}
             if engine_only or supper_only:
                 saved={"number":21,"leaves":15,"works":{"active":True,"chamber":14}}
@@ -339,8 +341,13 @@ async def run():
             assert not errors, errors
             await b.close()
             return
-        if works_only or pilots_only:
+        if works_only or pilots_only or press_only:
             await act("A_Gate")
+            await print_plates(act,page,start,out,True)
+            if press_only:
+                assert not errors, errors
+                await b.close()
+                return
             await lead_pilots(act,page,start,out,True)
             if pilots_only:
                 assert not errors,errors
@@ -419,6 +426,7 @@ async def run():
             await act("A_Lens")
             await act("A_Letter")
             await act("A_Gate")
+            await print_plates(act,page,start,out)
             await lead_pilots(act,page,start,out)
             await complete_works(act, page, start, out)
             await profile()

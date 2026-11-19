@@ -228,8 +228,8 @@ def bake_ground(key, height=None):
     vertices = []
     faces = []
     for group, objects in batches.items():
-        if group in ("C_Solids", "Terrain", "Rim", "Ina", "Roster", "HushWave") or group.startswith(
-            ("Flow", "Ray", "Stray", "Call", "Choice")
+        if group in ("C_Solids", "Terrain", "Rim", "Skyline", "Ina", "Roster", "HushWave") or group.startswith(
+            ("Flow", "Ray", "Stray", "Call", "Choice", "LightPath", "Print")
         ):
             continue
         for o in objects:

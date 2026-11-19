@@ -19,6 +19,9 @@ namespace Wizzard
         readonly Dictionary<string, Material> paints = new Dictionary<string, Material>();
         readonly Dictionary<string, Quaternion> rest = new Dictionary<string, Quaternion>();
         readonly XrPress use = new XrPress(), journal = new XrPress(), whistle = new XrPress();
+        string requestedPrint;
+        bool printLoading;
+        Texture2D currentPrint;
         BellwakeJourney story;
         PassageAtlas atlas;
         WorksPlan worksPlan;
@@ -192,7 +195,7 @@ namespace Wizzard
             lastSounded = null;
             guide = null;
             flight.Clear();
-            display.ClearSurvey();
+            CloseBookPrint();
             fixtures=Array.Empty<WorksVisual>();
             motionLeft=0;
             observation=null;
@@ -629,7 +632,7 @@ namespace Wizzard
             {
                 journalOpen = !journalOpen;
                 hadPalm[0] = hadPalm[1] = false;
-                if (!journalOpen) display.ClearSurvey();
+                if (!journalOpen) CloseBookPrint();
                 observation = null;
                 lastHint = null;
                 messageUntil = 0;
@@ -653,7 +656,8 @@ namespace Wizzard
                     if (journalPage == 6 && !HasFloodBook) journalPage++;
                     if (journalPage == 7 && story.works.KitchenJournal().Length == 0) journalPage++;
                     if (journalPage == 8 && !story.works.Remembered(worksPlan, "parishSigned")) journalPage++;
-                    if (journalPage > 9 || (journalPage == 9 && story.works.Signal("pilotNo")!=3))
+                    if (journalPage == 9 && story.works.Signal("pilotNo")!=3) journalPage++;
+                    if (journalPage > 10 || (journalPage == 10 && story.works.Signal("glassProof")!=3))
                         journalPage = -1;
                     ShowBook();
                 }
@@ -845,8 +849,37 @@ namespace Wizzard
             nodes["GuideLeft"].localRotation = Quaternion.AngleAxis(wing,Vector3.forward)*leftWingRest;
             nodes["GuideRight"].localRotation = Quaternion.AngleAxis(-wing,Vector3.forward)*rightWingRest;
         }
+        void CloseBookPrint()
+        {
+            requestedPrint = null;
+            display.ClearSurvey();
+            if (currentPrint == null) return;
+            Resources.UnloadAsset(currentPrint);
+            currentPrint = null;
+        }
+        void OpenBookPrint(string key)
+        {
+            requestedPrint = key;
+            if (printLoading) return;
+            printLoading = true;
+            var request = Resources.LoadAsync<Texture2D>(Path + "Letters/" + key);
+            request.completed += _ =>
+            {
+                printLoading = false;
+                var image = request.asset as Texture2D;
+                if (this != null && requestedPrint == key)
+                {
+                    currentPrint = image;
+                    if (image != null) display.Survey(image);
+                    return;
+                }
+                if (image != null) Resources.UnloadAsset(image);
+                if (this != null && requestedPrint != null) OpenBookPrint(requestedPrint);
+            };
+        }
         void ShowBook()
         {
+            CloseBookPrint();
             if (journalPage < 0)
             {
                 display.Say("Witness book   /   " + story.LeafCount + " of 5 leaves   /   " + story.PlayTime(),
@@ -859,10 +892,15 @@ namespace Wizzard
                                    SurveyPosition(player.head.position));
                 }
             }
+            else if (journalPage == 10)
+            {
+                display.Say("Ossa’s contact sheet", worksPlan.pressEntry);
+                OpenBookPrint("ContactSheet");
+            }
             else if (journalPage == 9)
             {
                 display.Say("Ash’s reed tube", worksPlan.pilotMail);
-                display.Survey(Resources.Load<Texture2D>(Path + "Letters/Tavi"));
+                OpenBookPrint("Tavi");
             }
             else if (journalPage == 8)
                 display.Say("Three houses of Sillwater", worksPlan.parishLedger);
@@ -1219,7 +1257,7 @@ namespace Wizzard
                 if(story.room==3 && story.Solved)
                 {
                     story.works.active=true;
-                    story.works.chamber=story.works.Signal("pilotNo")==3 ? 0 : Array.FindIndex(worksPlan.rooms,r=>r.key=="GlassRookery");story.works.camp="";
+                    story.works.chamber=story.works.Signal("pilotNo")==3 ? 0 : Array.FindIndex(worksPlan.rooms,r=>r.key==(story.works.Signal("glassProof")==3?"GlassRookery":"GloamingPress"));story.works.camp="";
                     StartCoroutine(EnterRoom());
                     return;
                 }
@@ -1385,7 +1423,7 @@ namespace Wizzard
                 Destroy(set);
             if (meadow != null) Destroy(meadow);
             if (village != null) Destroy(village);
-            if (display != null) display.Dispose();
+            if (display != null) { CloseBookPrint(); display.Dispose(); }
             foreach (var m in paints.Values)
                 Destroy(m);
             if (curtain != null)

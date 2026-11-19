@@ -115,3 +115,37 @@ def field_score(name, rate, voice):
     air = sosfilt(butter(2, band, btype="bandpass", fs=rate, output="sos"), breath)
     audio += air * 0.008 * (0.6 + 0.4 * np.sin(np.arange(length) * 2 * np.pi / length))
     return audio
+
+
+def silver_bath(rate, voice):
+    """A waltz for bottle glass, a bowed reed and the press rack. Fold tails across the loop."""
+    beat = 0.92
+    chords = [(48,55,62), (44,55,63), (46,53,62), (43,53,59),
+              (48,55,63), (51,58,65), (46,53,60), (43,55,62),
+              (41,53,60), (44,55,63), (43,53,59), (48,55,62)]
+    tune = [(0,.5,67,1.4),(1,0,68,1.5),(1,2,63,.8),(2,0,65,1.8),
+            (3,1,62,1.4),(4,0,63,2.3),(5,.5,70,1.5),(6,0,68,.8),
+            (6,1,65,1.8),(7,1,62,1.8),(8,0,60,1.8),(9,1,63,1.8),
+            (10,.5,59,1.2),(11,0,60,2.2)]
+    length = round(beat * 3 * len(chords) * rate)
+    mix = np.zeros(length)
+
+    def add(at, sound, gain):
+        start = round(at * beat * rate) % length
+        n = min(length - start, len(sound))
+        mix[start:start+n] += gain * sound[:n]
+        if n < len(sound):
+            mix[:len(sound)-n] += gain * sound[n:]
+
+    for bar, (root, fifth, colour) in enumerate(chords):
+        start = bar * 3
+        add(start, voice(root-12, 2.15, "bass"), .32)
+        add(start+.5, voice(fifth, 1.42, "lute"), .20)
+        add(start+1.5, voice(colour, 1.45, "bronze"), .13)
+        if bar % 4 == 2:
+            add(start+2.5, voice(fifth+12, 1.75, "bronze"), .085)
+    for bar, at, midi, beats in tune:
+        phrase = voice(midi, beats*beat, "reed")
+        add(3*bar+at, phrase, .27)
+        add(3*bar+at+.38, phrase, .055)
+    return mix

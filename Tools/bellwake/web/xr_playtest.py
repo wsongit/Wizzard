@@ -493,6 +493,44 @@ async def swallow_checkpoint(browser):
     print("PASS headset trigger raised the fore pound, shut its gate, and transferred water to aft",flush=True)
 
 
+async def press_checkpoint(browser):
+    plan = json.loads((here.parents[2]/"Assets/Resources/Bellwake/Underworks.json").read_text())
+    chamber = next(i for i,r in enumerate(plan["rooms"]) if r["key"]=="GloamingPress")
+    index, machine = next((i,m) for i,m in enumerate(plan["machines"]) if m["key"]=="proofs")
+    for camp, prefix, wheel, check in (
+        ("Fork", [0,0,0,0,0,0], "Fork", "bellProbe().works.signals.dialFork===1"),
+        ("Hand", [2,1,0,1,0,1], "Hand", "bellProbe().works.signals.glassProof===3")
+    ):
+        machines = [0] * len(plan["machines"])
+        machines[index] = next(i for i,r in enumerate(machine["rows"]) if r["values"][:6]==prefix)
+        save = {"number":21, "leaves":15, "works":{"active":True,"chamber":chamber,"camp":"Rest"+camp,"machines":machines}}
+        page = await browser.new_page(viewport={"width":630,"height":380})
+        errors=[]
+        page.on("pageerror",lambda e:errors.append(str(e)))
+        await page.add_init_script(script=harness)
+        await page.add_init_script("localStorage.setItem('wizzard.bellwake.desktop.v1',"+json.dumps(json.dumps(save))+")")
+        await page.goto(sys.argv[1])
+        await page.click("#vr",timeout=60000)
+        await page.wait_for_function("bellProbe().vr && bellProbe().district==='GloamingPress' && bellProbe().palms.every(Boolean)")
+        await tracked_navigation(page)
+        await trigger_station(page,wheel,check)
+        await page.evaluate("testDevice.controllers.right.updateButtonValue('a-button',1)")
+        await page.wait_for_function("bellProbe().vrMap")
+        await page.evaluate("testDevice.controllers.right.updateButtonValue('a-button',0)")
+        if camp == "Hand":
+            assert await page.locator("#leaves img[alt*=prints]").get_attribute("src") is None
+            await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',1)")
+            await page.wait_for_function("bellProbe().vrContact")
+            await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',0)")
+        await page.wait_for_timeout(350)
+        await page.evaluate("testDevice.controllers.right.updateButtonValue('a-button',1)")
+        await page.wait_for_function("!bellProbe().book && !bellProbe().sheetAllocated")
+        assert not errors, errors
+        await page.evaluate("testDevice.activeSession.end()")
+        await page.close()
+    print("PASS tracked mirror, glass exposure, survey, contact sheet and journal texture release", flush=True)
+
+
 async def kitchen_checkpoint(browser):
     page = await browser.new_page(viewport={"width": 630, "height": 380})
     errors = []
@@ -561,6 +599,10 @@ async def run():
             return
         if "--single-palm" in sys.argv:
             await single_palm_release(b)
+            await b.close()
+            return
+        if "--press" in sys.argv:
+            await press_checkpoint(b)
             await b.close()
             return
         if "--portrait" in sys.argv:

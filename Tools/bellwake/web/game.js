@@ -199,7 +199,7 @@ let group = null,
   surveyImage = null,
   roadPage = 0,
   journalPage = 0,
-  portraitPage = null,
+  illustratedPages = [],
   journalText = [],
   focus = "",
   timer = 0,
@@ -838,7 +838,7 @@ async function interact(id, palm = -1) {
   }
   if (id === "A_Gate" && prev.room === 3 && graph.states[move[0]].room === 4) {
     works.progress.active = true;
-    works.progress.chamber = works.signals.pilotNo===3 ? 0 : data.works.rooms.findIndex(r=>r.key==="GlassRookery");
+    works.progress.chamber = works.signals.pilotNo===3 ? 0 : data.works.rooms.findIndex(r=>r.key===(works.signals.glassProof===3?"GlassRookery":"GloamingPress"));
     works.progress.camp = "";
     if (await room()) welcome();
     return;
@@ -1102,6 +1102,18 @@ function drawSurvey() {
   c.fillText("●  You are here", 515, 443);
   vr.surveyChanged();
 }
+function addBookPrint(key, caption, alt) {
+  const leaves = $("leaves"), item = document.createElement("li"), print = document.createElement("img");
+  item.textContent = caption;
+  print.alt = alt;
+  print.dataset.illustration = key;
+  print.width = 768;
+  print.height = 544;
+  if (!vr.session) print.src = assetURL("letters", key, "image/jpeg");
+  item.append(print);
+  leaves.append(item);
+  illustratedPages[leaves.children.length] = print;
+}
 function toggleBook(open) {
   if (!started || busy) return;
   book = open;
@@ -1111,7 +1123,7 @@ function toggleBook(open) {
   $("hud").hidden = open;
   if (!open) {
     vr.releaseSheet();
-    portraitPage = null;
+    illustratedPages.length = 0;
     $("leaves").replaceChildren();
   } else {
     document.exitPointerLock?.();
@@ -1120,17 +1132,10 @@ function toggleBook(open) {
     $("booktitle").textContent = locationName() + "   ·   " + playTime();
     $("objective").textContent = objective() + "   ·   " + state().seals + " of 3 vows";
     $("leaves").replaceChildren();
-    if (works.signals.pilotNo===3) {
-      const sketch=document.createElement("li");
-      sketch.textContent = data.works.pilotMail;
-      portraitPage = document.createElement("img");
-      portraitPage.alt = "Ina’s charcoal portrait of Tavi, with a note from the night of the flood.";
-      portraitPage.width = 768;
-      portraitPage.height = 544;
-      portraitPage.src = assetURL("letters", "Tavi", "image/jpeg");
-      sketch.append(portraitPage);
-      $("leaves").append(sketch);
-    }
+    if (works.signals.pilotNo===3)
+      addBookPrint("Tavi", data.works.pilotMail, "Ina’s charcoal portrait of Tavi, with a note from the night of the flood.");
+    if (works.signals.glassProof===3)
+      addBookPrint("ContactSheet", data.works.pressEntry, "Three prints from the flood, mounted in Ossa’s contact book.");
     if (works.signals.parishSigned) {
       const page = document.createElement("li");
       page.textContent = data.works.parishLedger;
@@ -1394,7 +1399,12 @@ function loop(time, frame) {
           ? label(focus)
           : "The keeper calls";
     if (book && surveyImage && journalPage === 0) vr.showSurvey($("survey"));
-    else if (book && journalPage === 1 && portraitPage?.naturalWidth) vr.showSurvey(portraitPage);
+    else if (book && illustratedPages[journalPage]) {
+      const image = illustratedPages[journalPage];
+      if (!image.hasAttribute("src")) image.src = assetURL("letters", image.dataset.illustration, "image/jpeg");
+      if (image.naturalWidth) vr.showSurvey(image);
+      else vr.caption(title, text);
+    }
     else vr.caption(title, text);
   }
   sky.position.copy(vr.session ? vr.head : camera.position);
@@ -1437,10 +1447,19 @@ if (__TEST__)
       ? { target: nodes[observation.sight].position.toArray(), linedUp: bearingClear() }
       : null,
     guide: guide?.body.visible ? { cells: guide.cells, pos: guide.body.position.toArray() } : null,
+    press: nodes.MirrorFork ? {
+      angles: Object.fromEntries(fixtures.filter(f=>f.v.kind==="tilt" || f.v.kind==="turn").map(f=>{
+        const axis=f.v.kind==="turn"?"y":"z";
+        return [f.v.node,Math.round((f.obj.rotation[axis]-f.rot[axis])*180/Math.PI)];
+      })),
+      light: fixtures.filter(f=>f.v.node.startsWith("LightPath") && f.obj.visible).map(f=>f.v.node).sort(),
+      prints: fixtures.filter(f=>f.v.node.startsWith("Print") && f.obj.visible).map(f=>f.v.node).sort()
+    } : null,
     pilotCall: replyName,
     pilots: nodes.Roost0 ? fixtures.filter(f=>f.flight).map(f=>({visible:f.obj.visible, position:f.obj.position.toArray(),target:nodes["Roost"+works.signals.birdAt].position.toArray(),wing:f.flight.wings[0].rotation.z})) : null,
     vrMap: !!vr.mapMode,
-    vrPortrait: !!(vr.mapMode && portraitPage && vr.mapInk.image === portraitPage),
+    vrContact: !!(vr.mapMode && vr.mapInk.image?.dataset?.illustration === "ContactSheet"),
+    vrPortrait: !!(vr.mapMode && vr.mapInk.image?.dataset?.illustration === "Tavi"),
     sheetAllocated: !!vr.mapInk,
     fixturePasses, motionLeft,
     handFork: nodes.HandFork?.visible ? nodes.HandFork.position.toArray() : null,

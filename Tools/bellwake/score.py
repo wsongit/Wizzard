@@ -162,3 +162,7 @@ from field_music import field_score
 for name in ("GlassPilots", "AlderFerry"):
     if not sys.argv[1:] or name in sys.argv[1:]:
         save(name, field_score(name, rate, voice))
+
+if not sys.argv[1:] or "SilverBath" in sys.argv[1:]:
+    from field_music import silver_bath
+    save("SilverBath", silver_bath(rate, voice))

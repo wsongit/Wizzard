@@ -953,6 +953,9 @@ add_drift_fen(rooms,room,post,step,flags)
 from rookery import build as build_rookery
 build_rookery(room,post,step,v,machine,flags)
 
+from plate_room import build as build_press
+build_press(room,post,step,v,machine)
+
 for descriptor in rooms:
     for station in descriptor["stations"]:
         station["note"] = {
@@ -972,6 +975,7 @@ if __name__ == "__main__":
                 theatreInvitation=INVITATION,
                 theatreCredits=theatre_credits,
                 theatreCadences=CADENCES,
+                pressEntry="Ossa’s contact sheet. Pella crossed with the cradle. The water rose beyond the school ladder. Ina held the gate with her left hand.",
                 pilotMail="Ash’s reed tube holds a charcoal drawing of Tavi. The short fringe and the little nick in her eyebrow are unmistakable. Ina drew it during the flood.",
                 pilotEndings=[
                     "Orla’s drawing has a place under the market bell. Tavi brushes the charcoal fringe with one finger. ‘I cut it myself that summer. She remembered.’",

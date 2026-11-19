@@ -4,6 +4,14 @@
 
 The 33-place campaign reached its first ending in **35 minutes 27 seconds of active play**, or 35 minutes 55 seconds elapsed. The fresh-save runner used normal movement and known solutions. It recovered the four Drift Fen cargoes, completed the hydraulic crossings, guided all three pilot birds home, collected five witness leaves and reached both endings. It reported zero application errors. This run used the complete Glass Rookery story. The subsequent character, sound and controller updates have separate checks below. First-time human and physical-headset completion times remain unmeasured. [Timing by location](known-route.json)
 
+## The Gloaming Press
+
+A keyboard playthrough entered from the Cinder Lens, tried the locked gate and an incorrect exposure, turned five mirror wheels, developed all three pictures and carried the contact sheet into the Glass Rookery. It checked the rendered mirror angles, the exposure needles and the visible beam after each interaction. Reloading between exposures preserved the light path. Every one of the 3,219 native machine positions can reach its goal. The C# check traversed 17,631 transitions, including blocked shutters and the route onward.
+
+Blender reimported the final FBX. It contains 14,280 visible triangles. All 5,929 terrain samples and 3,140 perimeter rays passed, and every station had at least 84 reachable approaches. The packed collision data matched the reference on 3,072 body, palm and ray queries and 4,557 line-of-sight checks. The emulator tested both the mirror and the shutter with a tracked Quest controller.
+
+Three campaign laps made 120 transfers across all 35 districts. A separate 15-transfer pass used the final workshop geometry and the original 33-second *Silver Bath* score. Every transfer kept one active world, one collision tree and one music player. Previously loaded worlds were collectible, and revisits returned to the same GPU resource counts. A 90-frame SwiftShader turn in the shop recorded 32 draw calls, 33.4 ms median and 116.7 ms at the 95th percentile while another browser playthrough was running. Device timing remains open. [Measurements](gloaming-press.json) · [Four in-game views](gloaming-press.jpg)
+
 ## Tavi and Ina’s letter
 
 Tavi’s face, fringe, clothes and tools share one 256 × 256 texture. Her head and arm keep separate pivots for looking at the player and gesturing. The Blender reimport sampled 5,929 ground positions and cast 3,140 perimeter rays in each of her two locations. Both passed.

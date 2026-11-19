@@ -15,6 +15,7 @@ Tavi made a warning bell during the flood. Her sister Ina gave it a voice for a 
 | Drift Fen and Swallow Stair | Use Willa’s sounding fork to find four missing loads, then work Fen’s double lock to return them. |
 | Glasscut Gallery | Read Jass’s casting records. Move the bronze miner behind the gem cart and push it onto the white socket. |
 | The Cinder Lens | Trace the amber ray from the kiln. Turn the three mirrors and catch the light in the casting cup. |
+| The Gloaming Press | Read Ossa’s ledger, turn five silver mirrors, and follow the light to three negatives. The needle beside a shutter moves when its filter is right. Your finished contact sheet stays in the witness book. |
 | The Glass Rookery | Meet Orla. Learn the weir and lantern signals, then whistle three different pilot birds along their flight paths. |
 | The Lower Works | Sign the night roll below the rookery. Explore the three guild wings in any order, listen to the craftspeople and take their work to the great resonator. |
 | Wrenfall Head | The resonator lift emerges on the Pilots’ Coast. Help Mirren bring the flood book through the reef. |
