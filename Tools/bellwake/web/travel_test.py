@@ -34,7 +34,7 @@ async def main():
             const tick = t => {if(prev !== undefined) gaps.push(t-prev); prev=t; requestAnimationFrame(tick)};
             requestAnimationFrame(tick);
         }""")
-        frame_routes = {"--press-frames": (34,), "--wards": range(17,22), "--parish-frames": (28,29,30), "--field-frames": (0,27,31,32,33)}
+        frame_routes = {"--press-keeper-frames": (34,4), "--keeper-frames": (4,), "--press-frames": (34,), "--wards": range(17,22), "--parish-frames": (28,29,30), "--field-frames": (0,27,31,32,33)}
         districts = next((rooms for flag, rooms in frame_routes.items() if flag in sys.argv), None)
         if districts is not None:
             for index in districts:
@@ -58,6 +58,8 @@ async def main():
             await browser.close()
             return
         route = [27, 5, 17,18,19,20,21, 1, 6, 28, 29, 30, 28, 2, 31, 32, 31, 7, 3, 34, 33, 8, 9, 10, 11, 12, 13, 14, 15, 16, 22, 23, 22, 24, 22, 25, 22, 26, 4, 0]
+        if "--keeper" in sys.argv:
+            route=[26,4,0,4,0]
         if "--press" in sys.argv:
             route=[3,34,33,34,0]
         if "--pilots" in sys.argv:

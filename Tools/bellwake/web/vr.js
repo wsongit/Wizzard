@@ -228,6 +228,7 @@ export class TrackedRunner {
     }
     if (Math.abs(turn) < 0.3) this.turnHeld = false;
     if (contacts) {
+      if (!had) this.launch.set(0, 0, 0);
       this.motion
         .copy(this.push)
         .multiplyScalar(1 / contacts)
@@ -243,7 +244,12 @@ export class TrackedRunner {
     this.sweep(tree, this.motion);
     this.delta.copy(this.body.start).sub(this.start);
     if (contacts && dt > 0) this.launch.lerp(this.work.copy(this.delta).multiplyScalar(1 / dt), 0.4);
-    if (this.delta.y > this.motion.y + 0.001 && this.velocity.y < 0) this.velocity.y = -0.5;
+    if (this.delta.y > this.motion.y + 0.001 && this.velocity.y < 0) {
+      this.velocity.y = -0.5;
+      const traction = Math.exp(-6 * dt);
+      this.velocity.x *= traction;
+      this.velocity.z *= traction;
+    }
     this.rig.position.add(this.delta);
     this.head.add(this.delta);
     for (let i = 0; i < 2; i++) {

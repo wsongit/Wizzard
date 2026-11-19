@@ -21,6 +21,10 @@ namespace Wizzard
         readonly XrPress use = new XrPress(), journal = new XrPress(), whistle = new XrPress();
         string requestedPrint;
         bool printLoading;
+        static readonly string[] KeeperSeals = { "A_Key0", "A_Key1", "A_Key2" };
+        static readonly string[] KeeperCues = { "KeeperCue0", "KeeperCue1", "KeeperCue2" };
+        int keeperPitch = -1;
+        float keeperFlash;
         Texture2D currentPrint;
         BellwakeJourney story;
         PassageAtlas atlas;
@@ -278,7 +282,7 @@ namespace Wizzard
                     }
                     nodes[t.name] = t;
                     if (t.name.StartsWith("Rotor") || t.name == "GreatBell" || t.name == "Familiar" ||
-                        t.name.StartsWith("Speaker"))
+                        t.name.StartsWith("Speaker") || t.name.StartsWith("Keeper"))
                         rest[t.name] = t.rotation;
                     if (t.name == "HushWave")
                         waveScale = t.localScale;
@@ -441,6 +445,7 @@ namespace Wizzard
             if (InPassage) return Route.Label(id);
             switch (id)
             {
+            case "A_MorningSong": return "Ina’s music box";
             case "A_Talk":
                 return story.room == 4 && story.strikes == 3 ? "Ina" : BellwakeJourney.Speakers[story.room];
             case "A_Ina":
@@ -657,7 +662,8 @@ namespace Wizzard
                     if (journalPage == 7 && story.works.KitchenJournal().Length == 0) journalPage++;
                     if (journalPage == 8 && !story.works.Remembered(worksPlan, "parishSigned")) journalPage++;
                     if (journalPage == 9 && story.works.Signal("pilotNo")!=3) journalPage++;
-                    if (journalPage > 10 || (journalPage == 10 && story.works.Signal("glassProof")!=3))
+                    if (journalPage == 10 && story.works.Signal("glassProof")!=3) journalPage++;
+                    if (journalPage > 11 || (journalPage == 11 && story.works.Signal("dawnStep")!=10))
                         journalPage = -1;
                     ShowBook();
                 }
@@ -892,6 +898,8 @@ namespace Wizzard
                                    SurveyPosition(player.head.position));
                 }
             }
+            else if (journalPage == 11)
+                display.Say("Ina’s kitchen song",worksPlan.dawnEntry);
             else if (journalPage == 10)
             {
                 display.Say("Ossa’s contact sheet", worksPlan.pressEntry);
@@ -979,10 +987,42 @@ namespace Wizzard
         {
             foreach (char pitch in phrase)
             {
+                FlashKeeperNote(pitch - '0');
                 notes.PlayOneShot(chimes[pitch - '0']);
                 yield return new WaitForSecondsRealtime(.4f);
             }
             rehearsal = null;
+        }
+        void FlashKeeperNote(int pitch)
+        {
+            keeperPitch=pitch;
+            keeperFlash=Time.unscaledTime+.33f;
+        }
+        void MorningSong(string id)
+        {
+            if (!story.Solved) { Say("Ina’s music box","The crank is caught on a little bronze latch. The latch trembles when the keeper rings."); return; }
+            CancelRehearsal();
+            int before=story.works.Signal("dawnStep");
+            bool wind=id=="A_MorningSong";
+            int n=story.works.PlayMorningSong(wind?"wind":id.Substring(5));
+            if (!wind)
+            {
+                int pitch=id[5]-'0';
+                FlashKeeperNote(pitch);
+                notes.PlayOneShot(chimes[pitch]);
+            }
+            if (n==10) Say("Ina","You know it. Knock that way when you come for breakfast.");
+            else
+            {
+                int bar=(n-1)/3;
+                if (wind || bar>(before-1)/3)
+                {
+                    rehearsal=StartCoroutine(Rehearse(worksPlan.dawnTunes[bar]));
+                    Say("Ina",worksPlan.dawnVerses[bar]+" Play it back on the three seals.",12);
+                }
+                else Say("Music box",n<=before?"The cylinder slips to the start of this verse. Wind the crank to hear it again.":"The next tooth clicks into place.");
+            }
+            Save();
         }
         void SoundStation(WorksStation station, int scene)
         {
@@ -1038,6 +1078,27 @@ namespace Wizzard
                 var wave = nodes["HushWave"];
                 float phase = 1 - Mathf.Clamp01((pulseUntil - Time.unscaledTime) / 24);
                 wave.localScale = waveScale * Mathf.Lerp(1, 13, phase);
+            }
+            if (nodes.TryGetValue("KeeperMask",out var mask))
+            {
+                bool calling=story.challenged && !story.Solved;
+                int cue=calling?story.CalledKey:-1;
+                Vector3 front=-(facing*Vector3.forward), axis=Vector3.Cross(Vector3.up,front);
+                Vector3 toSeal=cue<0?front:nodes[KeeperSeals[cue]].position-mask.position;
+                float turn=cue<0 || cue==1?0:Mathf.Clamp(Vector3.SignedAngle(front,Vector3.ProjectOnPlane(toSeal,Vector3.up),Vector3.up),-58,58);
+                float mix=Mathf.Min(1,5*Time.deltaTime);
+                mask.rotation=Quaternion.Slerp(mask.rotation,Quaternion.AngleAxis(turn,Vector3.up)*
+                    Quaternion.AngleAxis(story.Solved?12.6f:cue==1?-10f:0,axis)*rest[mask.name],mix);
+                float urgent=calling?1-Mathf.Clamp01((pulseUntil-Time.unscaledTime)/24):0;
+                for(int i=0;i<2;i++)
+                {
+                    var wing=nodes[i==0?"KeeperLeft":"KeeperRight"];
+                    Vector3 outward=Vector3.ProjectOnPlane(wing.position-mask.position,Vector3.up).normalized;
+                    float angle=calling && (cue==1 || Vector3.Dot(outward,toSeal)>0) ? (cue==1?30:61)+9*urgent : story.Solved?-10:3;
+                    wing.rotation=Quaternion.Slerp(wing.rotation,Quaternion.AngleAxis(angle,Vector3.Cross(outward,Vector3.up))*rest[wing.name],mix);
+                }
+                Toggle("KeeperLamp",calling || story.Solved);
+                for(int i=0;i<3;i++) Toggle(KeeperCues[i],keeperFlash>Time.unscaledTime && keeperPitch==i);
             }
             if (nodes.TryGetValue("SpeakerHead", out var face))
             {
@@ -1173,6 +1234,11 @@ namespace Wizzard
                 Sync();Save();Say(Label(id),line);
                 return;
             }
+            if (id=="A_MorningSong" || (story.room==4 && story.Solved && story.works.Signal("dawnStep")>0 && id.StartsWith("A_Key")))
+            {
+                MorningSong(id);
+                return;
+            }
             switch (id)
             {
             case "A_RoadBook":
@@ -1221,6 +1287,7 @@ namespace Wizzard
                 line = story.Talk();
                 int credit = story.works.Signal("paperCredit");
                 if (story.ending!=0 && credit>0) line += " "+worksPlan.theatreCredits[credit-1];
+                if (story.ending!=0 && story.works.Signal("dawnStep")==10) line+=" "+worksPlan.dawnEnding[story.ending-1];
                 if (story.ending!=0 && story.works.Signal("pilotNo")==3) line+=" "+worksPlan.pilotEndings[story.ending-1];
                 if (!was)
                     pulseUntil = Time.unscaledTime + 32;

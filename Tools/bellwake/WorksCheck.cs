@@ -35,6 +35,7 @@ class WorksCheck
         if (m.channels[0].StartsWith(m.key)) return row.values[row.values.Length-1]==1;
         switch (m.key)
         {
+        case "dawnwatch": return s("dawnStep")==10;
         case "proofs": return s("glassProof")==3;
         case "pilots": return s("pilotNo")==3;
         case "stairlock": return s("voyageNo")==4;
@@ -230,6 +231,12 @@ class WorksCheck
         Require(darkroom.Signal("printHand")==1 && darkroom.Signal("printLadder")==1,"missing photographs");
         darkroom.Use("A_Gate",out garden);
         Require(garden=="GlassRookery","missing press exit");
+        Require(darkroom.PlayMorningSong("0")==0 && darkroom.PlayMorningSong("wind")==1,"unwound cylinder");
+        foreach(char pitch in plan.dawnTunes[0]) darkroom.PlayMorningSong(pitch.ToString());
+        darkroom=Reload(plan,darkroom);
+        Require(darkroom.PlayMorningSong("0")==4 && darkroom.PlayMorningSong("wind")==4,"lost first verse");
+        foreach(char pitch in plan.dawnTunes[1]+plan.dawnTunes[2]) darkroom.PlayMorningSong(pitch.ToString());
+        Require(darkroom.PlayMorningSong("wind")==10,"lost morning coda");
         var pilgrimage = new BellwakeWorks { active=true, chamber=Array.FindIndex(plan.rooms,r=>r.early) };
         pilgrimage.Bind(plan);
         Require(pilgrimage.GuideTrail(0).Count == 0, "unearned waywren");

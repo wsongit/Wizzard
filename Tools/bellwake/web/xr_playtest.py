@@ -28,11 +28,15 @@ async def tracked_navigation(page):
           if(length<.30) return;
           const k=Math.min(.29,length)/length,p=testDevice.position;
           p.set(p.x+dx*k,1.64,p.z+dz*k);
-          testDevice.controllers.right.position.set(p.x+.23,1.30,p.z-.24);
-          testDevice.controllers.left.position.set(p.x-.23,1.30,p.z-.24);
+          // Hold the hands over the shoulders during the belfry walk. Its sound plates
+          // stand at chest height and a hand carried in front can remain planted.
+          const inBelfry=bellProbe().district==="StillBelfry";
+          const handY=inBelfry?2.02:1.30, handZ=p.z+(inBelfry ? .24 : -.24);
+          testDevice.controllers.right.position.set(p.x+.23,handY,handZ);
+          testDevice.controllers.left.position.set(p.x-.23,handY,handZ);
           await new Promise(r=>setTimeout(r,70));
         }
-        throw Error("Tracked crossing stalled at "+bellProbe().vrHead);
+        throw Error("Tracked crossing to "+[x,z]+" stalled at "+bellProbe().vrHead+" palms="+bellProbe().planted);
       };
       window.sightToward = ([x,y,z]) => {
         const [hx,hy,hz]=bellProbe().vrHead,dx=x-hx,dy=y-hy,dz=z-hz;
@@ -154,7 +158,13 @@ async def palm_instruments(browser):
                 };
                 for(const d of [.65,.54,.43,.32,.21,.10,.02]){pose(d);await frame()}
                 await new Promise(resolve=>setTimeout(resolve,370));
-                return {hand:bellProbe().handPositions[side==='left'?0:1], target:[x,y,z]};
+                const hand=bellProbe().handPositions[side==='left'?0:1];
+                // Draw the striking hand back before walking away from the instrument.
+                for(const d of [.14,.26,.39,.52,.65]) {pose(d);await frame()}
+                const p=testDevice.position;
+                grip.position.set(p.x+(side==="left"?-.22:.22),p.y-.24,p.z+.04);
+                for(let n=0;n<5;n++) await new Promise(r=>testDevice.activeSession.requestAnimationFrame(r));
+                return {hand, target:[x,y,z]};
             };
         }""")
         for j, name in enumerate(order):
@@ -169,6 +179,16 @@ async def palm_instruments(browser):
             assert state["number"]!=2 and state["recentTones"][-3:]==[2,1,0]
         if district=="StillBelfry":
             assert state["number"]==31, state["number"]
+        if district=="StillBelfry" and "--morning-palms" in sys.argv:
+            await page.evaluate("async()=>{for (const p of [[0,-6.15],[3,-6.15],[3,-2],[5.2,-2.6]]) await walkSurvey(...p)}")
+            await trigger_station(page,"MorningSong","bellProbe().keeper.verse===1")
+            await page.wait_for_function("bellProbe().keeper.lit.includes(2)")
+            await page.wait_for_function("bellProbe().recentTones.slice(-3).join('')==='020'")
+            await page.evaluate("async()=>{await walkSurvey(5.2,.8);await walkSurvey(-7,.8)}")
+            for i,key in enumerate(("Key0","Key2","Key0")):
+                await page.evaluate("([id,hand])=>tapBell(id,hand)",[key,"left" if i==1 else "right"])
+                assert await page.evaluate("bellProbe().keeper.verse")==i+2
+            print("PASS keeper guidance, crank trigger, three sounding pearls and two-handed reply",flush=True)
         await page.evaluate("testDevice.activeSession.end()")
         assert not errors,errors
         await page.close()
@@ -394,15 +414,18 @@ async def single_palm_release(browser):
             const release=bellProbe();
             for(let n=0;n<4;n++)await next();
             const after=bellProbe();
+            for(let n=0;n<170 && Math.hypot(bellProbe().releaseVelocity[0],bellProbe().releaseVelocity[2])>.025;n++)await next();
+            const settled=bellProbe();
             hand.connected=true;
             hand.position.set(.22*sign,1.1,-.32);
             await next();await next();
             return {side,drop,plantedBefore:before.planted[i],stillPlanted:release.planted[i],
                 push:before.vrHead[2]-start[2],releaseSpeed:release.releaseVelocity[2],
-                glide:after.vrHead[2]-before.vrHead[2],reconnected:bellProbe().palms[i],
+                glide:after.vrHead[2]-before.vrHead[2],settledSpeed:Math.hypot(settled.releaseVelocity[0],settled.releaseVelocity[2]),reconnected:bellProbe().palms[i],
                 phantomContact:bellProbe().planted[i]};
         }""", [side, drop])
         assert result["plantedBefore"] and not result["stillPlanted"], result
+        assert result["settledSpeed"] <= .025,result
         assert result["push"] < -.08 and result["reconnected"] and not result["phantomContact"], result
         if drop:
             assert abs(result["releaseSpeed"]) < .015 and abs(result["glide"]) < .04, result
@@ -430,9 +453,14 @@ async def portrait_checkpoint(browser):
     await page.wait_for_function("bellProbe().vr && bellProbe().palms.every(Boolean)")
     async def press(control, assertion):
         await page.evaluate("(c)=>testDevice.controllers.right.updateButtonValue(c,1)",control)
-        await page.wait_for_function(assertion)
+        try:
+            await page.wait_for_function(assertion)
+        except Exception:
+            print(await page.evaluate("()=>{const s=bellProbe();return [s.book,s.journalPage,s.vrMap,s.vrPortrait,s.journalCaption]}"),flush=True)
+            raise
         await page.evaluate("(c)=>testDevice.controllers.right.updateButtonValue(c,0)",control)
-        await page.wait_for_timeout(180)
+        # Give the emulator two presented XR frames to deliver selectend before a second press.
+        await page.evaluate("new Promise(done=>testDevice.activeSession.requestAnimationFrame(()=>testDevice.activeSession.requestAnimationFrame(done)))")
     for _ in range(2):
         await press("a-button","bellProbe().book")
         await press("trigger","bellProbe().vrPortrait")

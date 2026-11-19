@@ -20,14 +20,14 @@ Tavi made a warning bell during the flood. Her sister Ina gave it a voice for a 
 | The Lower Works | Sign the night roll below the rookery. Explore the three guild wings in any order, listen to the craftspeople and take their work to the great resonator. |
 | Wrenfall Head | The resonator lift emerges on the Pilots’ Coast. Help Mirren bring the flood book through the reef. |
 | The Countertide Engine | At the drum house, route the headrace to the chain dock, mould loft and signal loft. Finish Elin’s last dispatches to open the ascent. |
-| The Still Belfry | Speak to the keeper to start the encounter. Reach and activate the called seal before the toll. After three misses, the keeper lets you try again. |
+| The Still Belfry | Speak to the keeper. Follow its raised wing to the side seal, or go behind it when it opens both wings. After three misses, speak to it to try again. |
 | The morning market | Choose who carries the watch. Both choices change the market and open a final conversation. |
 
 The market, Root Choir, Reedwater, Cinder Lens and belfry each hold a witness leaf. Each of the three witness-road districts has nine dispatches and three witness posts. The compass keys on the chart chest take a trigger or E. The navigator offers a hint, the rewind lever resets the current chart, and the stamping desk certifies a delivery. Current chart positions and sealed dispatches survive a reload. A chapter, puzzle action or recovered leaf updates the checkpoint. Unity stores the journey in PlayerPrefs. The browser edition saves to local storage for its current origin. The epilogue arch takes two deliberate activations to start a fresh journey.
 
 The witness book shows active playtime. Loading, the open journal and unfocused play are excluded. The clock starts with this update for existing checkpoints. Players already past a new district retain their place in the story.
 
-The 33-place campaign reached its first ending in 35 minutes 27 seconds of active play with known solutions. The design target is 25–30 hours for a first-time player. A human completion time has yet to be measured. [Playthrough details](validation.md)
+The 34-place main campaign reached its first ending in 35 minutes 16 seconds of active play with known solutions. The optional music-box verses and harbour kitchen are additional. The design target is 25–30 hours for a first-time player. A human completion time has yet to be measured. [Playthrough details](validation.md)
 
 ## Quest Browser frame timings
 
@@ -59,9 +59,13 @@ Stand beside a brass telescope and press E or a trigger. Follow its barrel to th
 
 In the map office, the registrar has a folio for each lost house. Its red thread follows the ebb bearing and its blue thread follows the flood bearing. Turn the four carriage wheels to move the brass pin to their intersection. Stamp each address and have the title sealed. The signed ledger travels with you to Reedwater and into either ending. [In-game views of the parish and map office](sillwater.jpg)
 
+## Ina’s music box
+
+After the final seal, look for the little walnut music box to the keeper’s left. Wind its brass handle. The pins play a three-note phrase, the three pearls light in order, and Ina names the notes in the dialogue. Answer on the Leaf, Ember and Tide seals. Each verse you finish stays on the cylinder when you leave. You can wind the crank to hear the current verse again. Both mornings remember the finished song. [The keeper and the music box](the-quiet.jpg)
+
 ## The Glass Rookery
 
-Leave the Cinder Lens through the casting gate. Orla is waiting at the lodge with a carved whistle. Her flight book shows a different chart for each bird. A solid blue line means running water, and a broken ochre line means quiet water. Read the numbered stone at the next perch, stand within calling distance and press Q or squeeze the left grip. You can hear the bird answer before it lands.
+Leave the Gloaming Press through the pilot gardens gate. Orla is waiting at the lodge with a carved whistle. Her flight book shows a different chart for each bird. A solid blue line means running water, and a broken ochre line means quiet water. Read the numbered stone at the next perch, stand within calling distance and press Q or squeeze the left grip. You can hear the bird answer before it lands.
 
 Pip, the little grebe, carries the first tube. Slate, a grey heron, follows a different watercourse. For Ash, the copper tern, match the destination’s shutter letter on the lantern console as well. Once a bird reaches its home perch, return to Orla’s sending desk. The last tube holds something Ina made for Tavi. Open the witness book to unfold her charcoal portrait. On Quest, turn the pages with a trigger. The letter stays with you through either ending.
 

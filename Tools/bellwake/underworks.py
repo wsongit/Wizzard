@@ -956,6 +956,16 @@ build_rookery(room,post,step,v,machine,flags)
 from plate_room import build as build_press
 build_press(room,post,step,v,machine)
 
+# Optional coda on the three physical seals after the Quiet loosens its hold.
+DAWN_TUNES = ("020","112","201")
+def turn_music_box(state, op):
+    n = state[0]
+    if op == "wind": return (max(1,n),)
+    if n==0 or n==10: return state
+    bar, beat = divmod(n-1,3)
+    return (n+1 if op==DAWN_TUNES[bar][beat] else 1+3*bar,)
+machine("dawnwatch", ["dawnStep"], ("wind","0","1","2"), (0,), turn_music_box, lambda state:state)
+
 for descriptor in rooms:
     for station in descriptor["stations"]:
         station["note"] = {
@@ -975,6 +985,13 @@ if __name__ == "__main__":
                 theatreInvitation=INVITATION,
                 theatreCredits=theatre_credits,
                 theatreCadences=CADENCES,
+                dawnTunes=DAWN_TUNES,
+                dawnEntry="Ina’s kitchen song. Three knocks on our bedroom wall meant morning. Two cups on the table, one chair by the stove. One knock from the landing meant I made it home.",
+                dawnVerses=["Leaf, Tide, Leaf. Three knocks on our bedroom wall meant morning.",
+                            "Ember, Ember, Tide. Two cups on the table, one chair by the stove.",
+                            "Tide, Leaf, Ember. One knock from the landing meant I made it home."],
+                dawnEnding=["At first light Tavi winds the music box. Three knocks answer from every house on the hill.",
+                            "At breakfast Ina drums three notes on the kitchen door. Tavi knows them before she turns."],
                 pressEntry="Ossa’s contact sheet. Pella crossed with the cradle. The water rose beyond the school ladder. Ina held the gate with her left hand.",
                 pilotMail="Ash’s reed tube holds a charcoal drawing of Tavi. The short fringe and the little nick in her eyebrow are unmistakable. Ina drew it during the flood.",
                 pilotEndings=[

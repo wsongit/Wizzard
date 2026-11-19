@@ -380,6 +380,10 @@ def actors(k):
     if k == 0:
         from tavi_art import make_tavi
         make_tavi(x, y, 0, h)
+    elif k == 4:
+        from quiet_art import keeper, music_box
+        keeper(x,y)
+        music_box()
     else:
         model(CHARS[k], name, x, y, 0, h, 0, "Speaker")
     origins["Speaker"] = (x, y, 0)
@@ -578,6 +582,9 @@ def public_road_book():
 
 def make(key, lib):
     k = ROOMS.index(key)
+    if k == 4:
+        from quiet_art import paint
+        paint()
     if k == 0:
         from pilgrim_art import road_leaf_paint
         from theatre_art import ticket_poster

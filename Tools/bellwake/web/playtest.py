@@ -8,6 +8,7 @@ from pathlib import Path
 from playwright.async_api import async_playwright
 from pilgrim_route import walk_wards, TRAILS
 from works_route import complete_works, complete_coast
+from quiet_route import morning_song
 from press_route import print_plates
 from pilot_route import lead_pilots, pilot_letters
 from theatre_route import perform
@@ -134,6 +135,7 @@ async def run():
         supper_only = "--supper" in sys.argv
         coast_only = "--coast" in sys.argv
         works_only = "--works" in sys.argv
+        song_only = "--morning-song" in sys.argv
         press_only = "--press" in sys.argv
         pilots_only = "--pilots" in sys.argv
         target_post = "--last-post" in sys.argv
@@ -145,8 +147,10 @@ async def run():
         endings_only = "--endings" in sys.argv or nameplate
         parish_only = "--parish" in sys.argv
         lock_only="--swallow" in sys.argv
-        if press_only or pilots_only or lock_only or parish_only or target_post or glasscut_only or endings_only or works_only or coast_only or ward_only or engine_only or supper_only:
+        if song_only or press_only or pilots_only or lock_only or parish_only or target_post or glasscut_only or endings_only or works_only or coast_only or ward_only or engine_only or supper_only:
             saved = {"number": 13, "leaves": 7}
+            if song_only:
+                saved={"number":22,"leaves":31}
             if lock_only:
                 saved={"number":13,"leaves":7}
             if parish_only:
@@ -321,6 +325,11 @@ async def run():
             )
             await b.close()
             return
+        if song_only:
+            await morning_song(act,page,start,out)
+            assert not errors, errors
+            await b.close()
+            return
         if ward_only:
             await walk_wards(act,page,start,out,ward_only)
             assert not errors,errors
@@ -445,7 +454,12 @@ async def run():
         assert final["ending"] == 1 and final["leaves"] == 31
         if timed:
             durations = final["secondsByPlace"]
-            assert len(durations) == 33, durations
+            required = await page.evaluate("""[
+                ...window.BELLWAKE.story.rooms,
+                ...window.BELLWAKE.regions.map(r=>r.key),
+                ...window.BELLWAKE.works.rooms.map(r=>r.key).filter(key=>key!=="KettleYard")
+            ]""")
+            assert set(durations) == set(required), set(required).symmetric_difference(durations)
             (out / "known-route.json").write_text(
                 json.dumps(
                     {
@@ -512,7 +526,7 @@ async def run():
         (out / "playthrough.json").write_text(
             json.dumps(
                 {
-                    "viewport": [768, 432],
+                    "viewport": [viewport["width"], viewport["height"]],
                     "renderer": "Chromium SwiftShader",
                     "framesPerRoom": 70,
                     "samples": metrics,

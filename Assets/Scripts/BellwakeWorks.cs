@@ -6,8 +6,8 @@ namespace Wizzard
     [Serializable]
     public sealed class WorksPlan
     {
-        public string logTitle, logEntry, theatreInvitation, pilotMail, pressEntry;
-        public string[] logEndings, supperEndings, pilotEndings, swallowEntries, parishEndings, theatreCredits, theatreCadences;
+        public string logTitle, logEntry, theatreInvitation, pilotMail, pressEntry, dawnEntry;
+        public string[] logEndings, supperEndings, pilotEndings, swallowEntries, parishEndings, theatreCredits, theatreCadences, dawnTunes, dawnVerses, dawnEnding;
         public SupperNote[] supperNotes;
         public RoadLeaf[] roadLeaves;
         public string parishLedger;
@@ -104,6 +104,18 @@ namespace Wizzard
                 if (machines[i] < 0 || machines[i] >= plan.machines[i].rows.Length)
                     machines[i] = 0;
             Refresh();
+        }
+        void MoveMachine(string key, string control)
+        {
+            int i=Array.FindIndex(plan.machines, m=>m.key==key);
+            var machine=plan.machines[i];
+            machines[i]=machine.rows[machines[i]].moves[Array.IndexOf(machine.controls,control)];
+        }
+        public int PlayMorningSong(string control)
+        {
+            MoveMachine("dawnwatch",control);
+            Refresh();
+            return Signal("dawnStep");
         }
         void Refresh()
         {
@@ -254,9 +266,7 @@ namespace Wizzard
                 if (!string.IsNullOrEmpty(rule.move))
                 {
                     string[] command = rule.move.Split('.');
-                    int i = Array.FindIndex(plan.machines, candidate => candidate.key == command[0]);
-                    var m = plan.machines[i];
-                    machines[i] = m.rows[machines[i]].moves[Array.IndexOf(m.controls, command[1])];
+                    MoveMachine(command[0],command[1]);
                 }
                 Refresh();
                 destination = rule.to;

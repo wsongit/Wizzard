@@ -171,7 +171,13 @@ function soundStation(station, scene) {
     ringTime = performance.now();
   }
 }
+const keeperCues = ["KeeperCue0", "KeeperCue1", "KeeperCue2"];
+let keeperPitch = -1, keeperFlash = 0;
 function tone(i) {
+  if (nodes.KeeperMask && i < 3) {
+    keeperPitch = i;
+    keeperFlash = performance.now() + 330;
+  }
   if (__TEST__) {
     recentTones.push(i);
     if (recentTones.length > 12) recentTones.shift();
@@ -308,6 +314,7 @@ function label(id) {
     A_Lens: "Casting cup",
     A_Meadow: "Long Meadow trail",
     A_Playhouse: "Paper theatre door",
+    A_MorningSong: "Ina’s music box",
     A_Packet: "Sillwater packet counter",
     A_FenPass: "Drift Fen return fare",
   }[id];
@@ -776,6 +783,23 @@ async function interact(id, palm = -1) {
   }
   const prev = state(),
     name = id === "Toll" ? "The hollow toll" : label(id);
+  if (id === "A_MorningSong" || (prev.room===4 && prev.solved && works.signals.dawnStep>0 && id.startsWith("A_Key"))) {
+    if (!prev.solved) { say(name,"The crank is caught on a little bronze latch. The latch trembles when the keeper rings."); return; }
+    cancelRehearsal();
+    const before=works.signals.dawnStep, wind=id==="A_MorningSong";
+    const n=works.playMorningSong(wind?"wind":id.slice(-1));
+    if (!wind) tone(+id.slice(-1));
+    if (n === 10) say("Ina","You know it. Knock that way when you come for breakfast.");
+    else {
+      const bar=Math.floor((n-1)/3);
+      if (wind || bar>Math.floor((before-1)/3)) {
+        soundStation({tune:data.works.dawnTunes[bar]},-1);
+        say("Ina", data.works.dawnVerses[bar]+" Play it back on the three seals.",12);
+      } else say("Music box",n<=before?"The cylinder slips to the start of this verse. Wind the crank to hear it again.":"The next tooth clicks into place.");
+    }
+    save();
+    return;
+  }
   if (prev.ending && id === "A_Gate") {
     if (performance.now() > restartEnd) {
       restartEnd = performance.now() + 4000;
@@ -875,7 +899,8 @@ async function interact(id, palm = -1) {
     ? " " + data.works.swallowEntries[filing-1] : "";
   const portrait = id === "A_Talk" && state().ending && works.signals.pilotNo===3
     ? " "+data.works.pilotEndings[state().ending-1] : "";
-  say(name, move[1] + portrait + programme + pilotLine + supperLine + parishLine + swallowLine + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
+  const dawnSong = id==="A_Talk" && state().ending && works.signals.dawnStep===10 ? " "+data.works.dawnEnding[state().ending-1] : "";
+  say(name, move[1] + dawnSong + portrait + programme + pilotLine + supperLine + parishLine + swallowLine + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
 }
 function bearingClear() {
   const origin = vr.session ? vr.head : camera.position;
@@ -1136,6 +1161,11 @@ function toggleBook(open) {
       addBookPrint("Tavi", data.works.pilotMail, "Ina’s charcoal portrait of Tavi, with a note from the night of the flood.");
     if (works.signals.glassProof===3)
       addBookPrint("ContactSheet", data.works.pressEntry, "Three prints from the flood, mounted in Ossa’s contact book.");
+    if (works.signals.dawnStep===10) {
+      const song=document.createElement("li");
+      song.textContent=data.works.dawnEntry;
+      $("leaves").append(song);
+    }
     if (works.signals.parishSigned) {
       const page = document.createElement("li");
       page.textContent = data.works.parishLedger;
@@ -1369,6 +1399,22 @@ function loop(time, frame) {
       ring = null;
     }
   }
+  if (nodes.KeeperMask) {
+    const s=state(), calling=s.challenged && !s.solved;
+    const call=calling ? s.called : -1;
+    const urgency=calling ? 1-Math.min(1, timer/24) : 0;
+    const mix=Math.min(1,delta*5), mask=nodes.KeeperMask;
+    const side=call===0 ? -1 : call===2 ? 1 : 0;
+    mask.rotation.y=T.MathUtils.lerp(mask.rotation.y,side*1.02,mix);
+    mask.rotation.x=T.MathUtils.lerp(mask.rotation.x,s.solved ? .22 : call===1 ? -.18 : 0,mix);
+    for (let i=0;i<2;i++) {
+      const wing=i===0 ? nodes.KeeperLeft : nodes.KeeperRight, sign=i===0 ? -1 : 1;
+      const angle=calling && (side===sign || !side) ? (side===0 ? .52 : 1.07)+urgency*.16 : s.solved ? -.17 : .055;
+      wing.rotation.z=T.MathUtils.lerp(wing.rotation.z,sign*angle,mix);
+    }
+    nodes.KeeperLamp.visible=calling || s.solved;
+    for(let i=0;i<3;i++) nodes[keeperCues[i]].visible=keeperFlash>time && keeperPitch===i;
+  }
   if (nodes.SpeakerHead) {
     const head = nodes.SpeakerHead,
       viewer = vr.session ? vr.head : camera.position;
@@ -1455,6 +1501,9 @@ if (__TEST__)
       light: fixtures.filter(f=>f.v.node.startsWith("LightPath") && f.obj.visible).map(f=>f.v.node).sort(),
       prints: fixtures.filter(f=>f.v.node.startsWith("Print") && f.obj.visible).map(f=>f.v.node).sort()
     } : null,
+    keeper: nodes.KeeperMask ? {yaw:nodes.KeeperMask.rotation.y, nod:nodes.KeeperMask.rotation.x,
+      left:nodes.KeeperLeft.rotation.z, right:nodes.KeeperRight.rotation.z, lamp:nodes.KeeperLamp.visible,
+      verse:works.signals.dawnStep,lit:[0,1,2].filter(i=>nodes["KeeperCue"+i].visible)} : null,
     pilotCall: replyName,
     pilots: nodes.Roost0 ? fixtures.filter(f=>f.flight).map(f=>({visible:f.obj.visible, position:f.obj.position.toArray(),target:nodes["Roost"+works.signals.birdAt].position.toArray(),wing:f.flight.wings[0].rotation.z})) : null,
     vrMap: !!vr.mapMode,

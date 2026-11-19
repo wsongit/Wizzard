@@ -147,7 +147,7 @@ namespace Wizzard
             challenged = true;
             return "THE QUIET  /  If I stop ringing, who will wake them? Answer the three seals before each " +
                    "toll. " +
-                   "Give me a voice I can send home.";
+                   "Follow my raised wing. Both wings call the seal behind me. Give me a voice I can send home.";
         }
         public string Epilogue()
         {
@@ -210,7 +210,7 @@ namespace Wizzard
             strikes++;
             wounds = 0;
             return strikes == 3
-                       ? "INA  /  I can hear you. I thought the whole world had gone quiet."
+                       ? "INA  /  I can hear you. I thought the whole world had gone quiet. Wind my little music box if you want to hear our kitchen song."
                        : "The bronze cracks. Answer the " + KeyName(CalledKey).ToUpperInvariant() + " seal.";
         }
         string On(int bit)

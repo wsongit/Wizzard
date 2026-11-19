@@ -86,6 +86,12 @@ namespace Wizzard
                     if(k.spaceKey.wasPressedThisFrame && motor.isGrounded) velocity.y=5;
                 }
                 var flags=motor.Move((velocity+desktop)*dt);
+                if ((flags & CollisionFlags.Below) != 0 && velocity.y < 0)
+                {
+                    float traction = Mathf.Exp(-6 * dt);
+                    velocity.x *= traction;
+                    velocity.z *= traction;
+                }
                 if((flags&CollisionFlags.Above)!=0) velocity.y=Mathf.Min(0,velocity.y);
                 if((flags&CollisionFlags.Sides)!=0) { velocity.x=0; velocity.z=0; }
             }

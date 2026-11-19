@@ -1,0 +1,443 @@
+{
+  "geometry": [
+    {
+      "asset": "StillBelfry",
+      "groundProbes": 5929,
+      "boundaryRays": 3140,
+      "interiorCrossings": 0,
+      "walkableCells": 5484,
+      "stations": 9,
+      "minApproaches": 78,
+      "triangles": 11452,
+      "visibleMaterialSlots": 50
+    }
+  ],
+  "collision": [
+    {
+      "room": "StillBelfry",
+      "queries": 3072,
+      "visibilityQueries": 2766,
+      "hits": {
+        "capsule": 34,
+        "sphere": 34,
+        "ray": 154
+      },
+      "packedBytes": 332284,
+      "referenceHeap": 4260328,
+      "packedHeap": -37408,
+      "referenceLoadMs": 41.774519,
+      "packedLoadMs": 0.9487940000000208
+    }
+  ],
+  "song": {
+    "calls": [
+      "Leaf",
+      "Tide",
+      "Ember"
+    ],
+    "playedBars": [
+      "020",
+      "112",
+      "201"
+    ],
+    "wrongNotePreservedFirstBar": true,
+    "checkpointRestored": true,
+    "endingReplies": 2,
+    "journalAtBothEndings": true
+  },
+  "headsetEmulator": {
+    "requiredPalmSeals": [
+      "Leaf",
+      "Tide",
+      "Ember"
+    ],
+    "optionalPalmResponse": [
+      "Leaf",
+      "Tide",
+      "Leaf"
+    ],
+    "crankTrigger": true,
+    "floorTraction": [
+      {
+        "side": "right",
+        "drop": false,
+        "plantedBefore": true,
+        "stillPlanted": false,
+        "push": -0.3759999945759773,
+        "releaseSpeed": -0.7001603103978705,
+        "glide": -0.1585381053840642,
+        "settledSpeed": 0.019832248475588184,
+        "reconnected": true,
+        "phantomContact": false
+      },
+      {
+        "side": "left",
+        "drop": false,
+        "plantedBefore": true,
+        "stillPlanted": false,
+        "push": -0.37599998340010643,
+        "releaseSpeed": -0.700160289626555,
+        "glide": -0.1453054356000365,
+        "settledSpeed": 0.019361940204683546,
+        "reconnected": true,
+        "phantomContact": false
+      },
+      {
+        "side": "right",
+        "drop": true,
+        "plantedBefore": true,
+        "stillPlanted": false,
+        "push": -0.3759999945759773,
+        "releaseSpeed": 0,
+        "glide": 0,
+        "settledSpeed": 0,
+        "reconnected": true,
+        "phantomContact": false
+      }
+    ]
+  },
+  "campaignCheckpointEndings": {
+    "viewport": [
+      384,
+      216
+    ],
+    "renderer": "Chromium SwiftShader",
+    "framesPerRoom": 70,
+    "samples": [],
+    "endings": [
+      1,
+      2
+    ],
+    "witnessLeaves": 5,
+    "errors": []
+  },
+  "transfers": {
+    "renderer": "Chromium SwiftShader",
+    "laps": 3,
+    "samples": [
+      {
+        "room": 26,
+        "district": "KettleYard",
+        "loadMs": 2225,
+        "maxTravelFrameMs": 733,
+        "walkP95Ms": 533,
+        "gpu": {
+          "geometries": 31,
+          "textures": 23,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "KettleLight",
+        "musicGeneration": 2,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 4,
+        "district": "StillBelfry",
+        "loadMs": 873,
+        "maxTravelFrameMs": 367,
+        "walkP95Ms": 367,
+        "gpu": {
+          "geometries": 34,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "StillBelfry",
+        "musicGeneration": 3,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 0,
+        "district": "Bellmarket",
+        "loadMs": 699,
+        "maxTravelFrameMs": 283,
+        "walkP95Ms": 417,
+        "gpu": {
+          "geometries": 27,
+          "textures": 32,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bellmarket",
+        "musicGeneration": 4,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 4,
+        "district": "StillBelfry",
+        "loadMs": 655,
+        "maxTravelFrameMs": 300,
+        "walkP95Ms": 300,
+        "gpu": {
+          "geometries": 34,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "StillBelfry",
+        "musicGeneration": 5,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 0,
+        "district": "Bellmarket",
+        "loadMs": 526,
+        "maxTravelFrameMs": 233,
+        "walkP95Ms": 667,
+        "gpu": {
+          "geometries": 27,
+          "textures": 32,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bellmarket",
+        "musicGeneration": 6,
+        "effects": 0,
+        "floor": 0.26,
+        "retiredAlive": 0
+      },
+      {
+        "room": 26,
+        "district": "KettleYard",
+        "loadMs": 561,
+        "maxTravelFrameMs": 183,
+        "walkP95Ms": 333,
+        "gpu": {
+          "geometries": 31,
+          "textures": 23,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "KettleLight",
+        "musicGeneration": 7,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 4,
+        "district": "StillBelfry",
+        "loadMs": 644,
+        "maxTravelFrameMs": 250,
+        "walkP95Ms": 500,
+        "gpu": {
+          "geometries": 34,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "StillBelfry",
+        "musicGeneration": 8,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 0,
+        "district": "Bellmarket",
+        "loadMs": 1092,
+        "maxTravelFrameMs": 450,
+        "walkP95Ms": 667,
+        "gpu": {
+          "geometries": 27,
+          "textures": 32,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bellmarket",
+        "musicGeneration": 9,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 4,
+        "district": "StillBelfry",
+        "loadMs": 728,
+        "maxTravelFrameMs": 417,
+        "walkP95Ms": 500,
+        "gpu": {
+          "geometries": 34,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "StillBelfry",
+        "musicGeneration": 10,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 0,
+        "district": "Bellmarket",
+        "loadMs": 888,
+        "maxTravelFrameMs": 267,
+        "walkP95Ms": 483,
+        "gpu": {
+          "geometries": 27,
+          "textures": 32,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bellmarket",
+        "musicGeneration": 11,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 26,
+        "district": "KettleYard",
+        "loadMs": 907,
+        "maxTravelFrameMs": 333,
+        "walkP95Ms": 500,
+        "gpu": {
+          "geometries": 31,
+          "textures": 23,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "KettleLight",
+        "musicGeneration": 12,
+        "effects": 0,
+        "floor": 0.26000000000000006,
+        "retiredAlive": 0
+      },
+      {
+        "room": 4,
+        "district": "StillBelfry",
+        "loadMs": 1122,
+        "maxTravelFrameMs": 433,
+        "walkP95Ms": 300,
+        "gpu": {
+          "geometries": 34,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "StillBelfry",
+        "musicGeneration": 13,
+        "effects": 0,
+        "floor": 0.25999999999999984,
+        "retiredAlive": 0
+      },
+      {
+        "room": 0,
+        "district": "Bellmarket",
+        "loadMs": 496,
+        "maxTravelFrameMs": 150,
+        "walkP95Ms": 167,
+        "gpu": {
+          "geometries": 27,
+          "textures": 32,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bellmarket",
+        "musicGeneration": 14,
+        "effects": 0,
+        "floor": 0.2600000000000001,
+        "retiredAlive": 0
+      },
+      {
+        "room": 4,
+        "district": "StillBelfry",
+        "loadMs": 501,
+        "maxTravelFrameMs": 233,
+        "walkP95Ms": 100,
+        "gpu": {
+          "geometries": 34,
+          "textures": 16,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "StillBelfry",
+        "musicGeneration": 15,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      },
+      {
+        "room": 0,
+        "district": "Bellmarket",
+        "loadMs": 600,
+        "maxTravelFrameMs": 233,
+        "walkP95Ms": 217,
+        "gpu": {
+          "geometries": 27,
+          "textures": 32,
+          "programs": 5
+        },
+        "sets": 1,
+        "trees": 1,
+        "music": 1,
+        "musicTheme": "Bellmarket",
+        "musicGeneration": 16,
+        "effects": 0,
+        "floor": 0.25999999999999995,
+        "retiredAlive": 0
+      }
+    ]
+  },
+  "isolatedSoftwareFrameChecks": {
+    "renderer": "Chromium SwiftShader",
+    "samples": [
+      {
+        "district": "GloamingPress",
+        "samples": 90,
+        "scale": 0.5120000000000001,
+        "medianMs": 16.700000000000728,
+        "p95Ms": 50.100000000000364,
+        "calls": 19,
+        "triangles": 13830
+      },
+      {
+        "district": "StillBelfry",
+        "samples": 90,
+        "scale": 0.5120000000000001,
+        "medianMs": 16.700000000000728,
+        "p95Ms": 50,
+        "calls": 7,
+        "triangles": 6576
+      }
+    ]
+  }
+}

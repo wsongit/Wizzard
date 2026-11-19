@@ -41,6 +41,11 @@ namespace Wizzard.Editor
                 if (room=="Bellmarket" || room=="Reedwater") Require(names.Contains("A_Packet"),room+" packet counter");
                 if (room=="Bellmarket")
                     Require(names.Contains("A_RoadBook") && names.Contains("RoadBook"), "market road letters");
+                if (room=="StillBelfry")
+                {
+                    foreach (var part in new[]{"KeeperMask","KeeperLeft","KeeperRight","KeeperLamp","KeeperCue0","KeeperCue1","KeeperCue2","A_MorningSong"})
+                        Require(names.Contains(part),room+" "+part);
+                }
                 var chamber=Array.Find(works.rooms,r=>r.key==room);
                 if(chamber!=null)
                 {
@@ -95,6 +100,8 @@ namespace Wizzard.Editor
             foreach (var file in new[] { "LeftPalm", "RightPalm", "RunnerArm", "TrailSign", "MeadowOutcrop",
                                          "MossbellApproach" })
                 Require(Resources.Load<GameObject>("Bellwake/Rooms/" + file) != null, file);
+            foreach (string print in new[]{"ContactSheet","Tavi"})
+                Require(Resources.Load<Texture2D>("Bellwake/Letters/"+print)!=null,"Missing book illustration "+print);
             Require(Shader.Find("Wizzard/BellwakePaint") != null && Shader.Find("Wizzard/BellwakeSky") != null,
                     "Bellwake shaders");
             Debug.Log("Bellwake import checks passed for all campaign districts.");

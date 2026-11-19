@@ -22,6 +22,15 @@ export class Underworks {
   get active() {
     return this.progress.active;
   }
+  moveMachine(key, op) {
+    const i=this.plan.machines.findIndex(m=>m.key===key), m=this.plan.machines[i];
+    this.progress.machines[i]=m.rows[this.progress.machines[i]].moves[m.controls.indexOf(op)];
+  }
+  playMorningSong(control) {
+    this.moveMachine("dawnwatch",control);
+    this.refresh();
+    return this.signals.dawnStep;
+  }
   refresh() {
     const p = this.progress;
     this.signals = {};
@@ -137,10 +146,7 @@ export class Underworks {
       else p.furtherBadges[Math.floor(index/30)-1]|=bit;
     }
     if (r.move) {
-      const [key, op] = r.move.split("."),
-        i = this.plan.machines.findIndex((m) => m.key === key),
-        m = this.plan.machines[i];
-      p.machines[i] = m.rows[p.machines[i]].moves[m.controls.indexOf(op)];
+      this.moveMachine(...r.move.split("."));
     }
     this.refresh();
     if (station.camp) p.camp = station.camp;
