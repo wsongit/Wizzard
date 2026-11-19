@@ -664,7 +664,7 @@ door(
     "Lift to the Still Belfry",
     12,
     -10,
-    "@final",
+    "Wrenfall",
     {"answered": 1},
     "Speak to the voice beneath the floor after playing the phrase.",
 )
@@ -751,6 +751,185 @@ post(
         "OSSA  /  Give me the lockkeeper’s knot, the archivist’s pay leaf and the foreman’s spare wage. Once the casting is finished I can press a permanent nameplate."
     ),
 )
+
+# Wrenfall is the open coastal approach from the resonator to the final bell.
+flags.extend(["charter", "sounding", "leading", "distress", "landed"])
+machine(
+    "lampcode",
+    ["signalBar"],
+    ["bell", "wing", "star"],
+    0,
+    lambda state, op: (
+        3
+        if state == 3
+        else state + 1
+        if op == ("wing", "bell", "star")[state]
+        else int(op == "wing")
+    ),
+    lambda state: (state,),
+)
+r = room(
+    "Wrenfall",
+    "Wrenfall Head",
+    "Find Mirren at the chart shelter. A pilot cutter is waiting outside the reef.",
+    "Wrenfall",
+)
+r.update(halfSpan=60, chapter="The Pilots’ Coast")
+post(
+    r,
+    "Pilot",
+    "Mirren, shore pilot",
+    -4,
+    -9,
+    "person",
+    step(
+        "MIRREN  /  Tell the bell keeper who brought us in. All seven hands signed this page. Everyone who did the work gets a line.",
+        {"landed": 1},
+    ),
+    step(
+        "MIRREN  /  Draw a triangle on my chart. West is the tide chapel. East is the split stone. The watcher on the north bluff can read the cutter’s last lamp.",
+        {"charter": 1},
+    ),
+    step(
+        "MIRREN  /  The Linnet is carrying the last flood book. Her skipper can see our headland, but the guide lamps went out. Take my chart. I will meet her at the landing.",
+        award="charter",
+    ),
+)
+info(
+    r,
+    "Map",
+    "Pilots’ field chart",
+    0,
+    -8,
+    "Three soundings make a safe entry. Read the brass rubbing in the western chapel, sight the two posts at Split Stone to the east, and climb the northern lookout. Then signal from the eastern mast.",
+)
+post(
+    r,
+    "Depth",
+    "Tide chapel rubbing",
+    -40,
+    -24,
+    "rubbing",
+    step(
+        "A gull’s wing marks the full-flood line, above the drowned bell. Mirren’s cutter draws three fathoms. Open her passage with the WING flag.",
+        {"charter": 1},
+        "sounding",
+    ),
+    step(
+        "A tide scale beside a worn footprint. The shore pilot can tell you whose draft to look for."
+    ),
+)
+post(
+    r,
+    "Transit",
+    "Split Stone transit",
+    40,
+    -4,
+    "sight",
+    step(
+        "Look along the brass rail. The two ringed posts meet around the bell on the offshore rock. BELL is the second flag while the cutter crosses the bar.",
+        {"charter": 1},
+        "leading",
+    ),
+    step(
+        "Two rings frame a distant mark. Find Mirren in the chart shelter to learn the pilot code."
+    ),
+)
+post(
+    r,
+    "Lookout",
+    "North bluff glass",
+    -28,
+    35,
+    "scope",
+    step(
+        "Through the blue glass, the Linnet flashes the keeper’s star. STAR answers her and brings her into shelter. Raise the flags at the eastern mast.",
+        {"charter": 1},
+        "distress",
+    ),
+    step(
+        "Someone left the scope trained on a cutter. The shore pilot knows her call sign."
+    ),
+)
+for id, label, x, op in [
+    ("Wing", "Swallowtail halyard", 23, "wing"),
+    ("Bell", "Bell halyard", 27, "bell"),
+    ("Star", "Star halyard", 31, "star"),
+]:
+    post(
+        r,
+        id,
+        label,
+        x,
+        29,
+        "halyard",
+        step(
+            "The Linnet has crossed the reef. Go to the stone landing.", {"landed": 1}
+        ),
+        step(
+            "A shutter flashes from the cutter. She has acknowledged {signalBar} of three signals.",
+            {"sounding": 1, "leading": 1, "distress": 1},
+            move="lampcode." + op,
+        ),
+        step(
+            "The shore pilot requires all three observations before you give a vessel the way. Check the chart."
+        ),
+    )
+post(
+    r,
+    "Launch",
+    "Harbour capstan",
+    35,
+    27,
+    "winch",
+    step(
+        "The rescue line is fast. The pilot is waiting at the northern landing.",
+        {"landed": 1},
+    ),
+    step(
+        "The line pulls taut. The Linnet clears the last rock and ties up below the lantern. Seven people step ashore.",
+        {"signalBar": 3},
+        "landed",
+    ),
+    step(
+        "The reef line cannot be hauled until the cutter acknowledges all three flags."
+    ),
+)
+post(
+    r,
+    "Book",
+    "Flood book landing",
+    8,
+    43,
+    "landing",
+    step(
+        "SKIPPER ELIN  /  Seven of us. Seven signatures. Take our book to the bell and tell them a promise needs a crew.",
+        {"landed": 1},
+        to="@final",
+    ),
+    step("The berth is empty. Signal the cutter from the eastern mast."),
+)
+door(r, "Back", "Down to the resonator", -9, -13, "EchoRotunda")
+for j in range(3):
+    v(r, "Reading" + str(j), ["sounding", "leading", "distress"][j], "show")
+for count in range(1, 4):
+    v(r, "Hoist" + str(count), "signalBar", "show", match=count)
+v(r, "Linnet", "landed", "voyage", amount=9)
+v(r, "CrewAshore", "landed", "show")
+
+for station in r["stations"]:
+    if station["id"] == "A_Transit":
+        station.update(
+            sight="BellBearing",
+            evidence="leading",
+            direction="Look north along the brass rail. Center the gold bell beyond the two rings, then press E or trigger.",
+        )
+    if station["id"] == "A_Lookout":
+        station.update(
+            sight="StarBearing",
+            evidence="distress",
+            direction="Face the cutter beyond the northern bluff. Center the star above her sail, then press E or trigger.",
+        )
 for descriptor in rooms:
     for station in descriptor["stations"]:
         station["note"] = {

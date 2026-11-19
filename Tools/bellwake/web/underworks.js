@@ -45,8 +45,23 @@ export class Underworks {
     );
   }
   objective() {
-    if (this.progress.chamber !== 0 || !this.signals.admitted) return this.room.intro;
     const s = this.signals;
+    if (this.room.key === "Wrenfall") {
+      if (s.landed) return "The Linnet is at the north landing. Collect Elin’s flood book.";
+      if (!s.charter) return this.room.intro;
+      return (
+        "Field chart   /   Chapel: " +
+        (s.sounding ? "wing" : "unread") +
+        "   ·   Split Stone: " +
+        (s.leading ? "bell" : "unsighted") +
+        "   ·   Lookout: " +
+        (s.distress ? "star" : "unread") +
+        ". Eastern mast: " +
+        s.signalBar +
+        " of 3 signals acknowledged."
+      );
+    }
+    if (this.progress.chamber !== 0 || !this.signals.admitted) return this.room.intro;
     if (s.reed && s.yoke && s.glass)
       return "All three witnesses are present. Take the northeastern resonator lift.";
     return (

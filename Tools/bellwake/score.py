@@ -89,6 +89,7 @@ sets = [
     ("RimePost", .72,[65,60,62,58],[12,None,None,7,8,None,5,3,None,5,None,0],"bronze"),
     ("Glasscut", .48,[54,57,52,59],[0,7,None,12,3,10,None,5,7,2,None,3],"reed"),
 ]
+sets.append(("Wrenfall", .48, [62, 69, 67, 64], [12, 10, 7, None, 5, 9, 7, None, 4, 2, None, 0], "reed"))
 for idx, (name, beat, roots, line, instr) in enumerate(sets):
     if sys.argv[1:] and name not in sys.argv[1:]: continue
     # Preserve the original atmosphere seeds for existing witness-road districts.

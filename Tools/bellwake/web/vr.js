@@ -124,7 +124,7 @@ export class TrackedRunner {
     if (!this.ready || !frame) return;
     const ref = this.renderer.xr.getReferenceSpace(),
       viewer = frame.getViewerPose(ref),
-      { tree, spawn } = this.world();
+      { tree, spawn, radius } = this.world();
     if (!viewer || !tree) return;
     const pos = viewer.transform.position,
       q = viewer.transform.orientation;
@@ -259,7 +259,10 @@ export class TrackedRunner {
       arm.scale.set(1, this.work.length(), 1);
       arm.quaternion.setFromUnitVectors(up, this.work.normalize());
     }
-    if (this.body.start.y < -0.5 || Math.max(Math.abs(this.body.start.x), Math.abs(this.body.start.z)) > 20.7)
+    if (
+      this.body.start.y < -0.5 ||
+      Math.max(Math.abs(this.body.start.x), Math.abs(this.body.start.z)) > radius + 0.7
+    )
       this.reset();
     this.headBall.center.copy(this.head);
     let blocked = !!tree.sphereIntersect(this.headBall);

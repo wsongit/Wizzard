@@ -3,10 +3,10 @@ Serve a --test build on loopback. The read-only probe exposes positions and coun
 Usage: python playtest.py URL AUDIT_DIRECTORY RESULT_DIRECTORY
 """
 
-import asyncio, json, math, sys, os, heapq
+import asyncio, json, math, sys, os, heapq, time
 from pathlib import Path
 from playwright.async_api import async_playwright
-from works_route import complete_works
+from works_route import complete_works, complete_coast
 
 url, navdir, outdir = sys.argv[1:4]
 out = Path(outdir)
@@ -117,15 +117,22 @@ async def run():
             await page.mouse.move(380, 200)
             await page.mouse.down()
 
+        coast_only = "--coast" in sys.argv
         works_only = "--works" in sys.argv
         target_post = "--last-post" in sys.argv
         glasscut_only = "--glasscut" in sys.argv
         nameplate = "--night-roll" in sys.argv
         endings_only = "--endings" in sys.argv or nameplate
-        if target_post or glasscut_only or endings_only or works_only:
+        if target_post or glasscut_only or endings_only or works_only or coast_only:
             saved = {"number": 13, "leaves": 7}
             if works_only:
                 saved = {"number": 21, "leaves": 15}
+            if coast_only:
+                saved = {
+                    "number": 21,
+                    "leaves": 15,
+                    "works": {"active": True, "chamber": 8},
+                }
             if endings_only:
                 saved = {"number": 31, "leaves": 31}
             if nameplate:
@@ -150,6 +157,8 @@ async def run():
                 + ");sessionStorage.fixture='1'}"
             )
         await start()
+        timed = "--timed" in sys.argv
+        run_start = time.monotonic()
 
         async def act(id):
             p = await page.evaluate("bellProbe()")
@@ -197,6 +206,8 @@ async def run():
             return after
 
         async def profile():
+            if timed:
+                return
             await page.evaluate(
                 "async()=>{for(let i=0;i<95;i++)await new Promise(requestAnimationFrame)}"
             )
@@ -270,6 +281,11 @@ async def run():
             )
             await b.close()
             return
+        if coast_only:
+            await complete_coast(act, page, start, out)
+            assert not errors, errors
+            await b.close()
+            return
         if works_only:
             await act("A_Gate")
             await complete_works(act, page, start, out)
@@ -326,6 +342,25 @@ async def run():
         )
         final = await act("A_End0")
         assert final["ending"] == 1 and final["leaves"] == 31
+        if timed:
+            durations = final["secondsByPlace"]
+            assert len(durations) == 17, durations
+            (out / "known-route.json").write_text(
+                json.dumps(
+                    {
+                        "method": "Fresh save, normal movement, keyboard interaction and chart hints. Includes all 27 dispatches, five leaves, the optional night roll, checkpoint reloads and a keeper retry.",
+                        "firstEnding": final["ending"],
+                        "elapsedSeconds": round(time.monotonic() - run_start, 2),
+                        "activeSeconds": round(sum(durations.values()), 2),
+                        "activeSecondsByPlace": {
+                            place: round(seconds, 2)
+                            for place, seconds in durations.items()
+                        },
+                    },
+                    indent=2,
+                )
+                + "\n"
+            )
         if nameplate:
             assert final["dedication"]
             await act("A_Nameplate")

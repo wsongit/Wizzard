@@ -44,6 +44,8 @@ async def complete_works(act, page, start, out):
     district(await use("Heart"), "EchoRotunda")
     await use("Score River Forge Sky River Forge Sky River Sky Listen")
     state = await use("Final")
+    district(state, "Wrenfall")
+    state = await complete_coast(act, page, start, out)
     district(state, "StillBelfry")
     assert state["works"] is None
     (out / "underworks.json").write_text(
@@ -58,3 +60,60 @@ async def complete_works(act, page, start, out):
             indent=2,
         )
     )
+
+
+async def complete_coast(act, page, start, out):
+    async def use(keys):
+        for name in keys.split():
+            state = await act("A_" + name)
+        return state
+
+    await use("Depth Pilot Map Depth")
+    for name in ["Transit", "Lookout"]:
+        state = await use(name)
+        assert state["sight"] and not state["sight"]["linedUp"], (name, state["sight"])
+        await page.keyboard.press("e")
+        assert (await page.evaluate("bellProbe()"))["sight"], (
+            "off-target sighting was accepted"
+        )
+        await page.evaluate("""() => {
+          const s=bellProbe(),[x,y,z]=s.sight.target;
+          const dx=x-s.feet[0],dz=z-s.feet[2],yaw=Math.atan2(-dx,-dz);
+          const diff=Math.atan2(Math.sin(yaw-s.yaw),Math.cos(yaw-s.yaw));
+          const pitch=Math.atan2(y-(s.feet[1]+1.36),Math.hypot(dx,dz));
+          dispatchEvent(new PointerEvent('pointermove',{movementX:Math.round(-diff/.0035),movementY:Math.round((s.pitch-pitch)/.0035)}));
+        }""")
+        await page.wait_for_function("bellProbe().sight?.linedUp", timeout=4500)
+        await page.keyboard.press("e")
+        await page.wait_for_function("!bellProbe().sight")
+    await use("Bell")
+    state = await use("Wing")
+    assert state["works"]["signals"]["signalBar"] == 1
+    await page.mouse.up()
+    await start()
+    assert (await page.evaluate("bellProbe()"))["works"] == state["works"]
+    before = await use("Bell Star")
+    state = await use("Launch")
+    await page.wait_for_function("bellProbe().crew", timeout=25000)
+    arrived = await page.evaluate("bellProbe()")
+    distance = (
+        sum((a - b) ** 2 for a, b in zip(before["vessel"], arrived["vessel"])) ** 0.5
+    )
+    assert distance > 25, (before["vessel"], arrived["vessel"])
+    assert state["works"]["signals"]["landed"] == 1
+    coast = state["works"]
+    state = await use("Book")
+    assert state["district"] == "StillBelfry"
+    (out / "coast.json").write_text(
+        json.dumps(
+            dict(
+                final=state["district"],
+                route=coast,
+                voyageDisplacementMetres=round(distance, 2),
+                opticalBearings=2,
+                activeSeconds=state["secondsByPlace"]["Wrenfall"],
+            ),
+            indent=2,
+        )
+    )
+    return state

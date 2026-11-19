@@ -25,14 +25,15 @@ namespace Wizzard
     [Serializable]
     public sealed class WorksRoom
     {
-        public string key, title, intro, theme;
+        public string key, title, intro, theme, chapter;
+        public float halfSpan;
         public WorksStation[] stations;
         public WorksVisual[] visuals;
     }
     [Serializable]
     public sealed class WorksStation
     {
-        public string id, label;
+        public string id, label, sight, evidence, direction;
         public int note;
         public WorksRule[] rules;
     }
@@ -114,6 +115,15 @@ namespace Wizzard
         }
         public string Objective()
         {
+            if (Room.key == "Wrenfall")
+            {
+                if (Signal("landed") != 0) return "The Linnet is at the north landing. Collect Elin’s flood book.";
+                if (Signal("charter") == 0) return Room.intro;
+                return "Field chart   /   Chapel: " + (Signal("sounding") != 0 ? "wing" : "unread") +
+                    "   ·   Split Stone: " + (Signal("leading") != 0 ? "bell" : "unsighted") +
+                    "   ·   Lookout: " + (Signal("distress") != 0 ? "star" : "unread") +
+                    ". Eastern mast: " + Signal("signalBar") + " of 3 signals acknowledged.";
+            }
             if (chamber != 0)
                 return Room.intro;
             if (Signal("admitted") == 0)

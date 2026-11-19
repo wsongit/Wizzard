@@ -22,6 +22,9 @@ for room in args[1:] or ROOMS + passage_keys + work_keys + ["Runner", "Trails"]:
         make_avatar(Path(args[0]))
     elif room == "Trails":
         roadside(Path(args[0]))
+    elif room == "Wrenfall":
+        from wrenfall import make as make_headland
+        make_headland(Path(args[0]))
     elif room in work_keys:
         make_works(work_keys.index(room),Path(args[0]))
     elif room in passage_keys:

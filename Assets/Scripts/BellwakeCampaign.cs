@@ -22,12 +22,15 @@ namespace Wizzard
         BellwakeJourney story;
         PassageAtlas atlas;
         WorksPlan worksPlan;
+        WorksStation observation;
+        float voyageFraction;
         bool InWorks => story.works!=null && story.works.active;
         WorksVisual[] fixtures=Array.Empty<WorksVisual>();
         Vector3[] fixtureLocations;
         Quaternion[] fixtureAngles;
         BellwakePassage Route => story.passage;
         bool InPassage => Route != null && Route.active;
+        float RoomRadius => InWorks && story.works.Room.halfSpan > 0 ? story.works.Room.halfSpan : 20f;
         string RoomTitle => InWorks ? story.works.Room.title : InPassage ? Route.region.title : BellwakeJourney.Titles[story.room];
         string Objective => InWorks ? story.works.Objective() : InPassage ? Route.Objective() : story.Objective();
         BellwakeDisplay display;
@@ -161,6 +164,7 @@ namespace Wizzard
         IEnumerator ReleaseArea(string nextMusic=null)
         {
             fixtures=Array.Empty<WorksVisual>();
+            observation=null;
             movingTrail = null;
             focus = lastHint = null;
             struck = null;
@@ -323,13 +327,14 @@ namespace Wizzard
             ColorUtility.TryParseHtmlString("#" + Horizon[r], out Color horizon);
             if (story.ending != 0)
                 horizon = new Color(.94f, .79f, .61f);
+            if (InWorks && story.works.Room.key == "Wrenfall") ColorUtility.TryParseHtmlString("#b7d2c2", out horizon);
             sky.SetTexture("_Panorama", panorama);
             RenderSettings.skybox = sky;
             cam.clearFlags = CameraClearFlags.Skybox;
             RenderSettings.fog = true;
             RenderSettings.fogColor = horizon;
-            RenderSettings.fogStartDistance = 18;
-            RenderSettings.fogEndDistance = 68;
+            RenderSettings.fogStartDistance = RoomRadius * .9f;
+            RenderSettings.fogEndDistance = RoomRadius * 3.4f;
         }
         string Label(string id)
         {
@@ -384,7 +389,16 @@ namespace Wizzard
             for(int i=0;i<fixtures.Length;i++)
             {
                 var v=fixtures[i];var t=nodes[v.node];int n=story.works.Signal(v.signal);
-                if(v.kind=="show") { Active(t,n==v.match); continue; }
+                if(v.kind=="show") { Active(t,n==v.match && (v.node!="CrewAshore" || voyageFraction>=1)); continue; }
+                if (v.kind == "voyage")
+                {
+                    voyageFraction = snap ? n : Mathf.MoveTowards(voyageFraction,n,Time.deltaTime/v.amount);
+                    Vector3 turn = nodes[v.node+"Turn"].position;
+                    Vector3 from = Vector3.Lerp(fixtureLocations[i],turn,voyageFraction);
+                    Vector3 to = Vector3.Lerp(turn,nodes[v.node+"Berth"].position,voyageFraction);
+                    t.position = Vector3.Lerp(from,to,voyageFraction);
+                    continue;
+                }
                 if(v.kind=="lift") t.position=Vector3.Lerp(t.position,fixtureLocations[i]+Vector3.up*(v.amount*n),mix);
                 else
                 {
@@ -482,6 +496,7 @@ namespace Wizzard
             if (book)
             {
                 journalOpen = !journalOpen;
+                observation = null;
                 lastHint = null;
                 messageUntil = 0;
                 if (journalOpen)
@@ -547,7 +562,7 @@ namespace Wizzard
                 cameraCheck = now + .2f;
                 // The playable terrain is square, with the spawn 14 metres behind its centre.
                 Vector3 centre = spawn + facing * Vector3.forward * 14, p = player.head.position - centre;
-                if (Mathf.Max(Mathf.Abs(p.x), Mathf.Abs(p.z)) > 20.6f || p.y < -.5f)
+                if (Mathf.Max(Mathf.Abs(p.x), Mathf.Abs(p.z)) > RoomRadius + .6f || p.y < -.5f)
                     player.Teleport(spawn, facing);
             }
         }
@@ -561,9 +576,29 @@ namespace Wizzard
             else
                 display.Say(BellwakeJourney.Titles[journalPage], BellwakeJourney.Leaf(journalPage));
         }
+        bool BearingClear()
+        {
+            Vector3 eye = player.head.position;
+            Vector3 target = nodes[observation.sight].position - eye;
+            Vector3 line = target.normalized;
+            if (Vector3.Dot(player.head.forward,line) < .9984f) return false;
+            if (!Physics.Raycast(eye+line*3.2f,line,out RaycastHit hit,target.magnitude-4.3f,
+                                 player.surfaces,QueryTriggerInteraction.Ignore)) return true;
+            Vector3 local = set.transform.InverseTransformPoint(hit.point);
+            return hit.collider.name=="C_Solids" && Mathf.Max(Mathf.Abs(local.x),Mathf.Abs(local.z)) >= RoomRadius-.35f;
+        }
         void FindFocus()
         {
             focus = null;
+            if (observation != null)
+            {
+                if (Vector3.Distance(nodes[observation.id].position,player.head.position) <= 4.3f)
+                {
+                    focus = observation.id;
+                    return;
+                }
+                observation = null;
+            }
             float nearest = float.MaxValue;
             foreach (var pair in points)
             {
@@ -659,6 +694,27 @@ namespace Wizzard
             {
                 var station=story.works.Station(id);
                 string title=station.label;
+                if (id=="A_Book" && nodes.ContainsKey("Linnet") && story.works.Signal("landed")!=0 && voyageFraction<1)
+                {
+                    Say(title,"Her sail is rounding the last stone. Elin will have the book when she makes fast.");
+                    return;
+                }
+                if (!string.IsNullOrEmpty(station.sight) && story.works.Signal("charter") != 0 &&
+                    story.works.Signal(station.evidence) == 0)
+                {
+                    if (observation != station)
+                    {
+                        observation = station;
+                        Say(title,station.direction,18);
+                        return;
+                    }
+                    if (!BearingClear())
+                    {
+                        Say(title,"The mark is outside the sight. "+station.direction);
+                        return;
+                    }
+                    observation = null;
+                }
                 line=story.works.Use(id,out string destination);
                 if(!string.IsNullOrEmpty(destination))
                 {

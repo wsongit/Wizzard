@@ -19,6 +19,58 @@ harness = subprocess.check_output(
 from playwright.async_api import async_playwright
 
 
+async def coast_crossing(page):
+    # Tracked head and grip poses traverse the open coast. All actions use the controller trigger.
+    await page.evaluate("""() => {
+      window.walkSurvey = async (x,z) => {
+        for(let i=0;i<350;i++) {
+          const [hx,,hz]=bellProbe().vrHead,dx=x-hx,dz=z-hz,length=Math.hypot(dx,dz);
+          if(length<.30) return;
+          const k=Math.min(.29,length)/length,p=testDevice.position;
+          p.set(p.x+dx*k,1.64,p.z+dz*k);
+          testDevice.controllers.right.position.set(p.x+.23,1.30,p.z-.24);
+          testDevice.controllers.left.position.set(p.x-.23,1.30,p.z-.24);
+          await new Promise(r=>setTimeout(r,70));
+        }
+        throw Error("Headland tracked crossing stalled at "+bellProbe().vrHead);
+      };
+      window.sightToward = ([x,y,z]) => {
+        const [hx,hy,hz]=bellProbe().vrHead,dx=x-hx,dy=y-hy,dz=z-hz;
+        const yaw=Math.atan2(-dx,-dz)*.5,pitch=Math.atan2(dy,Math.hypot(dx,dz))*.5;
+        testDevice.quaternion.set(Math.cos(yaw)*Math.sin(pitch), Math.sin(yaw)*Math.cos(pitch),
+          -Math.sin(yaw)*Math.sin(pitch), Math.cos(yaw)*Math.cos(pitch));
+      };
+    }""")
+
+    async def trigger(until):
+        await page.evaluate(
+            "testDevice.controllers.right.updateButtonValue('trigger',1)"
+        )
+        await page.wait_for_function(until, timeout=9000)
+        await page.evaluate(
+            "testDevice.controllers.right.updateButtonValue('trigger',0)"
+        )
+        await page.wait_for_timeout(180)
+
+    await page.evaluate("walkSurvey(-4,11.8)")
+    await page.evaluate("sightToward(bellProbe().markers.A_Pilot)")
+    await page.wait_for_function("bellProbe().focus==='A_Pilot'")
+    await trigger("bellProbe().works.signals.charter===1")
+    for point in [(0, 15), (14, 15), (25, 12), (32, 8), (40, 7)]:
+        await page.evaluate("([x,z])=>walkSurvey(x,z)", point)
+    assert (await page.evaluate("bellProbe().vrHead"))[0] > 38
+    await page.evaluate("sightToward(bellProbe().markers.A_Transit)")
+    await page.wait_for_function("bellProbe().focus==='A_Transit'")
+    await trigger("!!bellProbe().sight")
+    await page.evaluate("sightToward(bellProbe().sight.target)")
+    await page.wait_for_function("bellProbe().sight?.linedUp", timeout=9000)
+    await trigger("bellProbe().works.signals.leading===1")
+    print(
+        "PASS tracked head beyond 38 m, shore pilot and offshore transit acquired by XR trigger",
+        flush=True,
+    )
+
+
 async def run():
     async with async_playwright() as pw:
         b = await pw.chromium.launch(
@@ -87,11 +139,13 @@ async def run():
         await p.wait_for_function("!bellProbe().palms[0]")
         await p.evaluate("testDevice.controllers.left.connected=true")
         await p.wait_for_function("bellProbe().palms[0]")
-        for room in [5, 1, 6, 2, 7, 8, 9, 11, 14, 15, 0]:
+        for room in [5, 1, 6, 2, 7, 8, 9, 11, 14, 15, 16, 0]:
             await p.evaluate("room => bellTravel(room)", room)
             await p.wait_for_function(
                 "bellProbe().vr && bellProbe().sets === 1 && bellProbe().palms.every(Boolean)"
             )
+            if room == 16:
+                await coast_crossing(p)
             if room == 8:
                 # Approach the night roll using tracked head motion in the hall, then use the real XR trigger.
                 await p.wait_for_timeout(200)

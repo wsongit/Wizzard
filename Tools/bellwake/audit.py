@@ -78,11 +78,16 @@ def main(key):
     if key in works:
         assert set(markers)=={s["id"] for s in works[key]["stations"]},key
         assert all(v["node"] in objects for v in works[key]["visuals"]),key
+        assert all(s["sight"] in objects for s in works[key]["stations"] if s.get("sight")),key
+        for visual in works[key]["visuals"]:
+            if visual["kind"]=="voyage":
+                assert all(visual["node"]+suffix in objects for suffix in ["Turn","Berth"]),key
     elif key != "Bellmarket":
         assert {"A_Key0", "A_Key1", "A_Key2"}.issubset(markers)
-    rows = 77
+    span = works.get(key, {}).get("halfSpan", 20)
     step = 0.5
-    off = -19
+    off = 1 - span
+    rows = int(-2 * off / step) + 1
     blocked = set()
     surfaces = {}
     for j in range(rows):
@@ -118,14 +123,14 @@ def main(key):
     rays = 0
     for axis in [0, 1]:
         for sign in [-1, 1]:
-            for i in range(157):
+            for i in range(8 * span - 3):
                 for h in [0.15, 0.6, 1.6, 3, 8]:
-                    along = -19.5 + i * 0.25
+                    along = .5 - span + i * .25
                     ray = Vector((sign, 0, 0)) if axis == 0 else Vector((0, sign, 0))
                     origin = (
-                        Vector((sign * 19.65, along, h))
+                        Vector((sign * (span - .35), along, h))
                         if axis == 0
-                        else Vector((along, sign * 19.65, h))
+                        else Vector((along, sign * (span - .35), h))
                     )
                     hit, normal, _, _ = perimeter.ray_cast(origin, ray, 1.3)
                     assert hit is not None and normal.dot(ray) < -0.9, (key, origin, "boundary opening")

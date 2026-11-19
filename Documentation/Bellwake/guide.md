@@ -12,6 +12,7 @@ Tavi made a warning bell during the flood. Her sister Ina gave it a voice for a 
 | Glasscut Gallery | Read Jass’s casting records. Move the bronze miner behind the gem cart and push it onto the white socket. |
 | The Cinder Lens | Trace the amber ray from the kiln. Turn the three mirrors and catch the light in the casting cup. |
 | The Lower Works | Sign the night roll below Cinder Lens. Explore the three guild wings in any order, listen to the craftspeople and take their work to the great resonator. |
+| Wrenfall Head | The resonator lift emerges on the Pilots’ Coast. Help Mirren bring the flood book through the reef. |
 | The Still Belfry | Speak to the keeper to start the encounter. Reach and activate the called seal before the toll. After three misses, the keeper lets you try again. |
 | The morning market | Choose who carries the watch. Both choices change the market and open a final conversation. |
 
@@ -27,6 +28,14 @@ At the intake, the narrow and wide tanks measure three and five. Use the gauges 
 
 **The Fourth Hand** is optional. Ask Nema in the court whose name was left off the night roll. Fen knows the rope knot, Orrel kept the pay leaf and Brannic kept a spare wage. Ossa can cast the three proofs into a nameplate. Bring it to Nema. On your final return to Bellmarket you can read it at the way arch in either ending.
 
+## The Pilots’ Coast
+
+Mirren waits outside the chart shelter. The large survey beside her shows where the paths meet. The western chapel records the water level the cutter needs. At Split Stone, use the sighting rail, face the bell on the distant stack and press E or a trigger to record the bearing. The northern lookout has a glass trained on a second mark. You can walk a few steps around each instrument for a clearer view. The journal records each observation.
+
+At the eastern mast, pull the halyards in the order the pilots recorded. The flags above you show how many signals the cutter has acknowledged. Haul the harbour capstan, watch the Linnet round the reef, then meet her skipper at the landing to continue to the belfry.
+
+[Four views from the headland](wrenfall.jpg)
+
 ## Controls
 
 | Action | Quest controllers | Unity desktop | Browser desktop |
@@ -41,7 +50,7 @@ Crouching makes the ground easier to reach with the palms. The journal pauses th
 
 ## Direct browser play
 
-Double-click `Play/Bellwake.html` in the downloaded project or extract the standalone play ZIP and open its HTML file. Geometry, textures, music and the JavaScript player are embedded. The browser edition contains all sixteen campaign areas. The large meadow and Mossbell Village are accessible through the Unity edition.
+Double-click `Play/Bellwake.html` in the downloaded project or extract the standalone play ZIP and open its HTML file. Geometry, textures, music and the JavaScript player are embedded. The browser edition contains all seventeen campaign areas. The large meadow and Mossbell Village are accessible through the Unity edition.
 
 For Quest Browser, serve the entire `Play` directory over HTTPS and open `index.html` for on-demand chapter downloads and choose **Enter VR**. With a USB-connected developer-mode Quest, a local alternative uses Python and Android platform tools on the PC. From the repository root, run these in separate terminals.
 
@@ -57,7 +66,7 @@ Open `http://localhost:8090/index.html` in Quest Browser while USB forwarding is
 
 ## Editable art and sound
 
-The packed Blender sources in `Blender/Bellwake` contain the sixteen campaign sets, the meadow trail sign, the runner’s arms, the two individually modeled hands, the meadow outcrop and the mountain gate. The campaign reuses characters and props from the supplied Wizzard Themed Library, with articulated head and arm pivots on speakers. The cottages use the existing Mossbell Blender artwork. The court geometry, interactive mechanisms, bell tower, escarpments, banners, floor paintings, skies and score were authored for this campaign.
+The packed Blender sources in `Blender/Bellwake` contain the seventeen campaign sets, the meadow trail sign, the runner’s arms, the two individually modeled hands, the meadow outcrop and the mountain gate. The campaign reuses characters and props from the supplied Wizzard Themed Library, with articulated head and arm pivots on speakers. The cottages use the existing Mossbell Blender artwork. The court geometry, interactive mechanisms, bell tower, escarpments, banners, floor paintings, skies and score were authored for this campaign.
 
 Ground and path share one continuous mesh. Lighting includes baked ground contact shadows. Buildings, clothing, brass and foliage use their own paintings and UV atlases. The Unity player loads one campaign room at a time and adds mesh colliders to the terrain, visible static set, rim and solid cores.
 
@@ -67,7 +76,7 @@ After editing the source, regenerate the FBX and GLB for that room from the proj
 blender -b --python-exit-code 1 --python Tools/bellwake/export.py -- RootChoir
 ```
 
-The procedural authoring scripts are in `Tools/bellwake`. Rebuilding from those scripts uses the original Wizzard Themed Library folder. Editing and exporting the packed Blender scenes works independently of that download. The PNG paintings are under `Assets/Resources/Bellwake/Textures`. The thirteen original music loops and four bell cues are under `Assets/Resources/Bellwake/Audio`.
+The procedural authoring scripts are in `Tools/bellwake`. Rebuilding from those scripts uses the original Wizzard Themed Library folder. Editing and exporting the packed Blender scenes works independently of that download. The PNG paintings are under `Assets/Resources/Bellwake/Textures`. The fourteen original music loops and four bell cues are under `Assets/Resources/Bellwake/Audio`.
 
 ## Rebuild the portable edition
 

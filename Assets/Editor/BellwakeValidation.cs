@@ -39,7 +39,13 @@ namespace Wizzard.Editor
                 if(chamber!=null)
                 {
                     foreach(var station in chamber.stations) Require(names.Contains(station.id),room+" "+station.id);
-                    foreach(var visual in chamber.visuals) Require(names.Contains(visual.node),room+" "+visual.node);
+                    foreach(var station in chamber.stations)
+                        if (!string.IsNullOrEmpty(station.sight)) Require(names.Contains(station.sight),room+" "+station.sight);
+                    foreach(var visual in chamber.visuals)
+                    {
+                        Require(names.Contains(visual.node),room+" "+visual.node);
+                        if (visual.kind=="voyage") Require(names.Contains(visual.node+"Turn") && names.Contains(visual.node+"Berth"),room+" vessel route");
+                    }
                 }
                 else foreach(var id in new[]{"A_Talk","A_Gate","GateLight"}) Require(names.Contains(id),room+" "+id);
                 if(chamber==null && Array.IndexOf(BellwakeJourney.Rooms,room)<0)

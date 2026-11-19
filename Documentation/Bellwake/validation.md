@@ -1,5 +1,15 @@
 # Bellwake release checks
 
+## Wrenfall Head
+
+A player-input run went from Cinder Lens through all three guilds and across the 120-by-120-metre headland to the Still Belfry. It tried each optical instrument off target, sighted each offshore mark, saved and restored the first flag, and followed the Linnet to the berth. The cutter moved 27.66 metres between its measured start and end points. Seven crew models appear on arrival. An emulated Quest 3 crossed the former room boundary, reached the eastern rail beyond 38 metres and recorded the distant bell using head tracking and the controller trigger.
+
+Blender reimported the final FBX. Its 35,533 visible triangles passed 56,169 ground probes, 9,540 boundary rays and the connected approach check at all eleven stations. The final art pass kept the collision file and every reachable grid cell identical to the movement-tested version. Unity 2022.3.20f1 compiled the release and development scripts. The native rule check passed 256 mechanism states, 967 transitions and all six orders of the Lower Works.
+
+The streamed edition loaded the coastal model, collision data, sky and music when restoring Wrenfall. The standalone HTML restored the same journal from its embedded assets. Across three laps of all seventeen areas, each of the 51 arrivals retained one world, one collision hierarchy and one score. Collection cleared every retired world, collision hierarchy and panorama. Revisited areas returned to their original geometry, texture and program counts.
+
+On the cloud SwiftShader renderer the median door-to-ready time was 320 ms, the 95th percentile was 500 ms, and the longest frame during travel took 250 ms. The three coastal arrivals took 278, 320, 502 ms, including three presentation frames. Part of the soak overlapped other browser tests. Physical Quest timing and first-time human campaign duration remain unmeasured. [Per-transfer data, geometry and playthrough](wrenfall.json)
+
 ## Lower Works release
 
 A keyboard-and-mouse run entered all eight chambers, restored a partially filled intake from a checkpoint, recovered three guild artifacts and rode the lift to the Still Belfry. It also completed the fourth hand’s petition. Separate epilogue runs read the earned nameplate in both endings. The native rules check visited 252 machinery positions, checked 955 transitions and completed all six possible guild orders. The Unity 2022.3.20f1 compiler accepted the release and development player and editor assemblies.

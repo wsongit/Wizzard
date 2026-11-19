@@ -182,5 +182,15 @@
     "minApproaches": 60,
     "triangles": 11598,
     "visibleMaterialSlots": 26
+  },
+  {
+    "asset": "Wrenfall",
+    "groundProbes": 56169,
+    "boundaryRays": 9540,
+    "walkableCells": 53288,
+    "stations": 11,
+    "minApproaches": 62,
+    "triangles": 35533,
+    "visibleMaterialSlots": 52
   }
 ]

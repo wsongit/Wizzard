@@ -772,5 +772,6 @@ def make(k, lib):
 if __name__ == "__main__":
     args = sys.argv[sys.argv.index("--") + 1 :]
     for i, r in enumerate(rooms):
-        if len(args) == 1 or r["key"] in args[1:]:
-            make(i, Path(args[0]))
+        if r.get("chapter") or (len(args) > 1 and r["key"] not in args[1:]):
+            continue
+        make(i, Path(args[0]))

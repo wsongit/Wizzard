@@ -35,6 +35,7 @@ try {
 const state = () => graph.states[number];
 let passage = new Passage(data.regions, savedPassage, state().room, state().ending);
 let works = new Underworks(data.works, savedWorks, state().room === 3 && state().solved);
+const roomRadius = () => (works.active && works.room.halfSpan) || 20;
 const locationKey = () =>
   works.active ? works.room.key : passage.active ? passage.region.key : graph.rooms[state().room];
 const locationName = () =>
@@ -179,7 +180,7 @@ const vr = new TrackedRunner(
   camera,
   renderer,
   loadModel,
-  () => ({ tree, spawn: nodes.Spawn?.position }),
+  () => ({ tree, spawn: nodes.Spawn?.position, radius: roomRadius() }),
   () => {
     if (!book) interact(focus);
   },
@@ -289,6 +290,7 @@ async function loadRoom() {
   }
   movingTrail = null;
   fixtures = [];
+  observation = null;
   passage.book = null;
   nodes = {};
   markers = [];
@@ -339,8 +341,19 @@ async function loadRoom() {
 
   nodes.C_Solids.visible = false;
   scene.add(group);
-  const color = s.ending ? "#efd3a7" : passage.active ? ["#d3cd9d", "#c7dada", "#af9eab"][k] : horizons[k];
-  scene.fog = new T.Fog(color, 19, 65);
+  const color =
+    key === "Wrenfall"
+      ? "#b7d2c2"
+      : s.ending
+        ? "#efd3a7"
+        : passage.active
+          ? ["#d3cd9d", "#c7dada", "#af9eab"][k]
+          : horizons[k];
+  const radius = roomRadius();
+  scene.fog = new T.Fog(color, radius * 0.95, radius * 3.25);
+  camera.far = Math.max(115, radius * 4);
+  camera.updateProjectionMatrix();
+  sky.scale.setScalar(camera.far / 115);
   panorama.colorSpace = T.SRGBColorSpace;
   sky.material.map = panorama;
   sky.material.needsUpdate = true;
@@ -375,7 +388,7 @@ async function loadRoom() {
   $("prompt").hidden = true;
   $("speech").hidden = true;
   $("chapter").textContent = works.active
-    ? "The Lower Works"
+    ? works.room.chapter || "The Lower Works"
     : passage.active
       ? "The witness road"
       : s.ending
@@ -399,12 +412,26 @@ function chartPoint(out, tile) {
   out.addScaledVector(step.subVectors(nodes.NE.position, nodes.NW.position), (tile % 7) / 6);
   return out.addScaledVector(step.subVectors(nodes.SW.position, nodes.NW.position), Math.floor(tile / 7) / 6);
 }
-let fixtures = [];
-function animateWorks(mix) {
-  for (const { v, obj, pos, rot } of fixtures) {
+let fixtures = [],
+  observation = null,
+  voyageFraction = 0;
+function animateWorks(mix, dt = 0) {
+  for (const fixture of fixtures) {
+    const { v, obj, pos, rot } = fixture;
     const n = works.signals[v.signal];
     if (v.kind === "show") {
-      obj.visible = n === v.match;
+      obj.visible = n === v.match && (v.node !== "CrewAshore" || voyageFraction >= 1);
+      continue;
+    }
+    if (v.kind === "voyage") {
+      const t = mix === 1 ? n : Math.min(n, (fixture.fraction || 0) + dt / v.amount);
+      fixture.fraction = voyageFraction = t;
+      const a = 1 - t;
+      obj.position
+        .copy(pos)
+        .multiplyScalar(a * a)
+        .addScaledVector(nodes[v.node + "Turn"].position, 2 * a * t)
+        .addScaledVector(nodes[v.node + "Berth"].position, t * t);
       continue;
     }
     if (v.kind === "lift") obj.position.y += (pos.y + n * v.amount - obj.position.y) * mix;
@@ -473,6 +500,23 @@ function welcome() {
 async function interact(id) {
   if (!started || busy || book || !id) return;
   if (works.active) {
+    const station = works.station(id);
+    if (id === "A_Book" && nodes.Linnet && works.signals.landed && voyageFraction < 1) {
+      say(station.label, "Her sail is rounding the last stone. Elin will have the book when she makes fast.");
+      return;
+    }
+    if (station.sight && works.signals.charter && !works.signals[station.evidence]) {
+      if (observation !== station) {
+        observation = station;
+        say(station.label, station.direction, 18);
+        return;
+      }
+      if (!bearingClear()) {
+        say(station.label, "The mark is outside the sight. " + station.direction, 12);
+        return;
+      }
+      observation = null;
+    }
     const name = label(id),
       result = works.use(id);
     if (result.to) {
@@ -580,12 +624,38 @@ async function interact(id) {
       : "";
   say(name, move[1] + dedication, id === "A_Talk" || id === "A_Letter" ? 12 : 6);
 }
+function bearingClear() {
+  const origin = vr.session ? vr.head : camera.position;
+  if (vr.session) forward.copy(vr.direction);
+  else camera.getWorldDirection(forward);
+  look.copy(nodes[observation.sight].position).sub(origin);
+  const distance = look.length();
+  look.normalize();
+  if (forward.dot(look) < 0.9984) return false;
+  // The near section contains the instrument's barrel and sight rings.
+  ray.set(origin, look);
+  ray.ray.origin.addScaledVector(look, 3.2);
+  const obstacle = tree.rayIntersect(ray.ray);
+  if (!obstacle || obstacle.distance >= distance - 4.3) return true;
+  // The tall invisible rim prevents climbing out of the map. Distant marks remain visible across it.
+  const hit = obstacle.position;
+  return Math.max(Math.abs(hit.x), Math.abs(hit.z)) >= roomRadius() - 0.35;
+}
 function pick() {
   focus = "";
   let best = Infinity;
   const origin = vr.session ? vr.head : camera.position;
   if (vr.session) forward.copy(vr.direction);
   else camera.getWorldDirection(forward);
+  if (observation) {
+    if (nodes[observation.id].position.distanceTo(origin) <= 4.3) {
+      focus = observation.id;
+      $("prompt").hidden = false;
+      $("prompt").textContent = bearingClear() ? "E   ·   Record this bearing" : "Sight the offshore mark";
+      return;
+    }
+    observation = null;
+  }
   for (const o of markers) {
     if (!o.visible) continue;
     look.copy(o.position).sub(origin);
@@ -635,13 +705,17 @@ function move(dt) {
       vy = 0;
     }
   }
-  if (capsule.start.y < -1 || Math.max(Math.abs(capsule.start.x), Math.abs(capsule.start.z)) > 20.65)
+  if (
+    capsule.start.y < -1 ||
+    Math.max(Math.abs(capsule.start.x), Math.abs(capsule.start.z)) > roomRadius() + 0.65
+  )
     resetFeet();
   updateCamera();
 }
 function toggleBook(open) {
   if (!started || busy) return;
   book = open;
+  if (book) observation = null;
   keys.clear();
   $("book").hidden = !open;
   $("hud").hidden = open;
@@ -814,7 +888,7 @@ function loop(time, frame) {
     if (fight && nodes.HushWave) nodes.HushWave.scale.setScalar(1 + 12 * (1 - Math.min(1, timer / 24)));
     if (nodes.GreatBell) nodes.GreatBell.rotation.z = Math.sin(time * 0.0018) * (fight ? 0.12 : 0.017);
   }
-  if (works.active) animateWorks(1 - Math.exp(-delta * 8));
+  if (works.active) animateWorks(1 - Math.exp(-delta * 8), delta);
   if (passage.active && movingTrail) {
     const t = Math.max(0, (time - trailTime) / 90),
       leg = Math.floor(t);
@@ -886,6 +960,11 @@ if (__TEST__)
       passage.active && passage.book
         ? { ...passage.progress, hint: passage.piece.hint, win: passage.piece.win }
         : null,
+    sight: observation
+      ? { target: nodes[observation.sight].position.toArray(), linedUp: bearingClear() }
+      : null,
+    vessel: nodes.Linnet?.position.toArray(),
+    crew: nodes.CrewAshore?.visible,
     focus,
     busy,
     started,

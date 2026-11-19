@@ -46,6 +46,8 @@ class WorksCheck
             return s("moon") * s("sun") == 1;
         case "orbits":
             return s("oak") == 2 && s("wren") == 1 && s("tide") == 2;
+        case "lampcode":
+            return s("signalBar") == 3;
         default:
             return s("phrase") == 5;
         }
@@ -117,6 +119,14 @@ class WorksCheck
             Run(w, "River Forge Sky River Forge Sky River Sky Listen");
             w = Reload(plan, w);
             w.Use("A_Final", out dest);
+            Require(dest == "Wrenfall", "missing coastal approach");
+            Run(w, "Wing Depth Book");
+            Require(w.Signal("signalBar") == 0 && w.Signal("sounding") == 0, "unearned passage");
+            Run(w, "Pilot Transit Depth Lookout Bell Wing");
+            w = Reload(plan,w);
+            Require(w.Signal("signalBar") == 1, "coast checkpoint");
+            Run(w,"Bell Star Launch");
+            w.Use("A_Book",out dest);
             Require(dest == "@final" && w.Signal("named") == 1 && w.Signal("answered") == 1, "lost resolution");
         }
         Console.WriteLine(positions + " machine positions, " + actions +
