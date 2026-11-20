@@ -368,21 +368,39 @@ namespace Wizzard
                 (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame);
             return pressed && !player.HeadObstructed;
         }
-        static bool AboveField(MeshCollider terrain, Vector3 feet)
+        static bool TryFieldFloor(MeshCollider terrain, Vector3 feet, out RaycastHit hit)
         {
+            hit = default;
             var bounds = terrain.bounds;
             if (!(feet.x >= bounds.min.x && feet.x <= bounds.max.x &&
-                  feet.z >= bounds.min.z && feet.z <= bounds.max.z) ||
-                float.IsNaN(feet.y) || float.IsInfinity(feet.y)) return false;
+                  feet.z >= bounds.min.z && feet.z <= bounds.max.z)) return false;
             var ray = new Ray(new Vector3(feet.x, bounds.max.y + 1, feet.z), Vector3.down);
-            return terrain.Raycast(ray, out var hit, bounds.size.y + 2) && feet.y >= hit.point.y-.2f;
+            return terrain.Raycast(ray, out hit, bounds.size.y + 2);
+        }
+        static bool AboveField(MeshCollider terrain, Vector3 feet)
+        {
+            return !float.IsNaN(feet.y) && !float.IsInfinity(feet.y) &&
+                   TryFieldFloor(terrain, feet, out var floor) && feet.y >= floor.point.y-.2f;
+        }
+        static bool TryRoadFoot(Vector3 feet, out RaycastHit foot)
+        {
+            return Physics.Raycast(feet + Vector3.up * .32f, Vector3.down, out foot, .72f,
+                                   1 << MeadowWorld.GroundLayer, QueryTriggerInteraction.Ignore) && foot.normal.y > .55f;
+        }
+        static Vector3 RoadGateLanding(MeshCollider terrain, Vector3 gate)
+        {
+            var landing = gate + Vector3.forward*2.4f;
+            if (!TryFieldFloor(terrain, landing, out var ground)) return gate;
+            landing.y = ground.point.y + .08f;
+            return landing;
         }
         IEnumerator WalkHighroad(string destination)
         {
             var title=DistrictTitle(destination,out _);
             while (true)
             {
-                if (!string.IsNullOrEmpty(story.roadVisit))
+                string returnGate = story.roadVisit;
+                if (!string.IsNullOrEmpty(returnGate))
                 {
                     string name=DistrictTitle(story.roadVisit,out string theme);
                     yield return LoadRoadSet(story.roadVisit,theme,true);
@@ -415,7 +433,6 @@ namespace Wizzard
                     yield return Fade(0,1);
                     if (profiler != null) profiler.StartTravel();
                     story.roadVisit="";
-                    Save();
                 }
                 yield return LoadRoadSet("Highroad","Bellmarket",false);
                 var target=nodes["Road"+destination];
@@ -424,12 +441,27 @@ namespace Wizzard
                     if (pair.Key.StartsWith("Road", StringComparison.Ordinal) && pair.Key != "RoadLongMeadow" && pair.Value != target)
                         sideGates.Add(pair.Key.Substring(4), pair.Value.position);
                 var origin=nodes["Road"+story.lastDistrict].position;
-                var here=story.onRoad && story.fieldSurvey==1 ? new Vector3(story.roadX,story.roadY,story.roadZ) : origin;
                 var terrain = nodes["Terrain"].GetComponent<MeshCollider>();
-                if (!AboveField(terrain, here)) here = origin;
+                var savedPosition = string.IsNullOrEmpty(returnGate)
+                    ? new Vector3(story.roadX, story.roadY, story.roadZ)
+                    : RoadGateLanding(terrain, nodes["Road" + returnGate].position);
+                bool restoring = story.onRoad && story.fieldSurvey == 1 && AboveField(terrain, savedPosition);
+                var here = restoring ? savedPosition : origin;
                 story.fieldSurvey=1;
                 var cells=set.AddComponent<BellwakeField>();
                 yield return cells.Open(here, player.head, LoadPaints, Paint);
+                if (restoring)
+                {
+                    // Scenery may have moved since the checkpoint. Test support after its cell is loaded.
+                    Physics.SyncTransforms();
+                    RaycastHit support;
+                    if (TryRoadFoot(here, out support)) here.y = support.point.y + .08f;
+                    else
+                    {
+                        here = origin;
+                        yield return cells.Refresh(here);
+                    }
+                }
                 var direction=target.position-here; direction.y=0;
                 player.Teleport(here,direction.sqrMagnitude>.001f ? Quaternion.LookRotation(direction) : Quaternion.identity);
                 Physics.SyncTransforms();
@@ -465,8 +497,6 @@ namespace Wizzard
                     }
                     if(nearest!=null && action)
                     {
-                        var gate=sideGates[nearest]+Vector3.forward*2.4f;
-                        story.roadX=gate.x; story.roadY=gate.y; story.roadZ=gate.z;
                         story.roadVisit=nearest;
                         Save();
                         break;
@@ -480,10 +510,9 @@ namespace Wizzard
                             nextCheckpoint=Time.unscaledTime+3f;
                             var savedFeet = new Vector3(story.roadX, story.roadY, story.roadZ);
                             bool moved = (position - savedFeet).sqrMagnitude >= .25f;
+                            RaycastHit foot;
                             if ((moved || Time.unscaledTime >= nextClockSave) && AboveField(terrain, position) &&
-                                Physics.Raycast(position + Vector3.up * .32f, Vector3.down, out var foot,
-                                                .72f, 1 << MeadowWorld.GroundLayer, QueryTriggerInteraction.Ignore) &&
-                                foot.normal.y > .55f)
+                                TryRoadFoot(position, out foot))
                             {
                                 story.roadX=position.x; story.roadY=foot.point.y+.08f; story.roadZ=position.z;
                                 nextClockSave=Time.unscaledTime+30f;

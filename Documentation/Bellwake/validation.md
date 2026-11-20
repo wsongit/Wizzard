@@ -20,11 +20,19 @@ A C# harness drove the production Highroad coroutine using the 91 object positio
 
 Native gate positions are cached when entering the field. In 30,000 simulated frames beside a gate, managed allocations in the harness fell from about 1.49 MB to 49 KB. Over 417 simulated seconds standing still, checkpoint writes fell from 136 to 14. The test also verified saving on pause and quit during playable travel. Restoring all 1,764 valid origin/visit pairs kept the original route. Eight incomplete or obsolete gate combinations recovered without resetting story progress.
 
+A separate Blender pass checked both sides of the 42 district gates at the controller centre and four footprint offsets. Casting Bed exposed a sloping return where the marker height missed the ground below the actual landing. Return positions now use the floor at the exit. All 420 footing and overhead checks passed. The browser sweep also verified that each of the 41 side returns arrived within 2.62 m of the gate it entered.
+
+The browser now keeps the previous player-action checkpoint. Torn JSON, a missing primary entry, an invalid story number, unknown origin, a saved point outside the map, points above and below the field, and a visit missing its origin were tested against real browser storage and the game’s entry screen. A background tab’s clock flush also preserved a newer save. Native restores check support after loading the surrounding scenery and warm the origin cells when a saved landing no longer exists.
+
+Two full visual tours compared 84 pairs of rendered district views at noon and after dark. The mean structural similarity on a 0–1 scale was 0.998. The lowest pair was the moving Bellmarket scene at 0.944. A separate check compared the shipped collision trees with reference geometry across 132,096 queries and 161,034 visibility tests in all 42 districts and the Highroad.
+
 ## Quest builds and save recovery
 
 The release and profiling commands were exercised under Windows CMD in Wine with a test editor executable. Both valid outputs were recognized. A stale APK after an early exit, a missing output, and a reported Unity failure all returned failure. Mono tests covered atomic replacement, invalid native libraries and competing copies. A signed ARM64 packaging fixture passed Android SDK signature and alignment checks before and after copying. A native build of the game still requires activation of the cloud Unity editor.
 
 The Windows installer was also exercised with the Windows .NET runtime under Wine. It kept the old APK intact while its filename was locked, recovered on a later build and left no temporary files. Across 24 separate publishing processes, a concurrent reader observed 151 complete APKs. The final signed fixture matched its source byte for byte.
+
+The official Windows Unity 2022.3.20f1 editor distribution was verified against Unity’s published checksum. Its 64-bit embedded Mono runtime and Windows class libraries ran the same packaging and restore tests under Wine. Twenty-four competing processes completed with 99 reads of whole files and an identical signed result. The Windows runtime also extracted and SHA-256 checked the project’s 942 files in a directory matching the player’s Desktop project path.
 
 All 16 combinations of app bundle, Gradle export, architecture split and expansion-file settings were exercised in a method harness for release and profile builds, including a forced validation failure. The previous preferences were restored in all 64 cases. A second harness checked 13 fresh, saved, edited and batch-mode opening scenes.
 

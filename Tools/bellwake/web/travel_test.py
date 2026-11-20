@@ -45,8 +45,35 @@ async def check_visit_exit(page, url):
     await page.evaluate("p=>bellStand([p[0],p[1]-.26,p[2]],0,0)", feet)
     await page.wait_for_function("bellProbe().nearDoor==='GlassRookery'")
     await page.keyboard.press("e")
-    await page.wait_for_function("!bellProbe().busy && bellProbe().district==='Highroad'")
+    await page.wait_for_function("!bellProbe().busy && bellProbe().district==='Highroad' && bellProbe().nearDoor==='GlassRookery'")
     return {"district": "GlassRookery", "heightTested": above["height"] - feet[1], "returnedTo": "Highroad"}
+
+
+async def check_checkpoint_recovery(page, url):
+    slot = "wizzard.bellwake.desktop.v1"
+    previous = {"number": 2, "leaves": 3, "lastDistrict": "RootChoir", "secondsByPlace": {"Bellmarket": 570}}
+    await page.add_init_script(
+        "if (!sessionStorage.seeded) {"
+        + "localStorage.setItem(" + json.dumps(slot) + ", '{interrupted');"
+        + "localStorage.setItem(" + json.dumps(slot + ".previous") + ", " + json.dumps(json.dumps(previous)) + ");"
+        + "sessionStorage.seeded='1';}"
+    )
+    await page.goto(url)
+    await page.click("#start", timeout=60000)
+    await page.wait_for_function("!bellProbe().busy && bellProbe().district==='RootChoir'")
+    restored = await page.evaluate("bellProbe()")
+    assert restored["leaves"] == 3 and restored["secondsByPlace"]["Bellmarket"] == 570
+    # A late timer from another tab must leave a newer player's save untouched.
+    newer = json.dumps({"number": 0, "leaves": 15, "lastDistrict": "Bellmarket"})
+    await page.evaluate(
+        "([key,value])=>{localStorage.setItem(key,value);dispatchEvent(new Event('pagehide'));}", [slot, newer]
+    )
+    assert await page.evaluate("key=>localStorage.getItem(key)", slot) == newer
+    await page.reload()
+    await page.click("#start", timeout=60000)
+    await page.wait_for_function("!bellProbe().busy && bellProbe().district==='Bellmarket'")
+    assert await page.evaluate("bellProbe().leaves===15")
+    return {"recovered": "RootChoir", "retainedMarketSeconds": 570, "newerSaveLeaves": 15}
 
 
 async def main():
@@ -66,13 +93,14 @@ async def main():
         page.on("pageerror", lambda err: errors.append(str(err)))
         page.on("request", lambda req: requests.append(req.url))
         devtools = await page.context.new_cdp_session(page)
-        if "--visit-exit" in sys.argv:
-            result = await check_visit_exit(page, url)
-            assert not errors, errors
-            Path(destination).write_text(json.dumps(result, indent=2))
-            print("PASS overhead clearance and ground-level district return")
-            await browser.close()
-            return
+        for flag, check in (("--visit-exit", check_visit_exit), ("--save-recovery", check_checkpoint_recovery)):
+            if flag in sys.argv:
+                result = await check(page, url)
+                assert not errors, errors
+                Path(destination).write_text(json.dumps(result, indent=2))
+                print("PASS", flag)
+                await browser.close()
+                return
         await page.goto(url)
         await page.click("#start", timeout=60000)
         initial = [u for u in requests if ".glb" in u]

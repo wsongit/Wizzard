@@ -68,7 +68,7 @@ namespace Wizzard
             }
         }
 
-        IEnumerator Refresh(Vector3 position)
+        internal IEnumerator Refresh(Vector3 position)
         {
             foreach (var cell in cells)
             {

@@ -18,7 +18,7 @@ const data = window.BELLWAKE,
 const frameReport = new URLSearchParams(location.search).has("timings") ? new HeadsetFrameReport() : null;
 const graph = data.story,
   store = "wizzard.bellwake.desktop.v1";
-let savedPassage, savedWorks, lastCheckpoint, lastDistrict, roadPosition;
+let savedPassage, savedWorks, lastCheckpoint, lastDistrict, roadPosition, returnGate;
 let walking=false, outing=false, visiting=null, nearDoor="", visitExit, roadGoal, roadDoors=[], nextRoadSave=0;
 const places=new Map([
   ...graph.rooms.map((key,i)=>[key,{title:graph.titles[i],theme:key}]),
@@ -34,10 +34,18 @@ let number = 0,
   ringTime = 0,
   initialAngle = 0,
   gestureEnd = 0;
+function decodeCheckpoint(text) {
+  try {
+    const value = JSON.parse(text);
+    return value && Number.isInteger(value.number) && graph.states[value.number] ? value : null;
+  } catch {
+    return null;
+  }
+}
 try {
   lastCheckpoint = localStorage.getItem(store);
-  const value = JSON.parse(lastCheckpoint);
-  if (value && Number.isInteger(value.number) && graph.states[value.number]) {
+  const value = decodeCheckpoint(lastCheckpoint) || decodeCheckpoint(localStorage.getItem(store + ".previous"));
+  if (value) {
     number = value.number;
     leaves = value.leaves & 31;
     muted = !!value.muted;
@@ -65,6 +73,10 @@ let works = new Underworks(
 const roomRadius = () => visiting ? (places.get(visiting).halfSpan || 20) : walking ? 84 : (works.active && works.room.halfSpan) || 20;
 const locationKey = () =>
   works.active ? works.room.key : passage.active ? passage.region.key : graph.rooms[state().room];
+if (!lastDistrict && (outing || visiting)) {
+  lastDistrict = locationKey();
+  outing = true;
+}
 const hasFloodBook = () =>
   !works.active && (state().room === 4 || state().ending !== 0) && !!works.signals.landed;
 const locationName = () =>
@@ -76,7 +88,8 @@ const objective = () =>
       : state().objective;
 function save(timerOnly = false) {
   try {
-    if (timerOnly && localStorage.getItem(store) !== lastCheckpoint) return;
+    const previous = localStorage.getItem(store);
+    if (timerOnly && previous !== lastCheckpoint) return;
     const checkpoint = JSON.stringify({
       number,
       leaves,
@@ -86,7 +99,13 @@ function save(timerOnly = false) {
       secondsByPlace, minutes,
       lastDistrict, roadPosition, outing, visiting,
     });
-    localStorage.setItem(store, checkpoint);
+    if (checkpoint !== previous) {
+      // Commit progress first so a full browser store cannot spend its last bytes on the backup.
+      localStorage.setItem(store, checkpoint);
+      if (!timerOnly && decodeCheckpoint(previous)) {
+        try { localStorage.setItem(store + ".previous", previous); } catch {}
+      }
+    }
     lastCheckpoint = checkpoint;
   } catch {}
 }
@@ -262,6 +281,13 @@ function arrival() {
   if (walking || visiting) return nodes.Spawn.position;
   const camp = works.active && works.progress.camp;
   return (camp && camp.startsWith("Rest") && nodes[camp]?.position) || nodes.Spawn?.position;
+}
+function roadFoot(x, y, z, rise = .35, drop = .60) {
+  if (Math.abs(x) > roomRadius() || Math.abs(z) > roomRadius()) return null;
+  const from = new T.Vector3(x, y + rise, z);
+  const ground = tree.rayIntersect(new T.Ray(from, new T.Vector3(0, -1, 0)), rise + drop);
+  if (!ground || ground.triangle.getNormal(new T.Vector3()).y <= .55) return null;
+  return [x, ground.position.y + .08, z];
 }
 function resetFeet() {
   if (vr.session) vr.reset();
@@ -591,6 +617,11 @@ async function loadRoom() {
     const origin=nodes["Road"+lastDistrict].position;
     roadGoal=nodes["Road"+locationKey()].position;
     nodes.Spawn.position.copy(origin);
+    if (returnGate) {
+      const gate = nodes["Road" + returnGate].position;
+      roadPosition = roadFoot(gate.x, gate.y, gate.z + 2.4, 2.4, 2.4) || gate.toArray();
+      returnGate = null;
+    } else if (roadPosition) roadPosition = roadFoot(...roadPosition);
     if (roadPosition) nodes.Spawn.position.fromArray(roadPosition);
     else if (outing) nodes.Spawn.position.z+=3;
     const beacon=new T.Mesh(new T.OctahedronGeometry(.64),new T.MeshBasicMaterial({color:0xffcf64}));
@@ -790,13 +821,13 @@ function welcome() {
 async function interact(id, palm = -1) {
   if (walking || visiting) {
     if (!started || busy || (vr.session && (!vr.ready || vr.guard.visible)) || !nearDoor) return;
-    if (visiting) visiting=null;
-    else if (nearDoor===locationKey()) {
+    if (visiting) {
+      returnGate = visiting;
+      visiting = null;
+    } else if (nearDoor===locationKey()) {
       lastDistrict=locationKey(); outing=false; roadPosition=null;
     } else {
       visiting=nearDoor;
-      const gate=nodes["Road"+nearDoor].position;
-      roadPosition=[gate.x,gate.y,gate.z+2.4];
     }
     if(await room()) welcome();
     return;
@@ -1549,7 +1580,8 @@ function loop(time, frame) {
             return;
           }
           if(time>=nextRoadSave) {
-            roadPosition=[feet.x,feet.y-.14,feet.z];
+            const grounded = roadFoot(feet.x, feet.y, feet.z);
+            if (grounded) roadPosition = grounded;
             save(true);
             nextRoadSave=time+2000;
           }

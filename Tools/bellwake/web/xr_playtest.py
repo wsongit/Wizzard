@@ -22,10 +22,10 @@ from playwright.async_api import async_playwright
 async def tracked_navigation(page):
     # Tracked head and grip poses traverse the open coast. All actions use the controller trigger.
     await page.evaluate("""() => {
-      window.walkSurvey = async (x,z) => {
+      window.walkSurvey = async (x,z,tolerance=.30) => {
         for(let i=0;i<350;i++) {
           const [hx,,hz]=bellProbe().vrHead,dx=x-hx,dz=z-hz,length=Math.hypot(dx,dz);
-          if(length<.30) return;
+          if(length<tolerance) return;
           const k=Math.min(.29,length)/length,p=testDevice.position;
           p.set(p.x+dx*k,1.64,p.z+dz*k);
           // Hold the hands over the shoulders during the belfry walk. Its sound plates
@@ -164,7 +164,8 @@ async def palm_instruments(browser):
                     // Leave the east plinth on its open side, then pass east of the keeper.
                     for (const [px,pz] of [[7,1],[3,1],[3,-6.2],[0,-6.2]]) await walkSurvey(px,pz);
                 }
-                await walkSurvey(x,z+1.03);
+                // Settle within arm reach before swinging, even when the emulator skips a pose.
+                await walkSurvey(x,z+.94,.16);
                 const grip=testDevice.controllers[side];
                 const pose=(depth)=>{
                     const head=bellProbe().vrHead, p=testDevice.position;
@@ -530,6 +531,50 @@ async def headset_report(browser):
     await page.close()
 
 
+async def headset_travel(browser):
+    page = await browser.new_page(viewport={"width": 384, "height": 216})
+    errors = []
+    page.on("pageerror", lambda error: errors.append(str(error)))
+    await page.add_init_script(script=harness)
+    await page.goto(sys.argv[1])
+    await page.click("#vr", timeout=60000)
+    await page.wait_for_function("bellProbe().vr && bellProbe().palms.every(Boolean)")
+    tools = await page.context.new_cdp_session(page)
+    rooms = await page.evaluate(
+        "BELLWAKE.story.rooms.length+BELLWAKE.regions.length+BELLWAKE.works.rooms.length"
+    )
+    endurance = "--endurance" in sys.argv
+    prior = {}
+    for lap in range(3 if endurance else 2):
+        for index in range(rooms):
+            await page.evaluate("i=>bellTravel(i)", index)
+            await page.wait_for_function("!bellProbe().busy && bellProbe().vr && bellProbe().palms.every(Boolean)")
+            # Turn the tracked head while both controllers remain in the same immersive session.
+            for yaw in (.38, -.38, 0):
+                await page.evaluate(
+                    "a=>testDevice.quaternion.set(0,Math.sin(a/2),0,Math.cos(a/2))", yaw
+                )
+                await page.wait_for_timeout(12400 if endurance else 260)
+            state = await page.evaluate("bellProbe()")
+            await tools.send("HeapProfiler.collectGarbage")
+            retired = await page.evaluate("bellProbe().retiredAlive")
+            assert not errors and retired == 0, (state["district"], retired, errors)
+            assert state["sets"] == state["trees"] == state["music"] == 1
+            assert state["vr"] and all(state["palms"]) and not state["headObstructed"], state["district"]
+            assert all(abs(n) < 1000 for n in state["vrHead"]), state["vrHead"]
+            stats = state["gpu"]
+            assert stats["geometries"] <= state["geometryLimit"], (state["district"], stats)
+            if index in prior:
+                assert prior[index] == stats["textures"], (state["district"], prior[index], stats)
+            prior[index] = stats["textures"]
+            print(f'Lap {lap+1}, {state["district"]}, {stats["geometries"]} geometries, '
+                  f'{stats["textures"]} textures, {retired} retired objects alive', flush=True)
+    assert len(prior) == rooms
+    await page.evaluate("testDevice.activeSession?.end()")
+    await page.close()
+    print(f"PASS {rooms} districts in one emulated headset session", flush=True)
+
+
 async def obstructed_head(browser):
     page = await browser.new_page(viewport={"width": 630, "height": 380})
     errors = []
@@ -842,6 +887,10 @@ async def run():
             return
         if "--mercy-seal" in sys.argv:
             await relief_seal(b)
+            await b.close()
+            return
+        if "--headset-travel" in sys.argv:
+            await headset_travel(b)
             await b.close()
             return
         if "--headset-report" in sys.argv:

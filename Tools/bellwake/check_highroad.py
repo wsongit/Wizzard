@@ -64,6 +64,22 @@ for key, uv in coords.items():
     assert (doors[key].xy-Vector(xy)).length < .002, key
     floor = ground.ray_cast((*xy,100),(0,0,-1),180)[0]
     assert floor and -.02 < doors[key].z-floor.z < .35, (key, floor)
+# On returning from a side visit, the player stands 2.4 m beyond the gate marker.
+# Check both sides and the full controller footprint against the exported terrain and scenery.
+return_probes = 0
+for key, marker in doors.items():
+    if key == "LongMeadow":
+        continue
+    for direction in (-1, 1):
+        centre = marker + Vector((0, direction*2.4, 0))
+        base = ground.ray_cast((centre.x, centre.y, 100), (0, 0, -1), 180)[0]
+        assert base is not None, (key, "return terrain")
+        for dx, dy in ((0, 0), (-.23, 0), (.23, 0), (0, -.23), (0, .23)):
+            start = base + Vector((dx, dy, .08 + .32))
+            floor, normal, _, _ = ground.ray_cast(start, (0, 0, -1), .72)
+            assert floor is not None and normal.z > .55, (key, "return footing", start)
+            assert obstacles.ray_cast(floor + Vector((0, 0, .025)), (0, 0, 1), 2.05)[0] is None, (key, "return clearance")
+            return_probes += 1
 probes = 0
 length = 0
 peak = 0
@@ -99,5 +115,5 @@ for xy in trace + trace[::-1]:
     peak=max(peak,len(active))
 assert 1 < peak < 42
 result=dict(entrances=len(coords),links=len(edges),walkingMetres=round(length),
-            clearanceSamples=probes,boundarySamples=boundary_samples,peakNearCells=peak,availableCells=len(cells))
+            clearanceSamples=probes,gateReturnSamples=return_probes,boundarySamples=boundary_samples,peakNearCells=peak,availableCells=len(cells))
 print(json.dumps(result))
