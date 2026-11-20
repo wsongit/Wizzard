@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.IO.Compression;
 using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine.SceneManagement;
 using UnityEditor.XR.Management;
 using UnityEditor.XR.Management.Metadata;
 using UnityEngine;
@@ -17,15 +18,37 @@ namespace Wizzard.Editor
     [InitializeOnLoad]
     public static class VRProjectSetup
     {
+        const string GameScene = "Assets/Scenes/Meadow.unity";
+        const string OpenedProject = "Wizzard.CheckedOpeningScene";
+
         static VRProjectSetup() { EditorApplication.delayCall += EnsureConfigured; }
         static void EnsureConfigured()
         {
-            if(EditorApplication.isCompiling || EditorApplication.isPlayingOrWillChangePlaymode) return;
+            if (EditorApplication.isPlayingOrWillChangePlaymode) return;
+            if (EditorApplication.isCompiling || EditorApplication.isUpdating)
+            {
+                EditorApplication.delayCall+=EnsureConfigured;
+                return;
+            }
+            OpenInitialScene();
             var existing=XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(BuildTargetGroup.Standalone);
             var android=XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(BuildTargetGroup.Android);
             if(existing!=null && existing.Manager!=null && existing.Manager.activeLoaders.Any(l=>l is OpenXRLoader) &&
                 android!=null && android.Manager!=null && android.Manager.activeLoaders.Any(l=>l is OpenXRLoader)) return;
             Configure();
+        }
+        static void OpenInitialScene()
+        {
+            if (Application.isBatchMode || SessionState.GetBool(OpenedProject,false)) return;
+            SessionState.SetBool(OpenedProject,true);
+            var scene=SceneManager.GetActiveScene();
+            if (!scene.IsValid() || SceneManager.sceneCount!=1 || scene.isDirty || !string.IsNullOrEmpty(scene.path)) return;
+            var roots=scene.GetRootGameObjects();
+            bool stockCamera=roots.Any(go=>go.name=="Main Camera" && go.GetComponent<Camera>());
+            bool stockLight=roots.Any(go=>go.name=="Directional Light" && go.GetComponent<Light>());
+            if (roots.Length!=0 && (roots.Length!=2 || !stockCamera || !stockLight ||
+                roots.Any(go=>go.transform.childCount!=0 || go.GetComponents<MonoBehaviour>().Length!=0))) return;
+            if (AssetDatabase.LoadAssetAtPath<SceneAsset>(GameScene)) EditorSceneManager.OpenScene(GameScene);
         }
         [MenuItem("Wizzard/Configure Quest and PC OpenXR")]
         public static void Configure()
@@ -87,7 +110,7 @@ namespace Wizzard.Editor
             tags.ApplyModifiedPropertiesWithoutUndo();
             RetroMaterialLibrary.Create();
             PlayerSettings.companyName="Wizzard"; PlayerSettings.productName="Wizzard Bellwake";
-            EditorBuildSettings.scenes=new[]{new EditorBuildSettingsScene("Assets/Scenes/Meadow.unity",true)};
+            EditorBuildSettings.scenes=new[]{new EditorBuildSettingsScene(GameScene,true)};
             EditorUtility.SetDirty(targets);
             AssetDatabase.SaveAssets(); Debug.Log("Wizzard: Quest ARM64 and PC OpenXR configured. Open Meadow and press Play.");
         }
@@ -110,8 +133,8 @@ namespace Wizzard.Editor
         public static void PlayBellwake()
         {
             if(EditorApplication.isPlayingOrWillChangePlaymode) return;
-            if(!UnityEditor.SceneManagement.EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
-            UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/Scenes/Meadow.unity");
+            if(!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            EditorSceneManager.OpenScene(GameScene);
             EditorApplication.isPlaying=true;
         }
         [MenuItem("Wizzard/Build Quest APK")]
@@ -126,6 +149,28 @@ namespace Wizzard.Editor
                 throw new Exception("Install Android Build Support for this Unity Editor.");
             if(EditorUserBuildSettings.activeBuildTarget!=BuildTarget.Android)
                 throw new Exception("Switch to Android in File > Build Settings first. Android Build Support, SDK, NDK and OpenJDK are required.");
+            bool bundle=EditorUserBuildSettings.buildAppBundle;
+            bool export=EditorUserBuildSettings.exportAsGoogleAndroidProject;
+            bool splitByCpu=PlayerSettings.Android.buildApkPerCpuArchitecture;
+            bool expansion=PlayerSettings.Android.useAPKExpansionFiles;
+            try
+            {
+                EditorUserBuildSettings.buildAppBundle=false;
+                EditorUserBuildSettings.exportAsGoogleAndroidProject=false;
+                PlayerSettings.Android.buildApkPerCpuArchitecture=false;
+                PlayerSettings.Android.useAPKExpansionFiles=false;
+                BuildSingleApk(profile);
+            }
+            finally
+            {
+                PlayerSettings.Android.useAPKExpansionFiles=expansion;
+                PlayerSettings.Android.buildApkPerCpuArchitecture=splitByCpu;
+                EditorUserBuildSettings.exportAsGoogleAndroidProject=export;
+                EditorUserBuildSettings.buildAppBundle=bundle;
+            }
+        }
+        static void BuildSingleApk(bool profile)
+        {
             ValidateProject();
             var issues = new List<OpenXRFeature.ValidationRule>();
             UnityEditor.XR.OpenXR.OpenXRProjectValidation.GetCurrentValidationIssues(issues, BuildTargetGroup.Android);
@@ -136,20 +181,11 @@ namespace Wizzard.Editor
             string filename = profile ? "Wizzard-Bellwake-Quest-Profile.apk" : "Wizzard-Bellwake-Quest.apk";
             string path = Path.Combine("Builds", filename);
             var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions {
-                scenes=new[]{"Assets/Scenes/Meadow.unity"}, target=BuildTarget.Android,
+                scenes=new[]{GameScene}, target=BuildTarget.Android,
                 locationPathName=path, options=profile ? BuildOptions.Development : BuildOptions.None });
             if(report.summary.result!=UnityEditor.Build.Reporting.BuildResult.Succeeded)
                 throw new Exception("Quest APK build failed: "+report.summary.result);
-            using(var input=File.OpenRead(path))
-            using(var package=new ZipArchive(input,ZipArchiveMode.Read))
-            {
-                foreach(string entry in new[]{"lib/arm64-v8a/libunity.so","lib/arm64-v8a/libil2cpp.so",
-                                              "assets/bin/Data/boot.config","lib/arm64-v8a/libUnityOpenXR.so",
-                                              "lib/arm64-v8a/libopenxr_loader.so"})
-                    if(package.GetEntry(entry)==null) throw new InvalidDataException("Native player missing "+entry);
-                if(package.GetEntry("assets/index.html")!=null) throw new InvalidDataException("Unexpected web launcher");
-            }
-            File.Copy(path,filename,true);
+            QuestApk.Publish(path,filename);
             Debug.Log("Native Unity Quest build: "+Path.GetFullPath(filename));
         }
         [MenuItem("Wizzard/Validate project")]

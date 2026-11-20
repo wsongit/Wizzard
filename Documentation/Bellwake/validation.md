@@ -1,5 +1,13 @@
 # Bellwake release checks
 
+## Quest builds and save recovery
+
+The release and profiling commands were exercised under Windows CMD in Wine with a test editor executable. Both valid outputs were recognized. A stale APK after an early exit, a missing output, and a reported Unity failure all returned failure. Mono tests covered atomic replacement, invalid native libraries and competing copies. A signed ARM64 packaging fixture passed Android SDK signature and alignment checks before and after copying. A native build of the game still requires activation of the cloud Unity editor.
+
+All 16 combinations of app bundle, Gradle export, architecture split and expansion-file settings were exercised in a method harness for release and profile builds, including a forced validation failure. The previous preferences were restored in all 64 cases. A second harness checked 13 fresh, saved, edited and batch-mode opening scenes.
+
+The native title can recover a slot from its previous checkpoint. A regression check exercised all three slot keys, original single-checkpoint saves, missing and malformed current entries, and restoration of the satchel, travel clock and puzzle progress. A separate development-profiler check injected overlapping focus and pause callbacks, a 100-second interruption and an active 50 ms frame. It excluded the interruption and reported the active hitch.
+
 ## Village, forest and river art pass
 
 [Player-height views of the exported art](bellwake-valley.jpg)

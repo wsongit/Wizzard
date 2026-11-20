@@ -27,7 +27,7 @@ Each district has an entrance on the Bellwake Highroad. Walk to the gold marker 
 3. The editor setup script configures Quest Android and PC OpenXR with controller profiles.
    You can run **Wizzard → Configure Quest and PC OpenXR** again. Run OpenXR Project
    Validation and resolve any runtime/platform-specific requirements.
-4. Choose **Wizzard → Play Bellwake**, or open `Assets/Scenes/Meadow.unity` and press **Play**. The opening menu appears in the Game view.
+4. On a fresh import, Unity opens the Meadow scene. Press **Play** for the opening menu. If you already have another scene open, choose **Wizzard → Play Bellwake**.
 5. In **File → Build Settings**, switch to **Android**. The setup uses ARM64,
    IL2CPP, OpenGL ES 3, linear color, single-pass stereo, Meta Quest Support,
    and Touch controller interaction profiles. Run OpenXR Project Validation for Android.

@@ -140,7 +140,7 @@ namespace Wizzard
             player = rig;
             cam = rig.head.GetComponent<Camera>();
             display = new BellwakeDisplay(rig.head);
-            story = Restore();
+            story = BellwakeCheckpoint.Read(SaveKey, out savedCheckpoint);
             atlas = JsonUtility.FromJson<PassageAtlas>(Resources.Load<TextAsset>(Path + "Passages").text);
             worksPlan=JsonUtility.FromJson<WorksPlan>(Resources.Load<TextAsset>(Path+"Underworks").text);
             PrepareRoute();
@@ -197,21 +197,6 @@ namespace Wizzard
             if (Route.completed != story.room || story.ending != 0 || story.room >= atlas.regions.Length)
                 Route.active=false;
         }
-        BellwakeJourney Restore()
-        {
-            if (PlayerPrefs.HasKey(SaveKey))
-                try
-                {
-                    var data = JsonUtility.FromJson<BellwakeJourney>(PlayerPrefs.GetString(SaveKey));
-                    if (data != null && data.Valid())
-                        return data;
-                }
-                catch (ArgumentException)
-                {
-                    Debug.LogWarning("Bellwake could not read the saved checkpoint.");
-                }
-            return new BellwakeJourney();
-        }
         bool checkingTravel;
         void Save()
         {
@@ -219,7 +204,7 @@ namespace Wizzard
             string checkpoint = JsonUtility.ToJson(story);
             if (checkpoint == savedCheckpoint)
                 return;
-            PlayerPrefs.SetString(SaveKey, checkpoint);
+            BellwakeCheckpoint.Write(SaveKey, checkpoint, savedCheckpoint);
             PlayerPrefs.Save();
             savedCheckpoint = checkpoint;
         }

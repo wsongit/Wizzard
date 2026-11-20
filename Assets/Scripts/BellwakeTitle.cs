@@ -35,7 +35,7 @@ namespace Wizzard
         Texture2D plate;
         static string KeyFor(int i) => i==0 ? LegacyKey : LegacyKey+".file"+(i+1);
         string SaveKey => KeyFor(slot);
-        string FileName(int i) => PlayerPrefs.HasKey(KeyFor(i)) ?
+        string FileName(int i) => BellwakeCheckpoint.Exists(KeyFor(i)) ?
             PlayerPrefs.GetString("Bellwake.name."+i,"Returning runner") : "Empty file";
 
         public void Open(GorillaPlayer rig)
@@ -151,7 +151,7 @@ namespace Wizzard
                 if(!ok) return;
                 if(choice==3) {page=Page.Settings;choice=0;Draw();return;}
                 slot=choice;
-                if(PlayerPrefs.HasKey(SaveKey)) {runner=FileName(slot);Launch();return;}
+                if(BellwakeCheckpoint.Exists(SaveKey)) {runner=FileName(slot);Launch();return;}
                 runner="";letter=0;page=Page.Name;Draw();return;
             }
             if(back) { page=Page.Files; choice=slot; Draw(); return; }
@@ -227,11 +227,11 @@ namespace Wizzard
         void Launch()
         {
             page=Page.Leaving;
-            if (!PlayerPrefs.HasKey(SaveKey))
+            if (!BellwakeCheckpoint.Exists(SaveKey))
             {
                 PlayerPrefs.SetString("Bellwake.name."+slot,runner);
                 var firstCheckpoint=new BellwakeJourney { satchel=new BellwakeSatchel() };
-                PlayerPrefs.SetString(SaveKey,JsonUtility.ToJson(firstCheckpoint));
+                BellwakeCheckpoint.Write(SaveKey, JsonUtility.ToJson(firstCheckpoint), null);
             }
             PlayerPrefs.SetInt("Bellwake.lastFile",slot);PlayerPrefs.Save();
             Destroy(stage.gameObject);
