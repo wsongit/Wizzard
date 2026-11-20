@@ -58,6 +58,7 @@ def gate_stair():
         masonry_section("Low stair coping",left,left+.26,cheek,"Masonry")
 
 def spring_well(x,y,z):
+    from joinery import well_face_uv
     # Lay out continuous mortar courses around the shaft and unwrap the coping stones from above.
     profile=[(.87,-.25),(.93,.07),(.91,.68),(.98,.72),(.98,.84),(.69,.84),(.66,.74),(.66,-.14)]
     sectors=32
@@ -70,11 +71,7 @@ def spring_well(x,y,z):
             jj=(j+1)%sectors
             face=(band*sectors+j,band*sectors+jj,k*sectors+jj,k*sectors+j)
             faces.append(face)
-            if band in (2,4,5,7):
-                uv.extend([((points[v][0]-x)*.74,(points[v][1]-y)*.74) for v in face])
-            else:
-                uv.extend([(j*3/sectors,height*1.40),((j+1)*3/sectors,height*1.40),
-                           ((j+1)*3/sectors,profile[k][1]*1.40),(j*3/sectors,profile[k][1]*1.40)])
+            uv.extend(well_face_uv(band,j,sectors,height,profile[k][1]))
     geometry("Lichen-stained spring masonry",points,faces,"SpringStone",uv=uv)
     lathe("Spring water",x,y,z,[(.672,.29),(.672,.31)],"SeaGlass",24)
     # The old oak grate shows water between its slats. The closed support keeps tracked hands out of the shaft.

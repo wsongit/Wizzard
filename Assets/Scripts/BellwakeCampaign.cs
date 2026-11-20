@@ -340,7 +340,7 @@ namespace Wizzard
                 if(renderer==null) continue;
                 bool solid=IsCollisionSurface(part.name);
                 if(part.name=="C_Solids" || (visit && !solid && !part.name.StartsWith("Speaker") &&
-                    !part.name.StartsWith("GroveNear") && part.name!="MillWheel" && !BellwakeMarketLife.IsMovingPart(part.name))) renderer.enabled=false;
+                    !part.name.StartsWith("GroveNear") && part.name!="BanksidePlants" && part.name!="MillWheel" && !BellwakeMarketLife.IsMovingPart(part.name))) renderer.enabled=false;
                 else Paint(renderer);
                 if(!solid) continue;
                 part.gameObject.layer=MeadowWorld.GroundLayer;
@@ -776,7 +776,7 @@ namespace Wizzard
                 var paint = new Material(shader) { name = entry.Key, mainTexture = texture };
                 if (entry.Key == "WindowDark" || entry.Key == "WindowLight")
                     paint.SetFloat("_Window",entry.Key == "WindowLight" ? .95f : .60f);
-                if (entry.Key == "RoadSorrel") paint.EnableKeyword("BELLWAKE_CUTOUT");
+                if (entry.Key == "RoadSorrel" || entry.Key == "BanksidePlants") paint.EnableKeyword("BELLWAKE_CUTOUT");
                 if (entry.Key == "SeaGlass" || entry.Key == "Amber") paint.SetFloat("_Glow", .88f);
                 paints.Add(entry.Key, paint);
             }

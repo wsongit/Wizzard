@@ -5,7 +5,7 @@ namespace Wizzard.Editor
 {
     public sealed class BellwakeImport : AssetPostprocessor
     {
-        public override uint GetVersion() => 3;
+        public override uint GetVersion() => 4;
         void OnPostprocessModel(GameObject model)
         {
             if (!IsBellwakeModel()) return;
@@ -76,7 +76,7 @@ namespace Wizzard.Editor
             }
             if (assetPath.EndsWith("Survey.png") || assetPath.EndsWith("Signs.png") || assetPath.EndsWith("/MarketNotices.png"))
                 tile.npotScale = TextureImporterNPOTScale.None;
-            if (assetPath.EndsWith("/RoadSorrel.png"))
+            if (assetPath.EndsWith("/RoadSorrel.png") || assetPath.EndsWith("/BanksidePlants.png"))
             {
                 tile.alphaIsTransparency = true;
                 tile.mipMapsPreserveCoverage = true;

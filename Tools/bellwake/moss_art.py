@@ -23,7 +23,7 @@ class Figure:
             vmin=min(v[b] for v in vs);vmax=max(v[b] for v in vs)
             for li,v in zip(f.loop_indices,vs):
                 u=(v[a]-umin)/max(.0001,umax-umin);h=(v[b]-vmin)/max(.0001,vmax-vmin)
-                uv.data[li].uv=((pigment%4+.09+.82*u)/4,(pigment//4+.09+.82*h)/4)
+                uv.data[li].uv=((pigment%4+.09+.82*u)/8,(pigment//4+.09+.82*h)/4)
         return obj
     def rings(self,name,rows,pig,n=12):
         pts=[(a+rx*math.cos(i*math.tau/n),b+ry*math.sin(i*math.tau/n),c) for a,b,c,rx,ry in rows for i in range(n)]
@@ -33,7 +33,23 @@ class Figure:
                 v=j*n+i;w=j*n+(i+1)%n
                 faces.append((v,w,w+n,v+n))
         faces.append(tuple(range(len(pts)-n,len(pts))))
-        return self.draw(name,pts,faces,pig)
+        obj = self.draw(name, pts, faces, pig)
+        if name in ("Weathered flight coat", "Lichen coat", "Storm coat", "Split kiln apron"):
+            # Begin at the back and keep both corners of the final face on that
+            # side of the seam. The motif remains centred over the front (-Y).
+            side = 64 if self.atlas == "OrlaAtelier" else 128
+            uv = obj.data.uv_layers.active.data
+            height = rows[-1][2] - rows[0][2]
+            for j in range(len(rows)-1):
+                for k in range(n):
+                    around = (k-round(n/4)) % n
+                    face = obj.data.polygons[1+j*n+k]
+                    for loop, col, row in zip(face.loop_indices,
+                            (around, around+1, around+1, around), (j, j, j+1, j+1)):
+                        u = (4.5 + (side-9)*col/n) / side
+                        v = (4.5 + (side-9)*(rows[row][2]-rows[0][2])/height) / side
+                        uv[loop].uv = (.5+.5*u, v)
+        return obj
     def oval(self,name,centre,r,pig,n=10):
         a,b,c=centre;rx,ry,rz=r
         return self.rings(name,[(a,b,c+rz*k,rx*w,ry*w) for k,w in [(-1,.14),(-.69,.74),(0,1),(.68,.79),(1,.16)]],pig,n)

@@ -13,28 +13,11 @@ paint_rng=np.random.default_rng(4230)
 def patch(sigma):
     a=gaussian_filter(paint_rng.normal(size=(64,64)),sigma,mode='wrap')
     return a/a.std()
-leaf_t=np.clip(.51+.18*patch(3.1)+.085*patch(1.2)+.027*patch(.28),0,1)
+from surface_paint import save_tile
+save_tile('ElderLeaf',root)
+save_tile('ElderBark',root)
 def palette(t,stops):
     return np.uint8(np.stack([np.interp(t,np.linspace(0,1,len(stops)),[c[i] for c in stops]) for i in range(3)],axis=-1))
-leaves=Image.fromarray(palette(leaf_t,[(44,64,40),(59,84,43),(84,111,54),(111,134,62),(146,152,79)]))
-d=ImageDraw.Draw(leaves)
-for i in range(105):
-    x,y=rng.randrange(64),rng.randrange(64)
-    c=np.asarray(leaves.getpixel((x,y)))+rng.choice([-1,1])*np.array([12,13,6])
-    for dx in [-64,0,64]:
-        for dy in [-64,0,64]:
-            d.line([(x+dx-1,y+dy),(x+dx,y+dy-1),(x+dx+1,y+dy-1)],fill=tuple(int(k) for k in c))
-save('ElderLeaf',leaves)
-t=np.clip(.51+.15*patch((4.6,1.65))+.09*patch((1.5,3.1))+.045*patch(.6),0,1)
-bark=Image.fromarray(palette(t,[(64,53,41),(85,68,49),(106,81,54),(123,98,66),(146,125,85)]))
-d=ImageDraw.Draw(bark)
-for i in range(18):
-    x,y=rng.randrange(64),rng.randrange(64);length=rng.randrange(3,12);bend=rng.randrange(-2,3)
-    c=np.asarray(bark.getpixel((x,y)))-np.array([16,13,9])
-    for dx in [-64,0,64]:
-        for dy in [-64,0,64]:
-            d.line([(x+dx,y+dy),(x+bend+dx,y+dy+length//2),(x+bend+1+dx,y+dy+length)],fill=tuple(int(k) for k in c))
-save('ElderBark',bark)
 wing=Image.new('RGB',(64,64),'#493e48');d=ImageDraw.Draw(wing)
 for y in range(64):
     for x in range(64):
@@ -69,9 +52,7 @@ for x,y in [(12,48),(19,50),(26,48),(33,50),(40,48)]:
 save('FerryEnamel',sign)
 
 yy,xx=np.mgrid[:64,:64]
-t=np.clip(.52+.12*patch((4,1.3))+.042*patch(.6),0,1)
-metal=palette(t,[(101,113,123),(139,160,169),(182,193,193),(218,223,211)])
-save('RiverSteel',Image.fromarray(metal))
+save_tile('RiverSteel',root)
 
 timber=palette(np.clip(.47+.12*patch((5,1.4))+.04*patch(1),0,1),[(64,51,41),(96,71,48),(135,101,67),(157,125,79)])
 shield=Image.fromarray(timber);d=ImageDraw.Draw(shield)

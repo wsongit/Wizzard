@@ -1,8 +1,10 @@
 """Generate eight original, flat-shaded tree models and a comparison render."""
-import bpy, math, random
+import bpy, math, random, sys
 from pathlib import Path
 from mathutils import Vector
 root=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(root/'Tools'))
+from meadow_materials import dress_trees
 out=root/'Assets/Resources/Trees'; out.mkdir(parents=True,exist_ok=True)
 bpy.ops.object.select_all(action='SELECT'); bpy.ops.object.delete(use_global=False)
 def mat(name,color):
@@ -61,6 +63,7 @@ bpy.ops.object.camera_add(location=(36,-43,32)); camera=bpy.context.object; came
 scene=bpy.context.scene; scene.camera=camera; scene.render.engine='CYCLES'; scene.cycles.samples=24; scene.cycles.use_denoising=False
 scene.render.resolution_x=1400; scene.render.resolution_y=900; scene.render.resolution_percentage=100
 scene.render.filepath=str(root/'Documentation/tree-variants.png')
+dress_trees()
 bpy.ops.wm.save_as_mainfile(filepath=str(root/'Blender/TreeVariants.blend'))
 bpy.ops.render.render(write_still=True)
 for i in range(1,9):

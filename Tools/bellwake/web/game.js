@@ -1,3 +1,4 @@
+import { preparePaint } from "./paint.js";
 import {ValleyLight, marketLife} from "./market.js";
 import {Grove} from "./grove.js";
 import {ForestCall,callAngle} from "./forest_call.js";
@@ -270,6 +271,13 @@ async function loadPackedAsset(source) {
 async function loadModel(key) {
   return (await loader.parseAsync(await loadPackedAsset(data.models[key]), "")).scene;
 }
+async function loadTrackedLimb(key) {
+  const limb = await loadModel(key);
+  limb.traverse(part => {
+    if (part.isMesh) preparePaint(part.material, part.material.name);
+  });
+  return limb;
+}
 function bytes(encoded) {
   if (Uint8Array.fromBase64) return Uint8Array.fromBase64(encoded).buffer;
   let b = atob(encoded),
@@ -305,7 +313,7 @@ const vr = new TrackedRunner(
   scene,
   camera,
   renderer,
-  loadModel,
+  loadTrackedLimb,
   () => ({ tree, spawn: arrival(), radius: roomRadius() }),
   () => {
     if (book) journalPage = (journalPage + 1) % journalText.length;
@@ -516,11 +524,7 @@ async function loadRoom() {
       if (works.active && old.name === key + "Survey") surveyImage = old.map.source.data;
       if (!palette.has(old)) {
         const paint = new T.MeshLambertMaterial({ map: old.map, color: old.color, side: T.DoubleSide });
-        if (old.map) {
-          old.map.magFilter = T.LinearFilter;
-          old.map.minFilter = T.LinearMipmapLinearFilter;
-          old.map.anisotropy = 2;
-        }
+        preparePaint(paint, old.name);
         if (["SeaGlass", "Amber"].includes(old.name)) {
           paint.emissive.copy(old.color).multiplyScalar(0.38);
           paint.emissiveMap = old.map;
@@ -599,7 +603,7 @@ async function loadRoom() {
     // keeps its own actors, moving puzzle parts and state until its destination is entered.
     for(const child of group.children)
       if(!child.name.startsWith("Grove") && (child.isMesh || child.children.some(part=>part.isMesh)))
-        child.visible=/^(Terrain|Rim|Set|Speaker(?:Head|Arm)?|GroveNear.*|MillWheel|MillSails|MarshHen.*|ReedHen.*)$/.test(child.name);
+        child.visible=/^(Terrain|Rim|Set|BanksidePlants|Speaker(?:Head|Arm)?|GroveNear.*|MillWheel|MillSails|MarshHen.*|ReedHen.*)$/.test(child.name);
     visitExit=nodes.Spawn.position;
     resetFeet();
     $("chapter").textContent="Exploring the watershed";

@@ -664,40 +664,20 @@ def workshop_paint():
     y, x = np.mgrid[:h, :w]
     rng = np.random.default_rng(42661)
     grit = rng.normal(0, 3.3, (h, w)) + 3 * np.sin(x * 0.4 + np.sin(y * 0.21) * 1.2)
-    for name, base, pattern in (
-        ("HarbourBrick", (131, 80, 55), "brick"),
-        ("TarredOak", (86, 69, 53), "wood"),
-        ("VerdigrisSheet", (75, 113, 104), "iron"),
-    ):
-        rgb = np.zeros((h, w, 3)) + base + grit[:, :, None]
-        if pattern == "brick":
-            row = y // 16
-            xx = (x + row % 2 * 16) % 32
-            yy = y % 16
-            rng2 = np.random.default_rng(81)
-            values = rng2.normal(0, 9, (6, 3))
-            rgb += values[row, ((x + row % 2 * 16) // 32) % 3][:, :, None]
-            rgb[(xx == 0) | (yy == 0)] = [61, 54, 49]
-            rgb[(xx == 1) | (yy == 1)] = [91, 77, 66]
-            rgb[(xx == 2) | (yy == 2)] += 14
-        elif pattern == "wood":
-            rgb += (
-                6 * np.sin(x * 0.82 + 0.45 * np.cos(y * 0.1)) + 4 * np.sin(x * 0.28 + np.sin(y * 0.22))
-            )[:, :, None]
-            rgb[x % 24 == 0] -= 23
-            rgb[x % 24 == 1] += 8
-        else:
-            rgb += (-8 * np.exp(-(x % 48) / 9) + 4 * np.sin(y / 7 + x / 13))[:, :, None]
-            rgb[(x % 48 == 0) | (y % 48 == 0)] -= 27
-            rgb[(x % 48 == 1) | (y % 48 == 1)] += 14
-        im = Image.fromarray(np.uint8(np.clip(rgb, 0, 255)))
-        d = ImageDraw.Draw(im)
-        if pattern in ("iron", "wood"):
-            for px in range(4, w, 24 if pattern == "wood" else 48):
-                for py in range(5, h, 48):
-                    d.ellipse((px - 1, py - 1, px + 2, py + 2), fill="#443f34")
-                    d.point((px, py - 1), fill="#b8aa7f")
-        im.save(RES / "Textures" / (name + ".png"))
+    from surface_paint import save_tile
+    save_tile("HarbourBrick", RES / "Textures")
+    save_tile("TarredOak", RES / "Textures")
+    rgb = np.array([75, 113, 104]) + grit[:, :, None]
+    rgb += (-8 * np.exp(-(x % 48) / 9) + 4 * np.sin(y / 7 + x / 13))[:, :, None]
+    rgb[(x % 48 == 0) | (y % 48 == 0)] -= 27
+    rgb[(x % 48 == 1) | (y % 48 == 1)] += 14
+    im = Image.fromarray(np.uint8(np.clip(rgb, 0, 255)))
+    d = ImageDraw.Draw(im)
+    for px in range(4, w, 48):
+        for py in range(5, h, 48):
+            d.ellipse((px - 1, py - 1, px + 2, py + 2), fill="#443f34")
+            d.point((px, py - 1), fill="#b8aa7f")
+    im.save(RES / "Textures/VerdigrisSheet.png")
     image = Image.new("RGB", (256, 192))
     for j, rows in enumerate(FLAGS):
         im = Image.new("RGB", (128, 96), "#b9a57d")

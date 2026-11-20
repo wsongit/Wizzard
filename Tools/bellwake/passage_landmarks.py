@@ -30,7 +30,11 @@ def paint_land(k, key):
 
     mott = cloud(26) * 21 + cloud(124) * 15 + cloud(512) * 14
     col = [(138, 135, 101), (196, 210, 208), (99, 91, 101)][k]
-    base = np.zeros((n, n, 3)) + col
+    from surface_paint import tinted, save_tile
+    def underpaint(name, colour, contrast):
+        tile = np.asarray(tinted(name, colour, contrast), dtype=float)
+        return tile[np.floor(-y*11).astype(int) % 64, np.floor(x*11).astype(int) % 64]
+    base = underpaint(("turf", "snow", "volcanic-stone")[k], col, 16)
     path = np.full((n, n), 100.0)
     for a, b in [
         ((0, -20), (0, -5)),
@@ -45,14 +49,14 @@ def paint_land(k, key):
         path = np.minimum(path, np.hypot(x - a[0] - t * dx, y - a[1] - t * dy))
     paved = np.array([(173, 148, 113), (154, 173, 177), (132, 117, 109)][k])
     blend = np.clip((1.35 + cloud(58) * 0.65 - path) * 2, 0, 1)[:, :, None]
-    base = base * (1 - blend) + paved * blend
+    base = base * (1 - blend) + underpaint(("cobbles","flagstones","cliff")[k], paved, 15) * blend
     if k == 0:
         edge = x + 10.2 + np.sin(y * 0.23) * 1.3
         tide = np.clip(-edge * 0.7, 0, 1)[:, :, None]
         base = (
             base * (1 - tide)
             + (
-                np.array([67, 119, 126])
+                underpaint("water", (67, 119, 126), 11)
                 + np.cos(y * 5 + np.sin(x * 1.6) * 1.8)[:, :, None] * 7
             )
             * tide
@@ -71,15 +75,7 @@ def paint_land(k, key):
     result.save(RES / "Textures" / (key + "Ground.png"))
     result.save(ROOT / "Tools/bellwake/.web-assets" / (key + "Unlit.png"))
     if k == 1:
-        a = np.array(Image.open(RES / "Textures/Shale.png").convert("RGB"), float).mean(
-            2
-        )
-        img = np.uint8(
-            np.clip(
-                np.array([176, 195, 202]) + ((a - a.mean()) * 0.48)[:, :, None], 0, 255
-            )
-        )
-        Image.fromarray(img).save(RES / "Textures/RimeSnow.png")
+        save_tile("RimeSnow", RES / "Textures")
 
 
 def roof(name, x, y, w, d, eave, rise, mat):

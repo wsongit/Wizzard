@@ -339,7 +339,7 @@ def keepsake(kind, x, y, z, group="Set", scale=1):
         shaft(name, pos(*a), pos(*b), r1 * scale, r2 * scale, m, 9, group)
 
     if kind == "pin":
-        piece("Gate pin", (-0.44, 0, 0.07), (0.39, 0.05, 0.68), 0.105, 0.105, "BellMetal")
+        piece("Gate pin", (-0.44, 0, 0.07), (0.39, 0.05, 0.68), 0.105, 0.105, "Brass")
         piece("Pin head", (0.33, 0.05, 0.63), (0.46, 0.06, 0.74), 0.19, 0.19, "Brass")
         ring(
             "Split retaining eye",

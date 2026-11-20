@@ -9,77 +9,41 @@ from scipy.ndimage import gaussian_filter
 root = Path(__file__).resolve().parents[2]
 dst = root / "Assets/Resources/Bellwake/Textures"
 from material_swatches import repaint
+from surface_paint import SURFACES, save_tile, joinery
 lib = Path(sys.argv[1])
-for name in ["Village", "Forest", "Swamp", "Lava", "Foundry", "Haunted", "Ruins", "Sky"]:
+for path in sorted((lib / "Textures").glob("*_atlas.png")):
+    name = path.stem.split("_")[0]
+    if not (dst / (name + "Atlas.png")).exists():
+        continue
     repaint(lib / "Textures" / (name + "_atlas.png"), dst / (name + "Atlas.png"))
-for name in [
-    "Mountain",
-    "Grass",
-    "DirtPath",
-    "Masonry",
-    "Wood",
-    "Leaves",
-    "Brass",
-    "RoofSlate",
-    "RoofTiles",
-    "HousePlaster",
-    "WindowDark",
-    "Awning",
-    "OchrePlaster",
-    "WindowLight",
-]:
-    shutil.copyfile(root / "Assets/Resources/VillageTextures" / (name + ".png"), dst / (name + ".png"))
-colors = {
-    "Fur": (103, 68, 43),
-    "Skin": (155, 107, 66),
-    "Moss": (82, 111, 52),
-    "Loam": (116, 88, 58),
-    "MossRock": (98, 108, 70),
-    "Reeds": (90, 107, 83),
-    "Causeway": (153, 133, 97),
-    "Shale": (92, 112, 116),
-    "Basalt": (72, 64, 73),
-    "Setts": (126, 98, 87),
-    "Slate": (79, 83, 112),
-    "Inlay": (126, 112, 127),
-    "Pennon": (169, 69, 45),
-    "FernCloth": (73, 133, 91),
-    "SeaCloth": (57, 132, 141),
-    "CoalCloth": (165, 84, 52),
-    "NightCloth": (106, 80, 136),
-    "BellMetal": (143, 100, 57),
-    "Amber": (249, 188, 68),
-    "SeaGlass": (111, 211, 191),
-    "Water": (66, 138, 143),
-}
+# Three small legacy swatches retain their published pigment pattern. They
+# originally occupied positions 1, 5 and 11 in the shared random sequence.
+swatches = {1: ("Skin", (155, 107, 66)), 5: ("Reeds", (90, 107, 83)), 11: ("Inlay", (126, 112, 127))}
+pigment = np.random.default_rng(671)
 y, x = np.mgrid[:64, :64]
-rng = np.random.default_rng(671)
-for name, c in colors.items():
-    a = rng.normal(0, 1, (64, 64))
-    detail = gaussian_filter(a, 1.5, mode="wrap")
-    mott = gaussian_filter(a, 4, mode="wrap")
-    t = detail / detail.std() * 5 + mott / mott.std() * 8 + a * 3
-    if name in ("Shale", "Basalt", "Slate", "Setts", "Inlay", "Causeway", "MossRock"):
-        row = y // 16
-        u = (x + (row % 2) * 16) % 32
+for index in range(max(swatches) + 1):
+    grain = pigment.normal(0, 1, (64, 64))
+    if index not in swatches:
+        continue
+    name, colour = swatches[index]
+    detail = gaussian_filter(grain, 1.5, mode="wrap")
+    mottling = gaussian_filter(grain, 4, mode="wrap")
+    shade = detail / detail.std() * 5 + mottling / mottling.std() * 8 + grain * 3
+    if name == "Inlay":
+        u = (x + (y // 16 % 2) * 16) % 32
         v = y % 16
-        t += np.where((u <= 1) | (v == 0), -29, np.where((v == 2) | (u == 3), 13, 0))
-        if name == "Inlay":
-            t += np.where(abs((x % 16) - 8) + abs((y % 16) - 8) == 7, 32, 0)
-    elif name in ("FernCloth", "SeaCloth", "CoalCloth", "NightCloth", "Pennon"):
-        t = t * 0.45 + ((x + y) % 2) * 5 + np.where(abs((x % 16) - 8) + abs((y % 16) - 8) < 5, 27, 0)
-    elif name in ("SeaGlass", "Amber", "Water"):
-        t = (
-            t * 0.3
-            + 8 * np.sin(y * np.pi / 8 + np.sin(x * np.pi / 16))
-            + np.where((y + np.rint(2 * np.sin(x * np.pi / 16))) % 16 == 0, 24, 0)
-        )
-    elif name == "BellMetal":
-        t = t * 0.7 + np.where(y % 16 < 2, 16, 0)
-    arr = np.array(c)[None, None, :] + t[:, :, None] * np.array([1, 0.92, 0.78])
-    Image.fromarray(np.clip(arr, 0, 255).astype("uint8")).save(dst / (name + ".png"))
+        shade += np.where((u <= 1) | (v == 0), -29, np.where((v == 2) | (u == 3), 13, 0))
+        shade += np.where(abs((x % 16) - 8) + abs((y % 16) - 8) == 7, 32, 0)
+    rgb = colour + shade[..., None] * np.array([1, .92, .78])
+    Image.fromarray(np.uint8(np.clip(rgb, 0, 255))).save(dst / (name + ".png"))
+for name in SURFACES:
+    save_tile(name, dst)
+joinery(dst)
+
 # One continuous terrain painting per room. Smooth junctions share the collision surface.
-from scipy.ndimage import map_coordinates
+rng = np.random.default_rng(671)
+# Ground lighting has its own sequence, independent of further palette edits.
+rng.normal(0, 1, (3, 64, 64))
 
 names = ["Bellmarket", "RootChoir", "Reedwater", "CinderLens", "StillBelfry"]
 n = 512

@@ -27,7 +27,8 @@ def paint():
                 shade = 1 + grain + .06 * math.cos(v * math.pi / 15)
                 image.putpixel(((i % 4) * 16 + u, 48 - (i // 4) * 16 + v),
                                tuple(round(min(255, c * shade)) for c in colour))
-    image.save(RES / "Textures/OrlaAtelier.png")
+    from surface_paint import costume
+    costume("OrlaAtelier", image, RES / "Textures")
 
 
 def keeper(x, y, z):

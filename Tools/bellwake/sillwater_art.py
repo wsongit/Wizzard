@@ -729,15 +729,8 @@ def watercourse(high):
 
 
 def water_tile():
-    n = 64
-    j, i = np.mgrid[:n, :n]
-    rng = np.random.default_rng(813)
-    wav = (
-        np.sin(i * TAU / 32 + 1.5 * np.sin(j * TAU / 32)) * 4
-        + np.sin(j * TAU / 9.14 + 1.75 * np.cos(i * TAU / 32)) * 3
-    )
-    base = np.array([83, 127, 130]) + wav[:, :, None] + rng.normal(0, 1.7, (n, n, 1))
-    Image.fromarray(np.uint8(base)).save(RES / "Textures/ParishWater.png")
+    from surface_paint import save_tile
+    save_tile("ParishWater", RES / "Textures")
 
 
 def transit(id, x, y, z, target):

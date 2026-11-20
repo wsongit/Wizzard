@@ -60,8 +60,11 @@ def pigment(k, r):
     joints = (np.minimum((y + 30) % 1.45, 1.45 - (y + 30) % 1.45) < 0.035) | (
         ((x + np.floor((y + 30) / 1.45) * 0.9) % 2.2) < 0.065
     )
-    shade = broad(18) * 21 + broad(96) * 17 + broad(512) * 20 - 17 * joints
-    rgb = base + shade[:, :, None]
+    from surface_paint import tinted
+    study = ("flagstones", "flagstones", "cobbles", "cobbles", "volcanic-stone", "flagstones", "volcanic-stone", "flagstones")[k]
+    pigment = np.asarray(tinted(study, base, 16), dtype=float)
+    shade = broad(18) * 13 + broad(96) * 8 + broad(512) * 7 - 8 * joints
+    rgb = pigment[Y % 64, X % 64] + shade[:, :, None]
     radius = np.hypot(x, y)
     if k in (0, 6, 7):
         pattern = np.minimum.reduce(

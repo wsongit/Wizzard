@@ -23,7 +23,8 @@ def paint(atlas):
         if i==13 and atlas=='OssaAtelier':brush+=12*np.cos((xx+yy*1.4)*math.pi/22)
         row,col=divmod(i,4)
         image[(3-row)*32:(4-row)*32,col*32:(col+1)*32]=np.uint8(np.clip(np.array(c)+brush[:,:,None],0,255))
-    Image.fromarray(image).save(RES/'Textures'/(atlas+'.png'))
+    from surface_paint import costume
+    costume(atlas, Image.fromarray(image), RES/'Textures')
 
 def maker(x,y,z,smith):
     f=Figure(x,y,z,'OssaAtelier' if smith else 'FenAtelier')

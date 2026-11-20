@@ -33,7 +33,9 @@ def artwork():
             grain -= 18 * ((y % 21 < 1.2) | ((x + 21 * (y // 21 % 2)) % 42 < 1.2))
             for k in (-8, 0, 8):
                 grain += np.maximum(0, 1 - np.abs((x - 256) * 40 / 512 - k) * 7) * 8
-        im = Image.fromarray(np.uint8(np.clip(np.array(base) + grain[..., None], 0, 255)))
+        from surface_paint import tinted
+        pigment = np.asarray(tinted("iron" if size == 64 else "flagstones", base, 17), dtype=float)
+        im = Image.fromarray(np.uint8(np.clip(pigment[y % 64, x % 64] + .55*grain[..., None], 0, 255)))
         im.save(root / (name + ".png"))
         if size == 512:
             im.save(ROOT / "Tools/bellwake/.web-assets" / (KEY + "Unlit.png"))

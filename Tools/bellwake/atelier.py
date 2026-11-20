@@ -33,7 +33,7 @@ def init(library, seed):
         shader = material.node_tree.nodes.get("Principled BSDF")
         shader.inputs["Roughness"].default_value = 0.95
         material.node_tree.links.new(node.outputs["Color"], shader.inputs["Base Color"])
-        if path.stem == "RoadSorrel":
+        if path.stem in ("RoadSorrel", "BanksidePlants"):
             material.node_tree.links.new(node.outputs["Alpha"], shader.inputs["Alpha"])
         mats[path.stem] = material
 
@@ -226,6 +226,14 @@ def model(id, name, x, y, z, height, heading=0, group="Set"):
 def finish(key, sky_key=None):
     from mesh_finish import finish_geometry
     finish_geometry(batches, origins)
+    from bankside_plants import plant
+    bpy.context.view_layer.update()
+    plant(key)
+    from carpentry import align
+    align(key, (o for group, objs in batches.items() if not group.startswith("C_") for o in objs))
+    from joinery import bind, bind_staves
+    bind((o for group, objs in batches.items() if not group.startswith("C_") for o in objs), mats["Joinery"])
+    bind_staves((o for group, objs in batches.items() if not group.startswith("C_") for o in objs), mats["Joinery"])
     folder = ROOT / "Blender/Bellwake"
     folder.mkdir(exist_ok=True)
     scene = bpy.context.scene

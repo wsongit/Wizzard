@@ -6,6 +6,7 @@ import bpy
 import numpy as np
 from mathutils import Matrix, Vector
 from PIL import Image, ImageDraw
+from surface_paint import tinted
 from atelier import RES, geometry, mats, origins
 
 ATLAS = "TaviAtelier"
@@ -28,6 +29,11 @@ PIGMENTS = {
     "iron": (78, 89, 91),
     "seam": (114, 87, 59),
 }
+
+
+CLOTH = {"shirt":"blue-canvas", "shirtLight":"linen", "apron":"leather", "apronEdge":"leather",
+         "pants":"wool", "boots":"leather", "welt":"leather", "brass":"bronze",
+         "kerchief":"linen", "linen":"linen", "iron":"iron"}
 
 
 def paint_atlas():
@@ -85,7 +91,8 @@ def paint_atlas():
         if key in ("apron", "boots", "welt", "hair", "fringe", "hairLight"):
             grain += 4 * np.cos(np.arange(64)[None, :] * 0.29 + np.arange(32)[:, None] * 0.12)
         tile = np.clip(np.array(color) + grain[..., None], 0, 255).astype("uint8")
-        im.paste(Image.fromarray(tile), (cx * 64, 128 + cy * 32))
+        swatch = tinted(CLOTH[key], color, 11, (64,32)) if key in CLOTH else Image.fromarray(tile)
+        im.paste(swatch, (cx * 64, 128 + cy * 32))
     im.resize((128,128),Image.Resampling.LANCZOS).save(path, optimize=True)
     if ATLAS in mats:
         # init() may already have packed the preceding version of this atlas.

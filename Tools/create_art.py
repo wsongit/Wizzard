@@ -1,8 +1,10 @@
 """Run: blender -b --python Tools/create_art.py (from the repository root)."""
-import bpy, math, random
+import bpy, math, random, sys
 from pathlib import Path
 from mathutils import Vector
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'Tools'))
+from meadow_materials import dress_meadow
 ART=ROOT/'Assets'/'Art'; RES=ROOT/'Assets'/'Resources'
 ART.mkdir(exist_ok=True); RES.mkdir(exist_ok=True)
 bpy.ops.object.select_all(action='SELECT'); bpy.ops.object.delete(use_global=False)
@@ -30,16 +32,7 @@ bpy.ops.object.join(); torso=bpy.context.object; torso.name='GorillaTorso'
 bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
 bpy.ops.wm.obj_export(filepath=str(RES/'GorillaTorso.obj'),export_selected_objects=True,
                      forward_axis='NEGATIVE_Z',up_axis='Y',export_materials=True)
-# Original pixel texture, not ripped from a Nintendo game.
-rng=random.Random(641997); image=bpy.data.images.new('Meadow grass 32px',width=32,height=32)
-pixels=[]
-for i in range(1024):
-    t=rng.random(); c=(.26,.36,.10) if t<.13 else (.53,.61,.23) if t>.84 else (.40,.51,.16)
-    pixels.extend((*c,1))
-image.pixels=pixels; image.filepath_raw=str(ART/'grass32.png'); image.file_format='PNG'; image.save()
-mat=material('N64 meadow',(.4,.51,.16)); nodes=mat.node_tree.nodes
-tex=nodes.new('ShaderNodeTexImage'); tex.image=image; tex.interpolation='Closest'; tex.extension='REPEAT'
-mat.node_tree.links.new(tex.outputs['Color'],nodes.get('Principled BSDF').inputs['Base Color'])
+mat=material('N64 meadow',(.4,.51,.16))
 def height(x,z):
     edge=max(abs(x),abs(z)); t=max(0,min(1,(edge-840)/184)); t=t*t*(3-2*t)
     return 5*math.sin(x*.012)*math.cos(z*.009)+2.5*math.sin(x*.027+z*.018)+7*math.exp(-((x-115)**2+(z-95)**2)/18000)+100*t
@@ -55,7 +48,7 @@ obj=bpy.data.objects.new('2048m rolling meadow',mesh); bpy.context.collection.ob
 uv=mesh.uv_layers.new()
 for poly in mesh.polygons:
     for idx in poly.loop_indices:
-        v=verts[mesh.loops[idx].vertex_index]; uv.data[idx].uv=(v[0]/8,v[1]/8)
+        v=verts[mesh.loops[idx].vertex_index]; uv.data[idx].uv=(v[0]/4,v[1]/4)
 rng=random.Random(197)
 for i in range(48):
     x=rng.uniform(-750,750); y=rng.uniform(-750,750)
@@ -83,7 +76,8 @@ scene=bpy.context.scene; scene.camera=camera; scene.render.engine='CYCLES'; scen
 scene.render.resolution_x=1280; scene.render.resolution_y=720; scene.render.resolution_percentage=100
 scene.view_settings.view_transform='Standard'
 (ROOT/'Blender').mkdir(exist_ok=True)
-image.pack(); bpy.ops.wm.save_as_mainfile(filepath=str(ROOT/'Blender'/'LongMeadow.blend'))
+image=dress_meadow()
+bpy.ops.wm.save_as_mainfile(filepath=str(ROOT/'Blender'/'LongMeadow.blend'))
 scene.render.filepath=str(ROOT/'Documentation'/'meadow-preview.png')
 bpy.ops.render.render(write_still=True)
 print('ART_VALIDATED: terrain vertices',len(verts),'triangles',len(faces),'grass',image.size[:])

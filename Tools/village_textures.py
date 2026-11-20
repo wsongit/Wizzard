@@ -1,8 +1,9 @@
 """Original, reproducible 64px pigment tiles for Mossbell's material families.
-All pixels are authored here; reference images are not inputs to the generator.
+Mossbell uses the Bellwake image paintings and its own small colour tiles.
 PNG values are sRGB. Unity and Blender share these exact portable texture files.
 """
 import bpy, math, random
+from PIL import Image
 PALETTES={
  'HousePlaster':((.49,.43,.32),(.86,.79,.63)),
  'OchrePlaster':((.48,.32,.19),(.80,.62,.38)),
@@ -29,7 +30,14 @@ def linear(v):return v/12.92 if v<=.04045 else ((v+.055)/1.055)**2.4
 def create(root):
  out=root/'Assets/Resources/VillageTextures';out.mkdir(parents=True,exist_ok=True)
  result={};art={}
+ aliases={'EarthCliff':'MarketCutbank','SpringWater':'Water','SailCloth':'MillCanvas'}
  for kind,(lo,hi) in PALETTES.items():
+  source=root/'Assets/Resources/Bellwake/Textures'/(aliases.get(kind,kind)+'.png')
+  if source.is_file():
+   with Image.open(source) as im:
+    im.convert('RGB').resize((64,64),Image.Resampling.LANCZOS).save(out/(kind+'.png'),optimize=True)
+   image=bpy.data.images.load(str(out/(kind+'.png')));image.name=kind+'64';image.pack();result[kind]=image
+   continue
   rng=random.Random(910+sum(map(ord,kind)))
   grids={n:[[rng.random() for _ in range(n)] for _ in range(n)] for n in (4,8,16,32,64)}
   def noise(x,y,n):
@@ -103,14 +111,19 @@ def create(root):
     elif kind=='Brass':t=wash+dab*.7+.14*grain
     rgb.append(mix(lo,hi,max(0,min(1,t))))
   art[kind]=rgb
- art['PathBlend']=[];path_alpha=[]
+ # Feather the path shoulders with the same pigment as the opaque lane.
+ path_alpha=[]
  for y in range(64):
   for x in range(64):
-   edge=min(x,63-x)/63;t=max(0,min(1,(edge-.025-.026*math.sin(y*math.tau/32))/.17));t=t*t*(3-2*t)
-   # Cutout shoulders reveal the actual ground below, avoiding mismatched grass UVs.
-   art['PathBlend'].append(art['DirtPath'][y*64+x]);path_alpha.append(t)
+   edge=min(x,63-x)/63;t=max(0,min(1,(edge-.025-.026*math.sin(y*math.tau/32))/.17))
+   path_alpha.append(round(255*t*t*(3-2*t)))
  for kind,rgb in art.items():
   image=bpy.data.images.new(kind+'64',width=64,height=64,alpha=True)
-  image.pixels=[c for i,pixel in enumerate(rgb) for c in (*pixel,path_alpha[i] if kind=='PathBlend' else 1)]
+  image.pixels=[c for i,pixel in enumerate(rgb) for c in (*pixel,1)]
   image.filepath_raw=str(out/(kind+'.png'));image.file_format='PNG';image.save();image.pack();result[kind]=image
+ imagepath=out/'PathBlend.png'
+ with Image.open(out/'DirtPath.png') as dirt:
+  path=dirt.convert('RGBA')
+ alpha=Image.new('L',(64,64));alpha.putdata(path_alpha);path.putalpha(alpha);path.save(imagepath,optimize=True)
+ image=bpy.data.images.load(str(imagepath));image.name='PathBlend64';image.pack();result['PathBlend']=image
  return result

@@ -1,8 +1,11 @@
 """Repaint the 16 fixed 32px UV islands used by Bellwake's Blender prop and NPC library."""
 from pathlib import Path
-import math
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image
+from surface_paint import tinted
+
+STUDIES = {0:"oak", 1:"dock-oak", 2:"fieldstone", 3:"cliff", 4:"bronze",
+           5:"linen", 7:"blue-canvas", 8:"linen", 10:"bronze", 15:"oak-leaves"}
 
 def repaint(source, dest):
     im=Image.open(source).convert("RGB")
@@ -41,6 +44,12 @@ def repaint(source, dest):
             value=value*.38 + 6*np.cos((y-7)*.12)
         else:
             value+=4*np.cos((y+x*.3)*.16)
+        if i in STUDIES:
+            # Keep the library's reserved UV islands and identifying colours. Paint
+            # grain, chipped edges and weave inside those islands, avoiding face regions.
+            pigment = np.asarray(tinted(STUDIES[i],base,18 if i in (0,1,2,3,15) else 11,(32,32)))
+            value = value * (.33 if i in (5,7,8) else .14)
+            base = pigment.astype(float)
         arr=base+value[:,:,None]*np.array([1,.93,.75])
         arr=np.clip(arr,0,255).astype(np.uint8)
         output.paste(Image.fromarray(arr),(left,top))

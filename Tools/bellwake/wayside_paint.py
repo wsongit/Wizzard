@@ -50,16 +50,8 @@ def paint(destination):
         d.rectangle((door-2,56,door+14,58),fill=(143,131,109))
         atlas.paste(tile,(index*64,0))
     atlas.save(destination / "WayhouseFronts.png")
-    canvas=Image.new("RGB",(32,64))
-    dye=ImageDraw.Draw(canvas)
-    for y in range(64):
-        for x in range(32):
-            noise=rng.randint(-4,4)+(x%3==0)*3
-            value=int(9*((x//7)%2)-abs(15-x)*.5+noise)
-            dye.point((x,y),fill=(203+value,184+value,142+value))
-    for x in (1,9,22,30):
-        dye.line((x,1,x,62),fill=(163,143,105))
-    canvas.save(destination / "MillCanvas.png")
+    from surface_paint import save_tile
+    save_tile("MillCanvas", destination)
 
 def paint_sorrel(destination):
     import math

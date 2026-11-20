@@ -82,19 +82,9 @@ def ground_art():
         d2 = (x - cx + 0.62) ** 2 + (y - cy - 0.54) ** 2
         img *= (1 - 0.26 * np.exp(-d2 / (h * 0.84)))[..., None]
     Image.fromarray(np.uint8(np.clip(img, 0, 255))).save(root / (KEY + "Ground.png"))
-    for i, c in enumerate(((80, 108, 51), (98, 128, 61), (69, 99, 53))):
-        yy, xx = np.mgrid[:64, :64]
-        shade = np.zeros_like(xx, dtype=float)
-        for _ in range(84):
-            dx = (xx - rng.uniform(0, 64) + 32) % 64 - 32
-            dy = (yy - rng.uniform(0, 64) + 32) % 64 - 32
-            shade += rng.uniform(-20, 24) * np.exp(
-                -(dx**2 + dy**2) / rng.uniform(6, 27)
-            )
-        paint = np.array(c) + (shade + rng.normal(0, 2, (64, 64)))[..., None]
-        Image.fromarray(np.uint8(np.clip(paint, 0, 255))).save(
-            root / ("RowanLeaf" + str(i) + ".png")
-        )
+    from surface_paint import save_tile
+    for i in range(3):
+        save_tile("RowanLeaf" + str(i), root)
     font = lambda size: ImageFont.truetype(
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", size
     )
