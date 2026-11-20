@@ -1,0 +1,362 @@
+{
+  "baselineCommit": "c2fa9b75a069d2b6957697756ebba6643a98e2ce",
+  "apkSha256": "be95ccbdad124ea6ef6b65a25dc130185533976bf973b5522d7cac49175f1ca0",
+  "art": {
+    "playableModels": 46,
+    "distinctEmbeddedPngs": 206,
+    "embeddedImageReferences": 850,
+    "unchangedCollisionFiles": 43,
+    "plantTriangles": {
+      "Bellmarket": 124,
+      "RootChoir": 132,
+      "Reedwater": 68,
+      "RowanHollow": 136
+    },
+    "measuredUVFaces": {
+      "roofFaces": 142,
+      "timberFaces": 6216,
+      "staveFaces": 464
+    },
+    "editableBlenderScenes": 53
+  },
+  "tests": {
+    "desktop": "Chromium / SwiftShader, three streaming laps",
+    "immersive": "Chromium / SwiftShader, IWER Quest 3, continuous head and controller movement",
+    "android": "Android 9 x86 emulator, signed APK installed and all 173 files checked over loopback",
+    "physicalQuestFrameTimingMeasured": false,
+    "unity": "2022.3.20f1 assemblies compile; batch export stops at license activation",
+    "nativeShaderVariants": 70,
+    "filterSamplesPerImplementation": 42029,
+    "wholeImmersiveTourSeconds": 3823.9,
+    "interactionChecks": [
+      "head-guard",
+      "single-palm",
+      "interrupt-hands",
+      "palms",
+      "wood",
+      "pilots",
+      "theatre",
+      "headset-report",
+      "mercy-seal"
+    ],
+    "standaloneHtmlFetchedExternalAssets": false
+  },
+  "pairedViewMedianDrawCalls": {
+    "Bellmarket": {
+      "previous": 32,
+      "painted": 34
+    },
+    "ChainDock": {
+      "previous": 40,
+      "painted": 42
+    },
+    "Reedwater": {
+      "previous": 18,
+      "painted": 19
+    },
+    "RootChoir": {
+      "previous": 21,
+      "painted": 22
+    },
+    "RowanHollow": {
+      "previous": 29,
+      "painted": 30
+    }
+  },
+  "rooms": {
+    "Bellmarket": {
+      "desktopVisits": 3,
+      "residentTextures": 41,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.5,
+      "colourMipDeltaBytes": 300380
+    },
+    "Cairnwatch": {
+      "desktopVisits": 3,
+      "residentTextures": 20,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.5,
+      "colourMipDeltaBytes": 0
+    },
+    "CastingBed": {
+      "desktopVisits": 3,
+      "residentTextures": 18,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.0,
+      "colourMipDeltaBytes": 174764
+    },
+    "ChainDock": {
+      "desktopVisits": 3,
+      "residentTextures": 23,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.4,
+      "colourMipDeltaBytes": 147464
+    },
+    "CinderLens": {
+      "desktopVisits": 3,
+      "residentTextures": 15,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.3,
+      "colourMipDeltaBytes": 87384
+    },
+    "DriftFen": {
+      "desktopVisits": 3,
+      "residentTextures": 26,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.2,
+      "colourMipDeltaBytes": 120164
+    },
+    "DrumHouse": {
+      "desktopVisits": 12,
+      "residentTextures": 18,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.4,
+      "colourMipDeltaBytes": -54600
+    },
+    "EchoRotunda": {
+      "desktopVisits": 3,
+      "residentTextures": 14,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.1,
+      "colourMipDeltaBytes": 0
+    },
+    "FloodLedger": {
+      "desktopVisits": 3,
+      "residentTextures": 19,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.3,
+      "colourMipDeltaBytes": 0
+    },
+    "GlassRookery": {
+      "desktopVisits": 3,
+      "residentTextures": 34,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.1,
+      "colourMipDeltaBytes": 142012
+    },
+    "Glasscut": {
+      "desktopVisits": 3,
+      "residentTextures": 14,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.2,
+      "colourMipDeltaBytes": 0
+    },
+    "GloamingPress": {
+      "desktopVisits": 3,
+      "residentTextures": 19,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.1,
+      "colourMipDeltaBytes": 0
+    },
+    "KettleYard": {
+      "desktopVisits": 3,
+      "residentTextures": 24,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.2,
+      "colourMipDeltaBytes": -54600
+    },
+    "KiteCrag": {
+      "desktopVisits": 3,
+      "residentTextures": 23,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.3,
+      "colourMipDeltaBytes": 0
+    },
+    "LanternCourt": {
+      "desktopVisits": 3,
+      "residentTextures": 15,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.0,
+      "colourMipDeltaBytes": 0
+    },
+    "LinenCourt": {
+      "desktopVisits": 3,
+      "residentTextures": 24,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.1,
+      "colourMipDeltaBytes": 0
+    },
+    "MercySlip": {
+      "desktopVisits": 3,
+      "residentTextures": 22,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.1,
+      "colourMipDeltaBytes": -27300
+    },
+    "MouldLoft": {
+      "desktopVisits": 3,
+      "residentTextures": 18,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.1,
+      "colourMipDeltaBytes": -54600
+    },
+    "OrreryLoft": {
+      "desktopVisits": 3,
+      "residentTextures": 17,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.0,
+      "colourMipDeltaBytes": 0
+    },
+    "PaperCourt": {
+      "desktopVisits": 3,
+      "residentTextures": 25,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.1,
+      "colourMipDeltaBytes": -114680
+    },
+    "QuinceFold": {
+      "desktopVisits": 3,
+      "residentTextures": 20,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.1,
+      "colourMipDeltaBytes": 0
+    },
+    "RainCourt": {
+      "desktopVisits": 3,
+      "residentTextures": 17,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.2,
+      "colourMipDeltaBytes": 0
+    },
+    "Reedwater": {
+      "desktopVisits": 3,
+      "residentTextures": 23,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.0,
+      "colourMipDeltaBytes": 147464
+    },
+    "RimePost": {
+      "desktopVisits": 3,
+      "residentTextures": 18,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.1,
+      "colourMipDeltaBytes": 174764
+    },
+    "RootChoir": {
+      "desktopVisits": 3,
+      "residentTextures": 20,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.4,
+      "colourMipDeltaBytes": 174764
+    },
+    "RowanHollow": {
+      "desktopVisits": 3,
+      "residentTextures": 28,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.6,
+      "colourMipDeltaBytes": 207544
+    },
+    "SaffronKilns": {
+      "desktopVisits": 3,
+      "residentTextures": 20,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.4,
+      "colourMipDeltaBytes": 0
+    },
+    "Saltwake": {
+      "desktopVisits": 3,
+      "residentTextures": 20,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.1,
+      "colourMipDeltaBytes": 174764
+    },
+    "SignalLoom": {
+      "desktopVisits": 3,
+      "residentTextures": 24,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.2,
+      "colourMipDeltaBytes": -27300
+    },
+    "SillwaterEbb": {
+      "desktopVisits": 6,
+      "residentTextures": 27,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.4,
+      "colourMipDeltaBytes": 120164
+    },
+    "SillwaterFlood": {
+      "desktopVisits": 3,
+      "residentTextures": 27,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.4,
+      "colourMipDeltaBytes": 120164
+    },
+    "SillwaterOffice": {
+      "desktopVisits": 3,
+      "residentTextures": 20,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.2,
+      "colourMipDeltaBytes": -27300
+    },
+    "SoundingBay": {
+      "desktopVisits": 3,
+      "residentTextures": 21,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.1,
+      "colourMipDeltaBytes": 0
+    },
+    "StillBelfry": {
+      "desktopVisits": 3,
+      "residentTextures": 17,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.3,
+      "colourMipDeltaBytes": 0
+    },
+    "SumpHall": {
+      "desktopVisits": 3,
+      "residentTextures": 16,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.3,
+      "colourMipDeltaBytes": 0
+    },
+    "SupperSteps": {
+      "desktopVisits": 3,
+      "residentTextures": 23,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.0,
+      "colourMipDeltaBytes": 0
+    },
+    "SwallowLock": {
+      "desktopVisits": 6,
+      "residentTextures": 27,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.3,
+      "colourMipDeltaBytes": 120164
+    },
+    "TwinIntake": {
+      "desktopVisits": 3,
+      "residentTextures": 16,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.3,
+      "colourMipDeltaBytes": 0
+    },
+    "VellumWalk": {
+      "desktopVisits": 3,
+      "residentTextures": 17,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.2,
+      "colourMipDeltaBytes": 0
+    },
+    "WeighHouse": {
+      "desktopVisits": 3,
+      "residentTextures": 13,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.4,
+      "colourMipDeltaBytes": 0
+    },
+    "Wickwater": {
+      "desktopVisits": 3,
+      "residentTextures": 28,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.2,
+      "colourMipDeltaBytes": -27300
+    },
+    "Wrenfall": {
+      "desktopVisits": 3,
+      "residentTextures": 34,
+      "retiredSceneReferences": 0,
+      "immersiveSeconds": 89.3,
+      "colourMipDeltaBytes": 174764
+    }
+  }
+}

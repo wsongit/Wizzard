@@ -31,3 +31,5 @@ All 850 embedded image references in the 46 playable models match the correspond
 Across the room models, the largest increase in decoded colour texture storage is 294 KiB in Bellmarket, rounded up. This estimate includes full RGBA8 mip chains. Each of the four plant types kept a visible silhouette at 18 metres in a 256-pixel WebGL test. Headset frame time still needs measurement on a physical Quest.
 
 Three streaming laps made 141 district entries. After each move, the previous scene was collectible, and each return to the same district reproduced its GPU resource counts. Bellmarket peaked at 41 resident textures in that test, up from 39. Five paired standing views added one or two median draw calls. The signed Android installation served all 173 packaged files with their expected contents.
+
+A continuous emulated Quest session visited all 42 districts in 64 minutes. Both tracked hands stayed available, and each room released its predecessor. [Per-district texture counts and immersive results](image-texture-test-results.json)
