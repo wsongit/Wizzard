@@ -29,7 +29,7 @@ The market, Root Choir, Reedwater, Cinder Lens and belfry each hold a witness le
 
 The witness book shows active playtime. Loading, the open journal and unfocused play are excluded. The clock starts with this update for existing checkpoints. Players already past a new district retain their place in the story.
 
-The main story reached its first ending in **1:00:28 of active play** on the tested desktop route, sprinting with known solutions. The harbour kitchen and the morning music-box verses are optional. Your first visit and Quest movement can take a different amount of time. [Playthrough details](validation.md)
+Allow **about two hours** for the tested browser route with known solutions. Three fresh-save runs with Highroad travel reached the first ending in **1:56:02 to 2:14:25 of active play**. Each completed the 27 dispatches and found all five witness leaves. Reading, exploring and moving with your arms can change your time. The harbour kitchen and morning music-box verses are optional. [Playthrough details](validation.md)
 
 ## Install the Quest Browser edition
 

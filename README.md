@@ -18,11 +18,13 @@ Bess’s model boat, Oli’s channel lamps and Nan’s bread shelf mark the othe
 
 Each district has an entrance on the Bellwake Highroad. Walk to the gold marker to continue the story, or enter another named gate to explore. Conversations hold your position until you press E or a trigger. [Native highroad, Blender views and art notes](Documentation/Bellwake/native-field.md)
 
-**Optional browser prototype.** Play by opening `Play/Bellwake.html` in Chrome or Edge. Use WASD to move, drag to look, E to interact and J to open your witness book. To visit Rowan Hollow immediately, use the **Rowan Hollow** sign with the carved bird just to the right of the market entrance. Its north wicket brings you back to the same morning. To try Drift Fen immediately, take the red **Drift Fen** return fare to the right of the market entrance. The neighboring green counter serves Sillwater. The northeast towpath brings you back to Tavi. When hosting for Quest Browser, use `Play/index.html` and its adjacent `assets` folder to download districts as you enter them. Both editions support immersive WebXR on secure origins.
+**Play on desktop.** Open `Play/Bellwake.html` in Chrome or Edge. Use WASD to move, drag to look, E to interact and J to open your witness book. To visit Rowan Hollow immediately, use the **Rowan Hollow** sign with the carved bird just to the right of the market entrance. Its north wicket brings you back to the same morning. To try Drift Fen immediately, take the red **Drift Fen** return fare to the right of the market entrance. The neighboring green counter serves Sillwater. The northeast towpath brings you back to Tavi. When hosting for Quest Browser, use `Play/index.html` and its adjacent `assets` folder to download districts as you enter them. Both editions support immersive WebXR on secure origins.
 
 **Open in Unity** with Unity 2022.3.20f1 and choose **Wizzard → Play Bellwake**. The market sign leads to the original two-kilometre Long Meadow and its Mossbell Village gate.
 
-[Story, controls, Quest Browser setup and editable art](Documentation/Bellwake/guide.md) · [Validation results](Documentation/Bellwake/validation.md)
+Three known-solution browser runs reached the first ending in 1:56:02 to 2:14:25 of active play. Each also reached the alternate ending from the belfry checkpoint.
+
+[Views from all 42 districts](Documentation/Bellwake/district-arrivals.jpg) · [Story, controls, Quest Browser setup and editable art](Documentation/Bellwake/guide.md) · [Validation results](Documentation/Bellwake/validation.md)
 
 ## Open the Unity project (standalone Meta Quest)
 

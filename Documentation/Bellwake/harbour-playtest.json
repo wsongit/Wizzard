@@ -1,0 +1,228 @@
+{
+  "contentRevision": "336e9dbc60fceef98a69277642cac136c05e282b",
+  "timedRoutes": [
+    {
+      "route": "First fresh campaign",
+      "browserPackage": "opening valley pass",
+      "reloadMode": "earned checkpoints",
+      "firstEndingActiveSeconds": 6961.6,
+      "firstEndingElapsedSeconds": 7063.62,
+      "timeRecordedForPlaces": 42,
+      "endings": [
+        1,
+        2
+      ],
+      "witnessLeaves": 5,
+      "browserErrors": 0
+    },
+    {
+      "route": "Second fresh campaign",
+      "browserPackage": "earlier Highroad package",
+      "reloadMode": "every chapter plus earned workspace-restart checkpoint",
+      "firstEndingActiveSeconds": 7855.53,
+      "firstEndingElapsedSeconds": 8058.99,
+      "timeRecordedForPlaces": 42,
+      "endings": [
+        1,
+        2
+      ],
+      "witnessLeaves": 5,
+      "browserErrors": 0
+    },
+    {
+      "route": "Third fresh campaign",
+      "browserPackage": "rookery and quays pass",
+      "reloadMode": "earned workspace-restart checkpoint",
+      "firstEndingActiveSeconds": 8065.29,
+      "firstEndingElapsedSeconds": 8187.25,
+      "timeRecordedForPlaces": 42,
+      "endings": [
+        1,
+        2
+      ],
+      "witnessLeaves": 5,
+      "browserErrors": 0
+    }
+  ],
+  "routeMethod": "Fresh saves, keyboard movement, normal interactions and chart hints. The first ending is timed. The alternate ending was tested from the earned belfry checkpoint. Loading and unfocused time are excluded from the active clock. Test builds share the released story, passage and machine data.",
+  "sharedRulesSha256": {
+    "story": "0d0f95dc6ba7d159ceca8bae53e2d8ee8ac720df3392b314df6dff5b57e994b7",
+    "works": "508e5ef5386a256f46f965689faf703af3b24abc2970a3087137b24121e08c51",
+    "regions": "42d17dc3e00fdfc18537e3464a964cdb166ce764401ec6f7cfe28fada01ec23d"
+  },
+  "loading": {
+    "edition": "released harbour art",
+    "districts": 42,
+    "desktopTransfers": 141,
+    "completeLaps": 3,
+    "liveWorlds": 1,
+    "liveCollisionTrees": 1,
+    "liveMusicTracks": 1,
+    "retiredWorldsRetainedAfterCollection": 0,
+    "visualRevisits": 84,
+    "lighting": [
+      "noon",
+      "lantern light"
+    ],
+    "meanImageSimilarity": 0.998495,
+    "minimumImageSimilarity": 0.949098
+  },
+  "extendedStreaming": {
+    "desktopVisitsBeforeWorkspaceRestart": 186,
+    "desktopVisitsAfterWorkspaceRestart": 257,
+    "firstEmulatedHeadsetSessionVisits": 19,
+    "secondEmulatedHeadsetSessionVisits": 126,
+    "secondSessionLaps": 3,
+    "uniqueHeadsetDistricts": 42,
+    "retiredWorldsRetainedAfterCollection": 0,
+    "device": "Chromium, IWER Meta Quest 3 emulation and software graphics. These extended sessions began before the final three register models."
+  },
+  "exportedGeometry": {
+    "districts": 42,
+    "groundSamples": 1045338,
+    "boundaryRays": 234920,
+    "reachableInteractions": 461,
+    "packedCollisionQueries": 132096,
+    "visibilityQueries": 161034
+  },
+  "registerApproaches": [
+    "MercySlip",
+    "Wickwater",
+    "LinenCourt",
+    "KiteCrag",
+    "SoundingBay",
+    "SupperSteps"
+  ],
+  "registerRenderCosts": {
+    "MercySlip": {
+      "before": {
+        "peakDrawCalls": 20,
+        "peakTriangles": 29803
+      },
+      "after": {
+        "peakDrawCalls": 22,
+        "peakTriangles": 30411
+      }
+    },
+    "Wickwater": {
+      "before": {
+        "peakDrawCalls": 27,
+        "peakTriangles": 39905
+      },
+      "after": {
+        "peakDrawCalls": 31,
+        "peakTriangles": 40673
+      }
+    },
+    "SupperSteps": {
+      "before": {
+        "peakDrawCalls": 21,
+        "peakTriangles": 29957
+      },
+      "after": {
+        "peakDrawCalls": 22,
+        "peakTriangles": 30537
+      }
+    }
+  },
+  "androidBrowserPackage": {
+    "packageId": "com.wizzard.bellwake.webxr",
+    "versionCode": 3,
+    "versionName": "1.2-harbour",
+    "sha256": "a351307dd7cd5043a9e1281e6e5c7ca0270a9cddc4fab17fef49d4a8fe502965",
+    "signedBytes": 53992799,
+    "testedUpdateFrom": 2,
+    "signedAssets": 172,
+    "androidFixture": "Stock AOSP Android 9 x86 under emulation",
+    "upgradeKeptUid": true,
+    "installedPayloadCompared": true,
+    "apkCheckpointSurvived": true,
+    "androidIntentReceiver": {
+      "installedReceiver": "test-only ACTION_VIEW receiver in stock AOSP",
+      "expectedOrigin": "http://127.0.0.1:38761/",
+      "normalLaunches": 3,
+      "stopReopenCycles": 2
+    },
+    "androidServedImmersiveTests": [
+      {
+        "district": "Bellmarket",
+        "models": [
+          "Bellmarket-5ca1fb184442.glb.gz",
+          "RightPalm-d765fb8d6ca7.glb.gz",
+          "RunnerArm-62a559d54177.glb.gz",
+          "LeftPalm-4e881cdea1df.glb.gz"
+        ],
+        "errors": []
+      },
+      {
+        "district": "MercySlip",
+        "models": [
+          "MercySlip-4a7cc4fce217.glb.gz",
+          "RightPalm-d765fb8d6ca7.glb.gz",
+          "LeftPalm-4e881cdea1df.glb.gz",
+          "RunnerArm-62a559d54177.glb.gz"
+        ],
+        "errors": []
+      }
+    ],
+    "packagedTicketGpuObjects": {
+      "area": "THREE HOUSES OF SILLWATER\nSillwater at Ebb",
+      "models": [
+        "Bellmarket-5ca1fb184442.glb.gz",
+        "LeftPalm-4e881cdea1df.glb.gz",
+        "RightPalm-d765fb8d6ca7.glb.gz",
+        "RunnerArm-62a559d54177.glb.gz",
+        "Highroad-2eed036fde28.glb.gz",
+        "SillwaterEbb-6d72050c5e63.glb.gz"
+      ],
+      "objectsInMarket": {
+        "Texture": {
+          "create": 54,
+          "delete": 0
+        },
+        "Buffer": {
+          "create": 224,
+          "delete": 0
+        },
+        "Program": {
+          "create": 6,
+          "delete": 0
+        }
+      },
+      "objectsOnHighroad": {
+        "Texture": {
+          "create": 74,
+          "delete": 38
+        },
+        "Buffer": {
+          "create": 297,
+          "delete": 176
+        },
+        "Program": {
+          "create": 8,
+          "delete": 2
+        }
+      },
+      "objectsAfterTravel": {
+        "Texture": {
+          "create": 99,
+          "delete": 58
+        },
+        "Buffer": {
+          "create": 408,
+          "delete": 252
+        },
+        "Program": {
+          "create": 11,
+          "delete": 5
+        }
+      },
+      "errors": []
+    }
+  },
+  "unverified": [
+    "Native Unity export on a licensed editor for this revision",
+    "Physical Quest frame time, thermals and comfort",
+    "A human player\u2019s first-run time"
+  ]
+}

@@ -1,5 +1,19 @@
 # Bellwake release checks
 
+## Campaign time and streaming
+
+Three fresh-save browser playthroughs used normal movement, interactions and chart hints. Each finished all 27 dispatches, collected the five witness leaves and reached both endings. The first-ending time includes the trip across the Highroad. A restart of the cloud workspace paused testing. The runners continued from earned checkpoints. Recorded elapsed time includes the retained route and its loads. The story, passage rules and machinery matched across the tested packages and the signed release.
+
+| Browser route | Active time to first ending | Recorded elapsed time |
+| --- | --- | --- |
+| First fresh save | 1:56:02 | 1:57:44 |
+| Reload at every chapter | 2:10:56 | 2:14:19 |
+| Third fresh save | 2:14:25 | 2:16:27 |
+
+The released harbour edition completed 141 desktop transfers across all 42 districts. Every arrival had one active world, one collision tree and one music track. The previous district became collectible each time. Across two complete visual tours, all 84 noon and lantern-light views rendered again on return. The lowest image similarity was 0.949 on the 0–1 scale. Moving scenery changes between visits. [See all 42 arrivals](district-arrivals.jpg)
+
+Longer desktop sessions made 186 visits before the workspace restart and 257 afterward. The first immersive session recorded 19 visits. A fresh immersive session completed all three laps, covering 126 visits without ending VR. Resource checks found zero retired worlds still reachable after collection in those sessions. These measurements used emulated controllers and software graphics. Physical headset frame timing, thermal behavior and comfort still require a Quest. [Recorded measurements](harbour-playtest.json)
+
 ## Harbour trades and the sideloadable browser game
 
 The six Mercy Run maps now carry the tools of their witnesses. Bess’s clinker-built hull, Oli’s low and high channel lamps and Nan’s pair of ash peels were modeled in Blender. Each register has its own profile above the readable map. The rye crust uses a 64 × 48 texture with flour, cuts and the baker’s crescent mark. The three packed Blender sources opened independently with their textures. [Player-height views and details](harbour-trades.jpg)
@@ -7,6 +21,16 @@ The six Mercy Run maps now carry the tools of their witnesses. Bess’s clinker-
 A fresh import of the 42 district FBXs passed 1,045,338 ground samples and 234,920 boundary rays. Every one of the 461 interaction markers had a walking approach. The hull added 608 triangles to Mercy Slip, the lamp display added 768 to Wickwater and the shelf added 580 to Supper Steps. The emulated Quest test operated the Mercy seal, signed the alternate account and opened the passenger roll.
 
 The browser APK contains the current streamed release. The loopback server now serves the PNG night sky with its image content type. The Android SDK verified package alignment, v2 and v3 signatures, and the same signing certificate as the previous release. All 172 fingerprinted files and the launch page matched the public browser game byte for byte when read back through the APK host. A partial music request returned the requested bytes. An emulated Quest 3 entered immersive VR using only those packaged files.
+
+A stock Android 9 emulator installed version 2 and upgraded it to version 3 under the same app UID. Android kept the first-install timestamp and recorded a later update time. The installed foreground service served the launch page and all 172 assets over an ADB-forwarded connection. Every byte matched the signed APK, including a partial audio read. A real save from the shipwright’s district reopened in the old and new browser payloads with the same work flags and witness leaves.
+
+The browser build was also run with a missing night sky, changed bytes under its old fingerprint and an invalid test signing password. Both asset failures and the signing failure preserved the previous signed APK byte for byte and removed the partial build.
+
+The Android launcher sent the correct local URL to a test receiver on the stock OS three times, including two stops and restarts of its host. Chromium with an emulated Quest 3 then entered immersive mode in Bellmarket and in the saved shipwright district using the installed Android service. In the retail game, the tracked player selected the Sillwater counter, crossed 19 metres of Highroad and entered Sillwater at Ebb. Across those two transfers, WebGL recorded deletion of 58 textures, 252 buffers and five programs. No external game assets were requested.
+
+On the released browser models, a tracked headset and controller walked from each of the six arrivals, aimed at its map and read the engraved-lanes message. The three new models’ peak draw counts in the tested view rose from 20 to 22 at Mercy Slip, 27 to 31 at Wickwater and 21 to 22 at Supper Steps. Two passes per version gave the same counts. The Blender exports and signed browser APK carry the same six register designs.
+
+The official Windows Unity distribution supplied 59 built-in package manifests. All ten required built-ins resolved, and the five pinned registry archives matched their published checksums. Unity’s Windows Mono runtime also passed the story and passage checks, including 18,310 machinery transitions and 10,414 chart positions. A compiled Windows reader extracted the public project ZIP and compared all files by SHA-256 on a path containing spaces. Windows Git updated a checkout with a locally edited package manifest from a mirror of the public branch and kept the edit. A separate checkout pulled from GitHub over HTTPS.
 
 ## Rookery and quay entrances
 
