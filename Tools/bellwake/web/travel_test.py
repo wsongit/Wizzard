@@ -2,10 +2,29 @@
 
 import asyncio
 import json
+import math
 import os
 import sys
 from pathlib import Path
 from playwright.async_api import async_playwright
+
+
+async def check_yard_detail(page):
+    await page.wait_for_function("!bellProbe().busy && !!bellProbe().yardFowl")
+    samples = []
+    for _ in range(6):
+        for distance, near in [(17,False),(13.1,False),(10.5,True),(13.1,True),(15.6,False)]:
+            x, _, z = await page.evaluate("bellProbe().yardFowl[0].body")
+            await page.evaluate("p=>bellStand([p[0],.02,p[1]],Math.PI/2,0)", [x+distance,z])
+            await page.evaluate("async()=>{for(let i=0;i<5;i++)await new Promise(requestAnimationFrame)}")
+            state = await page.evaluate("bellProbe()")
+            assert state["yardFowl"][0]["near"] == near, (distance,state["feet"])
+            for bird in state["yardFowl"]:
+                assert bird["near"] != bird["far"], bird
+                if bird["far"]:
+                    assert math.dist(bird["body"],bird["distant"])<.002, bird
+            samples.append({"distance":distance,"near":near,"draws":state["calls"],"triangles":state["tris"]})
+    return samples
 
 
 async def main():
@@ -30,6 +49,13 @@ async def main():
         initial = [u for u in requests if ".glb" in u]
         if await page.evaluate("window.BELLWAKE.streamed"):
             assert len(initial) == 1 and "Bellmarket" in initial[0], initial
+        if "--yard-detail" in sys.argv:
+            samples = await check_yard_detail(page)
+            assert not errors, errors
+            Path(destination).write_text(json.dumps(samples,indent=2))
+            print(f"{len(samples)} yard detail transitions passed")
+            await browser.close()
+            return
         await page.evaluate("""() => {
             window.gaps = []; let prev;
             const tick = t => {if(prev !== undefined) gaps.push(t-prev); prev=t; requestAnimationFrame(tick)};

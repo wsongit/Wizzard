@@ -1,6 +1,6 @@
 """Play the instrumented offline bundle through ordinary keyboard and look events.
 Serve a --test build on loopback. The read-only probe exposes positions and counters.
-Usage: python playtest.py URL AUDIT_DIRECTORY RESULT_DIRECTORY [--timed | --resume]
+Usage: python playtest.py URL AUDIT_DIRECTORY RESULT_DIRECTORY [--timed | --resume] [--reload-chapters]
 """
 
 import asyncio, json, math, sys, os, heapq, time
@@ -150,8 +150,9 @@ async def run():
         parish_only = "--parish" in sys.argv
         lock_only="--swallow" in sys.argv
         wood_only="--wood" in sys.argv
-        timed = "--timed" in sys.argv or "--resume" in sys.argv
-        if timed and set(sys.argv[4:]) - {"--timed", "--resume", "--compact"}:
+        reload_chapters = "--reload-chapters" in sys.argv
+        timed = reload_chapters or "--timed" in sys.argv or "--resume" in sys.argv
+        if timed and set(sys.argv[4:]) - {"--timed", "--resume", "--compact", "--reload-chapters"}:
             raise ValueError("Use a full fresh campaign for timed routes")
         checkpoint = RouteCheckpoint(out, "--resume" in sys.argv) if timed else None
         if checkpoint:
@@ -163,7 +164,22 @@ async def run():
 
         async def enter(stage):
             assert not errors, errors
-            return checkpoint is None or await checkpoint.enter(stage, page)
+            reached = checkpoint is None or await checkpoint.enter(stage, page)
+            if reached and reload_chapters and stage != "Market":
+                snapshot = """() => {
+                  const {district,number,leaves,ending,works,passage}=bellProbe();
+                  return {district,number,leaves,ending,works,passage};
+                }"""
+                before = await page.evaluate(snapshot)
+                await page.mouse.up()
+                await page.reload()
+                await page.click("#start:enabled", timeout=60000)
+                await page.mouse.move(380, 200)
+                await page.mouse.down()
+                after = await page.evaluate(snapshot)
+                assert after == before, (stage, "chapter changed on reload", before, after)
+                print("Restored chapter from disk:", stage, flush=True)
+            return reached
 
         if wood_only or song_only or press_only or pilots_only or lock_only or parish_only or target_post or glasscut_only or endings_only or works_only or coast_only or ward_only or engine_only or supper_only:
             saved = {"number": 13, "leaves": 7}

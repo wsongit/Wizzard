@@ -1693,6 +1693,11 @@ if (__TEST__)
     geometryLimit:(()=>{const geometries=new Set();scene.traverse(o=>{if(o.geometry)geometries.add(o.geometry)});return geometries.size})(),
     wheelSpeed:waterwheel?.speed, wheelAngle:waterwheel?.wheel.quaternion.toArray(),
     skyNight:daylight.night.value, minutes, millAngle:nodes.MillSails?.quaternion.toArray(),
+    yardFowl:nodes.MarshHenFar ? ["MarshHen","ReedHen"].map(key=>({
+      near:nodes[key].visible, far:nodes[key+"Far"].visible,
+      body:nodes[key].getWorldPosition(new T.Vector3()).toArray(),
+      distant:nodes[key+"Far"].getWorldPosition(new T.Vector3()).toArray()
+    })) : null,
     recentTones: recentTones.slice(),
     instruments: Object.fromEntries(instruments.targets.map(t => [t.id, {centre:t.centre.toArray(),radius:t.radius}])),
     handPositions: vr.palms?.map(p => p.position.toArray()),

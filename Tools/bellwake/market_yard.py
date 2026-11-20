@@ -75,6 +75,21 @@ def bird(label,x,y,scale,variant):
             bulb("Fanned toe",[(q*.082+toe*.033,-.061,-.005,.017,.064),
                  (q*.082+toe*.020,-.034,.018,.014,.049)],3,part,6)
         origins[label+part]=(x+q*.086*scale,y+.013*scale,.209*scale)
+    # The far bird keeps its arched neck, comb, pointed bill and split tail in a single draw.
+    def distant(name, rings, pigment, sides):
+        return bulb(name, rings, pigment, "Far", sides)
+    distant("Distant breast", [(0,.045,.21,.10,.16),(0,.025,.39,.22,.30),
+             (0,-.09,.58,.13,.185)], 0 if variant==0 else 12, 7)
+    distant("Distant mantle", [(0,-.14,.48,.10,.11),(0,-.20,.65,.12,.12),
+             (0,-.21,.75,.074,.081)], 4 if variant==0 else 14, 6)
+    distant("Distant red comb", [(0,-.20,.735,.026,.081),(0,-.18,.80,.018,.048)], 2, 5)
+    distant("Distant bill", [(0,-.35,.62,.020,.026),(0,-.265,.65,.062,.057)], 3, 5)
+    for side in (-1,1):
+        distant("Distant tail", [(side*.05,.19,.32,.084,.08),
+                 (side*.065,.365,.52,.063,.063),(side*.072,.406,.60,.030,.033)], 1 if variant==0 else 8, 5)
+        distant("Distant shank", [(side*.084,-.014,-.002,.021,.041),
+                 (side*.084,.015,.23,.026,.031)], 3, 5)
+    origins[label+"Far"]=(x,y,0)
     origins[label]=(x,y,0)
     origins[label+'Head']=(x,y-.145*scale,.544*scale)
     marker(label+"Trail",x,y-1.55,0)

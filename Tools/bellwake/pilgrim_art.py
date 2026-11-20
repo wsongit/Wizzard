@@ -651,6 +651,9 @@ def make(index, lib):
             model(PEOPLE[k], field[4], x, y, z - 0.025, 1.72, 0, "Speaker")
         elif s["style"] == "map":
             survey(key, x, y, z)
+            from quay_charts import CHARTS
+            if key in CHARTS:
+                CHARTS[key](x, y, z)
         else:
             if s["style"] == "die":
                 from relief_art import seal_press

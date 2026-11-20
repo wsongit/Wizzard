@@ -60,16 +60,39 @@ export class TrackedRunner {
     this.limbs = new T.Group();
     scene.add(this.limbs);
     this.limbs.visible = false;
+    let requesting = false, loadingLimbs;
+    const prepareLimbs = () => {
+      if (!loadingLimbs) {
+        loadingLimbs = Promise.all(["LeftPalm","RightPalm","RunnerArm"].map(load))
+          .then(([left,right,arm]) => {
+            this.palms = [left,right];
+            this.arms = [arm,arm.clone(true)];
+            this.limbs.add(...this.palms,...this.arms);
+          })
+          .catch(error => {
+            loadingLimbs = null;
+            throw error;
+          });
+      }
+      return loadingLimbs;
+    };
     this.enter = async () => {
-      if (this.session) return;
-      const session = await navigator.xr.requestSession("immersive-vr", {
-        requiredFeatures: ["local-floor"],
-      });
+      if (this.session || requesting) return;
+      requesting = true;
+      let session;
+      try {
+        session = await navigator.xr.requestSession("immersive-vr", { requiredFeatures: ["local-floor"] });
+      } finally {
+        requesting = false;
+      }
       this.session = session;
-      session.addEventListener("selectstart", use);
+      session.addEventListener("selectstart", () => {
+        if (this.ready && this.session === session && session.visibilityState === "visible" && !this.guard.visible) use();
+      });
       session.addEventListener(
         "end",
         () => {
+          if (this.session !== session) return;
           this.session = null;
           this.ready = false;
           this.card.visible = false;
@@ -86,16 +109,13 @@ export class TrackedRunner {
         renderer.xr.setFramebufferScaleFactor(0.85);
         await renderer.xr.setSession(session);
         renderer.xr.setFoveation(1);
-        if (!this.palms) {
-          const [left, right, arm] = await Promise.all(["LeftPalm", "RightPalm", "RunnerArm"].map(load));
-          this.palms = [left, right];
-          this.arms = [arm, arm.clone(true)];
-          this.limbs.add(...this.palms, ...this.arms);
-        }
+        await prepareLimbs();
+        if (this.session !== session) return;
         this.ready = true;
         this.reset();
         this.limbs.visible = true;
       } catch (e) {
+        if (this.session !== session) return;
         await session.end();
         throw e;
       }

@@ -49,6 +49,23 @@ def check_market_stairs_and_well(objects):
                 assert .548<h<.58, ("Open well shaft",i,j,h)
 
 
+def check_yard_detail(objects):
+    for name in ("MarshHen", "ReedHen"):
+        near = [objects[name+part] for part in ("","Head","Left","Right")]
+        far = objects[name+"Far"]
+        assert (near[0].matrix_world.translation-far.matrix_world.translation).length<.001
+        for part in near+[far]:
+            part.data.calc_loop_triangles()
+            assert len(part.material_slots)==1 and part.material_slots[0].material.name=="YardFowl"
+        assert len(far.data.loop_triangles)<sum(len(o.data.loop_triangles) for o in near)/5
+        full = [o.matrix_world@v.co for o in near for v in o.data.vertices]
+        small = [far.matrix_world@v.co for v in far.data.vertices]
+        for axis in range(3):
+            for bound in (min,max):
+                assert abs(bound(v[axis] for v in full)-bound(v[axis] for v in small))<.05, (name,axis)
+        assert abs(min(v.z for v in small)-min(v.z for v in full))<.005, (name,"foot height")
+
+
 def check_wheel_guard(objects):
     centre=objects["MillWheel"].matrix_world.translation
     axle=(objects["WheelAxle"].matrix_world.translation-centre).normalized()
@@ -166,12 +183,24 @@ def main(key):
         return {"asset": key, "triangles": sum(len(o.data.loop_triangles) for o in mesh)}
     if key=="Bellmarket":
         check_market_stairs_and_well(objects)
+        check_yard_detail(objects)
     if key=="Reedwater":
         check_wheel_guard(objects)
     ground = tree([objects["Terrain"]])
     solid = tree([objects["C_Solids"], objects["Set"], objects["Rim"]])
     spawn = objects["Spawn"].matrix_world.translation
-    assert (spawn - Vector((0, -14, 0.08))).length < 0.02, (key, spawn)
+    for dx, dy in [(0,0),(-.19,0),(.19,0),(0,-.19),(0,.19)]:
+        origin = (spawn.x+dx, spawn.y+dy, spawn.z+.3)
+        support, normal, _, _ = ground.ray_cast(origin, (0,0,-1), .55)
+        assert support is not None and normal.z>.65 and -.06<=spawn.z-support.z<=.20, (key, "unsupported spawn", spawn)
+    if key=="GlassRookery":
+        eye = spawn + Vector((0,0,1.55))
+        board = objects["A_Chart"].matrix_world.translation
+        keeper = objects["A_Keeper"].matrix_world.translation
+        for target in (keeper,board):
+            sight = target - eye
+            assert solid.ray_cast(eye,sight.normalized(),sight.length-.15)[0] is None, (key,"blocked entrance view")
+        assert (board-eye).length>5 and (keeper-eye).length<10, (key,"room to see the chart and keeper")
     markers = {n: o.matrix_world.translation for n, o in objects.items() if n.startswith("A_")}
     target_names = {n[4:] for n in objects if n.startswith("Hit_")}
     expected = {"Key0","Key1","Key2"} if key in ("RootChoir","StillBelfry") else {"Low","Middle","High"} if key=="KettleYard" else {"Long","Middle","Short"} if key=="RowanHollow" else set()
@@ -222,7 +251,7 @@ def main(key):
                     blocked.add((i, j))
                     break
     start = (round((spawn.x - off) / step), round((spawn.y - off) / step))
-    assert start not in blocked, (key, "blocked spawn")
+    assert start in surfaces and start not in blocked, (key, "blocked spawn")
     reach = {start}
     q = deque([start])
     while q:

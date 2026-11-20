@@ -625,6 +625,9 @@ def make(key, lib):
     if k in (0,2):
         from ferry_counter import destination_board, counter
         destination_board()
+    if k == 0:
+        from market_notices import paint as paint_notices, bind as bind_notices
+        paint_notices()
     init(lib, 4971 + k)
     floor(k)
     ridge(k)
@@ -646,6 +649,8 @@ def make(key, lib):
     marker("Look", 0, -4, 1.4)
     district(k)
     bake_ground(key)
+    if k == 0:
+        bind_notices()
     finish(key)
     if k == 0:
         init(lib, 78)

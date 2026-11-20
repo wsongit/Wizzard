@@ -433,6 +433,51 @@ async def pilot_checkpoint(browser):
     print("PASS tracked whistle, grebe reply, wingbeats, landing and pilot chart in the headset",flush=True)
 
 
+async def interrupted_hands(browser):
+    for scenario in ("end during download","re-enter during download","retry failed download"):
+        page = await browser.new_page(viewport={"width":480,"height":300})
+        await page.add_init_script(script=harness)
+        errors, requests = [], []
+        page.on("pageerror", lambda e: errors.append(str(e)))
+        waiting, resume = asyncio.Event(), asyncio.Event()
+
+        async def hold_model(route):
+            requests.append(route.request.url)
+            waiting.set()
+            if scenario=="retry failed download" and len(requests)==1:
+                await route.abort()
+            else:
+                await resume.wait()
+                await route.continue_()
+
+        await page.route("**/LeftPalm-*.glb.gz", hold_model)
+        await page.goto(sys.argv[1])
+        await page.click("#vr", timeout=60000)
+        await asyncio.wait_for(waiting.wait(),30)
+        if scenario!="retry failed download":
+            await page.evaluate("testDevice.activeSession.end()")
+        else:
+            await page.wait_for_function("!testDevice.activeSession")
+        if scenario!="re-enter during download":
+            resume.set()
+            await page.wait_for_load_state("networkidle")
+            await page.evaluate("async()=>{for(let i=0;i<20;i++)await new Promise(requestAnimationFrame)}")
+            assert not await page.evaluate("bellProbe().vr"), "The ended session reactivated after loading"
+        await page.keyboard.press("j")
+        await page.click("#reenter")
+        if scenario=="re-enter during download":
+            await page.wait_for_function("!!testDevice.activeSession")
+            assert not await page.evaluate("bellProbe().vr")
+            resume.set()
+        await page.wait_for_function("bellProbe().vr && bellProbe().palms.every(Boolean)")
+        await page.evaluate("testDevice.activeSession.end()")
+        await page.wait_for_function("!bellProbe().vr")
+        expected = 2 if scenario=="retry failed download" else 1
+        assert len(requests)==expected and not errors,(scenario,requests,errors)
+        await page.close()
+        print("PASS "+scenario,flush=True)
+
+
 async def headset_report(browser):
     page = await browser.new_page(viewport={"width": 630, "height": 380}, accept_downloads=True)
     errors = []
@@ -772,6 +817,10 @@ async def run():
                 "--enable-unsafe-swiftshader",
             ],
         )
+        if "--interrupt-hands" in sys.argv:
+            await interrupted_hands(b)
+            await b.close()
+            return
         if "--mercy-seal" in sys.argv:
             await relief_seal(b)
             await b.close()

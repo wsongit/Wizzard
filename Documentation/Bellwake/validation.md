@@ -1,5 +1,15 @@
 # Bellwake release checks
 
+## Rookery and quay entrances
+
+Moving the Glass Rookery arrival back from the flight chart gives the player a clear first view of Orla and the glasshouse. The FBX audit checks support under the full spawn footprint, a clear line from eye height to both Orla and the chart, and a walking approach to every interaction marker. The new dispatch desk, keeper and three survey frames were reimported from Blender and rendered with the compiled Unity materials. [Entrance and model views](rookery-and-quays.jpg)
+
+In the market, each nearby marsh hen has 1,652 triangles across four animated meshes. Its distant counterpart has 186 triangles in one mesh and uses the same plumage. Far detail starts beyond 14 m and near detail resumes inside 12 m. Both models share a pivot. Their foot positions agree within 5 mm, and six repeated approaches and retreats verified that each bird shows one model at a time.
+
+A headset emulator also ended a VR session while the left palm was still downloading. The ended session previously reactivated on the desktop. The fixed player passed ending during the request, entering a second session before it finished, and recovering from a failed download.
+
+The four ticket signs share a padded texture and one material. Each source pixel was preserved. Their 16 mesh corners mapped back to the original UVs, and 80,000 bilinear samples matched the source boards across the first four mip levels.
+
 ## Quest builds and save recovery
 
 The release and profiling commands were exercised under Windows CMD in Wine with a test editor executable. Both valid outputs were recognized. A stale APK after an early exit, a missing output, and a reported Unity failure all returned failure. Mono tests covered atomic replacement, invalid native libraries and competing copies. A signed ARM64 packaging fixture passed Android SDK signature and alignment checks before and after copying. A native build of the game still requires activation of the cloud Unity editor.

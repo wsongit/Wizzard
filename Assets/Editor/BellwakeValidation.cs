@@ -51,7 +51,7 @@ namespace Wizzard.Editor
                 if (room=="Bellmarket")
                 {
                     foreach(var node in new[]{"MillSails","MillAxis","MarshHen","ReedHen","MarshHenTrail","ReedHenTrail",
-                        "MarshHenHead","ReedHenHead","MarshHenLeft","ReedHenLeft","MarshHenRight","ReedHenRight"})
+                        "MarshHenFar","ReedHenFar","MarshHenHead","ReedHenHead","MarshHenLeft","ReedHenLeft","MarshHenRight","ReedHenRight"})
                         Require(names.Contains(node),"market missing "+node);
                     Require(names.Contains("A_WoodWalk") && names.Contains("A_RoadBook") && names.Contains("RoadBook"), "market road letters");
                 }

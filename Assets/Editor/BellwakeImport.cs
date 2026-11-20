@@ -74,7 +74,7 @@ namespace Wizzard.Editor
                 tile.textureCompression=TextureImporterCompression.Uncompressed;
                 return;
             }
-            if (assetPath.EndsWith("Survey.png") || assetPath.EndsWith("Signs.png"))
+            if (assetPath.EndsWith("Survey.png") || assetPath.EndsWith("Signs.png") || assetPath.EndsWith("/MarketNotices.png"))
                 tile.npotScale = TextureImporterNPOTScale.None;
             if (assetPath.EndsWith("/RoadSorrel.png"))
             {

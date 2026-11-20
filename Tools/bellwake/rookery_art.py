@@ -611,6 +611,8 @@ def make(lib):
     brush(KEY)
     feather_atlas()
     aviary_paint()
+    from roost_keeper import paint as paint_keeper, keeper, dispatch_desk
+    paint_keeper()
     init(lib, 64571)
     terrain(KEY, SPAN, land, 2)
     reed_whistle(0, 0, 0, "HandWhistle")
@@ -638,9 +640,9 @@ def make(lib):
         z = float(land(x, y))
         id = s["id"][2:]
         if id == "Keeper":
-            model("WZ_SKY_N01", "Orla the pilot keeper", x, y, z, 1.75, 15, "Speaker")
-            block("Orla's carved bench", (x - 1.21, y, z + 0.69), (1.15, 0.72, 1.42), OAK)
-            reed_whistle(x - 1.21, y, z + 1.41, "BenchWhistle")
+            keeper(x, y, z - .012)
+            dispatch_desk(x - 1.21, y, z, OAK, BRASS)
+            reed_whistle(x - 1.35, y, z + .908, "BenchWhistle")
         elif id == "Gate":
             arch(x, y, z, 3.2, 3.77, "HarbourBrick", "Wood")
         elif id == "Chart":
@@ -724,7 +726,8 @@ def make(lib):
             7,
             "Horizon",
         )
-    marker("Spawn", 0, -14, 0.08)
-    marker("Look", 0, 9, 2)
+    # Leave enough space to see Orla, the flight chart and the glasshouse together.
+    marker("Spawn", -2.5, -18, float(land(-2.5, -18)) + 0.08)
+    marker("Look", -2.5, 9, 2)
     paint_pilots()
     finish(KEY, sky_key=r["theme"])

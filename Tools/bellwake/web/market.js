@@ -8,7 +8,7 @@ const restRotation = o => o.getWorldQuaternion(new T.Quaternion());
 const smooth = (x,a,b) => T.MathUtils.smoothstep(x,a,b);
 
 function bird(nodes, prefix, time, period) {
-  const body=nodes[prefix], end=position(nodes[prefix+"Trail"]);
+  const body=nodes[prefix], far=nodes[prefix+"Far"], end=position(nodes[prefix+"Trail"]);
   const origin=position(body);
   const right=up.clone().cross(end.clone().sub(origin)).normalize();
   const joints=["Head","Left","Right"].map(key => {
@@ -24,12 +24,24 @@ function bird(nodes, prefix, time, period) {
   body.parent.worldToLocal(end);
   const facing=body.quaternion.clone();
   const vertical=up.clone().applyQuaternion(restRotation(body.parent).invert());
-  return dt => {
+  const world=new T.Vector3();
+  let distant=false;
+  far.visible=false;
+  return (dt,ear) => {
     time=(time+dt)%period;
     const t=time/period;
     body.position.lerpVectors(origin,end,smooth(t,.13,.4)-smooth(t,.64,.91));
     const turn=Math.PI*(smooth(t,.46,.61)+smooth(t,.92,1));
     body.quaternion.setFromAxisAngle(vertical,turn).multiply(facing);
+    const limit=distant ? 12 : 14;
+    distant=body.getWorldPosition(world).distanceToSquared(ear)>limit*limit;
+    body.visible=!distant;
+    far.visible=distant;
+    if(distant){
+      far.position.copy(body.position);
+      far.quaternion.copy(body.quaternion);
+      return;
+    }
     const walk=t>.13 && t<.4 ? (t-.13)/.27 : t>.64 && t<.91 ? (t-.64)/.27 : 0;
     const gait=Math.sin(walk*8*Math.PI)*Math.sin(walk*Math.PI)*24;
     const angle=Math.abs(gait)*Math.PI/180;
@@ -62,7 +74,7 @@ export function marketLife(nodes,soundURL) {
   return {
     update(dt,night,ear,muted) {
       sails.rotateOnAxis(axis,dt*13*Math.PI/180);
-      for (const step of birds) step(dt*(1-.92*night));
+      for (const step of birds) step(dt*(1-.92*night),ear);
       age+=dt;
       if(age<nextListen)return;
       nextListen=age+.2;

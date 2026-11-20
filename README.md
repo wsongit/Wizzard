@@ -8,6 +8,8 @@ An original, N64-inspired adventure for standalone Meta Quest and desktop. Tavi 
 
 Bellmarket’s windmill overlooks the north steps. The windows light up at night, Moss waits beneath the living arch, and Fen’s paddle wheel turns when you open its channel. [See the updated village, keepers and mill](Documentation/Bellwake/bellwake-valley.jpg)
 
+At Glass Rookery, Orla keeps the flight charts and reed whistles. Along the Mercy Run, dyed linen, a lifting kite and a sounding-line reel mark three of the passenger registers. [See Orla and the three quays](Documentation/Bellwake/rookery-and-quays.jpg)
+
 [Opening illustration, save files, shops and equipment controls](Documentation/Bellwake/guide.md#starting-a-native-quest-journey)
 
 Each district has an entrance on the Bellwake Highroad. Walk to the gold marker to continue the story, or enter another named gate to explore. Conversations hold your position until you press E or a trigger. [Native highroad, Blender views and art notes](Documentation/Bellwake/native-field.md)
