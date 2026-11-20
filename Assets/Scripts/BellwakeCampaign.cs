@@ -190,6 +190,15 @@ namespace Wizzard
                 chamber.middle ? story.room==2 || (story.room==0 && story.works.returnTicket) : chamber.early ? story.room == 1 && story.ending == 0 : story.room == 3 && story.Solved);
             if (!eligible) story.works.active = false;
             story.works.Bind(worksPlan);
+            // Old or interrupted checkpoints can still contain a district which is no longer in the atlas.
+            if (string.IsNullOrEmpty(story.lastDistrict) || DistrictTitle(story.lastDistrict, out _) == null)
+            {
+                story.lastDistrict = story.meadowJourney ? "Bellmarket" : null;
+                story.onRoad = false;
+            }
+            if (!story.onRoad || story.roadVisit == "LongMeadow" ||
+                (!string.IsNullOrEmpty(story.roadVisit) && DistrictTitle(story.roadVisit, out _) == null))
+                story.roadVisit = null;
             int slots=BellwakeJourney.Rooms.Length+atlas.regions.Length+1+worksPlan.rooms.Length;
             if (story.secondsByPlace==null || story.secondsByPlace.Length<slots)
                 Array.Resize(ref story.secondsByPlace, slots);
@@ -311,7 +320,7 @@ namespace Wizzard
             int index=Array.IndexOf(BellwakeJourney.Rooms,key);
             if(index>=0) return BellwakeJourney.Titles[index];
             theme="Bellmarket";
-            return "Long Meadow";
+            return key == "LongMeadow" ? "Long Meadow" : null;
         }
         IEnumerator LoadRoadSet(string key, string theme, bool visit)
         {
@@ -362,6 +371,9 @@ namespace Wizzard
         static bool AboveField(MeshCollider terrain, Vector3 feet)
         {
             var bounds = terrain.bounds;
+            if (!(feet.x >= bounds.min.x && feet.x <= bounds.max.x &&
+                  feet.z >= bounds.min.z && feet.z <= bounds.max.z) ||
+                float.IsNaN(feet.y) || float.IsInfinity(feet.y)) return false;
             var ray = new Ray(new Vector3(feet.x, bounds.max.y + 1, feet.z), Vector3.down);
             return terrain.Raycast(ray, out var hit, bounds.size.y + 2) && feet.y >= hit.point.y-.2f;
         }
@@ -385,13 +397,16 @@ namespace Wizzard
                     float nextHint=0;
                     while(true)
                     {
-                        var distance=Vector3.ProjectOnPlane(entrance-player.transform.position,Vector3.up).magnitude;
+                        CountPlayFrame(ref story.highroadSeconds);
+                        var offset = entrance - player.transform.position;
+                        var distance = Mathf.Sqrt(offset.x*offset.x + offset.z*offset.z);
+                        bool atDoor = distance < 2.6f && Mathf.Abs(offset.y) < 2f;
                         bool useDoor=RoadUse();
-                        if(distance<2.6f && useDoor) break;
+                        if(atDoor && useDoor) break;
                         if(Time.unscaledTime>=nextHint)
                         {
-                            display.Say(name,distance<2.6f ? "E / trigger · Return to the highroad" :
-                                "Highroad entrance · "+Mathf.CeilToInt(distance)+" m");
+                            display.Say(name,atDoor ? "E / trigger · Return to the highroad" :
+                                "Highroad entrance · "+Mathf.CeilToInt(offset.magnitude)+" m");
                             nextHint=Time.unscaledTime+.5f;
                         }
                         yield return null;
@@ -404,6 +419,10 @@ namespace Wizzard
                 }
                 yield return LoadRoadSet("Highroad","Bellmarket",false);
                 var target=nodes["Road"+destination];
+                var sideGates = new Dictionary<string,Vector3>();
+                foreach (var pair in nodes)
+                    if (pair.Key.StartsWith("Road", StringComparison.Ordinal) && pair.Key != "RoadLongMeadow" && pair.Value != target)
+                        sideGates.Add(pair.Key.Substring(4), pair.Value.position);
                 var origin=nodes["Road"+story.lastDistrict].position;
                 var here=story.onRoad && story.fieldSurvey==1 ? new Vector3(story.roadX,story.roadY,story.roadZ) : origin;
                 var terrain = nodes["Terrain"].GetComponent<MeshCollider>();
@@ -426,27 +445,27 @@ namespace Wizzard
                 yield return Fade(1,0);
                 display.Arrival("Bellwake Highroad");
                 player.MovementLocked=false;
-                float nextUpdate=0, nextCheckpoint=0;
+                float nextUpdate=0, nextCheckpoint=0, nextClockSave=Time.unscaledTime+30f;
                 while(true)
                 {
+                    CountPlayFrame(ref story.highroadSeconds);
                     var position=player.head.position;
                     position.y=player.transform.position.y;
                     var offset=target.position-position;
                     float height=Mathf.Abs(offset.y);
                     offset.y=0;
-                    if(offset.sqrMagnitude<1.35f*1.35f && height<2f) break;
+                    if(offset.sqrMagnitude<1.35f*1.35f && height<2f && !player.HeadObstructed) break;
                     bool action=RoadUse();
                     string nearest=null;
-                    foreach (var pair in nodes)
+                    foreach (var gate in sideGates)
                     {
-                        if(!pair.Key.StartsWith("Road") || pair.Key=="RoadLongMeadow" || pair.Value==target) continue;
-                        var delta=pair.Value.position-position;
+                        var delta = gate.Value - position;
                         if(Mathf.Abs(delta.y)<2 && delta.x*delta.x+delta.z*delta.z<2.6f*2.6f)
-                        { nearest=pair.Key.Substring(4); break; }
+                        { nearest = gate.Key; break; }
                     }
                     if(nearest!=null && action)
                     {
-                        var gate=nodes["Road"+nearest].position+Vector3.forward*2.4f;
+                        var gate=sideGates[nearest]+Vector3.forward*2.4f;
                         story.roadX=gate.x; story.roadY=gate.y; story.roadZ=gate.z;
                         story.roadVisit=nearest;
                         Save();
@@ -459,12 +478,15 @@ namespace Wizzard
                         if (Time.unscaledTime>=nextCheckpoint)
                         {
                             nextCheckpoint=Time.unscaledTime+3f;
-                            if (AboveField(terrain, position) &&
+                            var savedFeet = new Vector3(story.roadX, story.roadY, story.roadZ);
+                            bool moved = (position - savedFeet).sqrMagnitude >= .25f;
+                            if ((moved || Time.unscaledTime >= nextClockSave) && AboveField(terrain, position) &&
                                 Physics.Raycast(position + Vector3.up * .32f, Vector3.down, out var foot,
                                                 .72f, 1 << MeadowWorld.GroundLayer, QueryTriggerInteraction.Ignore) &&
                                 foot.normal.y > .55f)
                             {
                                 story.roadX=position.x; story.roadY=foot.point.y+.08f; story.roadZ=position.z;
+                                nextClockSave=Time.unscaledTime+30f;
                                 Save();
                             }
                         }
@@ -918,17 +940,20 @@ namespace Wizzard
                 points["A_Talk"].text = Label("A_Talk");
             }
         }
+        void CountPlayFrame(ref float seconds)
+        {
+            float delta = Time.unscaledDeltaTime;
+            if (Application.isFocused && !journalOpen && story.ending == 0 && delta > 0 && delta < 1)
+                seconds += delta;
+        }
         void Update()
         {
             if (player == null || loading || checkingTravel || (player.MovementLocked && !speaking))
                 return;
-            if (Application.isFocused && !journalOpen && story.ending==0 && Time.unscaledDeltaTime<1)
-            {
-                int slot=outdoors ? BellwakeJourney.Rooms.Length+atlas.regions.Length :
-                    InWorks ? BellwakeJourney.Rooms.Length+atlas.regions.Length+1+story.works.chamber :
-                    InPassage ? BellwakeJourney.Rooms.Length+story.room : story.room;
-                story.secondsByPlace[slot]+=Time.unscaledDeltaTime;
-            }
+            int slot=outdoors ? BellwakeJourney.Rooms.Length+atlas.regions.Length :
+                InWorks ? BellwakeJourney.Rooms.Length+atlas.regions.Length+1+story.works.chamber :
+                InPassage ? BellwakeJourney.Rooms.Length+story.room : story.room;
+            CountPlayFrame(ref story.secondsByPlace[slot]);
             bool action = use.Read(XRUsage.triggerButton) ||
                           (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame);
             bool book = journal.Read(XRUsage.primaryButton) ||
@@ -1890,13 +1915,15 @@ namespace Wizzard
             vitals.Show(clear,
                         fighting?3-story.wounds:story.satchel.hearts,story.satchel.coins);
         }
+        // Highroad play runs inside the travel coroutine, including optional district visits.
+        bool CanSaveOnExit => story != null && (!loading || (story.onRoad && player != null && !player.MovementLocked));
         void OnApplicationPause(bool paused)
         {
-            if (paused && story != null && !loading) Save();
+            if (paused && CanSaveOnExit) Save();
         }
         void OnApplicationQuit()
         {
-            if (story != null && !loading) Save();
+            if (CanSaveOnExit) Save();
         }
         void OnDestroy()
         {

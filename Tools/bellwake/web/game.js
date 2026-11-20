@@ -1529,8 +1529,8 @@ function loop(time, frame) {
       const feet=vr.session ? vr.body.start : capsule.start;
       if (visiting) {
         const distance=Math.hypot(visitExit.x-feet.x,visitExit.z-feet.z);
-        nearDoor=distance<=2.6 ? visiting : "";
-        const hint=nearDoor ? "E / trigger · Return to the highroad" : "Highroad entrance · "+Math.ceil(distance)+" m";
+        nearDoor=distance<=2.6 && Math.abs(visitExit.y-feet.y)<2 ? visiting : "";
+        const hint=nearDoor ? "E / trigger · Return to the highroad" : "Highroad entrance · "+Math.ceil(visitExit.distanceTo(feet))+" m";
         $("prompt").textContent=hint; $("prompt").hidden=false;
         if(vr.session) vr.caption(places.get(visiting).title,hint);
       } else {
@@ -1542,7 +1542,7 @@ function loop(time, frame) {
         $("prompt").hidden=false;
         if (vr.session) vr.caption("Bellwake Highroad",hint);
         if ((!vr.session || (vr.ready && !vr.pending)) && !busy) {
-          if (!outing && distance<1.35 && Math.abs(feet.y-roadGoal.y)<2) {
+          if (!outing && distance<1.35 && Math.abs(feet.y-roadGoal.y)<2 && (!vr.session || !vr.guard.visible)) {
             lastDistrict=locationKey();
             roadPosition=null;
             room().then(ok=>{if(ok) welcome();});

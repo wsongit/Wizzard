@@ -27,6 +27,28 @@ async def check_yard_detail(page):
     return samples
 
 
+async def check_visit_exit(page, url):
+    save = {"number": 0, "lastDistrict": "Bellmarket", "visiting": "GlassRookery", "outing": True}
+    await page.add_init_script(
+        "localStorage.setItem('wizzard.bellwake.desktop.v1'," + json.dumps(json.dumps(save)) + ")"
+    )
+    await page.goto(url)
+    await page.click("#start", timeout=60000)
+    await page.wait_for_function("!bellProbe().busy && bellProbe().nearDoor==='GlassRookery'")
+    feet = await page.evaluate("bellProbe().feet")
+    await page.evaluate("p=>bellStand([p[0],p[1]+6,p[2]],0,0)", feet)
+    await page.evaluate("async()=>{await new Promise(requestAnimationFrame);await new Promise(requestAnimationFrame)}")
+    above = await page.evaluate("({height:bellProbe().feet[1],gate:bellProbe().nearDoor})")
+    assert above["height"] > feet[1] + 3 and not above["gate"], above
+    await page.keyboard.press("e")
+    assert await page.evaluate("!bellProbe().busy && bellProbe().visiting==='GlassRookery'")
+    await page.evaluate("p=>bellStand([p[0],p[1]-.26,p[2]],0,0)", feet)
+    await page.wait_for_function("bellProbe().nearDoor==='GlassRookery'")
+    await page.keyboard.press("e")
+    await page.wait_for_function("!bellProbe().busy && bellProbe().district==='Highroad'")
+    return {"district": "GlassRookery", "heightTested": above["height"] - feet[1], "returnedTo": "Highroad"}
+
+
 async def main():
     url, destination = sys.argv[1:3]
     errors, requests, samples = [], [], []
@@ -44,6 +66,13 @@ async def main():
         page.on("pageerror", lambda err: errors.append(str(err)))
         page.on("request", lambda req: requests.append(req.url))
         devtools = await page.context.new_cdp_session(page)
+        if "--visit-exit" in sys.argv:
+            result = await check_visit_exit(page, url)
+            assert not errors, errors
+            Path(destination).write_text(json.dumps(result, indent=2))
+            print("PASS overhead clearance and ground-level district return")
+            await browser.close()
+            return
         await page.goto(url)
         await page.click("#start", timeout=60000)
         initial = [u for u in requests if ".glb" in u]

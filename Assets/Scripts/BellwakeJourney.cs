@@ -10,6 +10,7 @@ namespace Wizzard
         public BellwakePassage passage;
         public BellwakeWorks works;
         public float[] secondsByPlace;
+        public float highroadSeconds;
         public string lastDistrict;
         public bool onRoad, meadowJourney;
         public string roadVisit;
@@ -17,7 +18,7 @@ namespace Wizzard
         public float roadX, roadY, roadZ;
         public string PlayTime()
         {
-            double seconds=0;
+            double seconds=highroadSeconds;
             if (secondsByPlace!=null) foreach (float t in secondsByPlace) seconds+=t;
             var time=TimeSpan.FromSeconds(seconds);
             return ((int)time.TotalHours)+"h "+time.Minutes+"m";

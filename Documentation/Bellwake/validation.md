@@ -12,6 +12,14 @@ The optional headset timing report was also tested with the system overlay open 
 
 The four ticket signs share a padded texture and one material. Each source pixel was preserved. Their 16 mesh corners mapped back to the original UVs, and 80,000 bilinear samples matched the source boards across the first four mip levels.
 
+## Highroad gates and travel time
+
+The browser test entered and returned from all 41 side districts through their gates, then went home to Bellmarket. It reopened 11 saved visits. In each district it tried the exit six metres or more above the entrance and again at ground level. Only the ground-level interaction returned to the road. The scene, collision tree and music counts returned to one after every trip, and the retired district became collectible.
+
+A C# harness drove the production Highroad coroutine using the 91 object positions from the native Blender export. The journal previously omitted time on the road. It now includes road travel and optional visits, excludes a simulated focus loss and 70-second resume frame, and retains the existing room total. Obstructed heads could previously cross the destination gate. The harness verified that clearing the head allowed the same arrival.
+
+Native gate positions are cached when entering the field. In 30,000 simulated frames beside a gate, managed allocations in the harness fell from about 1.49 MB to 49 KB. Over 417 simulated seconds standing still, checkpoint writes fell from 136 to 14. The test also verified saving on pause and quit during playable travel. Restoring all 1,764 valid origin/visit pairs kept the original route. Eight incomplete or obsolete gate combinations recovered without resetting story progress.
+
 ## Quest builds and save recovery
 
 The release and profiling commands were exercised under Windows CMD in Wine with a test editor executable. Both valid outputs were recognized. A stale APK after an early exit, a missing output, and a reported Unity failure all returned failure. Mono tests covered atomic replacement, invalid native libraries and competing copies. A signed ARM64 packaging fixture passed Android SDK signature and alignment checks before and after copying. A native build of the game still requires activation of the cloud Unity editor.
