@@ -39,8 +39,6 @@ for side in [-1,1]:
     limb('RunnerArm',(shoulder+hand)*.5,(shoulder-hand).to_track_quat('Z','Y'),(.8,.8,(shoulder-hand).length))
     limb('LeftPalm' if side<0 else 'RightPalm',hand,Quaternion((0,0,1),math.pi),(.8,)*3)
 place('LanternMoth',(.61,-.44,.88),-.85)
-for i in range(8):
-    place('Bellroot',(-4+i%4*2.8,4+i//4*2,-.49),math.pi+.24*i,.44+i%3*.15)
 cam=bpy.data.objects.new('Ledger illustration',bpy.data.cameras.new('Lens'));sc.collection.objects.link(cam);sc.camera=cam
 cam.location=(2.67,-7.2,2.20);cam.rotation_euler=(Vector((-.25,0,1.23))-cam.location).to_track_quat('-Z','Y').to_euler();cam.data.lens=42
 sc.world=bpy.data.worlds.new('Dawn');sc.world.use_nodes=True

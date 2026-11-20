@@ -10,7 +10,11 @@ namespace Wizzard
         readonly Transform head, card;
         readonly TextMesh heading, body;
         readonly Font font;
-        Transform survey,pin;
+        Transform survey,pin,advance;
+        Material advanceInk,stampInk;
+        Transform stamp,place;
+        TextMesh placeName,placeShadow;
+        float arrived;
         Material surveyInk,pinInk;
         readonly System.Collections.Generic.List<Transform> bearings = new System.Collections.Generic.List<Transform>();
         int usedBearings;
@@ -122,6 +126,59 @@ namespace Wizzard
                 maxScale, Mathf.Min(width / Mathf.Max(.001f, bounds.x), height / Mathf.Max(.001f, bounds.y)));
             label.transform.localScale = Vector3.one * s;
         }
+        public void Arrival(string name)
+        {
+            if(place==null)
+            {
+                place=new GameObject("District title").transform;
+                place.SetParent(head,false);
+                place.localPosition=new Vector3(0,.17f,2);
+                placeName=Text(place,Vector3.zero,TextAnchor.MiddleCenter,Color.white);
+                placeShadow=Text(place,new Vector3(.008f,-.009f,.001f),TextAnchor.MiddleCenter,Color.black);
+                placeName.GetComponent<Renderer>().sharedMaterial=captionInk;
+                placeShadow.GetComponent<Renderer>().sharedMaterial=captionInk;
+                placeName.fontStyle=placeShadow.fontStyle=FontStyle.Italic;
+            }
+            placeName.text=placeShadow.text=name;
+            Fit(placeName,1.32f,.13f,2.0f);
+            placeShadow.transform.localScale=placeName.transform.localScale;
+            arrived=Time.unscaledTime;
+            place.gameObject.SetActive(true);
+            TickArrival(true);
+        }
+        public void TickArrival(bool clear)
+        {
+            if(place==null || !place.gameObject.activeSelf)return;
+            float t=Time.unscaledTime-arrived;
+            if(!clear || t>=2.45f){place.gameObject.SetActive(false);return;}
+            float alpha=Mathf.SmoothStep(0,1,Mathf.Min(t/.20f,(2.45f-t)/.65f));
+            placeName.color=new Color(1,.91f,.73f,alpha);
+            placeShadow.color=new Color(.10f,.09f,.10f,.85f*alpha);
+        }
+        void ClearStamp()
+        {
+            if(stamp==null || !stamp.gameObject.activeSelf)return;
+            stamp.gameObject.SetActive(false);
+            body.transform.localPosition=new Vector3(-.595f,.068f,-.006f);
+        }
+        public void StampPurchase(int item)
+        {
+            if(stamp==null)
+            {
+                var obj=GameObject.CreatePrimitive(PrimitiveType.Quad);
+                Object.Destroy(obj.GetComponent<Collider>());
+                stamp=obj.transform;stamp.SetParent(card,false);
+                stamp.localPosition=new Vector3(-.486f,-.036f,-.006f);
+                stamp.localScale=Vector3.one*.21f;
+                stampInk=new Material(frameMaterial){mainTexture=Resources.Load<Texture2D>("Bellwake/Textures/ProvisionStamps"),
+                    mainTextureScale=new Vector2(.25f,1),renderQueue=3902};
+                obj.GetComponent<Renderer>().sharedMaterial=stampInk;
+            }
+            stampInk.mainTextureOffset=new Vector2(item*.25f,0);
+            body.transform.localPosition=new Vector3(-.35f,.060f,-.006f);
+            Fit(body,.93f,.20f,.83f);
+            stamp.gameObject.SetActive(true);
+        }
         public void ClearSurvey()
         {
             if (survey==null) return;
@@ -159,6 +216,18 @@ namespace Wizzard
         public void BeginDialogue(string title, string text)
         {
             Say(title, text);
+            if(advance==null)
+            {
+                var cue=GameObject.CreatePrimitive(PrimitiveType.Quad);
+                Object.Destroy(cue.GetComponent<Collider>());
+                advance=cue.transform;advance.SetParent(card,false);
+                advance.localPosition=new Vector3(.584f,-.125f,-.008f);
+                advance.localScale=Vector3.one*.042f;
+                advanceInk=new Material(frameMaterial){mainTexture=Resources.Load<Texture2D>("Bellwake/Textures/PocketGlyphs"),
+                    mainTextureScale=new Vector2(1f/16,1),mainTextureOffset=new Vector2(13f/16,0),renderQueue=3902};
+                cue.GetComponent<Renderer>().sharedMaterial=advanceInk;
+                cue.SetActive(false);
+            }
             revealText = body.text;
             revealed = 0;
             revealStart = Time.unscaledTime;
@@ -177,12 +246,18 @@ namespace Wizzard
         }
         public void FinishDialogue()
         {
-            if (Typing) body.text = revealText;
+            if (Typing)
+            {
+                body.text = revealText;
+                advance.gameObject.SetActive(true);
+            }
             revealText = null;
         }
         public void Say(string title, string text)
         {
             ClearSurvey();
+            ClearStamp();
+            if(advance!=null)advance.gameObject.SetActive(false);
             card.gameObject.SetActive(true);
             revealText = null;
             heading.text = title.ToUpperInvariant();
@@ -221,6 +296,9 @@ namespace Wizzard
             Object.Destroy(worldInk);
             Object.Destroy(panelMaterial);
             Object.Destroy(frameMaterial);
+            if(advanceInk!=null)Object.Destroy(advanceInk);
+            if(stampInk!=null)Object.Destroy(stampInk);
+            if(place!=null)Object.Destroy(place.gameObject);
             if(surveyInk!=null) Object.Destroy(surveyInk);
             foreach (var line in bearings) Object.Destroy(line.GetComponent<Renderer>().sharedMaterial);
             if(pinInk!=null) Object.Destroy(pinInk);

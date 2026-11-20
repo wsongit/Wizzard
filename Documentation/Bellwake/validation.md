@@ -1,5 +1,19 @@
 # Bellwake release checks
 
+## Village, forest and river art pass
+
+[Player-height views of the exported art](bellwake-valley.jpg)
+
+Blender reimported the 42 district FBXs. Across those exports, 1,045,338 ground probes and 234,920 boundary rays passed. The flood-fill found an approach from spawn to all 461 interaction markers. On the connecting Highroad, 37,761 clearance samples passed across 72 links, with at most 18 of 42 near-detail cells required at once.
+
+Seven traces across Bellmarket’s stairs each found eight consecutive treads. The highest rise was about 14 cm, within the character controller’s 15 cm step allowance. Another 113 rays checked that the well grate supports the player across the slats and their gaps. At Reedwater, 2,880 rays tested the paddle and hub guards over a full rotation. Opening, closing, solving and reloading the mill puzzle produced the expected wheel motion.
+
+The 12 portable Blender exports contain 18,402 triangles in total. Sampled hen strides kept a supporting toe within 5 mm of the turf over 402 poses. The new shop, orchard, grove and keeper art use original meshes and textures. Ocarina of Time screenshots served as visual reference.
+
+The native runtime and editor scripts compiled against Unity 2022.3.20f1 and the project’s pinned XR packages. Seventy vertex and fragment variants passed validation against Unity’s headers and GLSL ES. An offscreen GPU check compared the close-range filter with a numerical reference at 42,029 samples, including negative and wrapping UVs and four mip levels. The largest channel difference was below 0.001 on a 0–1 scale.
+
+The streamed and single-file browser editions matched on all 172 packaged assets. The streamed opening requested only Bellmarket’s model. The single-file edition opened the market, accepted walking and turning input, and opened the journal after the browser connection was disabled. The Windows build log records an APK from before this art pass. The cloud Unity editor has no active license. Native APK installation, headset frame times and comfort still need a licensed build and physical Quest.
+
 ## Native Unity field
 
 The new field passed 37,761 road clearance samples on 72 connections. The C# rules and Blender room checks passed. The native Android export stopped before import because this machine needs Unity license activation. Quest frame timing and native playthrough time are pending. [Field measurements, controls and art](native-field.md)

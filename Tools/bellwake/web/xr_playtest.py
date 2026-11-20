@@ -57,6 +57,11 @@ async def coast_crossing(page):
             "testDevice.controllers.right.updateButtonValue('trigger',0)"
         )
         await page.wait_for_timeout(180)
+        if await page.evaluate("bellProbe().dialogue"):
+            await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',1)")
+            await page.wait_for_function("!bellProbe().dialogue")
+            await page.evaluate("testDevice.controllers.right.updateButtonValue('trigger',0)")
+            await page.wait_for_timeout(150)
 
     await page.evaluate("walkSurvey(-4,11.8)")
     await page.evaluate("sightToward(bellProbe().markers.A_Pilot)")
@@ -901,7 +906,11 @@ async def run():
         )
         await p.wait_for_function("bellProbe().focus==='A_Talk'", timeout=10000)
         await p.evaluate("testDevice.controllers.right.updateButtonValue('trigger',1)")
-        await p.wait_for_function("document.getElementById('words').textContent.includes('blue courtyard door')")
+        await p.wait_for_function("bellProbe().dialogue && document.getElementById('words').textContent.includes('blue courtyard door')")
+        await p.evaluate("testDevice.controllers.right.updateButtonValue('trigger',0)")
+        await p.wait_for_timeout(120)
+        await p.evaluate("testDevice.controllers.right.updateButtonValue('trigger',1)")
+        await p.wait_for_function("!bellProbe().dialogue")
         await p.evaluate("testDevice.controllers.right.updateButtonValue('trigger',0)")
         await p.evaluate("testDevice.controllers.right.updateAxes('thumbstick',1,0)")
         await p.wait_for_function("Math.abs(bellProbe().vrForward[0])>.5")

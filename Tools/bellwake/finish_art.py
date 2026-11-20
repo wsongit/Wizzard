@@ -137,7 +137,9 @@ def district(k):
     if k == 0:
         clothline(k)
     if k == 1:
+        from choir_grove import high_canopy
         branches()
+        high_canopy()
     if k == 2:
         # Raised stone-lined pools outside the pedestrian causeway.
         for x in [-12.1, 11.6]:
@@ -237,6 +239,8 @@ def bake_ground(key, height=None):
     vertices = []
     faces = []
     for group, objects in batches.items():
+        if group in ("MillSails","MillWheel") or group.startswith(("MarshHen","ReedHen")):
+            continue
         if group in ("C_Solids", "Terrain", "Rim", "Skyline", "Ina", "Roster", "HushWave") or group.startswith(
             ("Flow", "Ray", "Stray", "Call", "Choice", "LightPath", "Print")
         ):

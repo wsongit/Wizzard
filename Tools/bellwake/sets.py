@@ -42,6 +42,10 @@ def floor(k):
 
 
 def ridge(k):
+    if k == 0:
+        from market_art import market_ridge
+        market_ridge(ground)
+        return
     stone = ["Mountain", "MossRock", "Shale", "Basalt", "Slate"][k]
     rings = []
     n = 64
@@ -258,6 +262,12 @@ def portal(k):
 
 def dress(k):
     if k == 0:
+        from market_art import gate_stair, skyline_mill, spring_well, valley_orchard
+        from market_yard import drying_yard
+        gate_stair()
+        skyline_mill()
+        valley_orchard()
+        drying_yard()
         for prefix, x, y, h, r in [
             ("Entrance west", -13, 4, 5.9, 25),
             ("Entrance east", 14, 12, 6.4, -27),
@@ -273,22 +283,7 @@ def dress(k):
             ("WZ_VIL_P05", "Flour casks", 10, 2, 1.1, 0),
         ]:
             prop(id, name, x, y, h, r, (1, 1, h * 0.75), k)
-        # Turn the masonry, lip and inner wall as a single continuous, hollow profile.
-        x,y=-4,7
-        z=ground(k,x,y)
-        sections=[(.87,-.25),(.93,.07),(.91,.68),(.98,.72),(.98,.84),
-                  (.69,.84),(.66,.74),(.66,-.14),(.87,-.25)]
-        ring=sections[:-1];count=32
-        points=[(x+r*math.cos(j*math.tau/count),y+r*math.sin(j*math.tau/count),z+h)
-                for r,h in ring for j in range(count)]
-        faces=[(i*count+j,i*count+(j+1)%count,((i+1)%len(ring))*count+(j+1)%count,
-                ((i+1)%len(ring))*count+j) for i in range(len(ring)) for j in range(count)]
-        geometry("Bellmarket spring well",points,faces,"Masonry")
-        lathe("Spring surface",x,y,z,[(.67,.09),(.67,.11)],"SeaGlass",32)
-        for side in (-1,1):
-            shaft("Well post",(x+side*.79,y,z+.65),(x+side*.79,y,z+2.15),.085,.074,"Wood",12)
-        shaft("Winding beam",(x-.94,y,z+2.1),(x+.94,y,z+2.1),.105,.105,"Wood",16)
-        shaft("Plumb line",(x,y,z+.19),(x,y,z+2.1),.014,.014,"Wood",8)
+        spring_well(-4,7,ground(k,-4,7))
         for s in [-1, 1]:
             pine(s * 15, -2, 0, 7, 3 + s)
             lamp(s * 4, -7, 0)
@@ -311,7 +306,9 @@ def dress(k):
             ]
         ):
             pine(x, y, ground(k, x, y), rng.uniform(7, 11), i)
-        prop("WZ_FOR_P01", "Root braid gateway", 0, -7, 4.1, 0, None, k)
+        from choir_grove import braid, paint_bank
+        braid()
+        paint_bank()
         for id, name, x, y, h, r in [
             ("WZ_FOR_P06", "Hollow listening stump", -11, 7, 2.1, 25),
             ("WZ_FOR_P08", "Resin taps", 12, 6, 2.3, -35),
@@ -326,11 +323,12 @@ def dress(k):
     if k == 2:
         for s in (-1, 1):
             for j in range(3):
-                x, y = s * 13, -8 + j * 7
+                x, y = s * 14.9, -8 + j * 7
                 prop("WZ_SWA_P05", "Woven reed screen", x, y, 2.4, 90, None, k)
             prop("WZ_SWA_P01", "Lock keeper hut", s * 14, 11, 4.8, -s * 30, (4, 3, 3), k)
             prop("WZ_SWA_P07", "Tangled cypress", s * 16, -11, 4.0, s * 17, (1.5, 1.5, 2.5), k)
-        prop("WZ_SWA_P04", "Mill waterwheel", 12, 4, 4.1, 32, (2.5, 1.8, 3.2), k)
+        from lock_wheel import build as build_wheel
+        build_wheel()
         for x, y in [(-10, -5), (8, -5), (9, 9), (-9, 8)]:
             prop("WZ_SWA_P06", "Boglight", x, y, 2.4, 0, None, k)
         for x in [-7, 0, 7]:
@@ -395,6 +393,12 @@ def actors(k):
     if k == 0:
         from tavi_art import make_tavi
         make_tavi(x, y, 0, h)
+    elif k == 1:
+        from moss_art import keeper as moss
+        moss(x,y,0)
+    elif k in (2,3):
+        from river_makers import maker
+        maker(x,y,0,k==3)
     elif k == 4:
         from quiet_art import keeper, music_box
         keeper(x,y)
@@ -597,10 +601,20 @@ def public_road_book():
 
 def make(key, lib):
     k = ROOMS.index(key)
+    if k in (2,3):
+        from river_makers import paint as paint_maker
+        paint_maker("FenAtelier" if k==2 else "OssaAtelier")
+    if k == 1:
+        from choir_paint import make as paint_choir
+        paint_choir()
     if k == 4:
         from quiet_art import paint
         paint()
     if k == 0:
+        from market_paint import make as paint_market
+        paint_market()
+        from market_yard import plumage
+        plumage(RES/"Textures")
         from pilgrim_art import road_leaf_paint
         from theatre_art import ticket_poster
         from ferry_counter import fen_ticket_paint, fen_ticket, wood_sign_paint, wood_sign

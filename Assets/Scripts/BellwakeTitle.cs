@@ -73,9 +73,13 @@ namespace Wizzard
                 yield return Resources.LoadAsync<GameObject>("Bellwake/Wayfarer/"+models[i]);
             }
             var panorama=Resources.LoadAsync<Cubemap>("Bellwake/Skies/Bellmarket");
+            var stars=Resources.LoadAsync<Cubemap>("Bellwake/Skies/HillStars");
             yield return panorama;
+            yield return stars;
             sky=new Material(Shader.Find("Wizzard/BellwakeSky"));
-            sky.SetTexture("_Panorama",panorama.asset as Cubemap);
+            sky.SetTexture("_Stars",stars.asset as Cubemap);
+            BellwakeDaylight.SetPanorama(sky,panorama.asset as Cubemap);
+            BellwakeDaylight.SetSkyClock(420f);
             RenderSettings.skybox=sky;
             player.head.GetComponent<Camera>().clearFlags=CameraClearFlags.Skybox;
             stage=new GameObject("Bellroot at first light").transform;

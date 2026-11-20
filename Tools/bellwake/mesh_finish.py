@@ -53,7 +53,10 @@ def seal(mesh, character=False, fringe=False):
                 pending.extend(neighbours)
             if all(abs(normals[0].dot(f.normal))>.98 for f in sheet):
                 # Collars, fringes and badges keep their painted fronts and gain a back and hem.
-                size=max((v.co-next(iter(verts)).co).length for v in verts)
+                # Set iteration depends on Blender allocation order. Anchor sheet thickness
+                # to a geometric point so rebuilding a ribbon reproduces its silhouette.
+                anchor=min(verts,key=lambda v:tuple(v.co)).co
+                size=max((v.co-anchor).length for v in verts)
                 bmesh.ops.solidify(bm,geom=list(sheet),thickness=max(.0001,size*.035))
                 count+=1
                 continue

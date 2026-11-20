@@ -71,7 +71,8 @@ namespace Wizzard
             previousStepOffset=player.GetComponent<CharacterController>().stepOffset;
             var sunObject=GameObject.Find("Afternoon sun");sun=sunObject!=null?sunObject.GetComponent<Light>():null;
             if(sun!=null) { previousSunShadows=sun.shadows;previousSunRotation=sun.transform.rotation; }
-            villageSky=new Material(Shader.Find("Wizzard/VillageSky"));
+            villageSky=new Material(Shader.Find("Wizzard/BellwakeSky"));
+            BellwakeDaylight.SetPanorama(villageSky,Resources.Load<Cubemap>("Bellwake/Skies/Bellmarket"));
             gate=new Vector3(MapLocation.x,MeadowWorld.Height(MapLocation.x,MapLocation.y),MapLocation.y-36);
             CreateMountain();
             // Camera-attached geometry renders in both eyes. Text is in front of the curtain.
@@ -296,9 +297,12 @@ namespace Wizzard
             if(sun!=null)
             {
                 sun.shadows=villageActive?LightShadows.Soft:previousSunShadows;
-                Vector3 forward=arrival-exit;forward.y=0;forward.Normalize();
-                Vector3 right=Vector3.Cross(Vector3.up,forward);
-                sun.transform.rotation=villageActive?Quaternion.LookRotation(-right*.265f+forward*.628f+Vector3.down*.732f):previousSunRotation;
+                if(!daylight)
+                {
+                    Vector3 forward=arrival-exit;forward.y=0;forward.Normalize();
+                    Vector3 right=Vector3.Cross(Vector3.up,forward);
+                    sun.transform.rotation=villageActive?Quaternion.LookRotation(-right*.265f+forward*.628f+Vector3.down*.732f):previousSunRotation;
+                }
             }
             player.GetComponent<CharacterController>().stepOffset=villageActive?.2f:previousStepOffset;
         }

@@ -5,7 +5,7 @@ namespace Wizzard.Editor
 {
     public sealed class BellwakeImport : AssetPostprocessor
     {
-        public override uint GetVersion() => 2;
+        public override uint GetVersion() => 3;
         void OnPostprocessModel(GameObject model)
         {
             if (!IsBellwakeModel()) return;
@@ -64,7 +64,17 @@ namespace Wizzard.Editor
             if (!assetPath.StartsWith("Assets/Resources/Bellwake/Textures/"))
                 return;
             var tile = (TextureImporter)assetImporter;
-            if (assetPath.EndsWith("/Letterpress.png") || assetPath.EndsWith("Survey.png") || assetPath.EndsWith("Signs.png"))
+            if (assetPath.EndsWith("/ProvisionStamps.png") || assetPath.EndsWith("/PocketGlyphs.png") || assetPath.EndsWith("/Letterpress.png"))
+            {
+                tile.npotScale=TextureImporterNPOTScale.None;
+                tile.filterMode=FilterMode.Point;
+                tile.wrapMode=TextureWrapMode.Clamp;
+                tile.mipmapEnabled=false;
+                tile.alphaIsTransparency=true;
+                tile.textureCompression=TextureImporterCompression.Uncompressed;
+                return;
+            }
+            if (assetPath.EndsWith("Survey.png") || assetPath.EndsWith("Signs.png"))
                 tile.npotScale = TextureImporterNPOTScale.None;
             if (assetPath.EndsWith("/RoadSorrel.png"))
             {
@@ -74,7 +84,7 @@ namespace Wizzard.Editor
             }
             tile.mipmapEnabled = true;
             tile.wrapMode = TextureWrapMode.Repeat;
-            tile.filterMode = assetPath.EndsWith("/Letterpress.png") ? FilterMode.Point : FilterMode.Bilinear;
+            tile.filterMode = FilterMode.Bilinear;
             tile.anisoLevel = 2;
             tile.textureCompression = TextureImporterCompression.Uncompressed;
         }

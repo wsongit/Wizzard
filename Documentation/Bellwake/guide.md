@@ -164,7 +164,9 @@ Open `http://localhost:8090/index.html` in Quest Browser while USB forwarding is
 
 ## Editable art and sound
 
-The packed Blender sources in `Blender/Bellwake` contain the twenty-eight campaign sets, the meadow trail sign, the runner’s arms, the two individually modeled hands, the meadow outcrop and the mountain gate. The campaign reuses characters and props from the supplied Wizzard Themed Library, with articulated head and arm pivots on speakers. The cottages use the existing Mossbell Blender artwork. The court geometry, interactive mechanisms, bell tower, escarpments, banners, floor paintings, skies and score were authored for this campaign.
+The packed Blender sources in `Blender/Bellwake` contain the forty-two campaign districts and the Highroad, the meadow trail sign, the runner’s arms, the two individually modeled hands, the meadow outcrop and the mountain gate. Moss wears Ina’s mended ribbon, Fen carries a brass gauge key, and Ossa wears glassworker’s goggles. Each keeper has an original Blender model with head and arm pivots. Some background props and creatures use the supplied Wizzard Themed Library. The cottages use the existing Mossbell Blender artwork. The court geometry, interactive mechanisms, bell tower, escarpments, banners, floor paintings, skies and score were authored for this campaign.
+
+The Bellmarket windlass has a suspended pail and a grate over the spring. Follow the crowned steps to the north gate for a clear view of the sails. In Reedwater, watch the paddles as you open and close the mill channel. The night sky, windows and yard sounds follow the clock outdoors. The kiln keeps its indoor lighting. [Player-height art views](bellwake-valley.jpg)
 
 Ground and path share one continuous mesh. Lighting includes baked ground contact shadows. Buildings, clothing, brass and foliage use their own paintings and UV atlases. The Unity player loads one campaign room at a time and adds mesh colliders to the terrain, visible static set, rim and solid cores.
 

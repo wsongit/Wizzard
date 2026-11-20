@@ -1,11 +1,12 @@
 Shader "Wizzard/VillageSurface"
 {
- Properties { _CastShadows ("Cast shadows", Float) = 1 _Cutoff ("Path edge cutout", Range(0,1)) = 0 _MainTex ("Painted 64px tile", 2D) = "white" {} }
+ Properties { _Window ("Lamplit glass",Range(0,1))=0 _CastShadows ("Cast shadows", Float) = 1 _Cutoff ("Path edge cutout", Range(0,1)) = 0 _MainTex ("Painted 64px tile", 2D) = "white" {} }
  SubShader {
  Tags { "RenderType"="Opaque" }
  Pass {
  Tags { "LightMode"="ForwardBase" }
  CGPROGRAM
+ #pragma target 3.0
  #pragma vertex vert
  #pragma fragment frag
  #pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
@@ -14,7 +15,10 @@ Shader "Wizzard/VillageSurface"
  #include "UnityCG.cginc"
  #include "Lighting.cginc"
  #include "AutoLight.cginc"
- half _BellwakeNight;
+ #include "../Shaders/BellwakeTone.cginc"
+ #include "../Shaders/BellwakeFilter.cginc"
+ float4 _MainTex_TexelSize;
+ half _Window;
  sampler2D _MainTex;
  float _Cutoff;
  struct appdata { float4 vertex:POSITION; float3 normal:NORMAL; float2 uv:TEXCOORD0; UNITY_VERTEX_INPUT_INSTANCE_ID };
@@ -26,12 +30,12 @@ Shader "Wizzard/VillageSurface"
  }
  fixed4 frag(v2f i):SV_Target {
   UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
-  fixed4 c=tex2D(_MainTex,i.uv);
+  fixed4 c=BellwakeTile(_MainTex,i.uv,_MainTex_TexelSize,ddx(i.uv),ddy(i.uv));
   clip(c.a-_Cutoff);
   UNITY_LIGHT_ATTENUATION(atten,i,i.worldPos);
   float diffuse=saturate(dot(normalize(i.normal),normalize(_WorldSpaceLightPos0.xyz)));
-  c.rgb*=float3(.57,.56,.53)+diffuse*atten*float3(.47,.45,.41);
-  c.a=1;c.rgb*=lerp(half3(1,1,1),half3(.34,.44,.65),_BellwakeNight);
+  c.rgb=WizzardSurfaceLight(c.rgb,.56+diffuse*atten*.46,0,_Window);
+  c.a=1;
   UNITY_APPLY_FOG(i.fogCoord,c);return c;
  }
  ENDCG

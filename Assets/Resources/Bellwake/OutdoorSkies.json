@@ -1,0 +1,6 @@
+{
+  "valleys": ["Bellmarket", "Morning", "Reedwater", "PaperLight", "QuinceFold", "RimePost", "Cairnwatch", "SaffronKilns", "VellumWalk", "RainCourt"],
+  "woods": ["RootChoir"],
+  "shores": ["Wrenfall", "Saltwake", "Chainwater", "KettleLight"],
+  "marshes": ["SaltMud", "SillRain", "SwallowWater"]
+}

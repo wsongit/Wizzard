@@ -1,3 +1,4 @@
+import {ValleyLight, marketLife} from "./market.js";
 import {Grove} from "./grove.js";
 import {ForestCall,callAngle} from "./forest_call.js";
 import * as T from "three";
@@ -25,6 +26,7 @@ const places=new Map([
   ...data.works.rooms.map(r=>[r.key,r])
 ]);
 let secondsByPlace = {};
+let minutes=420, lightInterval=0, marketAnimation=null, waterwheel=null;
 let number = 0,
   leaves = 0,
   muted = false,
@@ -39,6 +41,7 @@ try {
     number = value.number;
     leaves = value.leaves & 31;
     muted = !!value.muted;
+    if(Number.isFinite(value.minutes)) minutes=((value.minutes%1440)+1440)%1440;
     savedPassage = value.passage;
     savedWorks = value.works;
     lastDistrict=places.has(value.lastDistrict) ? value.lastDistrict : null;
@@ -80,7 +83,7 @@ function save(timerOnly = false) {
       muted,
       passage: passage.progress,
       works: works.progress,
-      secondsByPlace,
+      secondsByPlace, minutes,
       lastDistrict, roadPosition, outing, visiting,
     });
     localStorage.setItem(store, checkpoint);
@@ -124,6 +127,9 @@ const sky = new T.Mesh(
   new T.MeshBasicMaterial({ side: T.BackSide, depthWrite: false, fog: false }),
 );
 scene.add(sky);
+const starTexture = new T.TextureLoader().load(data.streamed ? data.stars : "data:image/png;base64,"+data.stars);
+starTexture.colorSpace=T.SRGBColorSpace;
+const daylight=new ValleyLight(sky,hemi,sun,starTexture,data.outdoorSkies);
 const loader = new GLTFLoader(),
   look = new T.Vector3(),
   forward = new T.Vector3(),
@@ -436,6 +442,9 @@ async function loadRoom() {
   }
   clearPilotReply();
   forestCall.release();
+  marketAnimation?.release();
+  marketAnimation=null;waterwheel=null;
+  daylight.release();
   grove.cells=[];
   for (const [key, audio] of effects) {
     if (!key.startsWith("Beech")) continue;
@@ -499,6 +508,12 @@ async function loadRoom() {
   palette.forEach((_, old) => old.dispose());
   group.updateMatrixWorld(true);
 
+  marketAnimation=marketLife(nodes,key=>assetURL("sounds",key,"audio/ogg"));
+  if(nodes.MillWheel) {
+    const wheel=nodes.MillWheel, axis=nodes.WheelAxle.getWorldPosition(new T.Vector3())
+      .sub(wheel.getWorldPosition(new T.Vector3())).normalize().applyQuaternion(wheel.getWorldQuaternion(new T.Quaternion()).invert());
+    waterwheel={wheel,axis,speed:(state().water&1) ? 27 : 0};
+  }
   grove.bind(nodes);
   grove.update(nodes.Spawn.position);
   nodes.C_Solids.visible = false;
@@ -536,6 +551,7 @@ async function loadRoom() {
   sky.scale.setScalar(camera.far / 115);
   panorama.colorSpace = T.SRGBColorSpace;
   sky.material.map = panorama;
+  daylight.bind(theme,scene.fog,palette,minutes);
   sky.material.needsUpdate = true;
   // Spread texture uploads over loading frames before returning control to the player.
   const maps = new Set([panorama]);
@@ -557,7 +573,7 @@ async function loadRoom() {
     // keeps its own actors, moving puzzle parts and state until its destination is entered.
     for(const child of group.children)
       if(!child.name.startsWith("Grove") && (child.isMesh || child.children.some(part=>part.isMesh)))
-        child.visible=/^(Terrain|Rim|Set|Speaker(?:Head|Arm)?|GroveNear.*)$/.test(child.name);
+        child.visible=/^(Terrain|Rim|Set|Speaker(?:Head|Arm)?|GroveNear.*|MillWheel|MillSails|MarshHen.*|ReedHen.*)$/.test(child.name);
     visitExit=nodes.Spawn.position;
     resetFeet();
     $("chapter").textContent="Exploring the watershed";
@@ -1491,6 +1507,17 @@ function loop(time, frame) {
     return;
   }
   if (!group) return;
+  if (started && !document.hidden) {
+    minutes=(minutes+delta*1.5)%1440;
+    lightInterval+=delta;
+    if(lightInterval>=.25){daylight.apply(minutes);lightInterval=0;}
+    if(waterwheel){
+      const target=(state().water&1) ? 27 : 0;
+      waterwheel.speed+=T.MathUtils.clamp(target-waterwheel.speed,-12*delta,12*delta);
+      if(waterwheel.speed>0)waterwheel.wheel.rotateOnAxis(waterwheel.axis,waterwheel.speed*delta*Math.PI/180);
+    }
+    marketAnimation?.update(delta,daylight.night.value,vr.session ? vr.head : camera.position,muted);
+  }
   if (vr.session) vr.update(frame, delta, book || dialogueShade.visible, dialogueShade.visible);
   if (walking || visiting) {
     if (visiting && grove.cells.length) grove.update(vr.session ? vr.head : camera.position);
@@ -1663,6 +1690,9 @@ if (__TEST__)
   window.bellProbe = () => ({
     number,
     gpu: { ...renderer.info.memory, programs: renderer.info.programs.length },
+    geometryLimit:(()=>{const geometries=new Set();scene.traverse(o=>{if(o.geometry)geometries.add(o.geometry)});return geometries.size})(),
+    wheelSpeed:waterwheel?.speed, wheelAngle:waterwheel?.wheel.quaternion.toArray(),
+    skyNight:daylight.night.value, minutes, millAngle:nodes.MillSails?.quaternion.toArray(),
     recentTones: recentTones.slice(),
     instruments: Object.fromEntries(instruments.targets.map(t => [t.id, {centre:t.centre.toArray(),radius:t.radius}])),
     handPositions: vr.palms?.map(p => p.position.toArray()),
@@ -1755,6 +1785,13 @@ if (__TEST__)
     journalPage,
     journalCaption: book ? journalText[journalPage] : "",
   });
+if (__TEST__) {
+  window.bellSetClock = t => {minutes=t;daylight.apply(minutes);};
+  window.bellStand = (feet, facing, tilt) => {
+    capsule.start.set(...feet).y+=.26; capsule.end.set(...feet).y+=1.4;
+    vy=0; yaw=facing; pitch=tilt; updateCamera();
+  };
+}
 if (__TEST__)
   window.bellTravel = async (index) => {
     if (busy) throw Error("Travel already in progress");

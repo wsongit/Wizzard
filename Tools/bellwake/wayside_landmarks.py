@@ -26,8 +26,8 @@ def lock(x,y,z):
         shaft("Wheel rim",tip,(x+3.6*math.sin(b),y,z+3.9+3.6*math.cos(b)),.28,.28,"Wood",5)
         shaft("Paddle",(tip[0],y-.95,tip[2]),(tip[0],y+.95,tip[2]),.3,.3,"Wood",4)
 
-def windmill(x,y,z):
-    lathe("Windmill footing",x,y,z,[(4.3,0),(4.2,1.2),(3.85,1.6)],"Masonry",10)
+def windmill(x,y,z,sails="Set",foundation=0):
+    lathe("Windmill footing",x,y,z,[(4.3,-foundation),(4.2,1.2),(3.85,1.6)],"Masonry",10)
     lathe("Windmill drum",x,y,z+1.4,[(3.86,0),(3.32,7.3),(2.96,11.2)],"HousePlaster",10)
     for h,r in [(2.1,3.86),(7.5,3.5),(12.4,3.16)]:
         lathe("Mill timber band",x,y,z+h,[(r,0),(r,.37)],"Wood",10)
@@ -39,11 +39,11 @@ def windmill(x,y,z):
         def point(r,w=0):
             return (hub[0]+r*math.sin(a)+w*math.cos(a),hub[1],
                     hub[2]+r*math.cos(a)-w*math.sin(a))
-        shaft("Sail spar",point(0),point(8.1),.16,.1,"Wood",5)
+        shaft("Sail spar",point(0),point(8.1),.16,.1,"Wood",5,sails)
         corners=[point(2.45,.06),point(8.0,.06),point(8,1.38),point(2.45,.88)]
-        geometry("Reefed sail cloth",corners,[(0,1,2,3)],"MillCanvas",uv=[(0,0),(0,1),(1,1),(1,0)])
+        geometry("Reefed sail cloth",corners,[(0,1,2,3)],"MillCanvas",sails,uv=[(0,0),(0,1),(1,1),(1,0)])
         for r in (2.5,4.3,6.1,7.95):
-            shaft("Sail batten",point(r,-.08),point(r,.88+(r-2.45)*.09),.065,.06,"Wood",4)
+            shaft("Sail batten",point(r,-.08),point(r,.88+(r-2.45)*.09),.065,.06,"Wood",4,sails)
 
 def elder(x,y,z):
     lathe("Old waytree",x,y,z,[(3.2,0),(1.8,1.9),(1.15,5.4),(.65,9.3)],"Wood",7)

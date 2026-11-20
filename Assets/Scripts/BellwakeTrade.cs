@@ -14,6 +14,7 @@ namespace Wizzard
         GorillaPlayer player;
         BellwakeSatchel bag;
         Action save;
+        Action<int> receipt;
         Action<string,string> say;
         Action<TextMesh> face;
         GameObject stall, foe;
@@ -27,9 +28,9 @@ namespace Wizzard
         Quaternion shieldRest, creatureRest;
         Transform creaturePart;
         public void Initialize(GorillaPlayer rig, BellwakeSatchel contents, Action write,
-            Action<string,string> message, Action<TextMesh> faceLabel)
+            Action<string,string> message, Action<TextMesh> faceLabel, Action<int> showReceipt)
         {
-            player=rig;bag=contents;save=write;say=message;face=faceLabel;
+            player=rig;bag=contents;save=write;say=message;face=faceLabel;receipt=showReceipt;
             for(int i=0;i<held.Length;i++)
             {
                 held[i]=BellwakeModels.Wayfarer(Models[i],i==1?rig.leftHand:rig.rightHand);
@@ -166,7 +167,17 @@ namespace Wizzard
             if(near)
             {
                 if(next){shelf=(shelf+1)%4;UpdateBoard(true);}
-                if(use){string result=bag.Buy(shelf);ShowGear();save();UpdateBoard(true);say("Provisions",result+"   "+bag.coins+" marks left.");}
+                if(use)
+                {
+                    int before=bag.coins;
+                    string result=bag.Buy(shelf);
+                    say("Provisions",result+"   "+bag.coins+" marks left.");
+                    if(bag.coins<before)
+                    {
+                        ShowGear();save();UpdateBoard(true);
+                        receipt(shelf);
+                    }
+                }
             }
             else if(next)
             {

@@ -10,6 +10,7 @@ namespace Wizzard.Editor
         [MenuItem("Wizzard/Validate Bellwake rooms")]
         public static void Validate()
         {
+            const string prefix = "Bellwake/";
             var atlas=JsonUtility.FromJson<PassageAtlas>(Resources.Load<TextAsset>("Bellwake/Passages").text);
             var rooms=new List<string>(BellwakeJourney.Rooms);
             foreach(var region in atlas.regions) rooms.Add(region.key);
@@ -20,7 +21,6 @@ namespace Wizzard.Editor
             foreach(var chamber in works.rooms) rooms.Add(chamber.key);
             foreach (string room in rooms)
             {
-                string prefix = "Bellwake/";
                 var scene = Resources.Load<GameObject>(prefix + "Rooms/" + room);
                 Require(scene != null, "Missing room " + room);
                 var names = new HashSet<string>();
@@ -49,7 +49,12 @@ namespace Wizzard.Editor
                         Require(names.Contains("Edge_" + name.Substring(4)) && names.Contains("A_" + name.Substring(4)), room+" "+name);
                 if (room=="Bellmarket" || room=="Reedwater") Require(names.Contains("A_Packet"),room+" packet counter");
                 if (room=="Bellmarket")
+                {
+                    foreach(var node in new[]{"MillSails","MillAxis","MarshHen","ReedHen","MarshHenTrail","ReedHenTrail",
+                        "MarshHenHead","ReedHenHead","MarshHenLeft","ReedHenLeft","MarshHenRight","ReedHenRight"})
+                        Require(names.Contains(node),"market missing "+node);
                     Require(names.Contains("A_WoodWalk") && names.Contains("A_RoadBook") && names.Contains("RoadBook"), "market road letters");
+                }
                 if (room=="StillBelfry")
                 {
                     foreach (var part in new[]{"KeeperMask","KeeperLeft","KeeperRight","KeeperLamp","KeeperCue0","KeeperCue1","KeeperCue2","A_MorningSong"})
@@ -113,6 +118,16 @@ namespace Wizzard.Editor
                 var clip = Resources.Load<AudioClip>(prefix + "Audio/" + theme);
                 Require(clip != null && clip.length > 12, room + " music");
             }
+            foreach(var swatch in new[]{"Letterpress","PocketGlyphs","ProvisionStamps"})
+                Require(Resources.Load<Texture2D>("Bellwake/Textures/"+swatch)!=null,"Missing caption paint "+swatch);
+            Require(Resources.Load<Cubemap>("Bellwake/Skies/HillStars")!=null,"Missing outdoor star field");
+            Require(Resources.Load<TextAsset>("Bellwake/OutdoorSkies")!=null,"Missing outdoor sky list");
+            foreach (var theme in new[] { "Bellmarket", "SaltMud", "SillRain", "Chainwater", "KettleLight" })
+                Require(BellwakeDaylight.IsOutdoor(Resources.Load<Cubemap>(prefix+"Skies/"+theme)),theme+" open-air lighting");
+            Require(!BellwakeDaylight.IsOutdoor(Resources.Load<Cubemap>(prefix+"Skies/CinderLens")),
+                    "Kiln workshop lighting");
+            foreach(var sound in new[]{"FareChime","YardHen","MillBearing","YardDusk"})
+                Require(Resources.Load<AudioClip>("Bellwake/Audio/"+sound)!=null,"Missing market sound "+sound);
             ValidateField(rooms);
             foreach (var file in new[] { "LeftPalm", "RightPalm", "RunnerArm", "TrailSign", "MeadowOutcrop",
                                          "MossbellApproach" })

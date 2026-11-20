@@ -1,11 +1,11 @@
 """Bundle the downloadable Windows/macOS/Linux desktop browser game into one offline HTML file."""
 
-import base64, gzip, json, subprocess, sys, hashlib
+import base64, gzip, json, os, subprocess, sys, hashlib
 from pathlib import Path
 
 folder = Path(__file__).resolve().parent
 root = folder.parents[2]
-assets = folder.parent / ".web-assets"
+assets = Path(os.environ.get("WIZZARD_WEB_ART", folder.parent / ".web-assets"))
 story = json.loads((assets / "story.json").read_text())
 
 
@@ -66,6 +66,8 @@ data = dict(
         for r in regions
     },
     letters={p.stem: asset(p) for p in sorted((root / "Assets/Resources/Bellwake/Letters").glob("*.jpg"))},
+    outdoorSkies=[sky for names in json.loads((root / "Assets/Resources/Bellwake/OutdoorSkies.json").read_text()).values() for sky in names],
+    stars=asset(root / "Assets/Resources/Bellwake/Skies/HillStars.png"),
     skies={
         p.stem: asset(p)
         for p in (root / "Assets/Resources/Bellwake/Skies").glob("*.jpg")

@@ -33,7 +33,10 @@ async def run_lock(act, page, start, out, extended=False):
     assert (await use("FenRoad"))["district"] == "DriftFen"
     await page.keyboard.press("q")
     assert await page.evaluate("!bellProbe().uncovered && !bellProbe().works.signals.fenFork")
-    await use("Guide")
+    guide = await use("Guide")
+    assert guide["works"]["signals"]["fenFork"]
+    if guide["dialogue"]:
+        await page.keyboard.press("e")
     await page.keyboard.press("q")
     assert await page.evaluate(
         "!bellProbe().uncovered && document.getElementById('speech').textContent.includes('reply')"
