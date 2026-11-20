@@ -1,6 +1,19 @@
 import { Vector3, Triangle } from "three";
 import { Octree } from "three/examples/jsm/math/Octree.js";
 
+// A downward step into a walkable slope can be resolved vertically. A push
+// along the contact normal alone nudges an idle player downhill every frame.
+export function separateBody(body, hit, settling) {
+  if (settling && hit.normal.y >= 0.65) {
+    const rise = hit.depth / hit.normal.y;
+    body.start.y += rise;
+    body.end.y += rise;
+  } else {
+    body.start.addScaledVector(hit.normal, hit.depth);
+    body.end.addScaledVector(hit.normal, hit.depth);
+  }
+}
+
 // Bounds and triangles stay in the room's packed buffer. Three.js supplies the same
 // narrow-phase response used by the palms and body. Only nearby faces become objects.
 class PackedCollision extends Octree {
@@ -10,6 +23,8 @@ class PackedCollision extends Octree {
     this.pool = [];
     this.face = new Triangle();
     this.hit = new Vector3();
+    this.contactNormal = new Vector3();
+    this.contactPoint = new Vector3();
     if (this.indexBranch(0, 0) !== this.words.length) throw Error("Invalid room collision data");
   }
 
@@ -75,6 +90,24 @@ class PackedCollision extends Octree {
   }
   getCapsuleTriangles(capsule, faces) {
     this.collect(capsule, faces);
+  }
+  triangleCapsuleIntersect(capsule, triangle) {
+    // On a sloping mesh the capsule's bottom hemisphere can touch a shared
+    // edge before its axis projects inside either face. Use the closest
+    // point on the triangle so the foot has continuous support at that seam.
+    const normal = triangle.getNormal(this.contactNormal);
+    if (normal.y >= 0.65 && capsule.start.y <= capsule.end.y) {
+      const foot = capsule.start, radius = capsule.radius;
+      const distance = normal.dot(foot) - normal.dot(triangle.a);
+      if (distance >= 0 && distance < radius) {
+        const point = triangle.closestPointToPoint(foot, this.contactPoint);
+        const length = normal.subVectors(foot, point).length();
+        if (length > 0 && length < radius) {
+          return { normal: normal.multiplyScalar(1 / length), point, depth: radius - length };
+        }
+      }
+    }
+    return super.triangleCapsuleIntersect(capsule, triangle);
   }
   // Head sweeps and interaction sightlines only need to know whether a wall
   // lies strictly before the target. An intersection at the target stays clear.

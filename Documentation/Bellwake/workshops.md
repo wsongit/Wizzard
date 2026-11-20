@@ -34,11 +34,17 @@ At Rime Post, walk to the leaning pine at the last courier bearing. Windward bou
 
 At the Still Belfry, walk around the winged keeper. Each engraved feather has one spine running from shoulder to tip, even where the feather has a faceted ridge down its middle. Porcelain, brass, watch cloth and enamel each use their own section of the same image. The coat painting goes from hem to collar, and the end caps have a separate flat projection. [Keeper paintings and Blender UV fitting](../../Tools/bellwake/keeper_paint.py)
 
-
 ## Texturing a house or prop you add in Unity
 
 Choose **Wizzard → Create retro material library**. In the Project window, open **Assets → RetroMaterials → Workshop**. Drag **Tile fascia**, **Oak lintel**, **Rebated jamb** or **Stone threshold** onto the matching mesh slot. A crate can use **Crate side** round its body and **Crate lid** on the top. The twelve Workshop materials already point at the individual regions of the two paintings. A face with UVs spanning zero to one shows its selected picture. Existing materials you have edited keep their settings when you run the menu again. [See the twelve material swatches](workshop-materials.jpg)
 
+## The shop window through the day
+
+Stand in front of the baker’s west window in Bellmarket. At noon the sill catches the sun. At dusk the warm shelves begin to show through the glass, and by midnight the pots are silhouetted against the lamp. These three captures use the same player position. [View the same shop window at noon, dusk and midnight](workshop-day-and-night.jpg)
+
+Walking up to that window exposed a movement fault. Each frame of gravity pushed a resting player a little downhill. The WebXR and desktop controls now resolve an idle downward step vertically on walkable ground. A tracked player walked to the shop and stood there for two minutes. The previous build moved the player 36 centimetres during the test. In the updated build the player held position throughout. An active palm stroke still pushes the body against the surface normal. [Incline regression check](../../Tools/bellwake/web/standing_check.mjs)
+
+Two floor joins also needed a separate repair. In Glasscut and Sillwater Ebb, the bottom of the player could slip between two sloped triangles at their shared edge. The browser player now checks the closest point on each walkable triangle against the rounded foot. The floor survey settled desktop and VR players at 5,285 reachable positions across 42 districts. It exercised 10,545 clear starts and skipped 25 starts already touching another object. The player kept floor support in every exercised case.
 
 ## Release checks
 
@@ -47,3 +53,7 @@ The 46 playable models contain 966 image references to 215 distinct paintings. E
 The FBX geometry tests sampled 1,045,338 ground positions and cast 234,920 boundary rays. The landscape check cast another 117,396 probes across 44 Blender scenes. The 768 textured triangles on the keeper's enamel and the 768 on the Rime Post fir mantles all have two-dimensional texture coordinates. The packed source images in all 51 editable Blender files matched the project paintings.
 
 The desktop game opened the market and journal in both editions. The single-page edition did so with a single document request and subsequent network requests blocked. The signed WebXR APK updated in place on an Android emulator, retained its application identity and served all 182 packaged files with the expected contents. Headset comfort and frame time require a physical Quest. [Release measurements](workshop-test-results.json)
+
+All 1,766 render primitives in the 46 shipped models have a base-colour painting and a complete corresponding texture-coordinate channel. Regenerating the 42 districts and the highroad from their Blender sources reproduced the shipped geometry audit results. Wrenfall’s heather boulders now use its own station list during regeneration, so adding another chapter at the end of the story preserves their placement.
+
+In Unity, four high-contrast paintings now blend neighbouring mip levels as the player steps back. The largest measured change was on the snowy firs. In a controlled sampler test, the mean of the 90th-percentile brightness-weighted colour changes across five mip boundaries fell from 18.7 to 1.2 levels on a 0–255 scale. The eaves, character clothing and workshop goods also showed visible jumps with a single mip. Nearby texels keep the three-point filter. The material choice limits the additional filtering work to those paintings and the ground detail brush. [Unity texture import](../../Assets/Editor/BellwakeImport.cs) · [Sampler measurements](workshop-test-results.json)

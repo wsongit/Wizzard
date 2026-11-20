@@ -1,9 +1,9 @@
 {
-  "edition": "1.4-workshops",
-  "androidVersionCode": 6,
+  "edition": "1.4.1-workshops",
+  "androidVersionCode": 7,
   "apk": {
     "bytes": 65085563,
-    "sha256": "944145c97b5eb41a70e8100d6e75141a69f6359de81ad4d04d87db57dd46a149"
+    "sha256": "bb88296d608d30c94ade5f3519879c029fc301b200675a05f26b0060292a10b7"
   },
   "packagedFiles": 182,
   "streamedFiles": 181,
@@ -46,32 +46,33 @@
       "title": "Bellmender's Market",
       "hooks": [],
       "errors": [],
-      "elapsed": 42.0,
+      "elapsed": 34.2,
       "network": 1
     },
     "stream": {
       "title": "Bellmender's Market",
       "hooks": [],
       "errors": [],
-      "elapsed": 30.8,
+      "elapsed": 26.6,
       "network": 14
     }
   },
   "androidUpgrade": {
     "before": {
-      "versionCode": "5",
-      "versionName": "1.4-workshops",
-      "userId": "10067",
-      "firstInstallTime": "2026-11-20 03:23:14"
-    },
-    "after": {
       "versionCode": "6",
       "versionName": "1.4-workshops",
       "userId": "10067",
       "firstInstallTime": "2026-11-20 03:23:14"
     },
+    "after": {
+      "versionCode": "7",
+      "versionName": "1.4.1-workshops",
+      "userId": "10067",
+      "firstInstallTime": "2026-11-20 03:23:14"
+    },
     "system": "Android/sdk_phone_x86/generic_x86:9/PSR1.180720.012/4923214:userdebug/test-keys",
-    "served": true
+    "served": true,
+    "servedAfterReboot": true
   },
   "androidProductionServerEmulatedImmersiveVisits": [
     "Bellmarket",
@@ -81,12 +82,150 @@
   ],
   "recreatedFromBlenderGenerators": [
     "Bellmarket",
+    "Cairnwatch",
+    "CastingBed",
+    "ChainDock",
     "CinderLens",
+    "DriftFen",
+    "DrumHouse",
+    "EchoRotunda",
+    "FloodLedger",
+    "GlassRookery",
+    "Glasscut",
+    "GloamingPress",
+    "Highroad",
+    "KettleYard",
+    "KiteCrag",
+    "LanternCourt",
+    "LinenCourt",
+    "MercySlip",
+    "MouldLoft",
+    "OrreryLoft",
+    "PaperCourt",
+    "QuinceFold",
+    "RainCourt",
     "Reedwater",
     "RimePost",
     "RootChoir",
-    "StillBelfry"
+    "RowanHollow",
+    "SaffronKilns",
+    "Saltwake",
+    "SignalLoom",
+    "SillwaterEbb",
+    "SillwaterFlood",
+    "SillwaterOffice",
+    "SoundingBay",
+    "StillBelfry",
+    "SumpHall",
+    "SupperSteps",
+    "SwallowLock",
+    "TwinIntake",
+    "VellumWalk",
+    "WeighHouse",
+    "Wickwater",
+    "Wrenfall"
   ],
   "editorWorkshopMaterials": 12,
-  "compiledNativeShaderVariants": 124
+  "compiledNativeShaderVariants": 124,
+  "publishedMeshPaintCoverage": {
+    "primitives": 1766,
+    "paintedPrimitives": 1766,
+    "triangles": 1099549,
+    "uvVertices": 2116358
+  },
+  "repeatedFreeRoamGates": {
+    "districts": 42,
+    "returnedWithSameTextureCount": 42,
+    "roadTextures": [
+      23,
+      24
+    ],
+    "activeStoryDistrict": "Bellmarket",
+    "remainingVisitsStayedInFreeRoam": 41
+  },
+  "inclineAtMarketWindow": {
+    "testRig": "Chromium SwiftShader, IWER Meta Quest 3, stationary tracked head and both controllers after a room-scale walk",
+    "durationSeconds": 120,
+    "newMaximumDriftMetres": 0,
+    "newTrackedFrames": 250,
+    "collisionFixtureRuns": 30,
+    "collisionFixtureDurationSeconds": 120,
+    "collisionFixtureRates": [
+      36,
+      72,
+      90
+    ],
+    "previousMaximumDriftMetres": 0.36142,
+    "previousTrackedFrames": 217
+  },
+  "nativeDetailFilterStudy": {
+    "method": "WebGL 2 gradient sampling of original PNGs on SwiftShader. Average of the 90th-percentile absolute per-channel change, weighted by luminance, over five mip boundaries. Values use a 0\u2013255 scale.",
+    "lodBelowAndAboveHalfLevel": [
+      0.47,
+      0.53
+    ],
+    "detailTileResults": {
+      "HouseEdges": {
+        "nearest mip": 13.84,
+        "trilinear": 0.99
+      },
+      "RimeFir": {
+        "nearest mip": 18.74,
+        "trilinear": 1.2
+      },
+      "ResidentCloth": {
+        "nearest mip": 13.49,
+        "trilinear": 0.97
+      },
+      "YardGoods": {
+        "nearest mip": 13.11,
+        "trilinear": 0.97
+      }
+    }
+  },
+  "marketWindowHalfHourly": {
+    "sampleCount": 48,
+    "maxDriftMetres": 0.0,
+    "minPaneContrast": 19.97,
+    "maxPaneContrast": 31.03,
+    "gradientUnit": "90th minus 10th percentile luminance, on a 0\u2013255 scale"
+  },
+  "streamingTour": {
+    "visits": 141,
+    "laps": 3,
+    "maxTrackedRetiredObjects": 0,
+    "maxActiveDistricts": 1,
+    "maxActiveCollisionTrees": 1,
+    "maxActiveMusicTracks": 1,
+    "maxLiveTextures": 47
+  },
+  "walkableInclineSurvey": {
+    "districts": 42,
+    "trials": 10545,
+    "testedPositions": 5285,
+    "initiallyTouchingSceneryCasesSkipped": 25,
+    "simulationSecondsPerTrial": 5,
+    "maxSettledHorizontalDriftMetres": 0
+  },
+  "woodlandDetailSwitches": {
+    "groves": 12,
+    "inGameMotionSamples": 424,
+    "changesBetweenNearAndFar": 24,
+    "liveTextureCounts": [
+      34
+    ],
+    "silhouetteStudy": {
+      "worst": 0.76784,
+      "median": 0.83415,
+      "farTriangles": 4255,
+      "nearTriangles": 21882
+    },
+    "projectedViewpoints": 192
+  },
+  "paintedViews": {
+    "districts": 42,
+    "gameCaptures": 765,
+    "minimumDayViewMeanLuminance": 49.15,
+    "minimumNightViewMeanLuminance": 21.03
+  }
 }

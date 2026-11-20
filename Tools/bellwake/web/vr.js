@@ -1,5 +1,6 @@
 import * as T from "three";
 import { Capsule } from "three/examples/jsm/math/Capsule.js";
+import { separateBody } from "./collision.js";
 
 const up = new T.Vector3(0, 1, 0);
 export class TrackedRunner {
@@ -132,13 +133,13 @@ export class TrackedRunner {
     this.rig.rotation.set(0, 0, 0);
     this.cached = "";
   }
-  sweep(tree, move) {
+  sweep(tree, move, settling = false) {
     const n = Math.max(1, Math.min(16, Math.ceil(move.length() / 0.09)));
     this.step.copy(move).multiplyScalar(1 / n);
     for (let i = 0; i < n; i++) {
       this.body.translate(this.step);
       const hit = tree.capsuleIntersect(this.body);
-      if (hit) this.body.translate(hit.normal.multiplyScalar(hit.depth));
+      if (hit) separateBody(this.body, hit, settling);
     }
   }
   update(frame, dt, paused, inDialogue) {
@@ -264,7 +265,9 @@ export class TrackedRunner {
       this.motion.copy(this.velocity).multiplyScalar(dt);
     }
     this.start.copy(this.body.start);
-    this.sweep(tree, this.motion);
+    const settling = !contacts && this.motion.y < 0 &&
+      Math.hypot(this.velocity.x, this.velocity.z) < 0.005;
+    this.sweep(tree, this.motion, settling);
     this.delta.copy(this.body.start).sub(this.start);
     if (contacts && dt > 0) this.launch.lerp(this.work.copy(this.delta).multiplyScalar(1 / dt), 0.4);
     if (this.delta.y > this.motion.y + 0.001 && this.velocity.y < 0) {

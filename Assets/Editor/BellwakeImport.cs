@@ -5,7 +5,7 @@ namespace Wizzard.Editor
 {
     public sealed class BellwakeImport : AssetPostprocessor
     {
-        public override uint GetVersion() => 4;
+        public override uint GetVersion() => 5;
         void OnPostprocessModel(GameObject model)
         {
             if (!IsBellwakeModel()) return;
@@ -90,7 +90,12 @@ namespace Wizzard.Editor
             }
             tile.mipmapEnabled = true;
             tile.wrapMode = TextureWrapMode.Repeat;
-            tile.filterMode = assetPath.EndsWith("/GroundBrush.png") ? FilterMode.Trilinear : FilterMode.Bilinear;
+            // These small, high-contrast paintings show their mip boundaries as a player backs away.
+            // Close-ups still use the three-texel filter in the world shader.
+            bool blendMips = assetPath.EndsWith("/GroundBrush.png") ||
+                assetPath.EndsWith("/HouseEdges.png") || assetPath.EndsWith("/RimeFir.png") ||
+                assetPath.EndsWith("/ResidentCloth.png") || assetPath.EndsWith("/YardGoods.png");
+            tile.filterMode = blendMips ? FilterMode.Trilinear : FilterMode.Bilinear;
             tile.anisoLevel = 2;
             tile.textureCompression = TextureImporterCompression.Uncompressed;
         }

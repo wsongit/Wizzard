@@ -838,7 +838,7 @@ def shoreline_details():
     geometry("Thrift rosettes", leaves, blades, "Leaves", "Flora")
 
 
-def greenery():
+def greenery(region):
     for i, (x, y, h) in enumerate(TREES):
         z = height(x, y) - 0.11
         lean = -0.20 * h
@@ -864,7 +864,7 @@ def greenery():
         x, y = rand.uniform(-56, 55), rand.uniform(-55, 56)
         if min(abs(x) + abs(y + 14), abs(x - 27) + abs(y - 30)) < 12:
             continue
-        if any((x - s["x"]) ** 2 + (y - s["y"]) ** 2 < 35 for s in rooms[-1]["stations"]):
+        if any((x - s["x"]) ** 2 + (y - s["y"]) ** 2 < 35 for s in region["stations"]):
             continue
         if any((x - a) ** 2 + (y - b) ** 2 < 30 for path in TRACKS for a, b in path):
             continue
@@ -879,7 +879,7 @@ def make(lib):
     init(lib, 184)
     terrace()
     island_furniture(r)
-    greenery()
+    greenery(r)
     shoreline_details()
     marker("Spawn", 0, -14, 0.08)
     marker("Look", 0, -4, 1.4)

@@ -34,7 +34,7 @@ async def tracked_navigation(page):
           const handY=inBelfry?2.02:1.30, handZ=p.z+(inBelfry ? .24 : -.24);
           testDevice.controllers.right.position.set(p.x+.23,handY,handZ);
           testDevice.controllers.left.position.set(p.x-.23,handY,handZ);
-          await new Promise(r=>setTimeout(r,70));
+          await new Promise(r=>testDevice.activeSession.requestAnimationFrame(r));
         }
         throw Error("Tracked crossing to "+[x,z]+" stalled at "+bellProbe().vrHead+" palms="+bellProbe().planted);
       };
@@ -158,11 +158,11 @@ async def palm_instruments(browser):
         await page.evaluate("""() => {
             window.tapBell = async (name, side) => {
                 const s=bellProbe(), target=s.instruments['A_'+name], [x,y,z]=target.centre;
-                const frame=()=>new Promise(resolve=>setTimeout(resolve,95));
+                const frame=()=>new Promise(resolve=>testDevice.activeSession.requestAnimationFrame(resolve));
                 // Pull both hands behind the approach plane when walking across an instrument.
                 if (s.district === "StillBelfry" && name === "Key1") {
-                    // Leave the east plinth on its open side, then pass east of the keeper.
-                    for (const [px,pz] of [[7,1],[3,1],[3,-6.2],[0,-6.2]]) await walkSurvey(px,pz);
+                    // Leave the east plinth on its open side, then pass between the keeper and the stock.
+                    for (const [px,pz] of [[7,1],[1.3,1],[1.3,-6.2],[0,-6.2]]) await walkSurvey(px,pz);
                 }
                 // Settle within arm reach before swinging, even when the emulator skips a pose.
                 await walkSurvey(x,z+.94,.16);
@@ -197,7 +197,7 @@ async def palm_instruments(browser):
         if district=="StillBelfry":
             assert state["number"]==31, state["number"]
         if district=="StillBelfry" and "--morning-palms" in sys.argv:
-            await page.evaluate("async()=>{for (const p of [[0,-6.15],[3,-6.15],[3,-2],[5.2,-2.6]]) await walkSurvey(...p)}")
+            await page.evaluate("async()=>{for (const p of [[0,-6.15],[1.3,-6.15],[1.3,-2],[5.2,-2.6]]) await walkSurvey(...p)}")
             await trigger_station(page,"MorningSong","bellProbe().keeper.verse===1")
             await page.wait_for_function("bellProbe().keeper.lit.includes(2)")
             await page.wait_for_function("bellProbe().recentTones.slice(-3).join('')==='020'")

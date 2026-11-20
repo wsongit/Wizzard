@@ -10,7 +10,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { HeadsetFrameReport } from "./frame_report.js";
 import { PilotFlight } from "./pilots.js";
 import { TrackedRunner } from "./vr.js";
-import { loadCollision } from "./collision.js";
+import { loadCollision, separateBody } from "./collision.js";
 import { gunzipSync } from "three/examples/jsm/libs/fflate.module.js";
 import { Capsule } from "three/examples/jsm/math/Capsule.js";
 
@@ -1174,7 +1174,7 @@ function move(dt) {
   const hit = tree.capsuleIntersect(capsule);
   onFloor = false;
   if (hit) {
-    capsule.translate(hit.normal.multiplyScalar(hit.depth));
+    separateBody(capsule, hit, step.y < 0 && step.x === 0 && step.z === 0);
     if (hit.normal.y > 0 && vy < 0) {
       onFloor = true;
       vy = 0;
