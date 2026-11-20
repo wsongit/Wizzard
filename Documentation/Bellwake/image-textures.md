@@ -24,7 +24,9 @@ The small source paintings and their colour grades are editable. The Blender sce
 
 [Source paintings](../../Tools/bellwake/surface_sources) · [Colour grades and sheet layouts](../../Tools/bellwake/surface_paint.py) · [Surface validation](../../Tools/bellwake/check_surface_art.py)
 
-## Verification
+## Version 1.3 verification
+
+The measurements below describe the painted release before the workshop and landscape update. [Current edition and screenshots](workshops.md)
 
 All 850 embedded image references in the 46 playable models match the corresponding Unity PNGs. They use 206 distinct images. The four planted districts each submit their new vegetation in one batch. All 43 packed collision files match the preceding release byte for byte. The Unity FBX audit checked 1,045,338 ground positions and cast 234,920 rays along district boundaries.
 

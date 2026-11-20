@@ -35,6 +35,7 @@ async def check_visit_exit(page, url):
     await page.goto(url)
     await page.click("#start", timeout=60000)
     await page.wait_for_function("!bellProbe().busy && bellProbe().nearDoor==='GlassRookery'")
+    assert await page.evaluate("bellProbe().countryVisible"), "Missing landscape on a highroad visit"
     feet = await page.evaluate("bellProbe().feet")
     await page.evaluate("p=>bellStand([p[0],p[1]+6,p[2]],0,0)", feet)
     await page.evaluate("async()=>{await new Promise(requestAnimationFrame);await new Promise(requestAnimationFrame)}")

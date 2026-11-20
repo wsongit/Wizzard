@@ -1,69 +1,20 @@
 """The Quiet, an original jointed night-watch automaton for the Still Belfry."""
 
 import math
-from PIL import Image, ImageDraw
-import numpy as np
 from atelier import RES, geometry, shaft, origins
+from keeper_paint import fit as fit_enamel, paint as paint_enamel
 
 ATLAS = "QuietEnamel"
-PALETTE = (
-    (45, 60, 77),
-    (70, 100, 111),
-    (89, 125, 122),
-    (125, 144, 129),
-    (139, 88, 56),
-    (185, 136, 74),
-    (223, 178, 106),
-    (220, 205, 163),
-    (62, 46, 44),
-    (88, 63, 52),
-    (160, 79, 52),
-    (194, 117, 74),
-    (51, 77, 91),
-    (55, 90, 91),
-    (127, 121, 104),
-    (224, 153, 77),
-)
 
 
 def paint():
-    rng = np.random.default_rng(1738)
-    im = Image.new("RGB", (256, 256))
-    y, x = np.indices((64, 64))
-    for i, pigment in enumerate(PALETTE):
-        wear = 4 * np.cos((x + y * 0.78) / 7) + 2 * np.sin(y / 3.5) + rng.normal(0, 2.2, (64, 64))
-        tile = Image.fromarray(np.uint8(np.clip(np.array(pigment) + wear[..., None], 0, 255)))
-        im.paste(tile, ((i % 4) * 64, (i // 4) * 64))
-    # Inlays run the length of the overlapping flight feathers.
-    pen = ImageDraw.Draw(im)
-    for i in (0, 1, 2, 3, 12, 13):
-        left, top = (i % 4) * 64, (i // 4) * 64
-        c = tuple(min(255, v + 20) for v in PALETTE[i])
-        pen.line([(left + 31, top + 4), (left + 31, top + 57)], fill=c, width=2)
-        for v in (18, 27, 36, 45):
-            pen.line(
-                [(left + 13, top + v - 9), (left + 31, top + v + 4), (left + 51, top + v - 11)],
-                fill=c,
-                width=1,
-            )
-    im.save(RES / "Textures" / (ATLAS + ".png"))
+    paint_enamel(RES / "Textures" / (ATLAS + ".png"))
 
 
 def keeper(x, y):
-    def part(name, points, faces, colour, group, uvs=None):
-        swatch = colour if isinstance(colour, list) else [colour] * len(faces)
-        atlas_uv = []
-        for pigment, face in zip(swatch, faces):
-            coords = (
-                uvs
-                if uvs is not None
-                else [(0.1 + 0.80 * (i % 2), 0.12 + 0.74 * (i // 2 % 2)) for i in range(len(face))]
-            )
-            for u, v in coords:
-                atlas_uv.append(
-                    ((64 * (pigment % 4) + 4 + 56 * u) / 256, 1 - (64 * (pigment // 4) + 4 + 56 * v) / 256)
-                )
-        return geometry(name, [(px + x, py + y, pz) for px, py, pz in points], faces, ATLAS, group, atlas_uv)
+    def part(name, points, faces, colour, group):
+        obj = geometry(name, [(px + x, py + y, pz) for px, py, pz in points], faces, ATLAS, group)
+        fit_enamel(obj, colour)
 
     def shell(name, rows, pigment, group="Speaker", count=12, pleats=0):
         pts = []

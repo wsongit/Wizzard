@@ -280,6 +280,9 @@ def bake_ground(key, height=None):
     )
     path = RES / "Textures" / (key + "Ground.png")
     base = ROOT / "Tools/bellwake/.web-assets" / (key + "Unlit.png")
+    if key in ROOMS and not base.is_file():
+        # The shipped courts retain the original underpainting beneath the cast shadows.
+        base = ROOT / "Tools/bellwake/surface_sources/courts" / (key + ".png")
     pixels = np.array(Image.open(base), dtype=float) * (
         1 - np.array(shade)[:, :, None] / 255 * np.array([0.99, 0.91, 0.79])
     )

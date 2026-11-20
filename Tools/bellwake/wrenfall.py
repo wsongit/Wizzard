@@ -210,6 +210,24 @@ def beam(name, a, b, r, mat=WOOD, group="Set"):
     return shaft(name, a, b, r, r, mat, 8, group)
 
 
+def cliff_apron(ground):
+    from country import boundary
+    from mathutils import Vector
+    edge = boundary(ground)
+    n = len(edge)
+    vertices = []
+    for band in range(3):
+        for i, point in enumerate(edge):
+            direction = Vector((point.x,point.y,0)).normalized()
+            toe = 4.4 + 1.55*math.cos(i*.80)
+            distance = (0,1.55,toe)[band]
+            height = (point.z,point.z-.75,-4.30)[band]
+            vertices.append((point.x+distance*direction.x,point.y+distance*direction.y,height))
+    faces = [(j*n+i,(j+1)*n+i,(j+1)*n+(i+1)%n,j*n+(i+1)%n)
+             for j in range(2) for i in range(n)]
+    return geometry("Folded headland shore",vertices,faces,"MossRock","Rim")
+
+
 def terrace():
     grid = range(-60, 61, 2)
     pts = [(x, y, float(height(x, y))) for y in grid for x in grid]
@@ -223,20 +241,10 @@ def terrace():
     for i, l in enumerate(ground.data.loops):
         x, y, _ = pts[l.vertex_index]
         uv[i].uv = ((x + 60) / 120, (y + 60) / 120)
+    cliff_apron(ground)
     for axis in (0, 1):
         for side in (-1, 1):
             at = lambda u, r: (u, side * r) if axis == 0 else (side * r, u)
-            rim = []
-            f = []
-            for ix, u in enumerate(grid):
-                x, y = at(u, 60)
-                z = height(x, y)
-                toe = 64 + 2 * math.cos(ix * 0.8)
-                rim.extend([(x, y, z - 0.04), (*at(u, 61.5), z - 0.75), (*at(u, toe), -4.3)])
-                if ix:
-                    t = (ix - 1) * 3
-                    f.extend([(t, t + 3, t + 4, t + 1), (t + 1, t + 4, t + 5, t + 2)])
-            geometry("Exposed folded cliff face", rim, f, "MossRock", "Rim")
             collision(
                 "Headland perimeter",
                 *at(0, 60.4),

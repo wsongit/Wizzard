@@ -14,6 +14,10 @@ for file in files:
     if names and file.stem not in names:
         continue
     bpy.ops.wm.open_mainfile(filepath=str(file))
+    if file.stem == "Wayfarer":
+        from wayfarer_export import export_gallery
+        export_gallery(ROOT / "Assets/Resources/Bellwake/Wayfarer")
+        continue
     batches.clear()
     origins.clear()
     origins.update(json.loads(bpy.context.scene["bellwake_pivots"]))

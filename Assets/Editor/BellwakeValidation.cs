@@ -42,7 +42,7 @@ namespace Wizzard.Editor
                         Require(m != null && Resources.Load<Texture2D>(prefix + "Textures/" + m.name) != null,
                                 room + " paint on " + t.name);
                 }
-                foreach (var marker in new[] { "Terrain", "Set", "C_Solids", "Spawn", "Look", "Rim" })
+                foreach (var marker in new[] { "Terrain", "Set", "C_Solids", "Spawn", "Look", "Rim", "Surroundings" })
                     Require(names.Contains(marker), room + " marker " + marker);
                 foreach (var name in names)
                     if (name.StartsWith("Hit_"))
@@ -121,6 +121,8 @@ namespace Wizzard.Editor
             foreach(var swatch in new[]{"Letterpress","PocketGlyphs","ProvisionStamps"})
                 Require(Resources.Load<Texture2D>("Bellwake/Textures/"+swatch)!=null,"Missing caption paint "+swatch);
             Require(Resources.Load<Cubemap>("Bellwake/Skies/HillStars")!=null,"Missing outdoor star field");
+            Require(Resources.Load<Texture2D>(prefix+"Textures/GroundBrush")!=null,"Missing four-channel ground brush");
+            Require(Resources.Load<TextAsset>(prefix+"GroundPrints")!=null,"Missing ground print assignments");
             Require(Resources.Load<TextAsset>("Bellwake/OutdoorSkies")!=null,"Missing outdoor sky list");
             foreach (var theme in new[] { "Bellmarket", "SaltMud", "SillRain", "Chainwater", "KettleLight" })
                 Require(BellwakeDaylight.IsOutdoor(Resources.Load<Cubemap>(prefix+"Skies/"+theme)),theme+" open-air lighting");
@@ -150,6 +152,7 @@ namespace Wizzard.Editor
             Require(markers.Contains("RoadLongMeadow"), "Missing meadow connection");
             foreach (string part in new[] { "Terrain", "Rim", "C_Solids", "Set" })
                 CheckFieldSurface(field, part, true);
+            CheckFieldSurface(field, "Surroundings", false);
             for (int row = 0; row < 6; row++)
             for (int col = 0; col < 7; col++)
             {

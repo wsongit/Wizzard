@@ -2,6 +2,7 @@
 
 import base64, gzip, json, os, subprocess, sys, hashlib
 from pathlib import Path
+from shared_paints import SHARED_PAINTS, externalize
 
 folder = Path(__file__).resolve().parent
 root = folder.parents[2]
@@ -14,8 +15,9 @@ out.parent.mkdir(parents=True, exist_ok=True)
 streamed = "--streamed" in sys.argv
 
 
-def asset(path):
-    payload = path.read_bytes()
+def asset(path, payload=None):
+    if payload is None:
+        payload = path.read_bytes()
     packed = path.suffix in (".glb", ".bvh")
     if packed:
         payload = gzip.compress(payload, compresslevel=6, mtime=0)
@@ -29,10 +31,15 @@ def asset(path):
     return base64.b64encode(payload).decode("ascii")
 
 
+paint_dir = root / "Assets/Resources/Bellwake/Textures"
+paintings = {name: (paint_dir / (name + ".png")).read_bytes() for name in SHARED_PAINTS}
+
+
 def render_model(key):
     name = key + ".glb"
     stripped = assets / "render" / name
-    return asset(stripped if stripped.is_file() else assets / name)
+    source = stripped if stripped.is_file() else assets / name
+    return asset(source, externalize(source.read_bytes(), paintings))
 
 
 regions = json.loads((root / "Assets/Resources/Bellwake/Passages.json").read_text())[
@@ -54,6 +61,9 @@ subprocess.run(
 )
 
 data = dict(
+    groundPrints=json.loads((root / "Assets/Resources/Bellwake/GroundPrints.json").read_text()),
+    groundBrush=asset(paint_dir / "GroundBrush.png"),
+    paints={name: asset(paint_dir / (name + ".png"), payload) for name, payload in paintings.items()},
     collision={key: asset(assets / (key + ".bvh")) for key in rooms},
     story=story,
     streamed=streamed,
@@ -88,6 +98,7 @@ js = subprocess.check_output(
         str(folder / "game.js"),
         "--bundle",
         "--minify",
+        "--loader:.cginc=text",
         "--format=iife",
         "--legal-comments=inline",
         "--define:__TEST__=" + str(test).lower(),

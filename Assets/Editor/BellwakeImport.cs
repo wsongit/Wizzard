@@ -82,9 +82,15 @@ namespace Wizzard.Editor
                 tile.mipMapsPreserveCoverage = true;
                 tile.alphaTestReferenceValue = .45f;
             }
+            if (assetPath.EndsWith("/GroundBrush.png"))
+            {
+                tile.sRGBTexture = false;
+                tile.alphaIsTransparency = false;
+                tile.alphaSource = TextureImporterAlphaSource.FromInput;
+            }
             tile.mipmapEnabled = true;
             tile.wrapMode = TextureWrapMode.Repeat;
-            tile.filterMode = FilterMode.Bilinear;
+            tile.filterMode = assetPath.EndsWith("/GroundBrush.png") ? FilterMode.Trilinear : FilterMode.Bilinear;
             tile.anisoLevel = 2;
             tile.textureCompression = TextureImporterCompression.Uncompressed;
         }

@@ -1,0 +1,92 @@
+{
+  "edition": "1.4-workshops",
+  "androidVersionCode": 6,
+  "apk": {
+    "bytes": 65085563,
+    "sha256": "944145c97b5eb41a70e8100d6e75141a69f6359de81ad4d04d87db57dd46a149"
+  },
+  "packagedFiles": 182,
+  "streamedFiles": 181,
+  "models": 46,
+  "modelImageReferences": 966,
+  "distinctModelPaintings": 215,
+  "sharedPaintingFiles": 8,
+  "paintingReferencesBeforeExternalizingBytes": 24433459,
+  "sharedPaintingFilesBytes": 901735,
+  "maxAdditionalModelImageMipBytes": 3670016,
+  "packedBlenderFiles": 51,
+  "differentPackedPaintings": 0,
+  "detachedSourceImages": 0,
+  "stockGroupsOnDistrictGround": 88,
+  "stockShadowTexels": 25300,
+  "fittedHouseTrimFaces": 572,
+  "keeperAndFirTexturedTriangles": {
+    "QuietEnamel": 768,
+    "RimeFir": 768
+  },
+  "fbxFiles": 49,
+  "groundProbes": 1045338,
+  "boundaryRays": 234920,
+  "sceneryFiles": 44,
+  "sceneryProbes": 117396,
+  "maxScenerySeamMetres": 0.0,
+  "highroad": {
+    "asset": "Highroad",
+    "entrances": 43,
+    "links": 72,
+    "walkingMetres": 12680,
+    "clearanceSamples": 37761,
+    "gateReturnSamples": 420,
+    "boundarySamples": 1530,
+    "peakNearCells": 18,
+    "availableCells": 42
+  },
+  "retailDesktop": {
+    "single-page": {
+      "title": "Bellmender's Market",
+      "hooks": [],
+      "errors": [],
+      "elapsed": 42.0,
+      "network": 1
+    },
+    "stream": {
+      "title": "Bellmender's Market",
+      "hooks": [],
+      "errors": [],
+      "elapsed": 30.8,
+      "network": 14
+    }
+  },
+  "androidUpgrade": {
+    "before": {
+      "versionCode": "5",
+      "versionName": "1.4-workshops",
+      "userId": "10067",
+      "firstInstallTime": "2026-11-20 03:23:14"
+    },
+    "after": {
+      "versionCode": "6",
+      "versionName": "1.4-workshops",
+      "userId": "10067",
+      "firstInstallTime": "2026-11-20 03:23:14"
+    },
+    "system": "Android/sdk_phone_x86/generic_x86:9/PSR1.180720.012/4923214:userdebug/test-keys",
+    "served": true
+  },
+  "androidProductionServerEmulatedImmersiveVisits": [
+    "Bellmarket",
+    "MercySlip",
+    "RimePost",
+    "StillBelfry"
+  ],
+  "recreatedFromBlenderGenerators": [
+    "Bellmarket",
+    "CinderLens",
+    "Reedwater",
+    "RimePost",
+    "RootChoir",
+    "StillBelfry"
+  ],
+  "editorWorkshopMaterials": 12,
+  "compiledNativeShaderVariants": 124
+}

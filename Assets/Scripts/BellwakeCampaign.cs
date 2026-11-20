@@ -15,6 +15,19 @@ namespace Wizzard
             return part.StartsWith("FieldCell_",StringComparison.Ordinal) || part=="Terrain" || part=="Rim" || part=="Set" || part=="C_Solids";
         }
         public bool OpeningReady { get; private set; }
+        [Serializable]
+        sealed class GroundPrints
+        {
+            public string[] field, earth, snow;
+            public int Profile(string key)
+            {
+                if (Array.IndexOf(field,key) >= 0) return 0;
+                if (Array.IndexOf(earth,key) >= 0) return 1;
+                return Array.IndexOf(snow,key) >= 0 ? 3 : 2;
+            }
+        }
+        GroundPrints groundPrints;
+        Texture2D groundBrush;
         string SaveKey;
         BellwakeTrade trade;
         BellwakeVitals vitals;
@@ -340,7 +353,7 @@ namespace Wizzard
                 if(renderer==null) continue;
                 bool solid=IsCollisionSurface(part.name);
                 if(part.name=="C_Solids" || (visit && !solid && !part.name.StartsWith("Speaker") &&
-                    !part.name.StartsWith("GroveNear") && part.name!="BanksidePlants" && part.name!="MillWheel" && !BellwakeMarketLife.IsMovingPart(part.name))) renderer.enabled=false;
+                    part.name!="Surroundings" && !part.name.StartsWith("GroveNear") && part.name!="BanksidePlants" && part.name!="MillWheel" && !BellwakeMarketLife.IsMovingPart(part.name))) renderer.enabled=false;
                 else Paint(renderer);
                 if(!solid) continue;
                 part.gameObject.layer=MeadowWorld.GroundLayer;
@@ -776,6 +789,21 @@ namespace Wizzard
                 var paint = new Material(shader) { name = entry.Key, mainTexture = texture };
                 if (entry.Key == "WindowDark" || entry.Key == "WindowLight")
                     paint.SetFloat("_Window",entry.Key == "WindowLight" ? .95f : .60f);
+                if (entry.Key.EndsWith("Ground",StringComparison.Ordinal) && entry.Key != "SillwaterOfficeGround")
+                {
+                    if (groundBrush == null) groundBrush = Resources.Load<Texture2D>(Path+"Textures/GroundBrush");
+                    if (groundPrints == null) groundPrints = JsonUtility.FromJson<GroundPrints>(Resources.Load<TextAsset>(Path+"GroundPrints").text);
+                    paint.EnableKeyword("BELLWAKE_GROUND");
+                    paint.SetTexture("_GroundBrush",groundBrush);
+                    paint.SetFloat("_GroundProfile",groundPrints.Profile(entry.Key.Substring(0,entry.Key.Length-"Ground".Length)));
+                }
+                if (entry.Key == "ShopWindows") paint.EnableKeyword("BELLWAKE_SHOP_WINDOW");
+                if (entry.Key == "KilnFire")
+                {
+                    paint.EnableKeyword("BELLWAKE_KILN");
+                    paint.SetFloat("_Glow", .76f);
+                }
+                if (entry.Key == "ResidentCloth") paint.EnableKeyword("BELLWAKE_PORTRAIT");
                 if (entry.Key == "RoadSorrel" || entry.Key == "BanksidePlants") paint.EnableKeyword("BELLWAKE_CUTOUT");
                 if (entry.Key == "SeaGlass" || entry.Key == "Amber") paint.SetFloat("_Glow", .88f);
                 paints.Add(entry.Key, paint);

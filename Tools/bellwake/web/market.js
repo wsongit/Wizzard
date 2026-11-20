@@ -136,9 +136,9 @@ export class ValleyLight {
     this.exterior=this.outdoors.has(theme);
     this.fog=fog; this.fogColor.copy(fog.color);
     this.windows=[];
-    for(const [old,paint] of palette) if(old.name==="WindowLight" || old.name==="WindowDark") {
+    for(const [old,paint] of palette) if(old.name==="WindowLight" || old.name==="WindowDark" || old.name==="ShopWindows") {
       // Glazing is a separate mesh from the dark timber crossbars.
-      this.windows.push([paint,old.name==="WindowLight" ? .84 : .47]);
+      this.windows.push([paint,old.name==="WindowLight" ? .84 : old.name==="ShopWindows" ? .59 : .47]);
     }
     this.outside.value=this.exterior ? 1 : 0;
     this.apply(minutes);

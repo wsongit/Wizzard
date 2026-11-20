@@ -41,12 +41,17 @@ namespace Wizzard
         readonly struct Landmark
         {
             public readonly int index;
-            public readonly float x, z;
-            public Landmark(int index, float x, float z) { this.index=index; this.x=x; this.z=z; }
+            public readonly float x, z, treeX, treeZ;
+            public Landmark(int index, float x, float z, float treeX, float treeZ)
+            {
+                this.index=index; this.x=x; this.z=z; this.treeX=treeX; this.treeZ=treeZ;
+            }
         }
         public readonly Dictionary<string, Material> LandmarkPaints = new Dictionary<string, Material>();
+        Mesh distantGround;
         void OnDestroy()
         {
+            if (distantGround != null) Destroy(distantGround);
             if (rig != null) rig.Teleporting -= GroundAt;
             foreach (var paint in LandmarkPaints.Values) Destroy(paint);
             LandmarkPaints.Clear();
@@ -60,14 +65,27 @@ namespace Wizzard
             viewer = rig.head;
             rig.Teleporting += GroundAt;
             grass = RetroMaterials.Get("Grass");
+            distantGround = MeadowBackdrop.Create(transform, grass);
             var random = new System.Random(197);
-            for (int i=0; i<48; i++)
+            for (int grove=0; grove<16; grove++)
             {
-                float x=(float)random.NextDouble()*1500-750, z=(float)random.NextDouble()*1500-750;
-                if(new Vector2(x,z).magnitude<25 || Vector2.Distance(new Vector2(x,z),MossbellVillage.MapLocation)<80) continue;
-                int tile = TileAt(x,z);
-                if (landmarks[tile] == null) landmarks[tile] = new List<Landmark>();
-                landmarks[tile].Add(new Landmark(i,x,z));
+                float centreX=(float)random.NextDouble()*1470-735;
+                float centreZ=(float)random.NextDouble()*1470-735;
+                var centre = new Vector2(centreX,centreZ);
+                if (centre.magnitude<39 || Vector2.Distance(centre,MossbellVillage.MapLocation)<94) continue;
+                float bearing=(float)random.NextDouble()*Mathf.PI*2;
+                for (int spot=0;spot<3;spot++)
+                {
+                    int index=grove*3+spot;
+                    float angle=bearing+spot*Mathf.PI*2/3+(float)random.NextDouble()*.25f;
+                    float radius=3.6f+(float)random.NextDouble()*1.7f;
+                    float x=centreX+Mathf.Cos(angle)*radius, z=centreZ+Mathf.Sin(angle)*radius;
+                    float treeAngle=angle+(.44f+.18f*(index%3))*(spot==1?-1:1);
+                    float treeX=x+Mathf.Cos(treeAngle)*4.2f, treeZ=z+Mathf.Sin(treeAngle)*4.2f;
+                    int tile=TileAt(x,z);
+                    if (landmarks[tile]==null) landmarks[tile]=new List<Landmark>();
+                    landmarks[tile].Add(new Landmark(index,x,z,treeX,treeZ));
+                }
             }
         }
         static int TileAt(float x, float z)
@@ -105,7 +123,7 @@ namespace Wizzard
                 rock.transform.position=new Vector3(mark.x,Height(mark.x,mark.z),mark.z);
                 rock.transform.rotation=Quaternion.Euler(0,mark.index*37,0);
                 rock.transform.localScale=Vector3.one*(.86f+(mark.index%6)*.055f);
-                MeadowTrees.Create(mark.index,chunk.transform,new Vector3(mark.x+9,Height(mark.x+9,mark.z),mark.z));
+                MeadowTrees.Create(mark.index,chunk.transform,new Vector3(mark.treeX,Height(mark.treeX,mark.treeZ),mark.treeZ));
             }
         }
         void Release(int i)

@@ -126,6 +126,26 @@ def ward_passages(key, objects, ground, reach, off, step):
     return shots
 
 
+def check_painted_surfaces(meshes, material_name):
+    # A collapsed UV triangle makes the keeper's coat cap or a snowy bough
+    # sample a line of pigment. Catch it on the same FBX that Unity imports.
+    painted = 0
+    for obj in meshes:
+        mesh = obj.data
+        slots = {i for i, mat in enumerate(mesh.materials) if mat and mat.name == material_name}
+        if not slots:
+            continue
+        mesh.calc_loop_triangles()
+        uvs = mesh.uv_layers.active.data
+        for tri in mesh.loop_triangles:
+            if tri.material_index not in slots or tri.area < 1e-8:
+                continue
+            a, b, c = [uvs[i].uv for i in tri.loops]
+            assert abs((b - a).cross(c - a)) > 1e-10, (obj.name, material_name, tri.index)
+            painted += 1
+    assert painted, material_name
+
+
 def main(key):
     if key == "Highroad":
         import runpy
@@ -135,6 +155,8 @@ def main(key):
     bpy.ops.import_scene.fbx(filepath=str(RES / "Rooms" / (key + ".fbx")))
     objects = {o.name: o for o in bpy.context.scene.objects}
     mesh = [o for o in objects.values() if o.type == "MESH"]
+    if key in ("StillBelfry", "RimePost"):
+        check_painted_surfaces(mesh, "QuietEnamel" if key == "StillBelfry" else "RimeFir")
     for o in mesh:
         if o.name in ("Speaker","SpeakerHead","SpeakerArm","Ina") or key in ("RunnerArm","RightPalm","LeftPalm"):
             bm=bmesh.new()

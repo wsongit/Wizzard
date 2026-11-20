@@ -1,4 +1,4 @@
-import { preparePaint } from "./paint.js";
+import { fitGroundBrush, preparePaint, updatePaintClock } from "./paint.js";
 import {ValleyLight, marketLife} from "./market.js";
 import {Grove} from "./grove.js";
 import {ForestCall,callAngle} from "./forest_call.js";
@@ -149,8 +149,18 @@ const sky = new T.Mesh(
 scene.add(sky);
 const starTexture = new T.TextureLoader().load(data.streamed ? data.stars : "data:image/png;base64,"+data.stars);
 starTexture.colorSpace=T.SRGBColorSpace;
+const groundBrush = new T.TextureLoader().load(data.streamed ? data.groundBrush : "data:image/png;base64," + data.groundBrush);
+groundBrush.wrapS = groundBrush.wrapT = T.RepeatWrapping;
+groundBrush.anisotropy = 2;
 const daylight=new ValleyLight(sky,hemi,sun,starTexture,data.outdoorSkies);
-const loader = new GLTFLoader(),
+const modelFiles = new T.LoadingManager();
+modelFiles.setURLModifier(url => {
+  if (!url.startsWith("paint/")) return url;
+  const name = url.slice(6, -4);
+  if (!Object.hasOwn(data.paints, name)) throw Error("Unknown room painting " + name);
+  return assetURL("paints", name, "image/png");
+});
+const loader = new GLTFLoader(modelFiles),
   look = new T.Vector3(),
   forward = new T.Vector3(),
   side = new T.Vector3(),
@@ -525,6 +535,12 @@ async function loadRoom() {
       if (!palette.has(old)) {
         const paint = new T.MeshLambertMaterial({ map: old.map, color: old.color, side: T.DoubleSide });
         preparePaint(paint, old.name);
+        if (old.name === key + "Ground" && key !== "SillwaterOffice") {
+          const p = data.groundPrints;
+          const profile = p.field.includes(key) ? 0 : p.earth.includes(key) ? 1 : p.snow.includes(key) ? 3 : 2;
+          fitGroundBrush(paint, groundBrush, profile);
+        }
+        if (old.name === "KilnFire") paint.emissive.setScalar(.35);
         if (["SeaGlass", "Amber"].includes(old.name)) {
           paint.emissive.copy(old.color).multiplyScalar(0.38);
           paint.emissiveMap = old.map;
@@ -603,7 +619,7 @@ async function loadRoom() {
     // keeps its own actors, moving puzzle parts and state until its destination is entered.
     for(const child of group.children)
       if(!child.name.startsWith("Grove") && (child.isMesh || child.children.some(part=>part.isMesh)))
-        child.visible=/^(Terrain|Rim|Set|BanksidePlants|Speaker(?:Head|Arm)?|GroveNear.*|MillWheel|MillSails|MarshHen.*|ReedHen.*)$/.test(child.name);
+        child.visible=/^(Terrain|Rim|Set|Surroundings|BanksidePlants|Speaker(?:Head|Arm)?|GroveNear.*|MillWheel|MillSails|MarshHen.*|ReedHen.*)$/.test(child.name);
     visitExit=nodes.Spawn.position;
     resetFeet();
     $("chapter").textContent="Exploring the watershed";
@@ -1515,6 +1531,7 @@ function adapt(interval) {
   fast = 0;
 }
 function loop(time, frame) {
+  updatePaintClock(time * .001);
   const interval = time - previous;
   frameReport?.frame(vr.session, time, started && !busy && !book, visiting || (walking ? "Highroad" : locationKey()), renderer.info.memory);
   if (
@@ -1726,6 +1743,7 @@ if (__TEST__)
   window.bellProbe = () => ({
     number,
     gpu: { ...renderer.info.memory, programs: renderer.info.programs.length },
+    countryVisible: !!nodes.Surroundings?.visible,
     geometryLimit:(()=>{const geometries=new Set();scene.traverse(o=>{if(o.geometry)geometries.add(o.geometry)});return geometries.size})(),
     wheelSpeed:waterwheel?.speed, wheelAngle:waterwheel?.wheel.quaternion.toArray(),
     skyNight:daylight.night.value, minutes, millAngle:nodes.MillSails?.quaternion.toArray(),

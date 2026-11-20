@@ -24,18 +24,25 @@ def init(library, seed):
     rigparts.clear()
     rng.seed(seed)
     for path in sorted((RES / "Textures").glob("*.png")):
-        material = bpy.data.materials.new(path.stem)
-        material.use_nodes = True
-        node = material.node_tree.nodes.new("ShaderNodeTexImage")
-        node.image = bpy.data.images.load(str(path))
-        node.image.pack()
-        node.interpolation = "Closest"
-        shader = material.node_tree.nodes.get("Principled BSDF")
-        shader.inputs["Roughness"].default_value = 0.95
-        material.node_tree.links.new(node.outputs["Color"], shader.inputs["Base Color"])
-        if path.stem in ("RoadSorrel", "BanksidePlants"):
-            material.node_tree.links.new(node.outputs["Alpha"], shader.inputs["Alpha"])
-        mats[path.stem] = material
+        load_paint(path.stem)
+
+
+def load_paint(name):
+    if name in mats:
+        return mats[name]
+    material = bpy.data.materials.new(name)
+    material.use_nodes = True
+    node = material.node_tree.nodes.new("ShaderNodeTexImage")
+    node.image = bpy.data.images.load(str(RES / "Textures" / (name + ".png")), check_existing=True)
+    node.image.pack()
+    node.interpolation = "Closest"
+    shader = material.node_tree.nodes.get("Principled BSDF")
+    shader.inputs["Roughness"].default_value = .95
+    material.node_tree.links.new(node.outputs["Color"], shader.inputs["Base Color"])
+    if name in ("RoadSorrel", "BanksidePlants"):
+        material.node_tree.links.new(node.outputs["Alpha"], shader.inputs["Alpha"])
+    mats[name] = material
+    return material
 
 
 def geometry(name, points, faces, material, group="Set", uv=None):
@@ -226,16 +233,38 @@ def model(id, name, x, y, z, height, heading=0, group="Set"):
 def finish(key, sky_key=None):
     from mesh_finish import finish_geometry
     finish_geometry(batches, origins)
+    from residents import dress_residents
+    dress_residents(batches, origins)
     from bankside_plants import plant
     bpy.context.view_layer.update()
     plant(key)
+    from country import beyond
+    beyond(key)
+    from workyards import gather
+    gather(key)
+    from stock_contacts import bake as shade_stock
+    shade_stock(key, batches, RES / "Textures")
     from carpentry import align
     align(key, (o for group, objs in batches.items() if not group.startswith("C_") for o in objs))
     from joinery import bind, bind_staves
     bind((o for group, objs in batches.items() if not group.startswith("C_") for o in objs), mats["Joinery"])
     bind_staves((o for group, objs in batches.items() if not group.startswith("C_") for o in objs), mats["Joinery"])
+    from hardware_trims import fit
+    fit(key, batches)
+    from shop_paint import fittings
+    fittings(key, batches["Set"])
+    from rime_firs import fit as fit_winter_boughs
+    fit_winter_boughs(key, batches["Set"])
+    from cottage_edges import fit as fit_house_edges
+    fit_house_edges(batches["Set"])
+    from kiln_paint import fit as paint_kilns
+    paint_kilns(batches["Set"])
+    from resident_uv import fit_trims
+    for objects in batches.values():
+        for obj in objects:
+            fit_trims(obj)
     folder = ROOT / "Blender/Bellwake"
-    folder.mkdir(exist_ok=True)
+    folder.mkdir(parents=True, exist_ok=True)
     scene = bpy.context.scene
     for group, objs in batches.items():
         for o in objs:
@@ -345,16 +374,23 @@ def export(key):
             bpy.data.objects.remove(obj, do_unlink=True)
             bpy.data.objects.remove(leaves, do_unlink=True)
     bpy.ops.object.select_all(action="SELECT")
-    bpy.ops.export_scene.fbx(
-        filepath=str(RES / "Rooms" / (key + ".fbx")),
-        object_types={"EMPTY", "MESH"},
-        add_leaf_bones=False,
-        bake_anim=False,
-        apply_unit_scale=True,
-        axis_forward="-Z",
-        axis_up="Y",
-        path_mode="STRIP",
-    )
+    if key != "HighroadBrowser":
+        bpy.ops.export_scene.fbx(
+            filepath=str(RES / "Rooms" / (key + ".fbx")),
+            object_types={"EMPTY", "MESH"},
+            add_leaf_bones=False,
+            bake_anim=False,
+            apply_unit_scale=True,
+            axis_forward="-Z",
+            axis_up="Y",
+            path_mode="STRIP",
+        )
+    # The browser has a compact road network. Its gates and walking radius use a
+    # different survey from the native streamed field.
+    if key == "Highroad":
+        return
+    if key == "HighroadBrowser":
+        key = "Highroad"
     review = ROOT / "Tools/bellwake/.web-assets"
     review.mkdir(exist_ok=True)
     gltf = dict(export_format="GLB", export_animations=False, export_cameras=False, export_lights=False)

@@ -7,6 +7,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from sets import make, ROOMS
 
 args = sys.argv[sys.argv.index("--") + 1 :]
+# A fresh checkout has no browser export directory until the first bake.
+Path(__file__).resolve().with_name(".web-assets").mkdir(parents=True, exist_ok=True)
 from avatar import make_avatar
 from trails import roadside
 from passage_sets import scene as passage_set

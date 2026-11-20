@@ -1,5 +1,5 @@
 """Blender 4.3: blender -b --python-exit-code 1 --python Tools/bellwake/wayfarer_art.py"""
-import bpy, math
+import bpy, math, sys
 from mathutils import Vector
 from pathlib import Path
 root=Path(__file__).resolve().parents[2]
@@ -153,6 +153,9 @@ for i,(x,y,h) in enumerate([(-6,4,3.9),(-4.3,6.1,4.7),(-2.3,5.9,3.3),(-.4,7.2,4.
         base=z+h*(.56+.10*j)
         stem('Forked sapling',(x+lean,y,z+h*.37),(x+dx,y+dy,base),.115,.047,'ElderBark')
         foliage('Leaves at dawn',x+dx,y+dy,base+.33,h*(.30-.017*j),h*.26,h*.45,35+i*3+j)
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+from title_clearing import landscape
+landscape(bank,group,paint,stem,foliage)
 begin('Bellroot')
 mesh('Fluted elder trunk',[(0,0,-.45,1.38,1.29),(0,0,.1,1.22,1.12),(.12,0,.85,.79,.74),
      (.17,.06,1.58,.66,.65),(.24,.12,2.22,.59,.54),(.04,.17,3.8,.4,.37)],'ElderBark',16)
@@ -263,26 +266,14 @@ leaf=mesh('Fruit leaf',[(.016,0,.14,.008,.005),(.033,.002,.15,.019,.008),
          (.055,.004,.154,.006,.003)],'ElderLeaf',6)
 stem('Pear stem',(0,0,.119),(.015,0,.159),.009,.006,'Wood')
 # Save each export in local coordinates, then arrange the editable Blender gallery.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from wayfarer_export import export_piece
+requested=set(sys.argv[sys.argv.index("--")+1:]) if "--" in sys.argv else set()
 for key,collection in groups.items():
-    bpy.ops.object.select_all(action='DESELECT')
-    pivot_names={'LeftWing','RightWing','LeftBoot','RightBoot','Shell','Broad jaw'}
-    moving=[]; copies=[]
-    for o in collection.objects:
-        if o.name in pivot_names:
-            moving.append(o)
-            continue
-        duplicate=o.copy();duplicate.data=o.data.copy()
-        bpy.context.scene.collection.objects.link(duplicate)
-        duplicate.select_set(True);copies.append(duplicate)
-    body=copies[0];bpy.context.view_layer.objects.active=body
-    if len(copies)>1:bpy.ops.object.join()
-    bpy.ops.object.transform_apply(location=True,rotation=True,scale=True)
-    body.name=key+' paint'
-    for part in moving:part.select_set(True)
-    bpy.ops.export_scene.fbx(filepath=str(out/(key+'.fbx')),use_selection=True,bake_anim=False,
-                             object_types={'MESH'},axis_forward='-Z',axis_up='Y',path_mode='STRIP')
-    bpy.data.objects.remove(body,do_unlink=True)
+    if requested and key not in requested:continue
+    export_piece(key,collection,out)
 for i,collection in enumerate(groups.values()):
+    collection["gallery_offset"]=((i%3)*5,(i//3)*5)
     for o in collection.objects:o.location.x+=(i%3)*5;o.location.y+=(i//3)*5
 bpy.context.preferences.filepaths.save_version=0
 bpy.ops.wm.save_as_mainfile(filepath=str(root/'Blender/Bellwake/Wayfarer.blend'),compress=True)

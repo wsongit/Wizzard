@@ -8,6 +8,8 @@ An original, N64-inspired adventure for standalone Meta Quest and desktop. Tavi 
 
 **Ready-to-install Quest Browser edition.** Sideload `Play/Wizzard-Bellwake-WebXR.apk`, open **Wizzard Bellwake** from Unknown Sources and choose **Enter VR** in Meta Quest Browser. The APK carries the whole browser game and serves each district from the headset. It shares its package ID, signing certificate and save origin with the previous WebXR release. [Download the WebXR APK](https://github.com/wsongit/Wizzard/raw/refs/heads/main/Play/Wizzard-Bellwake-WebXR.apk)
 
+Explore the painted shop windows, new workshop stock and sculpted village cast. [Ten gameplay screenshots](Documentation/Bellwake/workshop-gameplay.zip) · [Preview the pictures](Documentation/Bellwake/workshop-gameplay.jpg) · [Where to find each detail](Documentation/Bellwake/workshops.md)
+
 Bellmarket’s windmill overlooks the north steps. The windows light up at night, Moss waits beneath the living arch, and Fen’s paddle wheel turns when you open its channel. [See the updated village, keepers and mill](Documentation/Bellwake/bellwake-valley.jpg)
 
 At Glass Rookery, Orla keeps the flight charts and reed whistles. Along the Mercy Run, dyed linen, a lifting kite and a sounding-line reel mark three of the passenger registers. [See Orla and the three quays](Documentation/Bellwake/rookery-and-quays.jpg)
@@ -80,6 +82,8 @@ The campaign has end-to-end browser playthroughs, emulated Quest input checks, F
 [See the new image textures in the game](Documentation/Bellwake/image-textures.md). The meadow and village use distinct 64×64 paintings. The meadow projects grass and rock across slopes. Village surfaces and campaign models use three-point filtering up close and mipmaps in the distance. World-space projection also supports models without UVs, including the gorilla torso.
 
 Run **Wizzard → Create retro material library** (also called by project setup).
+The **Workshop** subfolder includes ready-to-drag painted house trim, crates, rope and casks. [Using these materials on your own models](Documentation/Bellwake/workshops.md#texturing-a-house-or-prop-you-add-in-unity)
+
 This creates editable materials in `Assets/RetroMaterials`: Grass, Bark, Stone,
 Leaves, Fur, Skin, HousePlaster, RoofTiles and Wood. Drag the appropriate material
 onto each renderer/material slot of a house or prop. Adjust **Texture repeats per

@@ -1,0 +1,9 @@
+{
+  "field": [
+    "Bellmarket", "RootChoir", "RowanHollow", "Reedwater", "PaperCourt", "KettleYard",
+    "QuinceFold", "Wickwater", "RainCourt", "MercySlip", "SoundingBay", "Wrenfall", "Saltwake",
+    "SillwaterEbb", "SillwaterFlood", "SwallowLock", "DriftFen", "GlassRookery"
+  ],
+  "earth": ["GloamingPress", "SaffronKilns", "SupperSteps", "MouldLoft", "WeighHouse"],
+  "snow": ["RimePost", "Cairnwatch", "KiteCrag"]
+}
