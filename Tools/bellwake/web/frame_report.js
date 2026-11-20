@@ -8,6 +8,40 @@ export class HeadsetFrameReport {
     this.current = null;
     this.session = null;
     this.tail = null;
+    this.hiddenAt = null;
+    this.hiddenMs = 0;
+    this.visibilityChanged = event => this.updateVisibility(event.timeStamp);
+  }
+
+  bindSession(session, now) {
+    if (this.session !== session) {
+      this.session?.removeEventListener("visibilitychange", this.visibilityChanged);
+      this.session = session;
+      session?.addEventListener("visibilitychange", this.visibilityChanged);
+      this.hiddenAt = null;
+      this.hiddenMs = 0;
+      this.previous = null;
+      this.tail = null;
+      this.travel = null;
+    }
+    this.updateVisibility(now);
+  }
+
+  updateVisibility(now) {
+    const hidden = !!this.session && this.session.visibilityState !== "visible";
+    if (hidden === (this.hiddenAt !== null)) return;
+    if (hidden) this.hiddenAt = now;
+    else {
+      this.hiddenMs += Math.max(0, now - this.hiddenAt);
+      this.hiddenAt = null;
+    }
+    this.previous = null;
+    if (this.travel) this.travel.previous = null;
+    if (this.tail) this.tail.previous = null;
+  }
+
+  activeTime(now) {
+    return (this.hiddenAt ?? now) - this.hiddenMs;
   }
 
   room(name, hz) {
@@ -22,14 +56,16 @@ export class HeadsetFrameReport {
   }
 
   beginTravel(session, now) {
-    this.travel = session ? {session, start: now, previous: this.previous, worst: 0} : null;
+    this.bindSession(session, now);
+    this.travel = session ? {session, start: this.activeTime(now), previous: this.previous, worst: 0} : null;
     this.previous = null;
   }
 
   endTravel(session, name, now) {
+    this.bindSession(session, now);
     if (session && this.travel?.session === session) {
       const row = this.room(name, session.frameRate || null);
-      const elapsed = now - this.travel.start;
+      const elapsed = Math.max(0, this.activeTime(now) - this.travel.start);
       row.loads++;
       row.travelMs += elapsed;
       row.worstLoad = Math.max(row.worstLoad, elapsed);
@@ -41,10 +77,7 @@ export class HeadsetFrameReport {
   }
 
   frame(session, time, playing, name, memory) {
-    if (this.session !== session) {
-      this.previous = null;
-      this.session = session;
-    }
+    this.bindSession(session, time);
     if (this.tail) {
       if (session && session === this.tail.session && session.visibilityState === "visible" && this.tail.previous !== null)
         this.tail.row.worstTravelInterval = Math.max(this.tail.row.worstTravelInterval, time - this.tail.previous);
@@ -77,7 +110,7 @@ export class HeadsetFrameReport {
   summary() {
     const ms = value => Math.round(value * 10) / 10;
     return {
-      clock: "WebXR animation-frame timestamps. Journal, hidden sessions and transitions are excluded from play intervals.",
+      clock: "WebXR animation-frame timestamps. Play intervals exclude the journal, loading and hidden sessions. Load durations also exclude time hidden or in the system overlay.",
       rooms: Array.from(this.rooms.values(), r => {
         const recent = r.intervals.slice(0, Math.min(r.total, r.intervals.length)).sort();
         const percentile = p => recent.length ? ms(recent[Math.ceil(recent.length * p) - 1]) : null;

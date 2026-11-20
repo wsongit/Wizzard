@@ -1,6 +1,9 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Threading;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 namespace Wizzard.Editor
 {
@@ -37,6 +40,43 @@ namespace Wizzard.Editor
             }
         }
 
+        [DllImport("kernel32.dll", CharSet=CharSet.Unicode, ExactSpelling=true, SetLastError=true)]
+        static extern bool MoveFileExW(string source, string destination, uint flags);
+
+        static string WindowsPath(string path)
+        {
+            if (path.StartsWith(@"\\?\", StringComparison.Ordinal)) return path;
+            return path.StartsWith(@"\\", StringComparison.Ordinal)
+                ? @"\\?\UNC\" + path.Substring(2) : @"\\?\" + path;
+        }
+
+        static void Install(string temporary, string final)
+        {
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                // A same-volume rename does not move the old APK aside. Another publisher
+                // or a scanner can hold its name briefly, so retry that operation only.
+                string source = WindowsPath(temporary);
+                string destination = WindowsPath(final);
+                const uint replaceExisting = 1, writeThrough = 8;
+                for (int attempt=0; ; attempt++)
+                {
+                    if (MoveFileExW(source,destination,replaceExisting | writeThrough)) return;
+                    int error=Marshal.GetLastWin32Error();
+                    bool contention=error==5 || error==32 || error==33;
+                    if (!contention || attempt==6)
+                        throw new IOException("Could not install the Quest APK at "+final,new Win32Exception(error));
+                    Thread.Sleep(10 << attempt);
+                }
+            }
+            if (File.Exists(final)) File.Replace(temporary,final,null);
+            else
+            {
+                try { File.Move(temporary,final); }
+                catch (IOException) when (File.Exists(final)) { File.Replace(temporary,final,null); }
+            }
+        }
+
         internal static void Publish(string source, string destination)
         {
             string final=Path.GetFullPath(destination);
@@ -53,12 +93,7 @@ namespace Wizzard.Editor
                         output.Flush(true);
                     }
                 }
-                if (File.Exists(final)) File.Replace(temporary,final,null);
-                else
-                {
-                    try { File.Move(temporary,final); }
-                    catch (IOException) when (File.Exists(final)) { File.Replace(temporary,final,null); }
-                }
+                Install(temporary,final);
             }
             finally
             {

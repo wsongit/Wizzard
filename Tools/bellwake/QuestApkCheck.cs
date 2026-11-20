@@ -58,12 +58,26 @@ static class QuestApkCheck
                 }
                 throw new Exception("Failed to preserve the previous APK for "+defect);
             }
-            File.Delete(output);
+            if (Environment.OSVersion.Platform==PlatformID.Win32NT)
+            {
+                bool replaced=false;
+                using (var locked=File.Open(output,FileMode.Open,FileAccess.Read,FileShare.Read))
+                {
+                    try { QuestApk.Publish(first,output); replaced=true; } catch (IOException) {}
+                }
+                if (replaced || !File.ReadAllBytes(output).SequenceEqual(good))
+                    throw new Exception("A locked installed APK should survive a failed replacement");
+            }
             var candidates=Enumerable.Range(0,6).Select(i=>Fixture(root,"parallel-"+i)).ToArray();
-            Parallel.ForEach(candidates,file=>QuestApk.Publish(file,output));
+            File.Delete(output);
+            for (int pass=0;pass<5;pass++)
+                Parallel.ForEach(candidates,file=>QuestApk.Publish(file,output));
             var last=File.ReadAllBytes(output);
-            if (!candidates.Any(file=>File.ReadAllBytes(file).SequenceEqual(last)) ||
-                Directory.GetFiles(root,"*.tmp").Length!=0) throw new Exception("Incomplete concurrent publication");
+            if (!candidates.Any(file=>File.ReadAllBytes(file).SequenceEqual(last)))
+                throw new Exception("Concurrent result differs from every candidate");
+            var leftovers=Directory.GetFiles(root,"*.tmp");
+            if (leftovers.Length!=0)
+                throw new Exception("Temporary files left after publication: "+string.Join(", ",leftovers));
             Console.WriteLine("PASS first install, replacement, four invalid APKs and competing native builds");
         }
         finally { Directory.Delete(root,true); }

@@ -554,7 +554,9 @@ async def run():
                 ...window.BELLWAKE.regions.map(r=>r.key),
                 ...window.BELLWAKE.works.rooms.map(r=>r.key).filter(key=>key!=="KettleYard")
             ]""")
-            assert set(durations) == set(required), set(required).symmetric_difference(durations)
+            missing = set(required) - durations.keys()
+            unexpected = durations.keys() - (set(required) | {"Highroad"})
+            assert not missing and not unexpected, (missing, unexpected)
             (out / "known-route.json").write_text(
                 json.dumps(
                     {

@@ -8,11 +8,15 @@ In the market, each nearby marsh hen has 1,652 triangles across four animated me
 
 A headset emulator also ended a VR session while the left palm was still downloading. The ended session previously reactivated on the desktop. The fixed player passed ending during the request, entering a second session before it finished, and recovering from a failed download.
 
+The optional headset timing report was also tested with the system overlay open during a delayed district download. The emulated run took 3,996 ms on the wall clock and reported 788 ms of active loading. Hidden intervals and the first frame after a visibility change no longer distort the result. The native Highroad gate input check also verifies that a trigger held while the head is obstructed must be released before it can open a gate.
+
 The four ticket signs share a padded texture and one material. Each source pixel was preserved. Their 16 mesh corners mapped back to the original UVs, and 80,000 bilinear samples matched the source boards across the first four mip levels.
 
 ## Quest builds and save recovery
 
 The release and profiling commands were exercised under Windows CMD in Wine with a test editor executable. Both valid outputs were recognized. A stale APK after an early exit, a missing output, and a reported Unity failure all returned failure. Mono tests covered atomic replacement, invalid native libraries and competing copies. A signed ARM64 packaging fixture passed Android SDK signature and alignment checks before and after copying. A native build of the game still requires activation of the cloud Unity editor.
+
+The Windows installer was also exercised with the Windows .NET runtime under Wine. It kept the old APK intact while its filename was locked, recovered on a later build and left no temporary files. Across 24 separate publishing processes, a concurrent reader observed 151 complete APKs. The final signed fixture matched its source byte for byte.
 
 All 16 combinations of app bundle, Gradle export, architecture split and expansion-file settings were exercised in a method harness for release and profile builds, including a forced validation failure. The previous preferences were restored in all 64 cases. A second harness checked 13 fresh, saved, edited and batch-mode opening scenes.
 

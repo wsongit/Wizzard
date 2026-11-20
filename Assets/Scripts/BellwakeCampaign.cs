@@ -355,8 +355,9 @@ namespace Wizzard
         }
         bool RoadUse()
         {
-            return use.Read(XRUsage.triggerButton) ||
-                (Keyboard.current!=null && Keyboard.current.eKey.wasPressedThisFrame);
+            bool pressed = use.Read(XRUsage.triggerButton) ||
+                (Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame);
+            return pressed && !player.HeadObstructed;
         }
         static bool AboveField(MeshCollider terrain, Vector3 feet)
         {

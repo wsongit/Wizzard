@@ -487,9 +487,26 @@ async def headset_report(browser):
     await page.goto(url + ("&" if "?" in url else "?") + "timings")
     await page.click("#vr", timeout=60000)
     await page.wait_for_function("bellProbe().vr && bellProbe().palms.every(Boolean)")
+    waiting, release = asyncio.Event(), asyncio.Event()
+    async def hold_fen(route):
+        waiting.set()
+        await release.wait()
+        await route.continue_()
+    await page.route("**/DriftFen-*.glb.gz",hold_fen)
     for next_room in (32,33,None):
         await page.evaluate("""async()=>{for(let i=0;i<48;i++)await new Promise(r=>testDevice.activeSession.requestAnimationFrame(r))}""")
-        if next_room is not None:
+        if next_room==32:
+            started=await page.evaluate("()=>{window.fenTrip=bellTravel(32);return performance.now()}")
+            await asyncio.wait_for(waiting.wait(),30)
+            await page.evaluate("testDevice.updateVisibilityState('visible-blurred')")
+            await page.wait_for_function("testDevice.activeSession.visibilityState==='visible-blurred'",polling=50)
+            await page.wait_for_timeout(3100)
+            await page.evaluate("testDevice.updateVisibilityState('visible')")
+            await page.wait_for_function("testDevice.activeSession.visibilityState==='visible'",polling=50)
+            release.set()
+            await page.evaluate("fenTrip")
+            fen_wall_ms=await page.evaluate("performance.now()")-started
+        elif next_room is not None:
             await page.evaluate("r=>bellTravel(r)",next_room)
     await page.evaluate("testDevice.activeSession.end()")
     await page.wait_for_function("!bellProbe().vr")
@@ -500,6 +517,8 @@ async def headset_report(browser):
     assert file.suggested_filename == "Bellwake-headset-timings.json"
     report = json.loads(Path(await file.path()).read_text())
     rows = {r["room"]:r for r in report["rooms"]}
+    assert rows["DriftFen"]["maxLoadMs"] < fen_wall_ms-2800, (rows["DriftFen"],fen_wall_ms)
+    print(f"System overlay during loading: {fen_wall_ms:.0f} ms wall, {rows['DriftFen']['maxLoadMs']:.0f} ms active",flush=True)
     for place in ("Bellmarket","DriftFen","GlassRookery"):
         row=rows[place]
         assert 12 <= row["recentFrames"] <= 360 and row["recentMedianMs"]>0, row
