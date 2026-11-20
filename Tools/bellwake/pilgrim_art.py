@@ -635,6 +635,9 @@ def make(index, lib):
     if relief:
         from relief_art import print_dies
         print_dies(index-len(FIELDS))
+    if key == "SupperSteps":
+        from quay_charts import paint_rye_crust
+        paint_rye_crust()
     init(lib, 183 + k)
     terrain(k, key)
     partitions(k, edges)

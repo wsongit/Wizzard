@@ -4,11 +4,15 @@ An original, N64-inspired adventure for standalone Meta Quest and desktop. Tavi 
 
 ![Tavi in the opening market and the drawing Ina made for her](Documentation/Bellwake/tavi-and-ina.jpg)
 
-**Standalone Quest game.** Open this folder in Unity 2022.3.20f1 with Android Build Support and select **Wizzard → Build Quest APK**. Choose one of three save files and name your bellrunner. On a new file, Pip wakes you beneath the bellroot before you reach Bellmarket. Move by planting your palms against the floor and walls. A successful build writes `Wizzard-Bellwake-Quest.apk` to this folder. You can also run `Build-Quest.cmd` from Windows with the editor closed. The earlier browser launcher is archived as `Play/Wizzard-Bellwake-WebXR.apk`.
+**Standalone Quest game.** Open this folder in Unity 2022.3.20f1 with Android Build Support and select **Wizzard → Build Quest APK**. Choose one of three save files and name your bellrunner. On a new file, Pip wakes you beneath the bellroot before you reach Bellmarket. Move by planting your palms against the floor and walls. A successful build writes `Wizzard-Bellwake-Quest.apk` to this folder. You can also run `Build-Quest.cmd` from Windows with the editor closed.
+
+**Ready-to-install Quest Browser edition.** Sideload `Play/Wizzard-Bellwake-WebXR.apk`, open **Wizzard Bellwake** from Unknown Sources and choose **Enter VR** in Meta Quest Browser. The APK carries the whole browser game and serves each district from the headset. It shares its package ID, signing certificate and save origin with the previous WebXR release. [Download the WebXR APK](https://github.com/wsongit/Wizzard/raw/refs/heads/main/Play/Wizzard-Bellwake-WebXR.apk)
 
 Bellmarket’s windmill overlooks the north steps. The windows light up at night, Moss waits beneath the living arch, and Fen’s paddle wheel turns when you open its channel. [See the updated village, keepers and mill](Documentation/Bellwake/bellwake-valley.jpg)
 
 At Glass Rookery, Orla keeps the flight charts and reed whistles. Along the Mercy Run, dyed linen, a lifting kite and a sounding-line reel mark three of the passenger registers. [See Orla and the three quays](Documentation/Bellwake/rookery-and-quays.jpg)
+
+Bess’s model boat, Oli’s channel lamps and Nan’s bread shelf mark the other three registers. [See the harbour trades](Documentation/Bellwake/harbour-trades.jpg)
 
 [Opening illustration, save files, shops and equipment controls](Documentation/Bellwake/guide.md#starting-a-native-quest-journey)
 

@@ -31,6 +31,13 @@ The witness book shows active playtime. Loading, the open journal and unfocused 
 
 The main story reached its first ending in **1:00:28 of active play** on the tested desktop route, sprinting with known solutions. The harbour kitchen and the morning music-box verses are optional. Your first visit and Quest movement can take a different amount of time. [Playthrough details](validation.md)
 
+## Install the Quest Browser edition
+
+With a developer-enabled Quest connected over USB, run `adb install -r Play/Wizzard-Bellwake-WebXR.apk` from the project folder. Open **Wizzard Bellwake** in **Unknown Sources**, then select **Enter VR** in Meta Quest Browser. The APK stores the game on the headset. The launcher can stop and restart its local game host. Installing over the prior WebXR package keeps the same browser save origin.
+
+The launcher sources and packager are in `Tools/quest-browser`. To rebuild with your own Android signing key, put the JDK’s `javac` on your path and run `python Tools/quest-browser/build.py --help` for the four required paths. To build the native Unity version, close the editor and run `Build-Quest.cmd` from the project root.
+
+
 ## Quest Browser frame timings
 
 For a device test, open the hosted game as `Play/index.html?timings` and enter VR. The game records up to 360 recent WebXR frame intervals for each district and headset refresh rate. It tracks room loading separately. After leaving immersive mode, open the witness book and select **Save headset timings**. The JSON downloads locally with the median, 95th percentile, worst interval, room load duration and renderer resource counts.

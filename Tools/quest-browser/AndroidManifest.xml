@@ -1,0 +1,12 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.wizzard.bellwake.webxr" android:versionCode="3" android:versionName="1.2-harbour">
+  <uses-sdk android:minSdkVersion="26" android:targetSdkVersion="32"/>
+  <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+  <queries><package android:name="com.oculus.browser"/></queries>
+  <application android:label="Wizzard Bellwake" android:icon="@drawable/bell" android:allowBackup="false" android:theme="@android:style/Theme.Material.NoActionBar" android:usesCleartextTraffic="true">
+    <activity android:name=".Launcher" android:exported="true" android:launchMode="singleTop">
+      <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+    </activity>
+    <service android:name=".GameHost" android:exported="false"/>
+  </application>
+</manifest>

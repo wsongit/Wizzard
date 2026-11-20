@@ -1,5 +1,13 @@
 # Bellwake release checks
 
+## Harbour trades and the sideloadable browser game
+
+The six Mercy Run maps now carry the tools of their witnesses. Bess’s clinker-built hull, Oli’s low and high channel lamps and Nan’s pair of ash peels were modeled in Blender. Each register has its own profile above the readable map. The rye crust uses a 64 × 48 texture with flour, cuts and the baker’s crescent mark. The three packed Blender sources opened independently with their textures. [Player-height views and details](harbour-trades.jpg)
+
+A fresh import of the 42 district FBXs passed 1,045,338 ground samples and 234,920 boundary rays. Every one of the 461 interaction markers had a walking approach. The hull added 608 triangles to Mercy Slip, the lamp display added 768 to Wickwater and the shelf added 580 to Supper Steps. The emulated Quest test operated the Mercy seal, signed the alternate account and opened the passenger roll.
+
+The browser APK contains the current streamed release. The loopback server now serves the PNG night sky with its image content type. The Android SDK verified package alignment, v2 and v3 signatures, and the same signing certificate as the previous release. All 172 fingerprinted files and the launch page matched the public browser game byte for byte when read back through the APK host. A partial music request returned the requested bytes. An emulated Quest 3 entered immersive VR using only those packaged files.
+
 ## Rookery and quay entrances
 
 Moving the Glass Rookery arrival back from the flight chart gives the player a clear first view of Orla and the glasshouse. The FBX audit checks support under the full spawn footprint, a clear line from eye height to both Orla and the chart, and a walking approach to every interaction marker. The new dispatch desk, keeper and three survey frames were reimported from Blender and rendered with the compiled Unity materials. [Entrance and model views](rookery-and-quays.jpg)
