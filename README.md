@@ -77,7 +77,7 @@ The campaign has end-to-end browser playthroughs, emulated Quest input checks, F
 
 ## Forest-style textures and future props
 
-The legacy meadow and village surfaces use distinct 64×64 paintings. The meadow projects grass and rock across slopes. Village surfaces and campaign models use three-point filtering up close and mipmaps in the distance. World-space projection also supports models without UVs, including the gorilla torso.
+[See the new image textures in the game](Documentation/Bellwake/image-textures.md). The meadow and village use distinct 64×64 paintings. The meadow projects grass and rock across slopes. Village surfaces and campaign models use three-point filtering up close and mipmaps in the distance. World-space projection also supports models without UVs, including the gorilla torso.
 
 Run **Wizzard → Create retro material library** (also called by project setup).
 This creates editable materials in `Assets/RetroMaterials`: Grass, Bark, Stone,
@@ -88,7 +88,7 @@ New props keep the materials you assign.
 For custom artwork, duplicate a library material and assign your own 32×32 or
 64×64 texture, using Repeat, Bilinear, mipmaps enabled and anisotropic level 0.
 
-Edit the palettes in `RetroMaterials.cs` to change the generated meadow. Manually placed props use the editable material library. Blender’s meadow preview uses its own palette. [Runtime shader checks and device test scope](Documentation/Bellwake/validation.md)
+The original surface images live in `Tools/bellwake/surface_sources`. Edit the image or its colour grade in `surface_paint.py` to change the shared finish. The Blender meadow, Unity materials and exported campaign read the packaged artwork. [Runtime shader checks and device test scope](Documentation/Bellwake/validation.md)
 
 ## Eight low-poly tree variants
 
@@ -106,10 +106,7 @@ Source: `Blender/TreeVariants.blend`. Regenerate with:
 
 ![Eight tree variants, Blender shape preview](Documentation/tree-variants.png)
 
-This Blender preview shows the shapes with simple face colors. Unity applies
-its forest textures. Export geometry and the Blender render were checked;
-Unity imports, shader compilation, collisions and Quest performance still need
-validation in the editor/on device.
+The Blender preview shows the bark grain and leaf clusters on all eight silhouettes. The player sees those paintings on the generated meadow trees.
 
 ## Mossbell Village
 
