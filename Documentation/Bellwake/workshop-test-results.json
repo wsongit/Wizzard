@@ -227,5 +227,526 @@
     "gameCaptures": 765,
     "minimumDayViewMeanLuminance": 49.15,
     "minimumNightViewMeanLuminance": 21.03
+  },
+  "floorContactCpuStudy": {
+    "runtime": "Linux Node.js, warmed capsule queries against the packaged collision meshes. Per-room medians from four passes per implementation.",
+    "queries": 1775760,
+    "districts": 42,
+    "medianMicrosecondsPerQuery": {
+      "old": 6.48,
+      "new": 7.17
+    }
+  },
+  "crownContrast": {
+    "render": "560 \u00d7 315 game views. A second geometry mask selects the leaf atlas cells in the same camera. Luminance uses a 0\u2013255 scale.",
+    "pictures": 108,
+    "groves": 12,
+    "distancesPerGrove": 3,
+    "focus": "90th minus 10th percentile luminance among visible leaf pixels",
+    "medianPerLighting": {
+      "day": 55.25,
+      "sunset": 29.44,
+      "night": 20.97
+    }
+  },
+  "belfryControllerApproach": {
+    "emulator": "IWER Meta Quest 3 with the production instrument and collision code",
+    "completeThreeNoteRuns": 4,
+    "notesPerRun": [
+      0,
+      2,
+      1
+    ],
+    "normalWalkAroundEastStock": true
+  },
+  "triangleUvInventory": {
+    "primitives": 1766,
+    "renderTriangles": 1099549,
+    "trianglesWithNonzeroWorldArea": 1098813,
+    "nonzeroWorldAndUvArea": 1098274,
+    "pointOrLineUvTriangles": 539,
+    "examples": "All 64 such well triangles are on the buried downward-facing closure. All 24 such ration-loaf triangles are on their undersides. Some face meshes deliberately select a single pigment for caps."
+  },
+  "immersiveTour": {
+    "runtime": "IWER Meta Quest 3, Chromium SwiftShader",
+    "districts": 42,
+    "stationaryAndMovingHeadSecondsPerDistrict": 60,
+    "seconds": 2622.2,
+    "trackedSamples": 6338,
+    "maxTexturesIncludingPlayer": 58,
+    "maxTrackedRetiredObjects": 0,
+    "lostPalmsDuringSteadyPlay": 0
+  },
+  "matchedCameraComparison": {
+    "renderer": "Chromium SwiftShader, headless at 576 \u00d7 324 CSS pixels, automatic resolution enabled. The cloud ran additional QA during the wall-clock test. Fields average the two per-view runs for each edition.",
+    "order": [
+      "previous",
+      "workshop",
+      "workshop",
+      "previous"
+    ],
+    "recordedFrames": 2016,
+    "views": [
+      {
+        "view": "village road",
+        "district": "Bellmarket",
+        "previous": {
+          "medianMs": 266.6,
+          "p95Ms": 525.0,
+          "medianCalls": 38,
+          "medianTriangles": 22913,
+          "maxTextures": 41,
+          "maxGeometries": 38
+        },
+        "workshop": {
+          "medianMs": 375.05,
+          "p95Ms": 783.25,
+          "medianCalls": 42,
+          "medianTriangles": 25149,
+          "maxTextures": 47,
+          "maxGeometries": 42
+        }
+      },
+      {
+        "view": "shop window",
+        "district": "Bellmarket",
+        "previous": {
+          "medianMs": 241.6,
+          "p95Ms": 474.95,
+          "medianCalls": 32,
+          "medianTriangles": 21309,
+          "maxTextures": 41,
+          "maxGeometries": 32
+        },
+        "workshop": {
+          "medianMs": 250.05,
+          "p95Ms": 566.65,
+          "medianCalls": 36,
+          "medianTriangles": 23545,
+          "maxTextures": 47,
+          "maxGeometries": 36
+        }
+      },
+      {
+        "view": "forest path",
+        "district": "RootChoir",
+        "previous": {
+          "medianMs": 316.65,
+          "p95Ms": 491.6,
+          "medianCalls": 28,
+          "medianTriangles": 21243,
+          "maxTextures": 20,
+          "maxGeometries": 28
+        },
+        "workshop": {
+          "medianMs": 250.0,
+          "p95Ms": 533.25,
+          "medianCalls": 30,
+          "medianTriangles": 21853,
+          "maxTextures": 23,
+          "maxGeometries": 30
+        }
+      },
+      {
+        "view": "ledger chest",
+        "district": "FloodLedger",
+        "previous": {
+          "medianMs": 125,
+          "p95Ms": 225,
+          "medianCalls": 14,
+          "medianTriangles": 13054,
+          "maxTextures": 19,
+          "maxGeometries": 14
+        },
+        "workshop": {
+          "medianMs": 133.35,
+          "p95Ms": 283.35,
+          "medianCalls": 17,
+          "medianTriangles": 15712,
+          "maxTextures": 23,
+          "maxGeometries": 17
+        }
+      },
+      {
+        "view": "kiln grate",
+        "district": "CinderLens",
+        "previous": {
+          "medianMs": 83.35,
+          "p95Ms": 166.6,
+          "medianCalls": 8,
+          "medianTriangles": 5760,
+          "maxTextures": 15,
+          "maxGeometries": 16.5
+        },
+        "workshop": {
+          "medianMs": 75.0,
+          "p95Ms": 158.3,
+          "medianCalls": 11,
+          "medianTriangles": 7410,
+          "maxTextures": 19,
+          "maxGeometries": 11
+        }
+      },
+      {
+        "view": "snowy boughs",
+        "district": "RimePost",
+        "previous": {
+          "medianMs": 124.95,
+          "p95Ms": 274.95,
+          "medianCalls": 21,
+          "medianTriangles": 9122,
+          "maxTextures": 18,
+          "maxGeometries": 24.5
+        },
+        "workshop": {
+          "medianMs": 133.3,
+          "p95Ms": 275.05,
+          "medianCalls": 24,
+          "medianTriangles": 12510,
+          "maxTextures": 23,
+          "maxGeometries": 28
+        }
+      },
+      {
+        "view": "winged keeper",
+        "district": "StillBelfry",
+        "previous": {
+          "medianMs": 149.95,
+          "p95Ms": 275.0,
+          "medianCalls": 29,
+          "medianTriangles": 10338,
+          "maxTextures": 17,
+          "maxGeometries": 29
+        },
+        "workshop": {
+          "medianMs": 133.25,
+          "p95Ms": 216.65,
+          "medianCalls": 31,
+          "medianTriangles": 11800,
+          "maxTextures": 20,
+          "maxGeometries": 31
+        }
+      }
+    ],
+    "gpuProcessCpuStudy": {
+      "method": "Separate Chromium processes, 476 \u00d7 268 CSS pixels. GPU-process CPU seconds from the Chrome DevTools Protocol divided by 60 rendered frames, after 48 warmup frames per view. CPU work is specific to the software implementation.",
+      "recordedFrames": 1680,
+      "views": [
+        {
+          "view": "village road",
+          "equalFixedScale": false,
+          "scales": [
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001,
+              0.6400000000000001
+            ],
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ]
+          ],
+          "previousMs": 188.0,
+          "workshopMs": 203.75
+        },
+        {
+          "view": "shop window",
+          "equalFixedScale": true,
+          "scales": [
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ]
+          ],
+          "previousMs": 222.0,
+          "workshopMs": 227.5
+        },
+        {
+          "view": "forest path",
+          "equalFixedScale": true,
+          "scales": [
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ]
+          ],
+          "previousMs": 234.33,
+          "workshopMs": 240.67
+        },
+        {
+          "view": "ledger chest",
+          "equalFixedScale": true,
+          "scales": [
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ]
+          ],
+          "previousMs": 143.25,
+          "workshopMs": 186.17
+        },
+        {
+          "view": "kiln grate",
+          "equalFixedScale": true,
+          "scales": [
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ]
+          ],
+          "previousMs": 96.25,
+          "workshopMs": 112.92
+        },
+        {
+          "view": "snowy boughs",
+          "equalFixedScale": true,
+          "scales": [
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ]
+          ],
+          "previousMs": 96.0,
+          "workshopMs": 124.17
+        },
+        {
+          "view": "winged keeper",
+          "equalFixedScale": true,
+          "scales": [
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ],
+            [
+              0.5120000000000001
+            ]
+          ],
+          "previousMs": 126.42,
+          "workshopMs": 142.17
+        }
+      ]
+    }
+  },
+  "productionRepeatedHeadsetEntry": {
+    "stream": {
+      "immersiveEntriesAndExits": 12,
+      "afterWarmup": {
+        "Texture": 62,
+        "Buffer": 255,
+        "Framebuffer": 0,
+        "Renderbuffer": 0,
+        "Program": 11
+      },
+      "totalHttpRequests": 17
+    },
+    "single": {
+      "immersiveEntriesAndExits": 12,
+      "afterWarmup": {
+        "Texture": 62,
+        "Buffer": 255,
+        "Framebuffer": 0,
+        "Renderbuffer": 0,
+        "Program": 11
+      },
+      "totalHttpRequests": 1
+    }
+  },
+  "unityAndroidGroundPaint": {
+    "format": "sRGB ASTC 4 \u00d7 4, default override for the 42 district ground paintings, full mip chains at authored size",
+    "codec": "Unity 2022.3 astcenc-avx2 in its medium preset, CPU encode and decode. Mips produced by linear-light box filtering. Byte count excludes container headers and driver allocations.",
+    "sourceDimensions": {
+      "512": 36,
+      "672": 1,
+      "768": 5
+    },
+    "mipLevels": 420,
+    "allMipsAcrossAllDistrictsBytes": {
+      "rgb24Bytes": 51351435,
+      "rgba32Bytes": 68468580,
+      "astcBytes": 17118784
+    },
+    "mipChainBytesPerGround": {
+      "512": 349552,
+      "768": 786480,
+      "672": 602512
+    },
+    "minimumFullSizeRgbPsnrDb": 44.57,
+    "largestFullSizeP95WeightedRgbErrorOn255": 2.434,
+    "decodedBaseLevelGameChecks": {
+      "cameras": 126,
+      "controlP99": 0,
+      "worstTerrainP99On255": 4.286
+    },
+    "directCompressedSampler": {
+      "runtime": "Chromium WebGL 2, ANGLE SwiftShader. The production ground shader sampled Unity-encoded ASTC blocks directly. A separate draw used the uncompressed reference mip chain. A third draw used the shipped image.",
+      "districts": 42,
+      "views": 168,
+      "terrainPixelsCompared": 20002980,
+      "worstTerrainP95On255": 2.571,
+      "worstTerrainP99On255": 4.789,
+      "worstReferenceVersusShippedP99On255": 0,
+      "viewDirections": [
+        "close",
+        "path",
+        "night",
+        "grazing"
+      ]
+    },
+    "androidGlesSample": {
+      "driver": "Android Emulator OpenGL ES Translator (Google SwiftShader) (OpenGL ES 3.0 (OpenGL ES 3.0 SwiftShader 4.0.0.1))",
+      "apiLevel": 28,
+      "samplePixelsPerMip": 3072,
+      "mipsSampled": 420,
+      "sampledPoints": 1290240,
+      "worstBaseLevelP99On255": 4.001
+    },
+    "androidGroundShader": {
+      "method": "Android OpenGL ES 3 on the emulator above. Compiled the project HLSL with Unity headers, translated the fragments to GLSL ES 3 and linked them in the guest. Compared original and ASTC textures using the ground detail brush, six footprints and three light settings. Sillwater Office uses its ordinary paint variant. Offscreen material samples.",
+      "groundSampler": "Trilinear, 2\u00d7 anisotropic filtering requested when supported by the guest driver",
+      "pairedDraws": 756,
+      "pixelsPerDraw": 3072,
+      "worstP99On255ByLight": {
+        "day": 5.214,
+        "dusk": 5.214,
+        "night": 3.146
+      },
+      "effectiveGuestAnisotropy": 1
+    },
+    "androidGroundMipTransitions": {
+      "runtime": "Android emulator OpenGL ES 3, Unity ground fragment program and ASTC blocks. Same coordinates on both sides of each mip boundary, at 0.47 and 0.53. Six boundaries under day and night light. Absolute RGB differences weighted by luminance on a 0\u2013255 scale.",
+      "conditions": 504,
+      "conditionsWithLowerP95UsingTrilinear": 504,
+      "medianP95": {
+        "day": {
+          "nearestMip": 10.581,
+          "trilinear": 0.928
+        },
+        "night": {
+          "nearestMip": 6.106,
+          "trilinear": 0.787
+        }
+      }
+    },
+    "groundSamplerCost": {
+      "test": "Android emulator software GPU. Timed a 256 \u00d7 160 material swatch with the Unity ground fragment program. Five district paintings, four counterbalanced rounds, eight draws per timed batch. Includes guest-to-host submission and completion.",
+      "totalTimedDraws": 1280,
+      "medianMillisecondsPerDraw": {
+        "close": {
+          "rgbaNearestMip": 1.585,
+          "rgbaTrilinear": 2.457,
+          "astcNearestMip": 1.572,
+          "astcTrilinear": 2.401
+        },
+        "distant": {
+          "rgbaNearestMip": 1.786,
+          "rgbaTrilinear": 3.067,
+          "astcNearestMip": 1.829,
+          "astcTrilinear": 2.636
+        }
+      }
+    },
+    "androidGroundStreaming": {
+      "test": "Android emulator, GLES 3. Each visit uploaded one district\u2019s ten-level ASTC chain, drew the Unity ground shader, read its pixels, deleted the texture, then verified its GL handle and binding had cleared. The shared detail brush stayed valid throughout. RSS covers the guest test process.",
+      "visits": 336,
+      "districts": 42,
+      "laps": 8,
+      "districtsWithIdenticalFirstAndRepeatPixels": 42,
+      "guestProcessRssAtLapEndKiB": [
+        7336,
+        7336,
+        7336,
+        7336,
+        7316,
+        7316,
+        7312,
+        7300
+      ],
+      "maximumSimultaneousDistrictGroundPaintings": 1
+    }
+  },
+  "campaignClosingCheck": {
+    "entryCheckpoint": "Sounding Bay, in the final chapters",
+    "endings": [
+      1,
+      2
+    ],
+    "witnessLeaves": 5,
+    "optionalSupperStepsAccount": "A_Other",
+    "restoredLastChoiceCheckpoint": true,
+    "runtime": "Desktop Chromium SwiftShader"
+  },
+  "stereoscopicArtViews": {
+    "rig": "IWER Meta Quest 3, active immersive session. Captured both eye projections at a measured 63 mm separation and counted visible pixels using a separate material mask.",
+    "views": 15,
+    "eyeImages": 30,
+    "materials": [
+      "CabinetBindings",
+      "KilnFire",
+      "QuietEnamel",
+      "ResidentCloth",
+      "ShopWindows",
+      "YardGoods"
+    ],
+    "minimumVisibleSubjectPixelsPerEye": 844,
+    "minimumSubjectP90MinusP10LuminanceOn255": 19.05,
+    "allViewsWithClearHeadAndTrackedHands": true
+  },
+  "naturalMarketDay": {
+    "samples": 49,
+    "wallSeconds": 6636.9,
+    "minContrast": 22.0,
+    "maxHorizontalDriftMetres": 0.0,
+    "liveTextures": [
+      47
+    ]
   }
 }

@@ -5,7 +5,7 @@ namespace Wizzard.Editor
 {
     public sealed class BellwakeImport : AssetPostprocessor
     {
-        public override uint GetVersion() => 5;
+        public override uint GetVersion() => 6;
         void OnPostprocessModel(GameObject model)
         {
             if (!IsBellwakeModel()) return;
@@ -90,14 +90,30 @@ namespace Wizzard.Editor
             }
             tile.mipmapEnabled = true;
             tile.wrapMode = TextureWrapMode.Repeat;
-            // These small, high-contrast paintings show their mip boundaries as a player backs away.
+            bool districtGround = assetPath.EndsWith("Ground.png", System.StringComparison.Ordinal);
+            // Paths and the high-contrast detail sheets show their mip boundaries as a player backs away.
             // Close-ups still use the three-texel filter in the world shader.
-            bool blendMips = assetPath.EndsWith("/GroundBrush.png") ||
+            bool blendMips = districtGround || assetPath.EndsWith("/GroundBrush.png") ||
                 assetPath.EndsWith("/HouseEdges.png") || assetPath.EndsWith("/RimeFir.png") ||
                 assetPath.EndsWith("/ResidentCloth.png") || assetPath.EndsWith("/YardGoods.png");
             tile.filterMode = blendMips ? FilterMode.Trilinear : FilterMode.Bilinear;
             tile.anisoLevel = 2;
             tile.textureCompression = TextureImporterCompression.Uncompressed;
+            if (districtGround)
+            {
+                // Preserve the district painters' canvas sizes, including the 672- and 768-pixel maps.
+                tile.npotScale = TextureImporterNPOTScale.None;
+                var android = tile.GetPlatformTextureSettings("Android");
+                if (!android.overridden)
+                {
+                    android.name = "Android";
+                    android.overridden = true;
+                    android.format = TextureImporterFormat.ASTC_4x4;
+                    android.textureCompression = TextureImporterCompression.Compressed;
+                    android.compressionQuality = (int)TextureCompressionQuality.Normal;
+                    tile.SetPlatformTextureSettings(android);
+                }
+            }
         }
     }
 }
