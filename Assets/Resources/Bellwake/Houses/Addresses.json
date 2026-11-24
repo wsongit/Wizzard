@@ -1,0 +1,3561 @@
+{
+ "districts": [
+  {
+   "key": "Bellmarket",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "MillAxis",
+     "p": [
+      9.8,
+      12.7171,
+      -24.458
+     ]
+    },
+    {
+     "name": "MarshHenTrail",
+     "p": [
+      -14.87,
+      0.0,
+      9.4
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      -10.6683,
+      1.0084,
+      -0.4183
+     ],
+     "normal": [
+      0.2924,
+      0.0,
+      0.9563
+     ],
+     "layout": "baker",
+     "name": "The First Loaf",
+     "sign": 0,
+     "objectName": "The bread tally",
+     "lore": "Before the road had mileposts, runners carried a heel of bread to the next oven. The last baker to receive it rang the morning bell.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      14.3934,
+      1.6875,
+      -7.2543
+     ],
+     "normal": [
+      -0.2924,
+      0.0,
+      0.9563
+     ],
+     "layout": "home2",
+     "name": "",
+     "sign": -1,
+     "objectName": "The low shelf",
+     "lore": "The underside is covered in pencil strokes. Each spring a child stood here in bare feet. One year the marks begin again at the bottom.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -10.8,
+      2.0114,
+      -11.6539
+     ],
+     "normal": [
+      -0.0175,
+      0.0,
+      0.9998
+     ],
+     "layout": "home",
+     "name": "",
+     "sign": -1,
+     "objectName": "The blue coverlet",
+     "lore": "Six patches of sailcloth, all different blues. The smallest has a mast stitched on backwards. Nobody has unpicked it.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      14.0441,
+      0.9484,
+      11.9774
+     ],
+     "normal": [
+      -0.6561,
+      0.0,
+      0.7547
+     ],
+     "layout": "office",
+     "name": "The Binding Room",
+     "sign": 1,
+     "objectName": "A mended ledger",
+     "lore": "Two hands repaired this book. One used fine thread. The other used fishing line and stitched through the first hand's signature.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      9.8,
+      2.06,
+      -19.885
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "mill",
+     "name": "The Borrowed Wind",
+     "sign": 2,
+     "objectName": "A miller's measure",
+     "lore": "The smallest scoop is stamped WIDOW'S SHARE. Grain that fell between the floorboards belonged to the miller. Grain that fell in this scoop never did.",
+     "paintDoor": true,
+     "openSpace": false,
+     "millPassage": true
+    },
+    {
+     "point": [
+      -9.0,
+      1.12,
+      6.895
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "baker",
+     "name": "Tavi’s Provisions",
+     "sign": 3,
+     "objectName": "The bread tally",
+     "lore": "Before the road had mileposts, runners carried a heel of bread to the next oven. The last baker to receive it rang the morning bell.",
+     "paintDoor": false,
+     "openSpace": true
+    },
+    {
+     "point": [
+      -9.0,
+      1.28,
+      11.075
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "theatre",
+     "name": "The Paper Playhouse",
+     "sign": 4,
+     "objectName": "A paper ticket",
+     "lore": "A child punched two holes in this ticket. One admitted her. The other admitted her shadow, which had a speaking part.",
+     "paintDoor": false,
+     "openSpace": false
+    }
+   ]
+  },
+  {
+   "key": "CastingBed",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "A_Take",
+     "p": [
+      0.0,
+      2.2848,
+      -10.49
+     ]
+    },
+    {
+     "name": "A_Home",
+     "p": [
+      -12.0,
+      1.4232,
+      10.58
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      -13.9,
+      2.4736,
+      -11.215
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "forge",
+     "name": "The Copper Measure",
+     "sign": 5,
+     "objectName": "A split bell mould",
+     "lore": "The crack was plugged with a thumbprint. No bell cast here rings quite cleanly. The guild has rejected three offers to repair the mould.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      13.9,
+      2.4736,
+      -11.215
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Pattern Store",
+     "sign": 6,
+     "objectName": "A mended ledger",
+     "lore": "Two hands repaired this book. One used fine thread. The other used fishing line and stitched through the first hand's signature.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Casting Floor",
+     "sign": 7,
+     "objectName": "The brass dedication",
+     "lore": "The crack was plugged with a thumbprint. No bell cast here rings quite cleanly. The guild has rejected three offers to repair the mould.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "ChainDock",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "RailEnd",
+     "p": [
+      0.0,
+      1.0,
+      -10.0
+     ]
+    },
+    {
+     "name": "A_MessNote",
+     "p": [
+      10.2,
+      1.4261,
+      -1.05
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Chain Dock",
+     "sign": 8,
+     "objectName": "The brass dedication",
+     "lore": "Pilots used to braid ribbons through the last link before sailing. A faded yellow knot sits just above the high-water mark.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "CinderLens",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "A_Gate",
+     "p": [
+      0.0,
+      2.5,
+      -14.1
+     ]
+    },
+    {
+     "name": "A_Key2",
+     "p": [
+      6.0,
+      1.44,
+      -6.32
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Cinder Lens",
+     "sign": 9,
+     "objectName": "The brass dedication",
+     "lore": "In winter the lens keeper warmed the glass in both hands before polishing it. The cloth in the drawer has two patches worn thin.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "DriftFen",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "MapNW",
+     "p": [
+      -56.0,
+      1.575,
+      -56.0
+     ]
+    },
+    {
+     "name": "MapSW",
+     "p": [
+      -56.0,
+      0.9556,
+      56.0
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      -38.0,
+      2.7103,
+      22.888
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "baker",
+     "name": "The Highwater Oven",
+     "sign": 10,
+     "objectName": "The bread tally",
+     "lore": "Before the road had mileposts, runners carried a heel of bread to the next oven. The last baker to receive it rang the morning bell.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      32.0,
+      3.6352,
+      -40.862
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "school",
+     "name": "The Reed School",
+     "sign": 11,
+     "objectName": "A child's slate",
+     "lore": "The pupils learned their letters from ferry wakes. An upright stroke meant a boat was coming home. A loop meant somebody had gone back for another passenger.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -39.0,
+      3.4217,
+      -36.675
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "watch",
+     "name": "The Fen Watch",
+     "sign": 12,
+     "objectName": "The lamp register",
+     "lore": "One entry has no hour beside it: a light answered from beneath the water. The keeper trimmed the lamp and answered once.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      34.9234,
+      2.6569,
+      12.9579
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Linen Ward",
+     "sign": 13,
+     "objectName": "A linen square",
+     "lore": "A nurse sewed a blue corner onto each bandage washed in boiled water. When the dye ran out, she signed the corners with a single blue stitch.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "DrumHouse",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "Bearing1",
+     "p": [
+      0.0,
+      1.1399,
+      -12.0
+     ]
+    },
+    {
+     "name": "A_Kitchen",
+     "p": [
+      12.0,
+      1.4532,
+      8.45
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Drum House",
+     "sign": 14,
+     "objectName": "The brass dedication",
+     "lore": "The duty roster calls for two drummers on a fog night. One played. The other listened along the floorboards for the answering beat.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "EchoRotunda",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "A_Listen",
+     "p": [
+      0.0,
+      2.47,
+      -10.49
+     ]
+    },
+    {
+     "name": "A_Home",
+     "p": [
+      -12.0,
+      1.4232,
+      10.58
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Echo Rotunda",
+     "sign": 15,
+     "objectName": "The brass dedication",
+     "lore": "A singer chalked a cross where an echo returned in tune. The floor has been laid three times. Someone always puts the cross back.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "FloodLedger",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "A_Orrel",
+     "p": [
+      -14.0,
+      3.9436,
+      -10.52
+     ]
+    },
+    {
+     "name": "A_Page2",
+     "p": [
+      11.0,
+      2.52,
+      -6.49
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Flood Archive",
+     "sign": 16,
+     "objectName": "The brass dedication",
+     "lore": "The flooded streets were copied in blue ink. Families returned each spring to write their names in black beside a door they remembered.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "GlassRookery",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      -2.5,
+      0.2223,
+      18.0
+     ]
+    },
+    {
+     "name": "MapNW",
+     "p": [
+      -36.0,
+      0.9178,
+      -36.0
+     ]
+    },
+    {
+     "name": "Roost8",
+     "p": [
+      24.0,
+      4.4729,
+      -23.0
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      -9.0,
+      1.5983,
+      21.138
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "pilot",
+     "name": "The Rookery Lodge",
+     "sign": 17,
+     "objectName": "A notched oar",
+     "lore": "Seven notches for crossings in thick fog. An eighth runs the whole length of the shaft. That morning the pilot walked the riverbed home.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      3.0,
+      2.6437,
+      -25.465
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "glass",
+     "name": "The Winter Glass",
+     "sign": 18,
+     "objectName": "A plant label",
+     "lore": "A frost-cracked label reads: White nettle, brought upstairs the night the parish drowned. The handwriting underneath says: It took.",
+     "paintDoor": false,
+     "openSpace": false
+    }
+   ]
+  },
+  {
+   "key": "Glasscut",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "A_Gate",
+     "p": [
+      0.0,
+      1.4,
+      -13.1
+     ]
+    },
+    {
+     "name": "A_Log1",
+     "p": [
+      6.25,
+      1.42,
+      -0.8
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Glasscut Works",
+     "sign": 19,
+     "objectName": "The brass dedication",
+     "lore": "The glazier kept one crooked pane from every batch. Look through two together, her notebook says, and a straight road looks like a river.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "GloamingPress",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "MapNW",
+     "p": [
+      -20.0,
+      0.0,
+      -20.0
+     ]
+    },
+    {
+     "name": "A_Gate",
+     "p": [
+      15.0,
+      1.44,
+      -7.5
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Gloaming Press",
+     "sign": 20,
+     "objectName": "The brass dedication",
+     "lore": "Early editions printed the ferry times in red. A reader wrote beneath the last one: you can hear her oars from my kitchen.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "Highroad",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      17.4449,
+      22.4448,
+      516.339
+     ]
+    },
+    {
+     "name": "RoadTwinIntake",
+     "p": [
+      -568.0507,
+      9.1679,
+      -435.82
+     ]
+    },
+    {
+     "name": "RoadStillBelfry",
+     "p": [
+      510.4776,
+      17.2156,
+      -412.9657
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      -559.3634,
+      23.439,
+      69.1906
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "inn",
+     "name": "Mercy Rest",
+     "sign": 21,
+     "objectName": "A scorched boot rack",
+     "lore": "Boots were dried toe-out for travellers going east and heel-out for those going west. The empty peg was always kept warm.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -389.9982,
+      18.9674,
+      99.2551
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "inn",
+     "name": "Kettle Rest",
+     "sign": 22,
+     "objectName": "A scorched boot rack",
+     "lore": "Boots were dried toe-out for travellers going east and heel-out for those going west. The empty peg was always kept warm.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -214.5104,
+      16.9141,
+      116.3517
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "inn",
+     "name": "Supper Rest",
+     "sign": 23,
+     "objectName": "A scorched boot rack",
+     "lore": "Boots were dried toe-out for travellers going east and heel-out for those going west. The empty peg was always kept warm.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -28.6219,
+      15.0251,
+      85.8708
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "inn",
+     "name": "Bellmarket Rest",
+     "sign": 24,
+     "objectName": "A scorched boot rack",
+     "lore": "Boots were dried toe-out for travellers going east and heel-out for those going west. The empty peg was always kept warm.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      162.0844,
+      37.9151,
+      64.3117
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "inn",
+     "name": "Paper Rest",
+     "sign": 25,
+     "objectName": "A scorched boot rack",
+     "lore": "Boots were dried toe-out for travellers going east and heel-out for those going west. The empty peg was always kept warm.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      347.4583,
+      29.1227,
+      93.633
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "inn",
+     "name": "Press Rest",
+     "sign": 26,
+     "objectName": "A scorched boot rack",
+     "lore": "Boots were dried toe-out for travellers going east and heel-out for those going west. The empty peg was always kept warm.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      522.4048,
+      12.6566,
+      119.3015
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "inn",
+     "name": "Vellum Rest",
+     "sign": 27,
+     "objectName": "A scorched boot rack",
+     "lore": "Boots were dried toe-out for travellers going east and heel-out for those going west. The empty peg was always kept warm.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -488.4776,
+      24.7557,
+      433.1107
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Sounding Toll House",
+     "sign": 28,
+     "objectName": "The toll stamp",
+     "lore": "The Sounding stamp is worn smooth on one edge. On flood mornings the clerk turned it sideways. A sideways mark meant the return journey was already paid.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -304.0242,
+      26.0885,
+      441.0421
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Saltwake Toll House",
+     "sign": 29,
+     "objectName": "The toll stamp",
+     "lore": "The Saltwake stamp is worn smooth on one edge. In the margin a runner has drawn a cup. The inn across the ridge accepted that mark in place of a coin.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -129.6011,
+      23.9723,
+      455.5843
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Chain Toll House",
+     "sign": 30,
+     "objectName": "The toll stamp",
+     "lore": "The Chain stamp is worn smooth on one edge. The debts on this page are in loaves and lamp oil. The column for names has been carefully scraped clean.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      35.9752,
+      23.9205,
+      446.2906
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Wrenfall Toll House",
+     "sign": 31,
+     "objectName": "The toll stamp",
+     "lore": "The Wrenfall stamp is worn smooth on one edge. On flood mornings the clerk turned it sideways. A sideways mark meant the return journey was already paid.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      214.5871,
+      9.4133,
+      435.1299
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Glass Toll House",
+     "sign": 32,
+     "objectName": "The toll stamp",
+     "lore": "The Glass stamp is worn smooth on one edge. In the margin a runner has drawn a cup. The inn across the ridge accepted that mark in place of a coin.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      403.4468,
+      13.744,
+      447.1136
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Kite Toll House",
+     "sign": 33,
+     "objectName": "The toll stamp",
+     "lore": "The Kite stamp is worn smooth on one edge. The debts on this page are in loaves and lamp oil. The column for names has been carefully scraped clean.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      590.0508,
+      33.0257,
+      455.9651
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Rime Toll House",
+     "sign": 34,
+     "objectName": "The toll stamp",
+     "lore": "The Rime stamp is worn smooth on one edge. On flood mornings the clerk turned it sideways. A sideways mark meant the return journey was already paid.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -531.3634,
+      21.0127,
+      82.9906
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Mercy Toll House",
+     "sign": 35,
+     "objectName": "The toll stamp",
+     "lore": "The Mercy stamp is worn smooth on one edge. In the margin a runner has drawn a cup. The inn across the ridge accepted that mark in place of a coin.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -359.9982,
+      18.1218,
+      113.0551
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Kettle Toll House",
+     "sign": 36,
+     "objectName": "The toll stamp",
+     "lore": "The Kettle stamp is worn smooth on one edge. The debts on this page are in loaves and lamp oil. The column for names has been carefully scraped clean.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -182.5103,
+      16.1063,
+      130.1517
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Supper Toll House",
+     "sign": 37,
+     "objectName": "The toll stamp",
+     "lore": "The Supper stamp is worn smooth on one edge. On flood mornings the clerk turned it sideways. A sideways mark meant the return journey was already paid.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -0.6219,
+      16.0595,
+      99.6708
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Bellmarket Toll House",
+     "sign": 38,
+     "objectName": "The toll stamp",
+     "lore": "The Bellmarket stamp is worn smooth on one edge. In the margin a runner has drawn a cup. The inn across the ridge accepted that mark in place of a coin.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      192.0844,
+      37.6619,
+      78.1117
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Paper Toll House",
+     "sign": 39,
+     "objectName": "The toll stamp",
+     "lore": "The Paper stamp is worn smooth on one edge. The debts on this page are in loaves and lamp oil. The column for names has been carefully scraped clean.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      379.4583,
+      24.9064,
+      107.433
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Gloaming Toll House",
+     "sign": 40,
+     "objectName": "The toll stamp",
+     "lore": "The Gloaming stamp is worn smooth on one edge. On flood mornings the clerk turned it sideways. A sideways mark meant the return journey was already paid.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      550.4048,
+      11.4015,
+      133.1015
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Vellum Toll House",
+     "sign": 41,
+     "objectName": "The toll stamp",
+     "lore": "The Vellum stamp is worn smooth on one edge. In the margin a runner has drawn a cup. The inn across the ridge accepted that mark in place of a coin.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -517.1752,
+      24.3051,
+      -255.3555
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Cairn Toll House",
+     "sign": 42,
+     "objectName": "The toll stamp",
+     "lore": "The Cairn stamp is worn smooth on one edge. The debts on this page are in loaves and lamp oil. The column for names has been carefully scraped clean.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -330.3331,
+      17.327,
+      -243.6415
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Saffron Toll House",
+     "sign": 43,
+     "objectName": "The toll stamp",
+     "lore": "The Saffron stamp is worn smooth on one edge. On flood mornings the clerk turned it sideways. A sideways mark meant the return journey was already paid.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -137.6609,
+      25.0339,
+      -217.6835
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Casting Toll House",
+     "sign": 44,
+     "objectName": "The toll stamp",
+     "lore": "The Casting stamp is worn smooth on one edge. In the margin a runner has drawn a cup. The inn across the ridge accepted that mark in place of a coin.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      44.7233,
+      35.0764,
+      -226.5334
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Cinder Toll House",
+     "sign": 45,
+     "objectName": "The toll stamp",
+     "lore": "The Cinder stamp is worn smooth on one edge. The debts on this page are in loaves and lamp oil. The column for names has been carefully scraped clean.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      222.7669,
+      41.217,
+      -248.9457
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Mould Toll House",
+     "sign": 46,
+     "objectName": "The toll stamp",
+     "lore": "The Mould stamp is worn smooth on one edge. On flood mornings the clerk turned it sideways. A sideways mark meant the return journey was already paid.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      394.2208,
+      32.9427,
+      -241.5712
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Glasscut Toll House",
+     "sign": 47,
+     "objectName": "The toll stamp",
+     "lore": "The Glasscut stamp is worn smooth on one edge. In the margin a runner has drawn a cup. The inn across the ridge accepted that mark in place of a coin.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      563.0835,
+      19.896,
+      -223.1747
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Lantern Toll House",
+     "sign": 48,
+     "objectName": "The toll stamp",
+     "lore": "The Lantern stamp is worn smooth on one edge. The debts on this page are in loaves and lamp oil. The column for names has been carefully scraped clean.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -46.7105,
+      14.2146,
+      67.4549
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "mill",
+     "name": "The Highroad Mill",
+     "sign": 49,
+     "objectName": "A miller's measure",
+     "lore": "The smallest scoop is stamped WIDOW'S SHARE. Grain that fell between the floorboards belonged to the miller. Grain that fell in this scoop never did.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -358.6432,
+      24.411,
+      399.6714
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "watch",
+     "name": "Whitecap Light",
+     "sign": 50,
+     "objectName": "The lamp register",
+     "lore": "One entry has no hour beside it: a light answered from beneath the water. The keeper trimmed the lamp and answered once.",
+     "paintDoor": true,
+     "openSpace": false
+    }
+   ]
+  },
+  {
+   "key": "HighroadBrowser",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      2.64,
+      -0.0
+     ]
+    },
+    {
+     "name": "RoadSoundingBay",
+     "p": [
+      -60.0,
+      2.8263,
+      50.0
+     ]
+    },
+    {
+     "name": "RoadRimePost",
+     "p": [
+      60.0,
+      3.1566,
+      50.0
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      -66.0,
+      3.1833,
+      16.345
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "inn",
+     "name": "Mercy Rest",
+     "sign": 21,
+     "objectName": "A scorched boot rack",
+     "lore": "Boots were dried toe-out for travellers going east and heel-out for those going west. The empty peg was always kept warm.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -46.0,
+      2.2402,
+      16.345
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "inn",
+     "name": "Kettle Rest",
+     "sign": 22,
+     "objectName": "A scorched boot rack",
+     "lore": "Boots were dried toe-out for travellers going east and heel-out for those going west. The empty peg was always kept warm.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -26.0,
+      1.8237,
+      16.345
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "inn",
+     "name": "Supper Rest",
+     "sign": 23,
+     "objectName": "A scorched boot rack",
+     "lore": "Boots were dried toe-out for travellers going east and heel-out for those going west. The empty peg was always kept warm.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -6.0,
+      2.4752,
+      16.345
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "inn",
+     "name": "Bellmarket Rest",
+     "sign": 24,
+     "objectName": "A scorched boot rack",
+     "lore": "Boots were dried toe-out for travellers going east and heel-out for those going west. The empty peg was always kept warm.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      14.0,
+      3.899,
+      16.345
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "inn",
+     "name": "Paper Rest",
+     "sign": 25,
+     "objectName": "A scorched boot rack",
+     "lore": "Boots were dried toe-out for travellers going east and heel-out for those going west. The empty peg was always kept warm.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      34.0,
+      5.0839,
+      16.345
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "inn",
+     "name": "Press Rest",
+     "sign": 26,
+     "objectName": "A scorched boot rack",
+     "lore": "Boots were dried toe-out for travellers going east and heel-out for those going west. The empty peg was always kept warm.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      54.0,
+      5.1156,
+      16.345
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "inn",
+     "name": "Vellum Rest",
+     "sign": 27,
+     "objectName": "A scorched boot rack",
+     "lore": "Boots were dried toe-out for travellers going east and heel-out for those going west. The empty peg was always kept warm.",
+     "paintDoor": true,
+     "openSpace": false
+    }
+   ]
+  },
+  {
+   "key": "KettleYard",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "Edge_High",
+     "p": [
+      3.4193,
+      1.51,
+      -5.6
+     ]
+    },
+    {
+     "name": "A_Home",
+     "p": [
+      -9.0,
+      1.49,
+      11.45
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Kettle Yard Cookhouse",
+     "sign": 51,
+     "objectName": "The brass dedication",
+     "lore": "The cook kept the first bowl upside down until the last runner arrived. There is a ring in the table where it stood.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "LanternCourt",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "A_Loft",
+     "p": [
+      8.0,
+      2.9585,
+      -11.42
+     ]
+    },
+    {
+     "name": "A_Etching",
+     "p": [
+      -12.0,
+      2.4384,
+      -8.49
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Lantern Court",
+     "sign": 52,
+     "objectName": "The brass dedication",
+     "lore": "Each family brought a lamp for the night crossing. One saucer has a saucer-sized patch beneath it where a child scrubbed away the soot every morning.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "LinenCourt",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "MapNW",
+     "p": [
+      -60.0,
+      0.0,
+      -60.0
+     ]
+    },
+    {
+     "name": "MapSW",
+     "p": [
+      -60.0,
+      0.0,
+      60.0
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Linen Exchange",
+     "sign": 53,
+     "objectName": "The brass dedication",
+     "lore": "The cloth kept for mending sails has a blue thread along one edge. In the flood, that thread was enough to find the way along a rope in the dark.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "MercySlip",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "MapNW",
+     "p": [
+      -60.0,
+      0.0,
+      -60.0
+     ]
+    },
+    {
+     "name": "MapSW",
+     "p": [
+      -60.0,
+      0.0,
+      60.0
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Mercy Slip",
+     "sign": 54,
+     "objectName": "The brass dedication",
+     "lore": "In the fare book the narrowest ferry is listed as a cradle. A seamstress paid its first crossing with three buttons and a very good needle.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "MossbellVillage",
+   "anchors": [],
+   "doors": [
+    {
+     "point": [
+      -8.133,
+      1.09,
+      20.013
+     ],
+     "normal": [
+      -0.1392,
+      0.0,
+      0.9903
+     ],
+     "layout": "baker",
+     "name": "The First Loaf",
+     "sign": 0,
+     "objectName": "The bread tally",
+     "lore": "Before the road had mileposts, runners carried a heel of bread to the next oven. The last baker to receive it rang the morning bell.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      11.6447,
+      1.09,
+      17.7955
+     ],
+     "normal": [
+      0.1737,
+      0.0,
+      0.9848
+     ],
+     "layout": "potter",
+     "name": "The Thumbprint Kiln",
+     "sign": 55,
+     "objectName": "A salt jar",
+     "lore": "Customers could tell their pots apart by touch. The potter pressed each buyer’s thumb into the clay while the jar was still damp.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -16.3859,
+      4.29,
+      -19.0509
+     ],
+     "normal": [
+      0.1392,
+      0.0,
+      0.9903
+     ],
+     "layout": "inn",
+     "name": "The Bell & Blanket",
+     "sign": 56,
+     "objectName": "A scorched boot rack",
+     "lore": "Boots were dried toe-out for travellers going east and heel-out for those going west. The empty peg was always kept warm.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      24.6311,
+      1.09,
+      6.1991
+     ],
+     "normal": [
+      0.1392,
+      0.0,
+      0.9903
+     ],
+     "layout": "office",
+     "name": "The Binding Room",
+     "sign": 1,
+     "objectName": "A mended ledger",
+     "lore": "Two hands repaired this book. One used fine thread. The other used fishing line and stitched through the first hand's signature.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -18.9694,
+      1.09,
+      4.325
+     ],
+     "normal": [
+      -0.0698,
+      0.0,
+      0.9976
+     ],
+     "layout": "pilot",
+     "name": "Spring Chandlery",
+     "sign": 57,
+     "objectName": "A short length of chain",
+     "lore": "Every ninth link is brass so a pilot can count it in the dark. The last one is gold. It was once somebody's wedding ring.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -2.7105,
+      4.29,
+      -13.2311
+     ],
+     "normal": [
+      -0.309,
+      0.0,
+      0.9511
+     ],
+     "layout": "weaver",
+     "name": "The Brass Shuttle",
+     "sign": 58,
+     "objectName": "A rescued selvedge",
+     "lore": "In the lean winter a sail was cut into blankets. The weaver kept the blue selvedge and worked an inch of it into every new sail that year.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      14.695,
+      9.05,
+      -26.9
+     ],
+     "normal": [
+      1.0,
+      0.0,
+      -0.0
+     ],
+     "layout": "watch",
+     "name": "Mossbell Pavilion",
+     "sign": 59,
+     "objectName": "The lamp register",
+     "lore": "One entry has no hour beside it: a light answered from beneath the water. The keeper trimmed the lamp and answered once.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "MouldLoft",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "RailStart",
+     "p": [
+      -5.0,
+      1.35,
+      -5.7
+     ]
+    },
+    {
+     "name": "A_MessNote",
+     "p": [
+      10.2,
+      1.4291,
+      -1.05
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Mould Loft",
+     "sign": 60,
+     "objectName": "The brass dedication",
+     "lore": "Three apprentices pressed their initials into the same mould. The middle one wrote backwards so the casting would carry her name the right way round.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "OrreryLoft",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "A_Nest",
+     "p": [
+      0.0,
+      3.6708,
+      -11.49
+     ]
+    },
+    {
+     "name": "A_Vane",
+     "p": [
+      -12.0,
+      2.1936,
+      -5.49
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Orrery Loft",
+     "sign": 61,
+     "objectName": "The brass dedication",
+     "lore": "The smallest wheel runs a little fast. A note by its pin reads: leave it. It keeps my brother’s ferry time.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "PaperCourt",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "A_Carbon",
+     "p": [
+      11.0,
+      1.485,
+      -7.5
+     ]
+    },
+    {
+     "name": "A_Boot",
+     "p": [
+      -11.0,
+      1.485,
+      -6.5
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      -10.0,
+      1.145,
+      -12.855
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "home",
+     "name": "",
+     "sign": -1,
+     "objectName": "The blue coverlet",
+     "lore": "Six patches of sailcloth, all different blues. The smallest has a mast stitched on backwards. Nobody has unpicked it.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      5.3,
+      1.165,
+      -13.155
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "home2",
+     "name": "",
+     "sign": -1,
+     "objectName": "The lamp book",
+     "lore": "Every wick had a name in this household. A neat line beside Grandmother reads: still burns an hour on a thimble of oil.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      13.955,
+      1.38,
+      -1.4
+     ],
+     "normal": [
+      -1.0,
+      0.0,
+      -0.0
+     ],
+     "layout": "home",
+     "name": "",
+     "sign": -1,
+     "objectName": "The boot last",
+     "lore": "A wooden foot with one heel worn flat. Folded inside its stocking is a receipt for two left boots, delivered to two different people.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Paper Playhouse",
+     "sign": 4,
+     "objectName": "The brass dedication",
+     "lore": "A child punched two holes in this ticket. One admitted her. The other admitted her shadow, which had a speaking part.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "RainCourt",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "MapNW",
+     "p": [
+      -60.0,
+      0.0,
+      -60.0
+     ]
+    },
+    {
+     "name": "A_Rod",
+     "p": [
+      48.0,
+      1.7665,
+      -56.9
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Rain Court",
+     "sign": 62,
+     "objectName": "The brass dedication",
+     "lore": "Someone measured a lean summer in cups of rain. Beside the smallest mark is a drawing of a pear, with five names around it.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "Reedwater",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "A_Gate",
+     "p": [
+      0.0,
+      1.9,
+      -14.1
+     ]
+    },
+    {
+     "name": "WheelAxle",
+     "p": [
+      12.6,
+      2.28,
+      -4.4
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      -14.0,
+      1.4119,
+      -8.1427
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "home2",
+     "name": "",
+     "sign": -1,
+     "objectName": "The lamp book",
+     "lore": "Every wick had a name in this household. A neat line beside Grandmother reads: still burns an hour on a thimble of oil.",
+     "paintDoor": true,
+     "openSpace": false
+    },
+    {
+     "point": [
+      14.0,
+      1.417,
+      -8.1427
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "pump",
+     "name": "The Lock House",
+     "sign": 63,
+     "objectName": "A brass shim",
+     "lore": "The first pump clattered like a rook. Its makers slipped this shim under the bearing. The village birds kept answering it for another week.",
+     "paintDoor": true,
+     "openSpace": false
+    }
+   ]
+  },
+  {
+   "key": "RimePost",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "A_Gate",
+     "p": [
+      0.0,
+      1.4,
+      -13.1
+     ]
+    },
+    {
+     "name": "A_Log1",
+     "p": [
+      6.45,
+      1.42,
+      0.2
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      9.4,
+      1.03,
+      -13.67
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "inn",
+     "name": "The Thawing Post",
+     "sign": 64,
+     "objectName": "A scorched boot rack",
+     "lore": "Boots were dried toe-out for travellers going east and heel-out for those going west. The empty peg was always kept warm.",
+     "paintDoor": false,
+     "openSpace": false
+    }
+   ]
+  },
+  {
+   "key": "RowanHollow",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.1,
+      14.0
+     ]
+    },
+    {
+     "name": "MapNW",
+     "p": [
+      -52.0,
+      0.0,
+      -52.0
+     ]
+    },
+    {
+     "name": "MapSW",
+     "p": [
+      -52.0,
+      0.0,
+      52.0
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      -7.0,
+      1.3839,
+      9.288
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "home3",
+     "name": "",
+     "sign": -1,
+     "objectName": "The butter crock",
+     "lore": "Inside the lid someone scratched a little boat. Even with the crock full, the boat sits just above the butter.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      10.0,
+      3.2387,
+      34.695
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "pilot",
+     "name": "The Kite Loft",
+     "sign": 65,
+     "objectName": "A spool of kite line",
+     "lore": "In fog the foresters flew paper birds above the branches. A red tail meant the path was open. A white tail meant wait for me.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "SaffronKilns",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "MapNW",
+     "p": [
+      -60.0,
+      0.0,
+      -60.0
+     ]
+    },
+    {
+     "name": "A_Fire",
+     "p": [
+      56.0,
+      2.618,
+      -56.9
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Saffron Kilns",
+     "sign": 66,
+     "objectName": "The brass dedication",
+     "lore": "A potter left a row of thumb bowls for the night shift. Each fits a different hand. One has a hollow for a missing finger.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "Saltwake",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "A_Gate",
+     "p": [
+      0.0,
+      1.4,
+      -13.1
+     ]
+    },
+    {
+     "name": "A_Log1",
+     "p": [
+      7.25,
+      1.42,
+      -0.8
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      10.0,
+      1.03,
+      -12.445
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "pilot",
+     "name": "Saltwake Chandlery",
+     "sign": 67,
+     "objectName": "A short length of chain",
+     "lore": "Every ninth link is brass so a pilot can count it in the dark. The last one is gold. It was once somebody's wedding ring.",
+     "paintDoor": false,
+     "openSpace": false
+    }
+   ]
+  },
+  {
+   "key": "SignalLoom",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "A_MessNote",
+     "p": [
+      10.2,
+      1.4327,
+      -1.05
+     ]
+    },
+    {
+     "name": "A_Reed",
+     "p": [
+      -6.0,
+      1.42,
+      1.45
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Signal Loom",
+     "sign": 68,
+     "objectName": "The brass dedication",
+     "lore": "The first signal cloth was a striped apron. The weavers have saved one of its mother-of-pearl buttons in the shuttle drawer.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "SillwaterEbb",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "MapNW",
+     "p": [
+      -60.0,
+      0.0,
+      -60.0
+     ]
+    },
+    {
+     "name": "MapSW",
+     "p": [
+      -60.0,
+      0.0,
+      60.0
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      -19.0,
+      3.7809,
+      -16.162
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "pilot",
+     "name": "The Oar House",
+     "sign": 69,
+     "objectName": "A notched oar",
+     "lore": "Seven notches for crossings in thick fog. An eighth runs the whole length of the shaft. That morning the pilot walked the riverbed home.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      38.0,
+      4.1174,
+      3.188
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "school",
+     "name": "Penny Reach School",
+     "sign": 70,
+     "objectName": "A child's slate",
+     "lore": "The pupils learned their letters from ferry wakes. An upright stroke meant a boat was coming home. A loop meant somebody had gone back for another passenger.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -17.0,
+      2.8063,
+      35.388
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "home",
+     "name": "",
+     "sign": -1,
+     "objectName": "The blue coverlet",
+     "lore": "Six patches of sailcloth, all different blues. The smallest has a mast stitched on backwards. Nobody has unpicked it.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      23.0,
+      2.0369,
+      38.488
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "home2",
+     "name": "",
+     "sign": -1,
+     "objectName": "The low shelf",
+     "lore": "The underside is covered in pencil strokes. Each spring a child stood here in bare feet. One year the marks begin again at the bottom.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -36.0,
+      2.6974,
+      12.338
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "home3",
+     "name": "",
+     "sign": -1,
+     "objectName": "The butter crock",
+     "lore": "Inside the lid someone scratched a little boat. Even with the crock full, the boat sits just above the butter.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      17.0,
+      3.6427,
+      -46.512
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "home",
+     "name": "",
+     "sign": -1,
+     "objectName": "The boot last",
+     "lore": "A wooden foot with one heel worn flat. Folded inside its stocking is a receipt for two left boots, delivered to two different people.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -51.0,
+      3.1269,
+      -44.612
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "home2",
+     "name": "",
+     "sign": -1,
+     "objectName": "The lamp book",
+     "lore": "Every wick had a name in this household. A neat line beside Grandmother reads: still burns an hour on a thimble of oil.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      49.0,
+      2.6521,
+      43.438
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "home3",
+     "name": "",
+     "sign": -1,
+     "objectName": "The seed drawer",
+     "lore": "The packet marked dry summer contains river beans. The packet marked flood contains the same beans, tied to corks.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      6.0,
+      1.6547,
+      19.178
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Ada's Chart Office",
+     "sign": 71,
+     "objectName": "A chart weight",
+     "lore": "The stone on Ada's maps came from the old river crossing. Turn it over and the slow green curve of the lost channel is still visible.",
+     "paintDoor": false,
+     "openSpace": false
+    }
+   ]
+  },
+  {
+   "key": "SillwaterFlood",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "MapNW",
+     "p": [
+      -60.0,
+      0.0,
+      -60.0
+     ]
+    },
+    {
+     "name": "MapSW",
+     "p": [
+      -60.0,
+      0.0,
+      60.0
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      -19.0,
+      3.7809,
+      -16.162
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "pilot",
+     "name": "The Oar House",
+     "sign": 69,
+     "objectName": "A notched oar",
+     "lore": "Seven notches for crossings in thick fog. An eighth runs the whole length of the shaft. That morning the pilot walked the riverbed home.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      38.0,
+      4.1174,
+      3.188
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "school",
+     "name": "Penny Reach School",
+     "sign": 70,
+     "objectName": "A child's slate",
+     "lore": "The pupils learned their letters from ferry wakes. An upright stroke meant a boat was coming home. A loop meant somebody had gone back for another passenger.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -17.0,
+      2.8063,
+      35.388
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "home",
+     "name": "",
+     "sign": -1,
+     "objectName": "The blue coverlet",
+     "lore": "Six patches of sailcloth, all different blues. The smallest has a mast stitched on backwards. Nobody has unpicked it.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      23.0,
+      2.0369,
+      38.488
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "home2",
+     "name": "",
+     "sign": -1,
+     "objectName": "The low shelf",
+     "lore": "The underside is covered in pencil strokes. Each spring a child stood here in bare feet. One year the marks begin again at the bottom.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -36.0,
+      2.6974,
+      12.338
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "home3",
+     "name": "",
+     "sign": -1,
+     "objectName": "The butter crock",
+     "lore": "Inside the lid someone scratched a little boat. Even with the crock full, the boat sits just above the butter.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      17.0,
+      3.6427,
+      -46.512
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "home",
+     "name": "",
+     "sign": -1,
+     "objectName": "The boot last",
+     "lore": "A wooden foot with one heel worn flat. Folded inside its stocking is a receipt for two left boots, delivered to two different people.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -51.0,
+      3.1269,
+      -44.612
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "home2",
+     "name": "",
+     "sign": -1,
+     "objectName": "The lamp book",
+     "lore": "Every wick had a name in this household. A neat line beside Grandmother reads: still burns an hour on a thimble of oil.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      49.0,
+      2.6521,
+      43.438
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "home3",
+     "name": "",
+     "sign": -1,
+     "objectName": "The seed drawer",
+     "lore": "The packet marked dry summer contains river beans. The packet marked flood contains the same beans, tied to corks.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      6.0,
+      1.6547,
+      19.178
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Ada's Chart Office",
+     "sign": 71,
+     "objectName": "A chart weight",
+     "lore": "The stone on Ada's maps came from the old river crossing. Turn it over and the slow green curve of the lost channel is still visible.",
+     "paintDoor": false,
+     "openSpace": false
+    }
+   ]
+  },
+  {
+   "key": "SillwaterOffice",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "RailStart",
+     "p": [
+      -3.04,
+      2.46,
+      -6.04
+     ]
+    },
+    {
+     "name": "A_Stamp",
+     "p": [
+      6.0,
+      1.42,
+      -0.48
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "Ada's Chart Office",
+     "sign": 71,
+     "objectName": "The brass dedication",
+     "lore": "The stone on Ada's maps came from the old river crossing. Turn it over and the slow green curve of the lost channel is still visible.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "SoundingBay",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "MapNW",
+     "p": [
+      -60.0,
+      0.0,
+      -60.0
+     ]
+    },
+    {
+     "name": "MapSW",
+     "p": [
+      -60.0,
+      0.0,
+      60.0
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Sounding Office",
+     "sign": 72,
+     "objectName": "The brass dedication",
+     "lore": "Soundings used to be called out in a singing voice. A pilot has written the deepest channel as four notes along the margin of the chart.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "StillBelfry",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "A_Gate",
+     "p": [
+      0.0,
+      3.0,
+      -14.1
+     ]
+    },
+    {
+     "name": "A_Letter",
+     "p": [
+      -9.0,
+      1.35,
+      -7.35
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Still Belfry",
+     "sign": 73,
+     "objectName": "The brass dedication",
+     "lore": "The bell has two founders’ marks. One belongs to the caster. The other is a child’s palm pressed into the sand before the pour.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "SumpHall",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "A_Court",
+     "p": [
+      0.0,
+      2.89,
+      -12.42
+     ]
+    },
+    {
+     "name": "A_Intake",
+     "p": [
+      -12.0,
+      1.4232,
+      1.58
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Pump Guild",
+     "sign": 74,
+     "objectName": "The brass dedication",
+     "lore": "When the pumps stopped, neighbours passed buckets hand to hand. There are still two sets of handles on the smallest bucket.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "SupperSteps",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "MapNW",
+     "p": [
+      -60.0,
+      0.0,
+      -60.0
+     ]
+    },
+    {
+     "name": "MapSW",
+     "p": [
+      -60.0,
+      0.0,
+      60.0
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Common Table",
+     "sign": 75,
+     "objectName": "The brass dedication",
+     "lore": "A baker once fed both banks from these steps. Her soup recipe survives, except for the final line: keep adding water until everybody is here.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "SwallowLock",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "A_Gate",
+     "p": [
+      14.0,
+      2.6254,
+      -13.48
+     ]
+    },
+    {
+     "name": "RailStart",
+     "p": [
+      -12.0,
+      0.86,
+      -5.0
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      -14.3,
+      2.3866,
+      -12.39
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "pump",
+     "name": "Swallow Pump House",
+     "sign": 76,
+     "objectName": "A brass shim",
+     "lore": "The first pump clattered like a rook. Its makers slipped this shim under the bearing. The village birds kept answering it for another week.",
+     "paintDoor": false,
+     "openSpace": false
+    }
+   ]
+  },
+  {
+   "key": "TwinIntake",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "A_Archive",
+     "p": [
+      0.0,
+      2.59,
+      -13.42
+     ]
+    },
+    {
+     "name": "A_Plate",
+     "p": [
+      -13.0,
+      2.2278,
+      -8.49
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Twin Intake",
+     "sign": 77,
+     "objectName": "The brass dedication",
+     "lore": "Two keepers argued over which gate sang lower. Their tally ends with a diagram of two wet boots and the words: both wrong.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "VellumWalk",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "MapNW",
+     "p": [
+      -60.0,
+      0.0,
+      -60.0
+     ]
+    },
+    {
+     "name": "A_Potter",
+     "p": [
+      40.0,
+      2.7414,
+      -56.9
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Vellum Exchange",
+     "sign": 78,
+     "objectName": "The brass dedication",
+     "lore": "Look closely at the parchment offcuts. The mapmaker let children draw imaginary bridges on them. One bridge appears on a later survey.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "WeighHouse",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "A_Kiln",
+     "p": [
+      0.0,
+      3.19,
+      -13.42
+     ]
+    },
+    {
+     "name": "A_Ticket",
+     "p": [
+      -12.0,
+      2.1532,
+      -6.49
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Public Weigh House",
+     "sign": 79,
+     "objectName": "The brass dedication",
+     "lore": "Alongside the iron weights hangs a little bag of buttons. Anyone short a penny could leave one here. The clerk never counted how many were left.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "Wickwater",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "MapNW",
+     "p": [
+      -60.0,
+      0.0,
+      -60.0
+     ]
+    },
+    {
+     "name": "A_Reed",
+     "p": [
+      48.0,
+      2.6055,
+      -48.9
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      1.7,
+      1.23,
+      14.045
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "office",
+     "name": "The Wick House",
+     "sign": 80,
+     "objectName": "The brass dedication",
+     "lore": "The wick cutter measured a winter evening from thumb to elbow. Her left sleeve is embroidered with the short measure for summer.",
+     "paintDoor": false,
+     "openSpace": true
+    }
+   ]
+  },
+  {
+   "key": "Wrenfall",
+   "anchors": [
+    {
+     "name": "Spawn",
+     "p": [
+      0.0,
+      0.08,
+      14.0
+     ]
+    },
+    {
+     "name": "BellBearing",
+     "p": [
+      45.6,
+      12.1,
+      -74.98
+     ]
+    },
+    {
+     "name": "StarBearing",
+     "p": [
+      -18.7,
+      3.95,
+      -73.71
+     ]
+    }
+   ],
+   "doors": [
+    {
+     "point": [
+      -6.0,
+      1.143,
+      6.37
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "pilot",
+     "name": "The Pilot's Table",
+     "sign": 81,
+     "objectName": "A notched oar",
+     "lore": "Seven notches for crossings in thick fog. An eighth runs the whole length of the shaft. That morning the pilot walked the riverbed home.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -40.0,
+      3.413,
+      22.12
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "chapel",
+     "name": "The Tide Chapel",
+     "sign": 82,
+     "objectName": "A wax boat",
+     "lore": "Each spring the chapel sent a candle downriver in a little boat. The cupboard holds one boat for every year the river was too rough to launch it.",
+     "paintDoor": false,
+     "openSpace": false
+    },
+    {
+     "point": [
+      -35.0,
+      7.4522,
+      -37.1018
+     ],
+     "normal": [
+      0.0,
+      0.0,
+      1.0
+     ],
+     "layout": "watch",
+     "name": "The Last Lamp",
+     "sign": 83,
+     "objectName": "The lamp register",
+     "lore": "One entry has no hour beside it: a light answered from beneath the water. The keeper trimmed the lamp and answered once.",
+     "paintDoor": true,
+     "openSpace": false
+    }
+   ]
+  }
+ ],
+ "signs": [
+  "The First Loaf",
+  "The Binding Room",
+  "The Borrowed Wind",
+  "Tavi’s Provisions",
+  "The Paper Playhouse",
+  "The Copper Measure",
+  "The Pattern Store",
+  "The Casting Floor",
+  "The Chain Dock",
+  "The Cinder Lens",
+  "The Highwater Oven",
+  "The Reed School",
+  "The Fen Watch",
+  "The Linen Ward",
+  "The Drum House",
+  "The Echo Rotunda",
+  "The Flood Archive",
+  "The Rookery Lodge",
+  "The Winter Glass",
+  "The Glasscut Works",
+  "The Gloaming Press",
+  "Mercy Rest",
+  "Kettle Rest",
+  "Supper Rest",
+  "Bellmarket Rest",
+  "Paper Rest",
+  "Press Rest",
+  "Vellum Rest",
+  "Sounding Toll House",
+  "Saltwake Toll House",
+  "Chain Toll House",
+  "Wrenfall Toll House",
+  "Glass Toll House",
+  "Kite Toll House",
+  "Rime Toll House",
+  "Mercy Toll House",
+  "Kettle Toll House",
+  "Supper Toll House",
+  "Bellmarket Toll House",
+  "Paper Toll House",
+  "Gloaming Toll House",
+  "Vellum Toll House",
+  "Cairn Toll House",
+  "Saffron Toll House",
+  "Casting Toll House",
+  "Cinder Toll House",
+  "Mould Toll House",
+  "Glasscut Toll House",
+  "Lantern Toll House",
+  "The Highroad Mill",
+  "Whitecap Light",
+  "Kettle Yard Cookhouse",
+  "The Lantern Court",
+  "The Linen Exchange",
+  "The Mercy Slip",
+  "The Thumbprint Kiln",
+  "The Bell & Blanket",
+  "Spring Chandlery",
+  "The Brass Shuttle",
+  "Mossbell Pavilion",
+  "The Mould Loft",
+  "The Orrery Loft",
+  "The Rain Court",
+  "The Lock House",
+  "The Thawing Post",
+  "The Kite Loft",
+  "The Saffron Kilns",
+  "Saltwake Chandlery",
+  "The Signal Loom",
+  "The Oar House",
+  "Penny Reach School",
+  "Ada's Chart Office",
+  "The Sounding Office",
+  "The Still Belfry",
+  "The Pump Guild",
+  "The Common Table",
+  "Swallow Pump House",
+  "The Twin Intake",
+  "The Vellum Exchange",
+  "The Public Weigh House",
+  "The Wick House",
+  "The Pilot's Table",
+  "The Tide Chapel",
+  "The Last Lamp",
+  "Lockside Exchange"
+ ]
+}

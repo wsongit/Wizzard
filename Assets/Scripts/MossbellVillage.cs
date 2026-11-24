@@ -58,9 +58,10 @@ namespace Wizzard
         Color meadowHorizon;
         bool inside, busy;
         float cooldown;
-        public void Initialize(GorillaPlayer rig,GameObject world)
+        BellwakeHouses houses;
+        public void Initialize(GorillaPlayer rig,GameObject world,BellwakeHouses visits=null)
         {
-            player=rig; meadow=world;
+            player=rig; meadow=world; houses=visits;
             view=player.head.GetComponent<Camera>();previousClear=view.clearFlags;
             previousSky=RenderSettings.skybox;previousFog=RenderSettings.fogColor;
             daylight=GetComponent<BellwakeDaylight>();
@@ -91,7 +92,7 @@ namespace Wizzard
         }
         void Update()
         {
-            if(player==null) return;
+            if(player==null || (houses != null && houses.Inside)) return;
             if(ReviewActive && XRSettings.isDeviceActive) EndReview();
             if(busy || Time.unscaledTime<cooldown) return;
             if(!XRSettings.isDeviceActive && Keyboard.current!=null && Keyboard.current.f8Key.wasPressedThisFrame)
@@ -157,6 +158,8 @@ namespace Wizzard
             {
                 village.SetActive(true); meadow.SetActive(false);
                 Vector3 direction=arrival-exit;direction.y=0;
+                Vector3 east=boundaryEast-arrival;east.y=0;
+                houses?.BindVillage(village.transform,arrival,east.normalized,direction.normalized);
                 player.Teleport(arrival,Quaternion.LookRotation(direction));
             }
             else
@@ -262,7 +265,7 @@ namespace Wizzard
         }
         void ReleaseInterior()
         {
-            if(village!=null) { village.SetActive(false); Destroy(village); village=null; }
+            if(village!=null) { houses?.ClearVillage(village.transform); village.SetActive(false); Destroy(village); village=null; }
             foreach(var mesh in colliders) Destroy(mesh);
             colliders.Clear();
             paints.Clear();

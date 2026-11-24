@@ -9,6 +9,7 @@ import { Passage } from "./passage.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { HeadsetFrameReport } from "./frame_report.js";
 import { PilotFlight } from "./pilots.js";
+import { HouseVisits, houseSpawn } from "./houses.js";
 import { TrackedRunner } from "./vr.js";
 import { loadCollision, separateBody } from "./collision.js";
 import { gunzipSync } from "three/examples/jsm/libs/fflate.module.js";
@@ -295,7 +296,52 @@ function bytes(encoded) {
   for (let i = 0; i < b.length; i++) array[i] = b.charCodeAt(i);
   return array.buffer;
 }
+const houses = new HouseVisits(data,scene);
+let houseNotice=null, houseTarget=null, houseReturn=null, handoffSpawn=null, streetTree=null;
+function refreshHouseTarget(){
+  if(!started || busy || book || dialogueShade.visible || (vr.session && vr.guard.visible))return null;
+  const eye=vr.session?vr.head:camera.position;
+  const facing=vr.session?vr.direction:camera.getWorldDirection(forward);
+  const target=houses.target(eye,facing,tree);
+  if(target && !walking && !visiting && focus && nodes[focus]){
+    const aim=nodes[focus].position.clone().sub(eye);
+    if(aim.length()<4.1 && aim.normalize().dot(facing)>.97 && aim.dot(facing)>target.p.clone().sub(eye).normalize().dot(facing))return null;
+  }
+  return target;
+}
+function housePrompt(){
+  houseTarget=refreshHouseTarget();
+  if(houseNotice!==houseTarget)houseNotice=null;
+  if(!houseTarget)return false;
+  const hint=houseNotice?"E / trigger · Close":"E / trigger · "+(houseTarget.openSpace?"Read sign":"Open door");
+  $("prompt").hidden=false;
+  if($("prompt").textContent!==hint)$("prompt").textContent=hint;
+  if(vr.session)vr.caption(houseNotice?houseNotice.name:houseTarget.openSpace?"Signboard":"Doorway",houseNotice?houseNotice.lore:hint);
+  return true;
+}
+async function visitHouse(d){
+  if(d.openSpace){houseNotice=houseNotice===d?null:d;if(houseNotice)say(d.name,d.lore,14);else $("speech").hidden=true;return;}
+  busy=true;$("veil").style.opacity=1;
+  const feet=(vr.session?vr.body.start:capsule.start).clone();feet.y-=vr.session ? .23 : .26;
+  try{
+    await loadingFrame();await houses.enter(d);
+    houseReturn={feet,yaw,pitch,title:$("location").textContent,journalHidden:$("journal").hidden};
+    $("journal").hidden=true;
+    streetTree=tree;tree=houses.collision;group.visible=false;sky.visible=false;
+    $("location").textContent=d.name||"A private house";$("speech").hidden=true;$("clock").hidden=true;
+    focus="";houseTarget=null;resetFeet();yaw=0;updateCamera();
+  }catch(e){say("Doorway","The room could not be loaded. Use the door to try again.",8);console.warn(e);}
+  finally{busy=false;$("veil").style.opacity=0;}
+}
+function exitHouse(){
+  const back=houseReturn;houses.leave();tree=streetTree;streetTree=null;group.visible=true;sky.visible=true;
+  handoffSpawn=back.feet;resetFeet();yaw=back.yaw;pitch=back.pitch;updateCamera();
+  if(!vr.session)handoffSpawn=null;
+  $("journal").hidden=back.journalHidden;$("location").textContent=back.title;$("speech").hidden=true;houseReturn=null;focus="";houseTarget=null;
+}
 function arrival() {
+  if(houses.active)return houseSpawn;
+  if(handoffSpawn)return handoffSpawn;
   if (walking || visiting) return nodes.Spawn.position;
   const camp = works.active && works.progress.camp;
   return (camp && camp.startsWith("Rest") && nodes[camp]?.position) || nodes.Spawn?.position;
@@ -454,6 +500,8 @@ function loadingFrame() {
 }
 async function room() {
   try {
+    if(houses.active)exitHouse();
+    handoffSpawn=null;houseTarget=null;
     walking=!visiting && (outing || Boolean(lastDistrict && lastDistrict!==locationKey()));
     nearDoor=""; roadDoors=[];
     $("journal").hidden=walking || Boolean(visiting);
@@ -564,6 +612,7 @@ async function loadRoom() {
   grove.update(nodes.Spawn.position);
   nodes.C_Solids.visible = false;
   scene.add(group);
+  await houses.district(key);
   if (!walking && !visiting && works.active && works.room.early) {
     const body = new T.Group();
     group.add(body);
@@ -839,6 +888,16 @@ function welcome() {
   else say(locationName(), objective(), 8);
 }
 async function interact(id, palm = -1) {
+  if(started && !busy && !book && palm<0 && id!=="Toll" && (!vr.session || !vr.guard.visible)){
+    if(houses.active){
+      if(houses.reading){houses.reading=false;$("speech").hidden=true;return;}
+      const hit=houses.indoorTarget(vr.session?vr.head:camera.position,vr.session?vr.direction:camera.getWorldDirection(forward));
+      if(hit==="exit")exitHouse();
+      if(hit==="note"){houses.reading=true;say(houses.active.objectName,houses.active.lore,Infinity);}
+      return;
+    }
+    const door=refreshHouseTarget();if(door){await visitHouse(door);return;}
+  }
   if (walking || visiting) {
     if (!started || busy || (vr.session && (!vr.ready || vr.guard.visible)) || !nearDoor) return;
     if (visiting) {
@@ -1350,6 +1409,7 @@ function addBookPrint(key, caption, alt) {
   illustratedPages[leaves.children.length] = print;
 }
 function toggleBook(open) {
+  if(houses.active)return;
   if (dialogueShade.visible) endDialogue();
   if (!started || busy || walking || visiting) return;
   book = open;
@@ -1470,7 +1530,7 @@ addEventListener("keydown", (e) => {
   if (dialogueShade.visible) { if (e.code==="KeyE" || e.code==="Escape") endDialogue(); return; }
   if (book || busy) return;
   keys.add(e.code);
-  if (e.code === "KeyQ") callGuide();
+  if (e.code === "KeyQ" && !houses.active) callGuide();
   if (e.code === "KeyE") interact(focus);
   if (e.code === "Space" && onFloor) {
     vy = 4.5;
@@ -1559,7 +1619,7 @@ function loop(time, frame) {
     return;
   }
   if (!group) return;
-  if (started && !document.hidden) {
+  if (started && !document.hidden && !houses.active) {
     minutes=(minutes+delta*1.5)%1440;
     lightInterval+=delta;
     if(lightInterval>=.25){daylight.apply(minutes);lightInterval=0;}
@@ -1570,7 +1630,16 @@ function loop(time, frame) {
     }
     marketAnimation?.update(delta,daylight.night.value,vr.session ? vr.head : camera.position,muted);
   }
-  if (vr.session) vr.update(frame, delta, book || dialogueShade.visible, dialogueShade.visible);
+  if (vr.session) vr.update(frame, delta, book || dialogueShade.visible || houses.reading, dialogueShade.visible);
+  if(handoffSpawn && !vr.pending)handoffSpawn=null;
+  if(houses.active){
+    if(!vr.session && !houses.reading){const n=Math.max(1,Math.ceil(delta/.016));for(let i=0;i<n;i++)move(delta/n);}
+    const at=houses.indoorTarget(vr.session?vr.head:camera.position,vr.session?vr.direction:camera.getWorldDirection(forward));
+    const d=houses.active,caption=houses.reading?d.lore:at==="exit"?"E / trigger · Go outside":at==="note"?"E / trigger · Read the record":"";
+    $("prompt").textContent=houses.reading?"E / trigger · Close":caption;$("prompt").hidden=!caption;
+    if(vr.session)vr.caption(houses.reading?d.objectName:d.name||"A private house",caption);
+    renderer.render(scene,camera);return;
+  }
   if (walking || visiting) {
     if (visiting && grove.cells.length) grove.update(vr.session ? vr.head : camera.position);
     if (started) {
@@ -1579,20 +1648,20 @@ function loop(time, frame) {
         for (let i=0;i<sub;i++) move(delta/sub);
       }
       const feet=vr.session ? vr.body.start : capsule.start;
+      const atDoor=housePrompt();
       if (visiting) {
         const distance=Math.hypot(visitExit.x-feet.x,visitExit.z-feet.z);
         nearDoor=distance<=2.6 && Math.abs(visitExit.y-feet.y)<2 ? visiting : "";
         const hint=nearDoor ? "E / trigger · Return to the highroad" : "Highroad entrance · "+Math.ceil(visitExit.distanceTo(feet))+" m";
-        $("prompt").textContent=hint; $("prompt").hidden=false;
-        if(vr.session) vr.caption(places.get(visiting).title,hint);
+        if(!atDoor){$("prompt").textContent=hint; $("prompt").hidden=false;
+          if(vr.session) vr.caption(places.get(visiting).title,hint); }
       } else {
         nearDoor=roadDoors.find(([,p])=>Math.hypot(p.x-feet.x,p.z-feet.z)<2.6 && Math.abs(p.y-feet.y)<2)?.[0] || "";
         const dx=roadGoal.x-feet.x, dz=roadGoal.z-feet.z, distance=Math.hypot(dx,dz);
         let compass=["N","NE","E","SE","S","SW","W","NW"][(8+Math.round(Math.atan2(dx,-dz)/(Math.PI/4)))%8];
         const hint=nearDoor ? "E / trigger · Enter "+places.get(nearDoor).title : locationName()+"   ·   "+Math.ceil(distance)+" m "+compass+"   ·   Gold marker";
-        $("prompt").textContent=hint;
-        $("prompt").hidden=false;
-        if (vr.session) vr.caption("Bellwake Highroad",hint);
+        if(!atDoor){$("prompt").textContent=hint; $("prompt").hidden=false;
+          if (vr.session) vr.caption("Bellwake Highroad",hint); }
         if ((!vr.session || (vr.ready && !vr.pending)) && !busy) {
           if (!outing && distance<1.35 && Math.abs(feet.y-roadGoal.y)<2 && (!vr.session || !vr.guard.visible)) {
             lastDistrict=locationKey();
@@ -1708,7 +1777,8 @@ function loop(time, frame) {
       0.032 * Math.sin(time * 0.0016) + amount * (0.28 + 0.085 * Math.sin(time * 0.005));
   }
   if (nodes.Familiar) nodes.Familiar.rotation.y = Math.sin(time * 0.00085) * 0.14;
-  if (vr.session) {
+  const atDoor=housePrompt();
+  if (vr.session && !atDoor) {
     const text = book
       ? journalText[journalPage]
       : observation?.call ? listeningHint()
@@ -1774,7 +1844,7 @@ if (__TEST__)
     secondsByPlace: { ...secondsByPlace },
     room: state().room,
     district: visiting || (walking ? "Highroad" : locationKey()),
-    visiting, nearDoor,
+    visiting, nearDoor, house:houses.active?.name, insideHouse:!!houses.active, houseReading:houses.reading, houseTarget:houseTarget?.name,
     road:walking ? {to:locationKey(), from:lastDistrict, target:roadGoal?.toArray()} : null,
     dialogue: dialogueShade.visible,
     roadBook: !!nodes.RoadBook?.visible,
@@ -1845,6 +1915,9 @@ if (__TEST__)
     journalCaption: book ? journalText[journalPage] : "",
   });
 if (__TEST__) {
+  window.bellTestHighroad = async () => { lastDistrict=locationKey(); visiting=null; outing=true; await room(); };
+  window.bellDoors = () => houses.addresses.map(d=>({point:d.point,normal:d.normal,name:d.name,openSpace:d.openSpace}));
+  window.bellGround = (x,y,z) => roadFoot(x,y,z,1.6,5);
   window.bellSetClock = t => {minutes=t;daylight.apply(minutes);};
   window.bellStand = (feet, facing, tilt) => {
     capsule.start.set(...feet).y+=.26; capsule.end.set(...feet).y+=1.4;

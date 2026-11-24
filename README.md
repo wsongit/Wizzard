@@ -8,6 +8,8 @@ An original, N64-inspired adventure for standalone Meta Quest and desktop. Tavi 
 
 **Ready-to-install Quest Browser edition.** Sideload `Play/Wizzard-Bellwake-WebXR.apk`, open **Wizzard Bellwake** from Unknown Sources and choose **Enter VR** in Meta Quest Browser. The APK carries the whole browser game and serves each district from the headset. It shares its package ID, signing certificate and save origin with the previous WebXR release. [Download the WebXR APK](https://github.com/wsongit/Wizzard/raw/refs/heads/main/Play/Wizzard-Bellwake-WebXR.apk)
 
+In Bellmarket, look for **The First Loaf** above the bakery door. Look at the door and press **E** or a **controller trigger** to step inside. Shops and public buildings have cursive signs. Private front doors are unsigned. [Visit the bakery in three gameplay screenshots](Documentation/Bellwake/guide.md#visiting-houses)
+
 Explore the painted shop windows, new workshop stock and sculpted village cast. [Ten gameplay screenshots](Documentation/Bellwake/workshop-gameplay.zip) · [Preview the pictures](Documentation/Bellwake/workshop-gameplay.jpg) · [Where to find each detail](Documentation/Bellwake/workshops.md)
 
 Bellmarket’s windmill overlooks the north steps. The windows light up at night, Moss waits beneath the living arch, and Fen’s paddle wheel turns when you open its channel. [See the updated village, keepers and mill](Documentation/Bellwake/bellwake-valley.jpg)
@@ -130,7 +132,7 @@ cooldown avoid immediately entering the return gate.
 
 Mossbell has its own take on a terraced N64-era village: six varied plaster-and-timber workshops, red and slate roofs, an open three-bell pavilion on the upper hill, and a covered twin spring beside the court. Seven green tree shapes, planters, a potter's handcart, fences and small brown birds complete the setting. The artwork and landmark designs are original; no Nintendo assets or reference-image pixels are included.
 
-Source: `Blender/MossbellVillage.blend`. Export: `Assets/Resources/Village/Mossbell.obj` and `.mtl`. The source keeps editable named objects and packed textures; export copies are batched by material. Cottages have sealed walls and attics, thick roofs with finished undersides, detailed rear/side elevations and grounded stone footings. Their interiors are solid; props are static. Original 64×64 tiles provide separate grass, dirt, natural rock, stonework, plaster, timber, roof, foliage, cloth, brass and water materials. Bilinear filtering and mipmaps preserve the texture at headset distances.
+Source: `Blender/MossbellVillage.blend`. Export: `Assets/Resources/Village/Mossbell.obj` and `.mtl`. The source keeps editable named objects and packed textures; export copies are batched by material. Cottages have sealed walls and attics, thick roofs with finished undersides, detailed rear/side elevations and grounded stone footings. Look at a doorstep and press E or a controller trigger to enter. The same control opens the household record and takes you back outside at the front door. Stores and public halls have hand-lettered cursive nameboards. Original 64×64 tiles provide separate grass, dirt, natural rock, stonework, plaster, timber, roof, foliage, cloth, brass and water materials. Bilinear filtering and mipmaps preserve the texture at headset distances.
 
 ![Rebuilt village entrance — actual Blender render](Documentation/mossbell-street.png)
 

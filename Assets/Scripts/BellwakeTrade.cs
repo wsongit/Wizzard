@@ -20,6 +20,7 @@ namespace Wizzard
         GameObject stall, foe;
         readonly GameObject[] held=new GameObject[4];
         TextMesh board;
+        Action<Transform,string> paintStallSign;
         MeshCollider land;
         Vector3 burrow, lastHand;
         int district, shelf, life;
@@ -28,9 +29,9 @@ namespace Wizzard
         Quaternion shieldRest, creatureRest;
         Transform creaturePart;
         public void Initialize(GorillaPlayer rig, BellwakeSatchel contents, Action write,
-            Action<string,string> message, Action<TextMesh> faceLabel, Action<int> showReceipt)
+            Action<string,string> message, Action<TextMesh> faceLabel, Action<int> showReceipt, Action<Transform,string> stallSign)
         {
-            player=rig;bag=contents;save=write;say=message;face=faceLabel;receipt=showReceipt;
+            player=rig;bag=contents;save=write;say=message;face=faceLabel;receipt=showReceipt;paintStallSign=stallSign;
             for(int i=0;i<held.Length;i++)
             {
                 held[i]=BellwakeModels.Wayfarer(Models[i],i==1?rig.leftHand:rig.rightHand);
@@ -77,6 +78,7 @@ namespace Wizzard
                 stall=BellwakeModels.Wayfarer("Waystall",world.transform);
                 stall.transform.position=site;
                 stall.transform.rotation=Quaternion.LookRotation(Vector3.ProjectOnPlane(arrival-site,Vector3.up));
+                paintStallSign(stall.transform,room=="Bellmarket"?"Tavi’s Provisions":"Lockside Exchange");
                 avoid.Add(site);
                 var blocker=stall.AddComponent<BoxCollider>();
                 blocker.center=new Vector3(0,.41f,0);blocker.size=new Vector3(2.05f,.82f,1.03f);
@@ -93,7 +95,7 @@ namespace Wizzard
                     prop.position+=Vector3.up*(site.y+.82f-bottom);
                 }
                 board=label(stall.transform,""); board.transform.position=site+Vector3.up*1.36f;
-                board.gameObject.SetActive(true);UpdateBoard(false);
+                UpdateBoard(false);
             }
             if((bag.cleared&(1<<district))!=0 || !FindSite(arrival,avoid,.52f,8,out burrow))return;
             foe=BellwakeModels.Wayfarer(district%2==0?"RillBeetle":"MireSkipper",world.transform);
@@ -138,8 +140,9 @@ namespace Wizzard
         static readonly int[] Signs={-1,1};
         void UpdateBoard(bool near)
         {
-            board.text=near?BellwakeSatchel.Goods[shelf]+"   "+BellwakeSatchel.Prices[shelf]+" marks\nY / R: browse    B / F: buy\nPurse: "+bag.coins:
-                (district==0?"Tavi’s provisions":"Lockside exchange");
+            board.gameObject.SetActive(near);
+            if (near)
+                board.text=BellwakeSatchel.Goods[shelf]+"   "+BellwakeSatchel.Prices[shelf]+" marks\nY / R: browse    B / F: buy\nPurse: "+bag.coins;
         }
         static bool Down(XRNode hand,InputFeatureUsage<bool> control)
         {

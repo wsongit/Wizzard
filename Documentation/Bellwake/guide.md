@@ -218,3 +218,16 @@ You can recover the metal pieces in any order. At the school, read the names beh
 Bess built a barge that carried thirty people the night the village flooded. The ledger lists twenty-nine fares. The surviving passengers take you from the Mercy Slip to Wickwater Fen, the Linen Courts, Kite Crag, Sounding Bay and the Supper Steps. Each landing has a different piece of physical evidence, from Dot’s mark on a timber to the crescent an oven brick left on Nan’s bread.
 
 Open the witness book with **J** or **A/X** to see the numbered chart. Call the brass waywren with **Q** or the left grip for the next stretch. The work yards save progress as you go. At the final desk, turn the press until the die matches what the witness showed you. The desk beside it lets you credit a second account. Signing either one seals the page. Ring the paired bells to reach the onward passage. Reopen the witness book after the ending to read the reply to each signature. [Six exhibits photographed in the game](mercy-run.jpg)
+
+
+## Visiting houses
+
+Stand outside a front door, look at it and press **E** on desktop or a **controller trigger** in VR. Use the same control on the inside of the street door to return to your doorstep. Public halls that you can already walk into have a sign you can inspect at the entrance.
+
+![The First Loaf in Bellmarket, with the bakery’s cursive sign above its front door](doors/bakery-sign.jpg)
+
+The bakery has a stone oven. Wrenfall’s tide chapel keeps votives, and the school at Penny Reach has slate desks. Inside, look for the open book and inkwell. Reading a record is optional. One baker’s tally remembers how the village told time before there were mileposts.
+
+![The oven and worktable inside The First Loaf](doors/bakery-interior.jpg)
+
+![Examining the bread tally in the bakery](doors/bread-tally.jpg)

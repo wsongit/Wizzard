@@ -60,7 +60,13 @@ subprocess.run(
     check=True,
 )
 
+house_dir = root / "Assets/Resources/Bellwake/Houses"
+addresses = json.loads((house_dir / "Addresses.json").read_text())
+layouts = sorted({d["layout"] for area in addresses["districts"] for d in area["doors"]})
 data = dict(
+    houses=addresses,
+    houseImages={k: asset(house_dir / filename) for k, filename in [("room","RoomPaint.png"),("signs","HouseSigns.png")]},
+    houseRooms={k: asset(house_dir / (k+".json")) for k in layouts},
     groundPrints=json.loads((root / "Assets/Resources/Bellwake/GroundPrints.json").read_text()),
     groundBrush=asset(paint_dir / "GroundBrush.png"),
     paints={name: asset(paint_dir / (name + ".png"), payload) for name, payload in paintings.items()},

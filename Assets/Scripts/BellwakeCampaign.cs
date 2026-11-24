@@ -99,6 +99,7 @@ namespace Wizzard
             ? story.works.Signal("paperCredit")>0 ? "Take the printed programme back to Tavi." : "Visit the blue playhouse door beside Tavi’s market stall."
             : InWorks ? story.works.Objective() : InPassage ? Route.Objective() : story.Objective();
         BellwakeDisplay display;
+        BellwakeHouses houses;
         GorillaPlayer player;
         GameObject set, meadow, sign;
         MossbellVillage village;
@@ -153,6 +154,7 @@ namespace Wizzard
             player = rig;
             cam = rig.head.GetComponent<Camera>();
             display = new BellwakeDisplay(rig.head);
+            houses = new BellwakeHouses(rig, display);
             story = BellwakeCheckpoint.Read(SaveKey, out savedCheckpoint);
             atlas = JsonUtility.FromJson<PassageAtlas>(Resources.Load<TextAsset>(Path + "Passages").text);
             worksPlan=JsonUtility.FromJson<WorksPlan>(Resources.Load<TextAsset>(Path+"Underworks").text);
@@ -185,7 +187,7 @@ namespace Wizzard
             curtainRenderer.enabled = false;
             vitals=new BellwakeVitals(rig.head);
             trade=gameObject.AddComponent<BellwakeTrade>();
-            trade.Initialize(rig,story.satchel,Save,(title,text)=>Say(title,text,5),display.Face,ShowPurchase);
+            trade.Initialize(rig,story.satchel,Save,(title,text)=>Say(title,text,5),display.Face,ShowPurchase,houses.StallSign);
             daylight=gameObject.AddComponent<BellwakeDaylight>();
             daylight.Bind(story.satchel);
             StartCoroutine(EnterRoom());
@@ -282,6 +284,7 @@ namespace Wizzard
         }
         IEnumerator ReleaseArea(string nextMusic=null)
         {
+            houses.Clear();
             trade.enabled = true;
             trade.Leave();
             CancelRehearsal();
@@ -360,7 +363,7 @@ namespace Wizzard
                 if(!part.TryGetComponent<MeshCollider>(out var collider))
                     part.gameObject.AddComponent<MeshCollider>().sharedMesh=part.GetComponent<MeshFilter>().sharedMesh;
             }
-            PrepareMovingScenery();
+            PrepareMovingScenery(key);
             yield return panorama;
             ApplyLook((Cubemap)panorama.asset);
             if(song!=null)
@@ -433,6 +436,7 @@ namespace Wizzard
                         var distance = Mathf.Sqrt(offset.x*offset.x + offset.z*offset.z);
                         bool atDoor = distance < 2.6f && Mathf.Abs(offset.y) < 2f;
                         bool useDoor=RoadUse();
+                        if (VisitDoor(useDoor)) { yield return null; continue; }
                         if(atDoor && useDoor) break;
                         if(Time.unscaledTime>=nextHint)
                         {
@@ -494,13 +498,14 @@ namespace Wizzard
                 while(true)
                 {
                     CountPlayFrame(ref story.highroadSeconds);
+                    bool action=RoadUse();
+                    if (VisitDoor(action)) { yield return null; continue; }
                     var position=player.head.position;
                     position.y=player.transform.position.y;
                     var offset=target.position-position;
                     float height=Mathf.Abs(offset.y);
                     offset.y=0;
                     if(offset.sqrMagnitude<1.35f*1.35f && height<2f && !player.HeadObstructed) break;
-                    bool action=RoadUse();
                     string nearest=null;
                     foreach (var gate in sideGates)
                     {
@@ -644,7 +649,7 @@ namespace Wizzard
                         }
                     }
                 }
-                PrepareMovingScenery();
+                PrepareMovingScenery(key);
                 foreach (var pair in nodes)
                 {
                     if (!pair.Key.StartsWith("GroveNear")) continue;
@@ -823,8 +828,9 @@ namespace Wizzard
             return !string.IsNullOrEmpty(camp) && camp.StartsWith("Rest") && nodes.TryGetValue(camp,out var at)
                 ? at.position : nodes["Spawn"].position;
         }
-        void PrepareMovingScenery()
+        void PrepareMovingScenery(string key)
         {
+            houses.Bind(key, nodes, set.transform);
             if (nodes.TryGetValue("MillWheel",out var wheel))
                 wheel.gameObject.AddComponent<BellwakeWaterwheel>().Initialize(nodes["WheelAxle"].position-wheel.position,story);
             if (nodes.ContainsKey("MillSails"))
@@ -1003,6 +1009,14 @@ namespace Wizzard
             if (Application.isFocused && !journalOpen && story.ending == 0 && delta > 0 && delta < 1)
                 seconds += delta;
         }
+        bool VisitDoor(bool action, Transform storyTarget = null)
+        {
+            bool wasInside = houses.Inside;
+            bool handled = houses.Tick(action && !player.HeadObstructed, storyTarget);
+            if (wasInside != houses.Inside) trade.enabled = !houses.Inside;
+            if (handled) lastHint = null;
+            return handled;
+        }
         void Update()
         {
             if (player == null || loading || checkingTravel || (player.MovementLocked && !speaking))
@@ -1032,6 +1046,7 @@ namespace Wizzard
                 action = false;
                 call = false;
             }
+            if ((houses.Inside || outdoors) && VisitDoor(action)) return;
             if (outdoors)
             {
                 if (sign == null || !sign.activeInHierarchy ||
@@ -1104,6 +1119,9 @@ namespace Wizzard
             if (guide != null) { if (call) CallGuide(); FlyGuide(); }
             else if (call && InWorks && story.works.Room.key=="DriftFen") SoundFork();
             FindFocus();
+            Transform storyTarget = null;
+            if (focus != null) nodes.TryGetValue(focus, out storyTarget);
+            if (VisitDoor(action, storyTarget)) return;
             if (call && InWorks && story.works.Room.key=="GlassRookery")
             {
                 forkRang=Time.unscaledTime;
@@ -1878,7 +1896,7 @@ namespace Wizzard
                 var terrain = meadow.AddComponent<MeadowWorld>();
                 terrain.Initialize(player);
                 village = gameObject.AddComponent<MossbellVillage>();
-                village.Initialize(player, meadow);
+                village.Initialize(player, meadow, houses);
                 var signRequest = Resources.LoadAsync<GameObject>(Path + "Rooms/TrailSign");
                 yield return signRequest;
                 var signModel = (GameObject)signRequest.asset;
@@ -1984,6 +2002,7 @@ namespace Wizzard
         }
         void OnDestroy()
         {
+            houses?.Clear();
             if (set != null)
                 Destroy(set);
             if (meadow != null) Destroy(meadow);

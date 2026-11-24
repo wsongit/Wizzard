@@ -53,6 +53,15 @@ namespace Wizzard.Editor
                 sky.filterMode = FilterMode.Bilinear;
                 return;
             }
+            if (assetPath.StartsWith("Assets/Resources/Bellwake/Houses/"))
+            {
+                var atlas = (TextureImporter)assetImporter;
+                atlas.wrapMode = TextureWrapMode.Clamp;
+                atlas.mipmapEnabled = true;
+                atlas.filterMode = FilterMode.Trilinear;
+                atlas.maxTextureSize = 2048;
+                return;
+            }
             if (assetPath.StartsWith("Assets/Resources/Bellwake/Letters/"))
             {
                 var page = (TextureImporter)assetImporter;
